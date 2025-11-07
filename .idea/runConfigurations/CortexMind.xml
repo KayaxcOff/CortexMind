@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="CortexMind" type="CMakeRunConfiguration" factoryName="Application" singleton="false" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="true" WORKING_DIR="file://$PROJECT_DIR$/build/Debug" PASS_PARENT_ENVS_2="true" PROJECT_NAME="CortexMind" TARGET_NAME="CortexMind" CONFIG_NAME="Debug-Visual Studio" RUN_TARGET_PROJECT_NAME="CortexMind" RUN_TARGET_NAME="MindTest">
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>
