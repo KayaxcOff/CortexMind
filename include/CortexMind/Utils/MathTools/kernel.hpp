@@ -11,11 +11,11 @@
 namespace cortex::tools {
     class MindKernel {
     public:
-        explicit MindKernel(const std::vector<std::vector<float32>>& kernel) {
+        explicit MindKernel(const std::vector<std::vector<float64>>& kernel) {
             this->kernelMatrix = kernel;
         }
 
-        [[nodiscard]] std::vector<std::vector<float32>> apply(const std::vector<std::vector<float32>>& input) const {
+        [[nodiscard]] std::vector<std::vector<float64>> apply(const std::vector<std::vector<float64>>& input) const {
             if (input.empty() || input[0].empty()) return {};
 
             const auto rows = static_cast<int32>(input.size());
@@ -25,7 +25,7 @@ namespace cortex::tools {
             const auto kCenterX = kCols / 2;
             const auto kCenterY = kRows / 2;
 
-            std::vector output(rows, std::vector<float32>(cols, 0));
+            std::vector output(rows, std::vector<float64>(cols, 0));
 
             for (int32 i = 0; i < rows; ++i) {
                 for (int32 j = 0; j < cols; ++j) {
@@ -46,7 +46,7 @@ namespace cortex::tools {
         }
 
     private:
-        std::vector<std::vector<float32>> kernelMatrix;
+        std::vector<std::vector<float64>> kernelMatrix;
     };
 }
 
