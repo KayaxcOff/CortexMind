@@ -21,6 +21,7 @@ namespace cortex::nn {
         [[nodiscard]] tensor getGrads() const override;
     private:
         std::vector<tensor> weights;
+        std::vector<tensor> biases;
         std::vector<tensor> gradWeights;
         tensor gradBiases;
         tensor outputGrad;
