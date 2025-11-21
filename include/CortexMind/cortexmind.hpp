@@ -5,18 +5,18 @@
 #ifndef CORTEXMIND_CORTEXMIND_HPP
 #define CORTEXMIND_CORTEXMIND_HPP
 
-#include <Mind/Model/model.hpp>
-#include <Mind/Model/sequential.hpp>
-#include <Mind/NeuralNetwork/conv.hpp>
-#include <Mind/NeuralNetwork/dense.hpp>
-#include <Mind/NeuralNetwork/batch_norm.hpp>
+#include <CortexMind/Mind/Model/model.hpp>
+#include <CortexMind/Mind/Model/sequential.hpp>
+#include <CortexMind/Mind/NeuralNetwork/conv.hpp>
+#include <CortexMind/Mind/NeuralNetwork/dense.hpp>
+#include <CortexMind/Mind/NeuralNetwork/batch_norm.hpp>
 
-#include <Utils/log.hpp>
-#include <Utils/params.hpp>
-#include <Utils/MathTools/random.hpp>
+#include <CortexMind/Utils/log.hpp>
+#include <CortexMind/Utils/params.hpp>
+#include <CortexMind/Utils/MathTools/random.hpp>
 
-#include <DataPrep/data.hpp>
-#include <DataPrep/image_data.hpp>
-#include <DataPrep/tokenizer.hpp>
+#include <CortexMind/DataPrep/data.hpp>
+#include <CortexMind/DataPrep/image_data.hpp>
+#include <CortexMind/DataPrep/tokenizer.hpp>
 
 #endif //CORTEXMIND_CORTEXMIND_HPP
