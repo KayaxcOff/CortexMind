@@ -19,6 +19,7 @@ namespace cortex::nn {
 
         [[nodiscard]] tensor getParams() const override;
         [[nodiscard]] tensor getGrads() const override;
+        [[nodiscard]] std::string get_config() const override;
     private:
         std::vector<tensor> weights;
         std::vector<tensor> biases;

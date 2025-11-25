@@ -8,74 +8,126 @@
 
 using namespace cortex::nn;
 
-Dense::Dense(const size in, const size out) : weights(in, std::vector<float32>(out, 0.0f)), biases(out, 0.0f), gradWeights(in, std::vector<float32>(out, 0.0f)), gradBiases(out, 0.0f), outputGrad(), lastInput() {
-    this->weights = {random_weights(in, out)};
+Dense::Dense(const size in, const size out) {
+    this->weights.emplace_back(in, out);
+    this->gradWeights.emplace_back(in, out);
+
+    this->biases.emplace_back(1, out);
+    this->gradBiases = tensor(1, out);
+
+    auto& w = this->weights[0];
+    auto& b = this->biases[0];
+
+    for (size i = 0; i < in; i++) {
+        for (size j = 0; j < out; j++) {
+            w(i, j) = random_weights(0.1f, 1.0f);
+        }
+    }
+
+    for (size i = 0; i < out; i++) {
+        b[0][i] = random_weights(0.1f, 1.0f);
+    }
 }
 
 Dense::~Dense() = default;
 
 cortex::tensor Dense::forward(const tensor &input) {
-    if (input.get_cols() <= 0 || input.get_rows() <= 0) {
-        throw std::invalid_argument("Input tensor is empty.");
-        return tensor{{}, {}};
+    if (input.get_cols() == 0 || input.get_rows() == 0) {
+        throw std::runtime_error("Input tensor has invalid dimensions.");
     }
 
+    const size in = this->weights[0].get_rows();
+    const size out = this->weights[0].get_cols();
     const size batch = input.get_cols();
-    const size in = input[0].size();
-    const size out = this->biases.size();
 
-    if (in != this->weights.size() || out != this->weights[0].size()) {
-        throw std::invalid_argument("Input tensor size does not match layer configuration.");
-        return tensor{{}, {}};
+    if (input.get_rows() != in) {
+        throw std::runtime_error("Input tensor has incompatible dimensions.");
     }
 
-    cortex::tensor output(batch, std::vector<float32>(out_features, 0.0f));
+    tensor output(out, batch);
     this->lastInput = input;
 
-    for (size i=0; i < batch; ++i) {
-        for (size j=0; j < out; ++j) {
-            float32 sum = this->biases[j];
-            for (size k=0; k < in; ++k) {
-                sum += input[k][i] * this->weights[k][j];
+    for (size i = 0; i <out ; ++i) {
+        for (size j = 0; j < batch; ++j) {
+            float64 sum = this->biases[0](0, i);
+            for (size k = 0; k < in; ++k) {
+                sum += input(k, j) * this->weights[0](k, i);
             }
-            output[j][i] = sum;
+            output(i, j) = sum;
         }
     }
     return output;
 }
 
-cortex::tensor Dense::backward(const tensor &grad_output) {
+cortex::tensor Dense::backward(tensor &grad_output) {
+    const size in = this->weights[0].get_rows();
+    const size out = this->weights[0].get_cols();
     const size batch = grad_output.get_cols();
-    const size in = this->weights.size();
-    const size out = this->weights[0].size();
 
     this->outputGrad = grad_output;
-    cortex::tensor grad_input(in, std::vector<float32>(batch, 0.0f));
 
-    for (size i=0; i < batch; ++i) {
-        for (size j=0; j < in; ++j) {
-            float32 sum = 0.0f;
-            for (size k=0; k < out; ++k) {
-                sum += grad_output[k][i] * this->weights[j][k];
-                this->gradWeights[j][k] += this->lastInput[j][i] * grad_output[k][i];
+    tensor gradOut(out, batch);
+
+    for (size i = 0; i < out; ++i) {
+        for (size j = 0; j < batch; ++j) {
+            this->gradWeights[0](i, j) = 0.0;
+        }
+    }
+
+    for (size i = 0; i < out; ++i) {
+        this->gradBiases(0, i) = 0.0;
+    }
+
+    for (size i = 0; i < batch; ++i) {
+        for (size j = 0; j < out; ++j) {
+            float64 sum = 0.0;
+            for (size k = 0; k < in; ++k) {
+                const float64 go = grad_output(j, i);
+
+                sum += go * this->weights[0](k, i);
+
+                this->gradWeights[0](i, j) += this->lastInput(k, i) * go;
+
+                this->gradBiases(0, i) += go;
             }
-            grad_input[j][i] = sum;
+            grad_output(j, i) = sum;
         }
     }
-
-    for (size k=0; k < out; ++k) {
-        for (size i=0; i < batch; ++i) {
-            this->gradBiases[k] += grad_output[k][i];
-        }
-    }
-
-    return grad_input;
+    return grad_output;
 }
 
 cortex::tensor Dense::getParams() const {
-    return this->lastInput;
+    const size in = weights[0].get_rows();
+    const size out = weights[0].get_cols();
+
+    tensor params(in + 1, out);
+
+    for (size i = 0; i < in; i++)
+        for (size j = 0; j < out; j++)
+            params(i, j) = weights[0](i, j);
+
+    for (size j = 0; j < out; j++)
+        params(in, j) = biases[0](0, j);
+
+    return params;
 }
 
 cortex::tensor Dense::getGrads() const {
-    return this->outputGrad;
+    const size in = gradWeights[0].get_rows();
+    const size out = gradWeights[0].get_cols();
+
+    tensor grads(in + 1, out);
+
+    for (size i = 0; i < in; i++)
+        for (size j = 0; j < out; j++)
+            grads(i, j) = gradWeights[0](i, j);
+
+    for (size j = 0; j < out; j++)
+        grads(in, j) = gradBiases(0, j);
+
+    return grads;
+}
+
+std::string Dense::get_config() const {
+    return "Dense Layer";
 }
