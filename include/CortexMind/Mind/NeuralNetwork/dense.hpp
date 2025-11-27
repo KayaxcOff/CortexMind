@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace cortex::nn {
-    class Dense : public Layer {
+    class Dense final : public Layer {
     public:
         Dense(size in, size out);
         ~Dense() override;
