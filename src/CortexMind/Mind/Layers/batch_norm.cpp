@@ -35,10 +35,12 @@ cortex::tensor BatchNorm::forward(const tensor &input) {
     }
 
     for (size i = 0; i < N; ++i) {
+        float64 sum = 0.0;
         for (size j = 0; j < F; ++j) {
-            this->var[i] += input(j, i);
+            const float64 val = input(j, i) - this->mean[i];
+            sum += val * val;
         }
-        this->var[i] /= static_cast<float64>(N);
+        this->var[i] = sum / static_cast<float64>(N);
     }
 
     this->x_norm = tensor(N, F);
