@@ -59,7 +59,7 @@ cortex::tensor Dense::forward(const tensor &input) {
     return output;
 }
 
-cortex::tensor Dense::backward(tensor &grad_output) {
+cortex::tensor Dense::backward(const tensor &grad_output) {
     const size in = this->weights[0].get_rows();
     const size out = this->weights[0].get_cols();
     const size batch = grad_output.get_cols();
