@@ -17,10 +17,10 @@ Conv2D::~Conv2D() {
 }
 
 cortex::tensor Conv2D::forward(const tensor &input) {
-    auto outputVec = this->mind_kernel_->apply(input.data());
+    const auto outputVec = this->mind_kernel_->apply(input.data());
 
-    size h = outputVec.size();
-    size w = outputVec[0].size();
+    const size h = outputVec.size();
+    const size w = outputVec[0].size();
 
     tensor output(h, w);
 
