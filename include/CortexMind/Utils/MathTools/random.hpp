@@ -9,15 +9,15 @@
 #include <random>
 #include <vector>
 
-inline std::vector<std::vector<cortex::float32>> random_seed() {
-    std::vector<std::vector<cortex::float32>> seed;
+inline std::vector<std::vector<cortex::float64>> random_seed() {
+    std::vector<std::vector<cortex::float64>> seed;
 
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution dis(0.1f, 1.0f);
 
     for (cortex::int32 i = 0; i < 3; ++i) {
-        std::vector<cortex::float32> row;
+        std::vector<cortex::float64> row;
         for (cortex::int32 j = 0; j < 3; ++j) {
             row.push_back(dis(gen));
         }

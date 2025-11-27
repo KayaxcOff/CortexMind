@@ -23,6 +23,9 @@ namespace cortex::nn {
         tensor weights;
         tensor biases;
 
+        tensor lastOutput;
+        tensor lastInput;
+
         std::unique_ptr<tools::MindKernel> mind_kernel_;
     };
 }
