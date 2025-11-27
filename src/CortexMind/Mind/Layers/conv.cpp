@@ -8,7 +8,7 @@
 
 using namespace cortex::nn;
 
-Conv2D::Conv2D() : weights(3, 3), biases(1, 1), mind_kernel_(nullptr), lastOutput({}, {}), lastInput({}, {}) {
+Conv2D::Conv2D() : weights(3, 3), biases(1, 1), lastOutput({}, {}), lastInput({}, {}), mind_kernel_(nullptr) {
     this->mind_kernel_ = std::make_unique<tools::MindKernel>(random_seed());
 }
 
