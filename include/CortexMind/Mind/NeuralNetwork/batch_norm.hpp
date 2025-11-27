@@ -10,7 +10,7 @@
 namespace cortex::nn {
     class BatchNorm final : public Layer {
     public:
-        BatchNorm(float64 _eps);
+        explicit BatchNorm(float64 _eps);
         ~BatchNorm() override;
 
         tensor forward(const tensor &input) override;
