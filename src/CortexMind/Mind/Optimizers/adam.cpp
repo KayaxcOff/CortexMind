@@ -22,7 +22,7 @@ void Adam::step(tensor &weights, const tensor &gradients) {
 
     ++this->t;
 
-    const float64 lt_t = this->learning_rate * std::sqrt(1.0 - std::pow(this->beta2, this->t)) / (1.0 - std::pow(this->beta1, this->t));
+    const float64 lr_t = this->learning_rate * std::sqrt(1.0 - std::pow(this->beta2, this->t)) / (1.0 - std::pow(this->beta1, this->t));
 
     for (size i = 0; i < gradients.get_rows(); ++i) {
         for (size j = 0; j < gradients.get_cols(); ++j) {
@@ -34,7 +34,7 @@ void Adam::step(tensor &weights, const tensor &gradients) {
             const float64 m_hat = this->m(i, j) / (1.0 - std::pow(this->beta1, this->t));
             const float64 v_hat = this->v(i, j) / (1.0 - std::pow(this->beta2, this->t));
 
-            weights(i, j) -= lt_t * m_hat / (std::sqrt(v_hat) + this->epsilon);
+            weights(i, j) -= lr_t * m_hat / (std::sqrt(v_hat) + this->epsilon);
         }
     }
 }
