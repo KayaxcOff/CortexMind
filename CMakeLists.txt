@@ -16,6 +16,7 @@ add_library(CortexMind STATIC
         src/CortexMind/DataPrep/image_data.cpp
         src/CortexMind/DataPrep/data.cpp
         src/CortexMind/Mind/Layers/batch_norm.cpp
+        src/CortexMind/Mind/Activation/tanh.cpp
 )
 
 target_include_directories(CortexMind PUBLIC

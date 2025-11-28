@@ -15,6 +15,8 @@ namespace cortex::act {
 
         tensor forward(const tensor& input) override;
         tensor backward(const tensor& grad_output) override;
+    private:
+        tensor cached_input;
     };
 }
 
