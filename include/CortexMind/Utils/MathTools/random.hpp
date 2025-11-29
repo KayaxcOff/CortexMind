@@ -27,24 +27,11 @@ inline std::vector<std::vector<cortex::float64>> random_seed() {
     return seed;
 }
 
-inline std::vector<cortex::tensor> random_weights(const cortex::size in, const cortex::size out) {
-    std::vector<cortex::tensor> weights;
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution dis(-1.0f, 1.0f);
-
-    cortex::tensor weight_row{{}, {}};
-
-    for (cortex::size i = 0; i < in; ++i) {
-
-        for (cortex::size j = 0; j < out; ++j) {
-            weight_row = cortex::tensor{{static_cast<size_t>(dis(gen))}, {}};
-        }
-        weights.push_back(weight_row);
-    }
-
-    return weights;
+inline double random_weight(const double min = -1.0, const double max = 1.0) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dis(min, max);
+    return dis(gen);
 }
 
 #endif //CORTEXMIND_RANDOM_HPP

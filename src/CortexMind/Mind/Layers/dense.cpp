@@ -19,12 +19,12 @@ Dense::Dense(const size in, const size out) : gradBiases(1, out), outputGrad(out
 
     for (size i = 0; i < in; i++) {
         for (size j = 0; j < out; j++) {
-            w(i, j) = random_weights(0.1f, 1.0f);
+            w(i, j) = random_weight(0.1f, 1.0f);
         }
     }
 
     for (size i = 0; i < out; i++) {
-        b[0][i] = random_weights(0.1f, 1.0f);
+        b(0, i) = random_weight(0.1f, 1.0f);
     }
 }
 
