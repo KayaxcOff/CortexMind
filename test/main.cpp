@@ -27,7 +27,7 @@ int main() {
 
     neural_net_->add<nn::Dense>(2, 1);
     neural_net_->add<nn::Dense>(1, 2);
-    neural_net_->compile<loss::Loss, optim::Optimizer, act::Activation>(0.001);
+    neural_net_->compile<loss::MeanAbsolute, optim::StochasticGradient, act::Tanh>(0.001);
 
     neural_net_->fit(inputs, targets, EPOCH_NUM);
 
