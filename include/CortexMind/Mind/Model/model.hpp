@@ -87,6 +87,7 @@ namespace cortex::model {
                         tensor grads = layer->getGrads();
 
                         this->optim_fn_->step(params, grads);
+                        layer->setParams(params);
                     }
                 }
 
