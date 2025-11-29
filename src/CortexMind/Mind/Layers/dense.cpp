@@ -8,12 +8,11 @@
 
 using namespace cortex::nn;
 
-Dense::Dense(const size in, const size out) {
+Dense::Dense(const size in, const size out) : gradBiases(1, out), outputGrad(out, 1), lastInput(in, 1) {
     this->weights.emplace_back(in, out);
     this->gradWeights.emplace_back(in, out);
 
     this->biases.emplace_back(1, out);
-    this->gradBiases = tensor(1, out);
 
     auto& w = this->weights[0];
     auto& b = this->biases[0];
@@ -66,34 +65,27 @@ cortex::tensor Dense::backward(const tensor &grad_output) {
 
     this->outputGrad = grad_output;
 
-    tensor gradOut(out, batch);
+    tensor gradOut(in, batch);
 
-    for (size i = 0; i < out; ++i) {
-        for (size j = 0; j < batch; ++j) {
-            this->gradWeights[0](i, j) = 0.0;
-        }
-    }
+    for (size i = 0; i < out; ++i)
+        for (size j = 0; j < in; ++j)
+            this->gradWeights[0](j, i) = 0.0;
 
-    for (size i = 0; i < out; ++i) {
+    for (size i = 0; i < out; ++i)
         this->gradBiases(0, i) = 0.0;
-    }
 
     for (size i = 0; i < batch; ++i) {
         for (size j = 0; j < out; ++j) {
-            float64 sum = 0.0;
+            const float64 go = grad_output(j, i);
             for (size k = 0; k < in; ++k) {
-                const float64 go = grad_output(j, i);
-
-                sum += go * this->weights[0](k, i);
-
-                this->gradWeights[0](i, j) += this->lastInput(k, i) * go;
-
-                this->gradBiases(0, i) += go;
+                gradOut(k, i) += this->weights[0](k, j) * go;
+                this->gradWeights[0](k, j) += this->lastInput(k, i) * go;
             }
-            grad_output(j, i) = sum;
+            this->gradBiases(0, j) += go;
         }
     }
-    return grad_output;
+
+    return gradOut;
 }
 
 cortex::tensor Dense::getParams() const {
