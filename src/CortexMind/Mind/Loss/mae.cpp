@@ -18,6 +18,10 @@ cortex::tensor MeanAbsolute::forward(const tensor &y_true, const tensor &y_pred)
         throw std::invalid_argument("MeanAbsolute Loss: y_true and y_pred must have the same shape.");
     }
 
+    if (rows == 0 || cols == 0) {
+        throw std::invalid_argument("MeanAbsolute Loss: tensors cannot be empty.");
+    }
+
     float64 sum_abs = 0;
 
     for (size i = 0; i < rows; ++i) {
@@ -36,6 +40,14 @@ cortex::tensor MeanAbsolute::forward(const tensor &y_true, const tensor &y_pred)
 cortex::tensor MeanAbsolute::backward(const tensor &y_true, const tensor &y_pred) {
     const size cols = y_true.get_cols();
     const size rows = y_true.get_rows();
+
+    if (cols != y_pred.get_cols() || rows != y_pred.get_rows()) {
+        throw std::invalid_argument("MeanAbsolute Loss: y_true and y_pred must have the same shape.");
+    }
+
+    if (rows == 0 || cols == 0) {
+        throw std::invalid_argument("MeanAbsolute Loss: tensors cannot be empty.");
+    }
 
     tensor gradient(rows, cols);
     const auto n = static_cast<float64>(rows * cols);

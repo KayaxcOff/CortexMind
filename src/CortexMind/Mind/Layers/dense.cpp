@@ -63,6 +63,14 @@ cortex::tensor Dense::backward(const tensor &grad_output) {
     const size out = this->weights[0].get_cols();
     const size batch = grad_output.get_cols();
 
+    if (grad_output.get_rows() != out) {
+        throw std::runtime_error("grad_output has incompatible dimensions.");
+    }
+
+    if (this->lastInput.get_cols() != batch) {
+        throw std::runtime_error("lastInput batch size doesn't match grad_output.");
+    }
+
     this->outputGrad = grad_output;
 
     tensor gradOut(in, batch);

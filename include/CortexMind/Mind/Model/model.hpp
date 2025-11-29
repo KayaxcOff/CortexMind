@@ -36,13 +36,17 @@ namespace cortex::model {
                 throw std::invalid_argument("Input and output data size must be the same.");
             }
 
-            for (size i = 0; i <epochNum; ++i) {
+            for (size epoch = 0; epoch < epochNum; ++epoch) {
                 float64 epochLoss = 0.0;
 
-                for (size start=0; start < numSamples; ++start) {
+
+                for (size start = 0; start < numSamples; start += batchSize) {
                     const size end = std::min(start + batchSize, numSamples);
 
+
                     std::vector<tensor> batch_outputs;
+                    batch_outputs.reserve(end - start);
+
                     for (size j = start; j < end; ++j) {
                         tensor output = X[j];
                         for (const auto &layer : this->layers) {
@@ -51,9 +55,15 @@ namespace cortex::model {
                         batch_outputs.push_back(output);
                     }
 
+
                     std::vector<tensor> batch_grads;
-                    for (size j = 0; j < batch_outputs.size(); ++j) {
-                        tensor loss_tensor = this->loss_fn_->forward(batch_outputs[j], Y[start + j]);
+                    batch_grads.reserve(batch_outputs.size());
+
+                    for (size idx = 0; idx < batch_outputs.size(); ++idx) {
+                        const size data_idx = start + idx;
+
+                        tensor loss_tensor = this->loss_fn_->forward(batch_outputs[idx], Y[data_idx]);
+
                         float64 loss_value = 0.0;
                         for (size r = 0; r < loss_tensor.get_rows(); ++r) {
                             for (size c = 0; c < loss_tensor.get_cols(); ++c) {
@@ -61,8 +71,10 @@ namespace cortex::model {
                             }
                         }
                         epochLoss += loss_value;
-                        batch_grads.push_back(this->loss_fn_->backward(batch_outputs[j], Y[start + j]));
+
+                        batch_grads.push_back(this->loss_fn_->backward(batch_outputs[idx], Y[data_idx]));
                     }
+
 
                     for (auto grad : batch_grads) {
                         for (auto it = this->layers.rbegin(); it != this->layers.rend(); ++it) {
@@ -70,17 +82,15 @@ namespace cortex::model {
                         }
                     }
 
-                    for (const auto& it : this->layers) {
-                        tensor params = it->getParams();
-                        tensor grads = it->getGrads();
+                    for (const auto& layer : this->layers) {
+                        tensor params = layer->getParams();
+                        tensor grads = layer->getGrads();
 
                         this->optim_fn_->step(params, grads);
                     }
                 }
-                std::cout << "Epoch " << i + 1
-                  << " / " << epochNum
-                  << " - Loss: " << epochLoss / static_cast<float64>(numSamples)
-                  << std::endl;
+
+                std::cout << "Epoch " << epoch +  1 << " / " << epochNum << " - Loss: " << epochLoss / static_cast<float64>(numSamples) << std::endl;
             }
         }
 

@@ -11,6 +11,10 @@ void StochasticGradient::step(tensor &weights, const tensor &gradients) {
         throw std::invalid_argument("Weights and gradients must have the same shape.");
     }
 
+    if (weights.get_rows() == 0 || weights.get_cols() == 0) {
+        return;
+    }
+
     for (size i = 0; i < weights.get_rows(); ++i) {
         for (size j = 0; j < weights.get_cols(); ++j) {
             weights(i, j) -= this->learning_rate * gradients(i, j);
