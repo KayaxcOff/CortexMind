@@ -8,7 +8,7 @@
 #include <CortexMind/Mind/ActivationFunc/activation.hpp>
 
 namespace cortex::act {
-    class Tanh final : public Activation {
+    class Tanh : public Activation {
     public:
         Tanh();
         ~Tanh() override;

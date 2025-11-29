@@ -8,7 +8,7 @@
 #include "loss.hpp"
 
 namespace cortex::loss {
-    class MeanAbsolute final : public Loss {
+    class MeanAbsolute : public Loss {
     public:
         MeanAbsolute();
         ~MeanAbsolute() override;

@@ -8,7 +8,7 @@
 #include "loss.hpp"
 
 namespace cortex::loss {
-    class MeanSquared final : public Loss {
+    class MeanSquared : public Loss {
     public:
         MeanSquared();
         ~MeanSquared() override;

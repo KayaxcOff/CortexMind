@@ -8,7 +8,7 @@
 #include <CortexMind/Mind/ActivationFunc/activation.hpp>
 
 namespace cortex::act {
-    class ReLU final : public Activation {
+    class ReLU : public Activation {
     public:
         ReLU();
         ~ReLU() override;

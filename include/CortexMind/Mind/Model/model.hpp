@@ -65,8 +65,8 @@ namespace cortex::model {
                     }
 
                     for (const auto& it : this->layers) {
-                        tensor& params = it->getParams();
-                        tensor& grads = it->getGrads();
+                        tensor params = it->getParams();
+                        tensor grads = it->getGrads();
 
                         this->optim_fn_->step(params, grads);
                     }
@@ -84,7 +84,7 @@ namespace cortex::model {
             }
         }
 
-        tensor predict(const tensor &input) const {
+        [[nodiscard]] tensor predict(const tensor &input) const {
             tensor output = input;
             for (const auto &layer : this->layers) {
                 output = layer->forward(output);

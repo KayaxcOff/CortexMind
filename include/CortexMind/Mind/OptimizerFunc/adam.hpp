@@ -8,7 +8,7 @@
 #include <CortexMind/Mind/OptimizerFunc/optimizer.hpp>
 
 namespace cortex::optim {
-    class Adam final : public Optimizer {
+    class Adam : public Optimizer {
     public:
         Adam(float _lr, float64 _beta1, float64 _beta2, float64 _epsilon);
 
