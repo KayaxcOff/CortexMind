@@ -53,7 +53,14 @@ namespace cortex::model {
 
                     std::vector<tensor> batch_grads;
                     for (size j = 0; j < batch_outputs.size(); ++j) {
-                        epochLoss += this->loss_fn_->forward(batch_outputs[j], Y[start + j]);
+                        tensor loss_tensor = this->loss_fn_->forward(batch_outputs[j], Y[start + j]);
+                        float64 loss_value = 0.0;
+                        for (size r = 0; r < loss_tensor.get_rows(); ++r) {
+                            for (size c = 0; c < loss_tensor.get_cols(); ++c) {
+                                loss_value += loss_tensor(r, c);
+                            }
+                        }
+                        epochLoss += loss_value;
                         batch_grads.push_back(this->loss_fn_->backward(batch_outputs[j], Y[start + j]));
                     }
 
