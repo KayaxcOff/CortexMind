@@ -10,6 +10,12 @@
 #include <CortexMind/Mind/NeuralNetwork/conv.hpp>
 #include <CortexMind/Mind/NeuralNetwork/dense.hpp>
 #include <CortexMind/Mind/NeuralNetwork/batch_norm.hpp>
+#include <CortexMind/Mind/ActivationFunc/relu.hpp>
+#include <CortexMind/Mind/ActivationFunc/tanh.hpp>
+#include <CortexMind/Mind/LossFunc/mae.hpp>
+#include <CortexMind/Mind/LossFunc/mse.hpp>
+#include <CortexMind/Mind/OptimizerFunc/adam.hpp>
+#include <CortexMind/Mind/OptimizerFunc/sgd.hpp>
 
 #include <CortexMind/Utils/log.hpp>
 #include <CortexMind/Utils/params.hpp>
