@@ -10,11 +10,11 @@
 namespace cortex::act {
     class Activation {
     public:
-        Activation();
-        virtual ~Activation();
+        Activation() = default;
+        virtual ~Activation() = default;
 
-        virtual tensor forward(const tensor& input);
-        virtual tensor backward(const tensor& grad_output);
+        virtual tensor forward(const tensor& input) = 0;
+        virtual tensor backward(const tensor& grad_output) = 0;
     };
 }
 

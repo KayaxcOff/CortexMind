@@ -11,8 +11,8 @@
 namespace cortex::nn {
     class Layer {
     public:
-        Layer();
-        virtual ~Layer();
+        Layer() = default;
+        virtual ~Layer() = default;
 
         virtual tensor forward(const tensor& input) = 0;
         virtual tensor backward(const tensor& grad_output) = 0;
