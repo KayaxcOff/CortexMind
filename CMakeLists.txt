@@ -29,3 +29,5 @@ add_executable(MindTest
 )
 
 add_test(NAME CortexMindTest COMMAND MindTest)
+
+target_link_libraries(MindTest PRIVATE CortexMind)

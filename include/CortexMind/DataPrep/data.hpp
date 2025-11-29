@@ -13,6 +13,12 @@ namespace cortex::prep {
     public:
         DataGen();
         ~DataGen();
+
+        std::vector<tensor> float_to_tensor(const std::vector<float32>& data);
+        std::vector<tensor> int_to_tensor(const std::vector<int32>& data);
+    private:
+        std::vector<int32> int_data_;
+        std::vector<float32> float_data_;
     };
 }
 
