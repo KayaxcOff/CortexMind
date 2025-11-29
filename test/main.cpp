@@ -29,7 +29,12 @@ int main() {
     neural_net_->add<nn::Dense>(1, 2);
     neural_net_->compile<loss::MeanAbsolute, optim::StochasticGradient, act::Tanh>(0.001);
 
-    neural_net_->fit(inputs, targets, EPOCH_NUM);
+    try {
+        neural_net_->fit(inputs, targets, EPOCH_NUM);
+    } catch (const std::exception& e) {
+        std::cerr << "Error during model compilation: " << e.what() << std::endl;
+        return -1;
+    }
 
     const auto pred = neural_net_->predict(test);
     pred.print();
