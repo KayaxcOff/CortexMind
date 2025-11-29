@@ -57,8 +57,7 @@ namespace cortex::model {
                         batch_grads.push_back(this->loss_fn_->backward(batch_outputs[j], Y[start + j]));
                     }
 
-                    for (size j = 0; j < batch_grads.size(); ++j) {
-                        tensor grad = batch_grads[j];
+                    for (auto grad : batch_grads) {
                         for (auto it = this->layers.rbegin(); it != this->layers.rend(); ++it) {
                             grad = (*it)->backward(grad);
                         }
@@ -73,7 +72,7 @@ namespace cortex::model {
                 }
                 std::cout << "Epoch " << i + 1
                   << " / " << epochNum
-                  << " - Loss: " << epochLoss / numSamples
+                  << " - Loss: " << epochLoss / static_cast<float64>(numSamples)
                   << std::endl;
             }
         }

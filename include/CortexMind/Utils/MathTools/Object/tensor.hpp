@@ -73,6 +73,13 @@ namespace cortex::vecs {
             return *this;
         }
 
+        MindTensor& operator+=(const double scalar) {
+            for (size_t i = 0; i < rows; ++i)
+                for (size_t j = 0; j < cols; ++j)
+                    tensor[i][j] += scalar;
+            return *this;
+        }
+
         [[nodiscard]] MindTensor transpose() const;
     private:
         std::vector<std::vector<double>> tensor;
