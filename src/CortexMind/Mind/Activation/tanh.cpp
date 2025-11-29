@@ -43,9 +43,8 @@ cortex::tensor Tanh::backward(const tensor &grad_output) {
 
     for (size i = 0; i < grad_output.get_rows(); ++i) {
         for (size j = 0; j < grad_output.get_cols(); ++j) {
-            const float64 x = grad_output(i, j);
-            const float64 dt = 1.0 - (x * x);
-
+            const float64 tanh_x = this->cached_input(i, j);
+            const float64 dt = 1.0 - tanh_x * tanh_x;
             grad_input(i, j) = dt * grad_output(i, j);
         }
     }

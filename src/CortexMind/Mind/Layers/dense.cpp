@@ -8,7 +8,7 @@
 
 using namespace cortex::nn;
 
-Dense::Dense(const size in, const size out) : gradBiases(1, out), outputGrad(out, 1), lastInput(in, 1) {
+Dense::Dense(const size in, const size out) : gradBiases(1, out), outputGrad(out, 1), lastInput(0, 0) {
     this->weights.emplace_back(in, out);
     this->gradWeights.emplace_back(in, out);
 

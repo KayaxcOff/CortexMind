@@ -42,9 +42,12 @@ cortex::tensor MeanAbsolute::backward(const tensor &y_true, const tensor &y_pred
 
     for (size i = 0; i < rows; ++i) {
         for (size j = 0; j < cols; ++j) {
-            if (const float64 diff = y_true(i, j) - y_pred(i, j); diff > 0) gradient(i, j) / n;
-            else if (diff < 0) gradient(i, j) / -n;
-            else gradient(i, j) = 0;
+            if (const float64 diff = y_true(i, j) - y_pred(i, j); diff > 0)
+                gradient(i, j) = 1.0 / n;
+            else if (diff < 0)
+                gradient(i, j) = -1.0 / n;
+            else
+                gradient(i, j) = 0.0;
         }
     }
 
