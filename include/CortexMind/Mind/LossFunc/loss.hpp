@@ -10,8 +10,8 @@
 namespace cortex::loss {
     class Loss {
     public:
-        Loss();
-        virtual ~Loss();
+        Loss() = default;
+        virtual ~Loss() = default;
 
         virtual tensor forward(const tensor& y_true, const tensor& y_pred) = 0;
         virtual tensor backward(const tensor& y_true, const tensor& y_pred) = 0;
