@@ -6,8 +6,6 @@
 #include <memory>
 #include <vector>
 
-#define EPOCH_NUM 10
-
 using namespace cortex;
 
 int main() {
@@ -30,6 +28,7 @@ int main() {
     neural_net_->compile<loss::MeanAbsolute, optim::StochasticGradient, act::Tanh>(0.001);
 
     try {
+        constexpr int EPOCH_NUM = 10;
         neural_net_->fit(inputs, targets, EPOCH_NUM);
     } catch (const std::exception& e) {
         std::cerr << "Error during model compilation: " << e.what() << std::endl;
