@@ -39,3 +39,8 @@ cortex::tensor Conv2D::forward(const tensor &input) {
 cortex::tensor Conv2D::backward(const tensor &grad_output) {
     return grad_output;
 }
+
+void Conv2D::setParams(const tensor &params) {
+    this->weights = params;
+    this->biases(0, 0) = params(0, 0);
+}

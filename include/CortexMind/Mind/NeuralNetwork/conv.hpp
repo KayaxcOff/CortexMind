@@ -18,6 +18,7 @@ namespace cortex::nn {
 
         tensor forward(const tensor &input) override;
         tensor backward(const tensor &grad_output) override;
+        void setParams(const tensor &params) override;
 
     private:
         tensor weights;

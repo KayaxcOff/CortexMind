@@ -15,6 +15,7 @@ namespace cortex::nn {
 
         tensor forward(const tensor &input) override;
         tensor backward(const tensor &grad_output) override;
+        void setParams(const tensor &params) override;
 
         [[nodiscard]] tensor getParams() const override;
         [[nodiscard]] tensor getGrads() const override;

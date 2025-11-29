@@ -16,6 +16,7 @@ namespace cortex::nn {
 
         virtual tensor forward(const tensor& input) = 0;
         virtual tensor backward(const tensor& grad_output) = 0;
+        virtual void setParams(const tensor& params) = 0;
 
         [[nodiscard]] virtual tensor getParams() const = 0;
         [[nodiscard]] virtual tensor getGrads() const = 0;

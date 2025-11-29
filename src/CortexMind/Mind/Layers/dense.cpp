@@ -98,6 +98,21 @@ cortex::tensor Dense::backward(const tensor &grad_output) {
     return gradOut;
 }
 
+void Dense::setParams(const tensor &params) {
+    const size in = this->weights[0].get_rows();
+    const size out = this->weights[0].get_cols();
+
+    for (size i = 0; i < in; ++i) {
+        for (size j = 0; j < out; ++j) {
+            this->weights[0](i, j) = params(i, j);
+        }
+    }
+
+    for (size i = 0; i < out; ++i) {
+        this->biases[0](0, i) = params(i, 0);
+    }
+}
+
 cortex::tensor Dense::getParams() const {
     const size in = weights[0].get_rows();
     const size out = weights[0].get_cols();

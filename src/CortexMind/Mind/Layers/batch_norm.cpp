@@ -98,6 +98,11 @@ cortex::tensor BatchNorm::backward(const tensor &grad_output) {
     return grad_input;
 }
 
+void BatchNorm::setParams(const tensor &params) {
+    this->gamma = params;
+    this->beta = params;
+}
+
 cortex::tensor BatchNorm::getParams() const {
     tensor params(2, this->gamma.get_cols());
 
