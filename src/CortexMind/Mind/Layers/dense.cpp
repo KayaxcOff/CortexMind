@@ -67,9 +67,11 @@ cortex::tensor Dense::backward(const tensor &grad_output) {
 
     tensor gradOut(in, batch);
 
-    for (size i = 0; i < out; ++i)
-        for (size j = 0; j < in; ++j)
-            this->gradWeights[0](j, i) = 0.0;
+    for (size k = 0; k < in; ++k) {
+        for (size j = 0; j < out; ++j) {
+            this->gradWeights[0](k, j) = 0.0;
+        }
+    }
 
     for (size i = 0; i < out; ++i)
         this->gradBiases(0, i) = 0.0;
