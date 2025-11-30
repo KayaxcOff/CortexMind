@@ -14,6 +14,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/ActivationFunc/ReLU/relu.cpp
         source/CortexMind/net/ActivationFunc/Tanh/tanh.cpp
         source/CortexMind/net/ActivationFunc/LeakyReLU/leaky.cpp
+        source/CortexMind/net/NeuralNetwork/Conv2D/conv.cpp
 )
 
 target_include_directories(CortexMind PUBLIC

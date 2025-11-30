@@ -14,9 +14,11 @@ namespace cortex::tools {
         ~MindKernel();
 
         [[nodiscard]] tensor get_weights() const {return this->weights;}
-        [[nodiscard]] tensor apply(const tensor& input) const;
+        [[nodiscard]] tensor apply(const tensor& input);
+        [[nodiscard]] tensor backward(const tensor &input, const tensor& grad_output);
     private:
         tensor weights;
+        tensor grad;
 
         size_t stride, padding;
     };
