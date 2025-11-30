@@ -10,30 +10,15 @@
 namespace cortex::tools {
     class MindKernel {
     public:
-        MindKernel(size_t _size, size_t _in, size_t _out);
+        MindKernel(size_t in, size_t out, size_t kernel_size, size_t _stride = 1, size_t _padding = 0, bool required_grad = true);
         ~MindKernel();
 
-        tensor& getWeights() { return this->weights; }
-        tensor& getBias() { return this->biases; }
-        tensor& getGradWeights() { return this->gradWeights; }
-        tensor& getGradBias() { return this->gradBias; }
-
-        size_t getSize() const { return this->size; }
-        size_t getInFeat() const { return this->in; }
-        size_t getOutFeat() const { return this->out; }
-
-        void zero_grad();
+        [[nodiscard]] tensor get_weights() const {return this->weights;}
+        [[nodiscard]] tensor apply(const tensor& input) const;
     private:
         tensor weights;
-        tensor biases;
 
-        tensor gradWeights;
-        tensor gradBias;
-
-        size_t size;
-        size_t in, out;
-
-        void Init();
+        size_t stride, padding;
     };
 }
 
