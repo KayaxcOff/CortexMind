@@ -9,7 +9,7 @@ using namespace cortex::nn;
 using namespace cortex;
 
 Dense::Dense(const size_t in, const size_t out) : weights(1, in, out, true), bias(1, 1, out, true), gradWeights(1, in, out), gradBias(1, 1, out), cached_input(0,0,0), in_size(in), out_size(out) {
-    const double limit = std::sqrt(1.0 / in_size);
+    const double limit = std::sqrt(1.0 / static_cast<double>(in_size));
 
     this->weights.uniform_rand(-limit, limit);
     this->bias.fill(0.0);
