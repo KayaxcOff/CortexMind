@@ -21,7 +21,7 @@ namespace cortex::nn {
         std::vector<tensor*> getParameters() override;
         std::string config() override;
     private:
-        std::unique_ptr<tools::MindKernel> mind_kernel_;
+        std::unique_ptr<fw::MindKernel> mind_kernel_;
         tensor input_cache;
     };
 }

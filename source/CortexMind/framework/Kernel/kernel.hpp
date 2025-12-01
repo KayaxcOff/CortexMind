@@ -7,7 +7,7 @@
 
 #include <CortexMind/framework/Params/params.hpp>
 
-namespace cortex::tools {
+namespace cortex::fw {
     class MindKernel {
     public:
         MindKernel(size_t c_in, size_t c_out, size_t kernel_size, size_t _stride = 1, size_t _padding = 0, bool required_grad = true);

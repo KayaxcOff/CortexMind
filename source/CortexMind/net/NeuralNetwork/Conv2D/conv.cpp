@@ -8,7 +8,7 @@ using namespace cortex::nn;
 using namespace cortex;
 
 Conv2D::Conv2D(size_t in_channels, size_t out_channels, size_t kernel_size, size_t stride, size_t padding) : input_cache(0, 0, 0) {
-    this->mind_kernel_ = std::make_unique<tools::MindKernel>(in_channels, out_channels, kernel_size, stride, padding);
+    this->mind_kernel_ = std::make_unique<fw::MindKernel>(in_channels, out_channels, kernel_size, stride, padding);
 }
 
 tensor Conv2D::forward(tensor &input) {

@@ -18,7 +18,7 @@ int main() {
     x.print();
     std::cout << std::endl;
 
-    const auto mind_kernel_ = std::make_unique<tools::MindKernel>(1, 2, 3);
+    const auto mind_kernel_ = std::make_unique<fw::MindKernel>(1, 2, 3, 1, 0, true);
 
     const auto result = mind_kernel_->apply(x);
 
