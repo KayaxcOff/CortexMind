@@ -16,9 +16,9 @@ namespace cortex {
 
     static tensor relu(const tensor& input) {
         auto output = input;
-        for (size_t i = 0; i < output.get().size(); ++i) {
-            if (output.get()[i] < 0.0) {
-                output.get()[i] = 0.0;
+        for (double & i : output.get()) {
+            if (i < 0.0) {
+                i = 0.0;
             }
         }
         return output;
@@ -66,6 +66,32 @@ namespace cortex {
             output.get()[i] = std::exp(input.get()[i]);
         }
         return output;
+    }
+
+    static double mean(const tensor& input) {
+        if (input.get().empty()) {
+            return 0.0;
+        }
+        double sum = 0.0;
+        for (const double& val : input.get()) {
+            sum += val;
+        }
+        return sum / static_cast<double>(input.get().size());
+    }
+
+    static double variance(const tensor& input, const double mean_val) {
+        if (input.get().empty() || input.get().size() == 1) {
+            return 0.0;
+        }
+
+        double sum = 0.0;
+
+        for (const double& val : input.get()) {
+            const double diff = val - mean_val;
+            sum += diff * diff;
+        }
+
+        return sum / static_cast<double>(input.get().size());
     }
 }
 
