@@ -2,29 +2,48 @@
 // Created by muham on 30.11.2025.
 //
 
-#include <CortexMind/framework/Params/params.hpp>
-#include <CortexMind/framework/Kernel/kernel.hpp>
-#include <memory>
 #include <iostream>
+#include <CortexMind/net/NeuralNetwork/Dense/dense.hpp>
 
+using namespace cortex::nn;
 using namespace cortex;
 
 int main() {
-    auto x = tensor(1, 5, 5);
+    Dense layer(3, 2);
 
-    x.uniform_rand(0.1, 1.0);
 
-    std::cout << std::endl;
-    x.print();
-    std::cout << std::endl;
+    tensor input(2, 1, 3);
+    input.uniform_rand(0.1, 1.0);
 
-    const auto mind_kernel_ = std::make_unique<fw::MindKernel>(1, 2, 3, 1, 0, true);
+    tensor output = layer.forward(input);
 
-    const auto result = mind_kernel_->apply(x);
+    std::cout << "Forward output:\n";
+    for (size_t b = 0; b < 2; ++b) {
+        for (size_t o = 0; o < 2; ++o) {
+            std::cout << output(b, 0, o) << " ";
+        }
+        std::cout << std::endl;
+    }
 
-    std::cout << std::endl;
-    result.print();
-    std::cout << std::endl;
+    tensor grad_output(2, 1, 2);
+    grad_output.fill(1.0);
+
+    tensor grad_input = layer.backward(grad_output);
+
+    std::cout << "\nBackward grad_input:\n";
+    for (size_t b = 0; b < 2; ++b) {
+        for (size_t i = 0; i < 3; ++i) {
+            std::cout << grad_input(b, 0, i) << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    auto grads = layer.getGradients();
+    std::cout << "\nGradients sizes:\n";
+    std::cout << "gradWeights shape: " << grads[0]->_shape()[0] << " "
+              << grads[0]->_shape()[1] << " " << grads[0]->_shape()[2] << std::endl;
+    std::cout << "gradBias shape: " << grads[1]->_shape()[0] << " "
+              << grads[1]->_shape()[1] << " " << grads[1]->_shape()[2] << std::endl;
 
     return 0;
 }
