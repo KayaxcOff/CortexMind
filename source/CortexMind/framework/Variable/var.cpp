@@ -29,7 +29,7 @@ MindTensor::MindTensor(size_t _batch, size_t _row, size_t _col, const bool _grad
     this->data.resize(totalSize, 0.0);
 }
 
-MindTensor::MindTensor(const MindTensor &other) : shape(other.shape), strides(other.strides), data(other.data), required_grad(other.required_grad) {};
+MindTensor::MindTensor(const MindTensor &other) = default;
 
 MindTensor &MindTensor::operator=(const MindTensor &other) {
     if (this != &other) {

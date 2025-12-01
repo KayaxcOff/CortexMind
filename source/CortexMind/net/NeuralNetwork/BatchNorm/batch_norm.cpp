@@ -10,7 +10,7 @@
 using namespace cortex::nn;
 using namespace cortex;
 
-BatchNorm::BatchNorm(const size_t num_feat, const float eps, const float momentum) : momentum(momentum), eps(eps), num_feats(num_feat), is_training(true) {
+BatchNorm::BatchNorm(const size_t num_feat, const float eps, const float momentum) : gamma(0, 0, 0), beta(0, 0, 0), grad_gamma(0, 0, 0), grad_beta(0, 0, 0), running_mean(0, 0, 0), running_var(0, 0, 0), momentum(momentum), eps(eps), num_feats(num_feat), is_training(true), cached_input(0, 0, 0), cached_norm_input(0, 0,0), cached_variance(0, 0, 0), cached_mean(0, 0, 0) {
     this->gamma = tensor(1, 1, this->num_feats, true);
     this->beta = tensor(1, 1, this->num_feats, true);
 

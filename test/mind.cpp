@@ -3,19 +3,28 @@
 //
 
 #include <CortexMind/framework/Params/params.hpp>
-#include <CortexMind/utils/MathTools/pch.hpp>
+#include <CortexMind/framework/Kernel/kernel.hpp>
+#include <memory>
+#include <iostream>
 
 using namespace cortex;
 
 int main() {
-    tensor x{2, 3, 3};
+    auto x = tensor(1, 5, 5);
 
-    tensor y{2, 3, 3};
+    x.uniform_rand(0.1, 1.0);
 
-    x.uniform_rand(-1.0, 1.0);
-    y.uniform_rand(-1.0, 1.0);
+    std::cout << std::endl;
+    x.print();
+    std::cout << std::endl;
 
-    add(x, y).print();
+    const auto mind_kernel_ = std::make_unique<tools::MindKernel>(1, 2, 3);
+
+    const auto result = mind_kernel_->apply(x);
+
+    std::cout << std::endl;
+    result.print();
+    std::cout << std::endl;
 
     return 0;
 }
