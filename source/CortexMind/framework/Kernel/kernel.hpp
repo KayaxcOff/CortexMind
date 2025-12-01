@@ -10,7 +10,7 @@
 namespace cortex::tools {
     class MindKernel {
     public:
-        MindKernel(size_t in, size_t out, size_t kernel_size, size_t _stride = 1, size_t _padding = 0, bool required_grad = true);
+        MindKernel(size_t c_in, size_t c_out, size_t kernel_size, size_t _stride = 1, size_t _padding = 0, bool required_grad = true);
         ~MindKernel();
 
         [[nodiscard]] tensor get_weights() const {return this->weights;}
@@ -18,9 +18,16 @@ namespace cortex::tools {
         [[nodiscard]] tensor backward(const tensor &input, const tensor& grad_output);
     private:
         tensor weights;
-        tensor grad;
+        tensor bias;
+
+        tensor gradWeights;
+        tensor gradBias;
 
         size_t stride, padding;
+        size_t K, C_in, C_out;
+
+        tensor padded_input;
+        size_t H_in{}, W_in{};
     };
 }
 
