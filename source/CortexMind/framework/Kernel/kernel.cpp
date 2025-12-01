@@ -32,10 +32,10 @@ tensor MindKernel::apply(const tensor &input) {
 
     this->padded_input = tensor(B, H_pad, W_pad, false);
 
-    for (size_t b = 0; b < B; b++) {
-        for (size_t h = 0; h < this->H_in; h++) {
-            for (size_t w = 0; w < this->W_in; w++) {
-                this->padded_input(b, h + this->padding, w + this->padding) = input(b, h, w);
+    for (size_t i = 0; i < B; i++) {
+        for (size_t j = 0; j < this->H_in; j++) {
+            for (size_t k = 0; k < this->W_in; k++) {
+                this->padded_input(i, j + this->padding, k + this->padding) = input(i, j, k);
             }
         }
     }
@@ -45,23 +45,22 @@ tensor MindKernel::apply(const tensor &input) {
 
     tensor output(B, H_out * this->C_out, W_out, false);
 
-    for (size_t b = 0; b < B; ++b) {
-        for (size_t c_out = 0; c_out < this->C_out; ++c_out) {
-            for (size_t h_out = 0; h_out < H_out; ++h_out) {
-                for (size_t w_out = 0; w_out < W_out; ++w_out) {
-                    double sum = 0.0;
-                    const size_t h_start = h_out * this->stride;
-                    const size_t w_start = w_out * this->stride;
+    for (size_t i = 0; i < B; ++i) {
+        for (size_t j = 0; j < this->C_out; ++j) {
+            for (size_t k = 0; k < H_out; ++k) {
+                for (size_t n = 0; n < W_out; ++n) {
+                    double sum = this->bias(0, 0, j);;
+                    const size_t h_start = k * this->stride;
+                    const size_t w_start = n * this->stride;
 
-                    for (size_t kh = 0; kh < this->K; ++kh) {
-                        for (size_t kw = 0; kw < this->K; ++kw) {
-                            sum += this->padded_input(b, h_start + kh, w_start + kw) * this->weights(c_out, kh, kw);
+                    for (size_t l = 0; l < this->K; ++l) {
+                        for (size_t w = 0; w < this->K; ++w) {
+                            sum += this->padded_input(i, h_start + l, w_start + w) * this->weights(j, l, w);
                         }
                     }
 
-                    sum += this->bias(0, 0, c_out);
-                    const size_t row_idx = h_out * this->C_out + c_out;
-                    output(b, row_idx, w_out) = sum;
+                    const size_t row_idx = k * this->C_out + j;
+                    output(i, row_idx, n) = sum;
                 }
             }
         }
