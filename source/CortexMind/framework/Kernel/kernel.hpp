@@ -16,6 +16,11 @@ namespace cortex::tools {
         [[nodiscard]] tensor get_weights() const {return this->weights;}
         [[nodiscard]] tensor apply(const tensor& input);
         [[nodiscard]] tensor backward(const tensor &input, const tensor& grad_output);
+
+        tensor& get_weights() { return this->weights; }
+        tensor& get_bias() { return this->bias; }
+        tensor& get_grad_weights() { return this->gradWeights; }
+        tensor& get_grad_bias() { return this->gradBias; }
     private:
         tensor weights;
         tensor bias;
