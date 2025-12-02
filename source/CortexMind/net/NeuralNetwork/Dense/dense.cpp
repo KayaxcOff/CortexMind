@@ -17,7 +17,15 @@ Dense::Dense(const size_t in, const size_t out) : weights(1, in, out, true), bia
 
 tensor Dense::forward(tensor &input) {
     this->cached_input = input;
-    return (input.matmul(this->weights)) + this->bias;
+    tensor output = input.matmul(this->weights);
+
+    tensor bias_expanded(output.get_shape()[0], 1, this->out_size);
+    for (size_t b = 0; b < output.get_shape()[0]; b++) {
+        for (size_t i = 0; i < this->out_size; i++) {
+            bias_expanded(b,0,i) = this->bias(0,0,i);
+        }
+    }
+    return output + bias_expanded;
 }
 
 tensor Dense::backward(tensor &grad_output) {
