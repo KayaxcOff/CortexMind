@@ -8,7 +8,7 @@ using namespace cortex::nn;
 using namespace cortex;
 
 tensor Flatten::forward(tensor &input) {
-    this->originalShape = input._shape();
+    this->originalShape = input.get_shape();
 
     const size_t B = this->originalShape[0];
     const size_t R = this->originalShape[1];

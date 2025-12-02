@@ -17,8 +17,7 @@ MindTensor::MindTensor(size_t _batch, size_t _row, size_t _col, const bool _grad
     if (_col == 0 || _row == 0 || _batch == 0) {
         this->strides = {0, 0, 0};
         this->data.clear();
-        log("Dimensions must be greater than zero.");
-        throw std::invalid_argument("Dimensions must be greater than zero.");
+        return;
     }
 
     this->strides[2] = 1;

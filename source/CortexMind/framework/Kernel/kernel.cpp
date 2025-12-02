@@ -23,9 +23,9 @@ MindKernel::MindKernel(size_t c_in, const size_t c_out, const size_t kernel_size
 MindKernel::~MindKernel() = default;
 
 tensor MindKernel::apply(const tensor &input) {
-    const size_t B = input._shape()[0];
-    this->H_in = input._shape()[1];
-    this->W_in = input._shape()[2];
+    const size_t B = input.get_shape()[0];
+    this->H_in = input.get_shape()[1];
+    this->W_in = input.get_shape()[2];
 
     const size_t H_pad = this->H_in + 2 * this->padding;
     const size_t W_pad = this->W_in + 2 * this->padding;
@@ -70,9 +70,9 @@ tensor MindKernel::apply(const tensor &input) {
 }
 
 tensor MindKernel::backward(const tensor& input, const tensor& grad_output) {
-    const size_t B = input._shape()[0];
-    const size_t H_out = grad_output._shape()[1];
-    const size_t W_out = grad_output._shape()[2] / this->C_out;
+    const size_t B = input.get_shape()[0];
+    const size_t H_out = grad_output.get_shape()[1];
+    const size_t W_out = grad_output.get_shape()[2] / this->C_out;
 
     tensor grad_input(B, this->H_in, this->W_in, false);
     grad_input.zero();

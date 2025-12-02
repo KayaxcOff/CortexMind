@@ -15,8 +15,8 @@ Tanh::~Tanh() = default;
 tensor Tanh::forward(const tensor &input) {
     const auto& output = input;
 
-    for (size_t i = 0; i < output.get().size(); ++i) {
-        output.get()[i] = std::tanh(output.get()[i]);
+    for (size_t i = 0; i < output.get_data().size(); ++i) {
+        output.get_data()[i] = std::tanh(output.get_data()[i]);
     }
     this->cached_tanh = output;
     return output;

@@ -25,7 +25,7 @@ tensor Dense::backward(tensor &grad_output) {
     this->gradBias.zero();
 
     const size_t out = this->out_size;
-    const size_t batch_size = grad_output._shape()[0];
+    const size_t batch_size = grad_output.get_shape()[0];
 
     tensor grad_input(batch_size, 1, this->in_size);
 

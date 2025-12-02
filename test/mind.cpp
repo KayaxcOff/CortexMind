@@ -40,10 +40,10 @@ int main() {
 
     auto grads = layer.getGradients();
     std::cout << "\nGradients sizes:\n";
-    std::cout << "gradWeights shape: " << grads[0]->_shape()[0] << " "
-              << grads[0]->_shape()[1] << " " << grads[0]->_shape()[2] << std::endl;
-    std::cout << "gradBias shape: " << grads[1]->_shape()[0] << " "
-              << grads[1]->_shape()[1] << " " << grads[1]->_shape()[2] << std::endl;
+    std::cout << "gradWeights shape: " << grads[0]->get_shape()[0] << " "
+              << grads[0]->get_shape()[1] << " " << grads[0]->get_shape()[2] << std::endl;
+    std::cout << "gradBias shape: " << grads[1]->get_shape()[0] << " "
+              << grads[1]->get_shape()[1] << " " << grads[1]->get_shape()[2] << std::endl;
 
     return 0;
 }

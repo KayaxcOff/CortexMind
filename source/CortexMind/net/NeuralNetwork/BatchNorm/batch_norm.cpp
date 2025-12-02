@@ -35,9 +35,9 @@ void BatchNorm::eval() {
 }
 
 tensor BatchNorm::forward(tensor &input) {
-    const size_t B = input._shape()[0];
-    const size_t R = input._shape()[1];
-    const size_t C = input._shape()[2];
+    const size_t B = input.get_shape()[0];
+    const size_t R = input.get_shape()[1];
+    const size_t C = input.get_shape()[2];
 
     if (C != this->num_feats) {
         log("BatchNorm forward: input feature size does not match num_feats");

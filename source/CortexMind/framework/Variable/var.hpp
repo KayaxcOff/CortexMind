@@ -44,11 +44,15 @@ namespace cortex::fw {
         void uniform_rand(double min, double max);
         void print() const;
 
-        [[nodiscard]] std::vector<size_t> _shape() const {return this->shape;}
-        [[nodiscard]] std::vector<size_t> _strides() const {return this->strides;}
+        [[nodiscard]] std::vector<size_t> get_shape() const {return this->shape;}
+        [[nodiscard]] std::vector<size_t> get_shape() {return this->shape;}
+        [[nodiscard]] std::vector<size_t> get_strides() const {return this->strides;}
+        [[nodiscard]] std::vector<size_t> get_strides() {return this->strides;}
         [[nodiscard]] bool isRequiresGrad() const {return this->required_grad;}
-        [[nodiscard]] std::vector<double> get() const {return this->data;}
-        [[nodiscard]] std::vector<double>& get() { return this->data; }
+        [[nodiscard]] std::vector<double> get_data() const {return this->data;}
+        [[nodiscard]] std::vector<double>& get_data() { return this->data; }
+
+        [[nodiscard]] bool is_empty() const {return this->data.empty();}
 
         [[nodiscard]] MindTensor matmul(const MindTensor& other) const;
         [[nodiscard]] MindTensor transpose() const;

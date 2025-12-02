@@ -9,4 +9,10 @@
 #include <CortexMind/tools/pch.hpp>
 #include <CortexMind/utils/pch.hpp>
 
+namespace cortex {
+    inline void CM_VERSION() {
+        log("CortexMind-2.0.0");
+    }
+}
+
 #endif //CORTEXMIND_CORTEXMIND_HPP
