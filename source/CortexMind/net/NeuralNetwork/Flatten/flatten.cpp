@@ -7,6 +7,8 @@
 using namespace cortex::nn;
 using namespace cortex;
 
+Flatten::Flatten() : reshapedInput(0, 0, 0) {}
+
 tensor Flatten::forward(tensor &input) {
     this->originalShape = input.get_shape();
 
@@ -16,7 +18,9 @@ tensor Flatten::forward(tensor &input) {
 
     const size_t new_size = R * C;
 
-    return input.reshape({B, 1, new_size});
+    this->reshapedInput = input.reshape({B, 1, new_size});
+
+    return this->reshapedInput;
 }
 
 tensor Flatten::backward(tensor &grad_output) {

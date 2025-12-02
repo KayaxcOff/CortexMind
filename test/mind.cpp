@@ -3,47 +3,56 @@
 //
 
 #include <iostream>
+#include <CortexMind/net/NeuralNetwork/Flatten/flatten.hpp>
 #include <CortexMind/net/NeuralNetwork/Dense/dense.hpp>
 
 using namespace cortex::nn;
 using namespace cortex;
 
 int main() {
-    Dense layer(3, 2);
+    constexpr size_t batch_size = 2;
+    constexpr size_t H = 3;
+    constexpr size_t W = 4;
+    constexpr size_t dense_out = 5;
 
+    Flatten flatten;
+    Dense dense(H * W, dense_out);
 
-    tensor input(2, 1, 3);
+    tensor input(batch_size, H, W);
     input.uniform_rand(0.1, 1.0);
 
-    tensor output = layer.forward(input);
+    std::cout << "=== INPUT ===" << std::endl;
+    input.print();
 
-    std::cout << "Forward output:\n";
-    for (size_t b = 0; b < 2; ++b) {
-        for (size_t o = 0; o < 2; ++o) {
-            std::cout << output(b, 0, o) << " ";
-        }
-        std::cout << std::endl;
-    }
+    tensor flat = flatten.forward(input);
+    tensor output = dense.forward(flat);
 
-    tensor grad_output(2, 1, 2);
+    std::cout << "\n=== FORWARD ===" << std::endl;
+    std::cout << "Output shape: ";
+    for (auto s : output.get_shape()) std::cout << s << " ";
+    std::cout << std::endl;
+    output.print();
+
+    tensor grad_output(batch_size, 1, dense_out);
     grad_output.fill(1.0);
 
-    tensor grad_input = layer.backward(grad_output);
+    tensor grad_dense = dense.backward(grad_output);
+    tensor grad_input = flatten.backward(grad_dense);
 
-    std::cout << "\nBackward grad_input:\n";
-    for (size_t b = 0; b < 2; ++b) {
-        for (size_t i = 0; i < 3; ++i) {
-            std::cout << grad_input(b, 0, i) << " ";
-        }
-        std::cout << std::endl;
-    }
+    std::cout << "\n=== BACKWARD ===" << std::endl;
+    std::cout << "grad_input shape: ";
+    for (auto s : grad_input.get_shape()) std::cout << s << " ";
+    std::cout << std::endl;
+    grad_input.print();
 
-    auto grads = layer.getGradients();
-    std::cout << "\nGradients sizes:\n";
-    std::cout << "gradWeights shape: " << grads[0]->get_shape()[0] << " "
-              << grads[0]->get_shape()[1] << " " << grads[0]->get_shape()[2] << std::endl;
-    std::cout << "gradBias shape: " << grads[1]->get_shape()[0] << " "
-              << grads[1]->get_shape()[1] << " " << grads[1]->get_shape()[2] << std::endl;
+    auto grads = dense.getGradients();
+    std::cout << "\nGradients sizes:" << std::endl;
+    std::cout << "gradWeights shape: ";
+    for (auto s : grads[0]->get_shape()) std::cout << s << " ";
+    std::cout << std::endl;
+    std::cout << "gradBias shape: ";
+    for (auto s : grads[1]->get_shape()) std::cout << s << " ";
+    std::cout << std::endl;
 
     return 0;
 }

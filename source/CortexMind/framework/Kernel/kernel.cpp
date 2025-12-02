@@ -31,6 +31,7 @@ tensor MindKernel::apply(const tensor &input) {
     const size_t W_pad = this->W_in + 2 * this->padding;
 
     this->padded_input = tensor(B, H_pad, W_pad, false);
+    this->padded_input.zero();
 
     for (size_t i = 0; i < B; i++) {
         for (size_t j = 0; j < this->H_in; j++) {
@@ -43,29 +44,30 @@ tensor MindKernel::apply(const tensor &input) {
     const size_t H_out = (H_pad - this->K) / this->stride + 1;
     const size_t W_out = (W_pad - this->K) / this->stride + 1;
 
-    tensor output(B, H_out * this->C_out, W_out, false);
+    tensor output(B, H_out, W_out * this->C_out, false);
 
     for (size_t i = 0; i < B; ++i) {
         for (size_t j = 0; j < this->C_out; ++j) {
             for (size_t k = 0; k < H_out; ++k) {
-                for (size_t n = 0; n < W_out; ++n) {
-                    double sum = this->bias(0, 0, j);;
-                    const size_t h_start = k * this->stride;
-                    const size_t w_start = n * this->stride;
+                for (size_t l = 0; l < W_out; ++l) {
+                    double sum = this->bias(0, 0, j);
 
-                    for (size_t l = 0; l < this->K; ++l) {
-                        for (size_t w = 0; w < this->K; ++w) {
-                            sum += this->padded_input(i, h_start + l, w_start + w) * this->weights(j, l, w);
+                    const size_t h_start = k * this->stride;
+                    const size_t w_start = l * this->stride;
+
+                    for (size_t kh = 0; kh < this->K; ++kh) {
+                        for (size_t kw = 0; kw < this->K; ++kw) {
+                            sum += this->padded_input(i, h_start + kh, w_start + kw)
+                                   * this->weights(j, kh, kw);
                         }
                     }
 
-                    const size_t row_idx = k * this->C_out + j;
-                    output(i, row_idx, n) = sum;
+                    const size_t col_idx = l * this->C_out + j;
+                    output(i, k, col_idx) = sum;
                 }
             }
         }
     }
-
     return output;
 }
 

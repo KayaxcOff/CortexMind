@@ -10,7 +10,7 @@
 namespace cortex::nn {
     class Flatten : public Layer {
     public:
-        Flatten() = default;
+        Flatten();
         ~Flatten() override = default;
 
         tensor forward(tensor &input) override;
@@ -22,6 +22,7 @@ namespace cortex::nn {
         std::string config() override;
     private:
         std::vector<size_t> originalShape;
+        tensor reshapedInput;
     };
 }
 
