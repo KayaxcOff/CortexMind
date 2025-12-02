@@ -17,6 +17,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/NeuralNetwork/Conv2D/conv.cpp
         source/CortexMind/net/NeuralNetwork/BatchNorm/batch_norm.cpp
         source/CortexMind/net/NeuralNetwork/Dropout/dropout.cpp
+        source/CortexMind/net/LossFunc/CEL/cel.cpp
 )
 
 target_include_directories(CortexMind PUBLIC
