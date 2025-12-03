@@ -20,6 +20,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/LossFunc/CEL/cel.cpp
         source/CortexMind/net/OptimizerFunc/SGD/sgd.cpp
         source/CortexMind/net/OptimizerFunc/Adam/adam.cpp
+        source/CortexMind/tools/Text/token.cpp
 )
 
 target_include_directories(CortexMind PUBLIC
