@@ -12,7 +12,7 @@
 namespace cortex::optim {
     class Adam : public Optimizer {
     public:
-        Adam(double learning_rate = 0.01f, double b1 = 0.9, double b2 = 0.999, double epsilon = 1e-8);
+        explicit Adam(double learning_rate = 0.01f, double b1 = 0.9, double b2 = 0.999, double epsilon = 1e-8);
         ~Adam() override = default;
 
         void step() override;
