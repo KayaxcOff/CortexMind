@@ -18,6 +18,8 @@ add_library(CortexMind STATIC
         source/CortexMind/net/NeuralNetwork/BatchNorm/batch_norm.cpp
         source/CortexMind/net/NeuralNetwork/Dropout/dropout.cpp
         source/CortexMind/net/LossFunc/CEL/cel.cpp
+        source/CortexMind/net/OptimizerFunc/SGD/sgd.cpp
+        source/CortexMind/net/OptimizerFunc/Adam/adam.cpp
 )
 
 target_include_directories(CortexMind PUBLIC
