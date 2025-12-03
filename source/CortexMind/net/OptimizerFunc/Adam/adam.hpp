@@ -24,8 +24,6 @@ namespace cortex::optim {
 
         std::vector<tensor> v_moments;
         std::vector<tensor> s_moments;
-
-        void initialize_moments(const tensor& weights);
     };
 }
 
