@@ -6,8 +6,6 @@
 #define CORTEXMIND_ADAM_HPP
 
 #include <CortexMind/framework/NetBase/optimizer.hpp>
-#include <cmath>
-#include <map>
 
 namespace cortex::optim {
     class Adam : public Optimizer {
