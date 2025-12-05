@@ -22,6 +22,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/OptimizerFunc/Adam/adam.cpp
         source/CortexMind/tools/Text/token.cpp
         source/CortexMind/net/NeuralNetwork/MaxPooling/max_pool.cpp
+        source/CortexMind/net/ActivationFunc/Softmax/softmax.cpp
 )
 
 target_include_directories(CortexMind PUBLIC
