@@ -44,6 +44,9 @@ namespace cortex::fw {
         void uniform_rand(double min, double max);
         void print() const;
 
+        [[nodiscard]] const std::vector<double>& _data() const noexcept;
+        const std::vector<double>& _data() noexcept;
+
         [[nodiscard]] std::vector<size_t> get_shape() const {return this->shape;}
         [[nodiscard]] std::vector<size_t> get_shape() {return this->shape;}
         [[nodiscard]] std::vector<size_t> get_strides() const {return this->strides;}

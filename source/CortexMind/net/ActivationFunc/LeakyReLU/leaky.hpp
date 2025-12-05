@@ -7,7 +7,7 @@
 
 #include "CortexMind/framework/NetBase/activation.hpp"
 
-namespace cortex::optim {
+namespace cortex::act {
     class LeakyReLU : public act::Activation {};
 }
 

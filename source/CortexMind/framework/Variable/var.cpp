@@ -90,6 +90,14 @@ void MindTensor::print() const {
     }
 }
 
+const std::vector<double> &MindTensor::_data() noexcept {
+    return this->data;
+}
+
+const std::vector<double> &MindTensor::_data() const noexcept {
+    return this->data;
+}
+
 MindTensor MindTensor::operator+(const double scalar) const {
     MindTensor result(*this);
     for (auto &val : result.data) {

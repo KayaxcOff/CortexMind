@@ -24,7 +24,7 @@ namespace cortex::model {
         template<class LossT, class OptimT, class ActivT>
         void compile(double _lr=0.001) {
             this->loss_fn_ = std::make_unique<LossT>();
-            this->activ_fn_ = std::make_unique<ActivT>(_lr);
+            this->activ_fn_ = std::make_unique<ActivT>();
             this->optim_fn_ = std::make_unique<OptimT>(_lr);
         }
 
