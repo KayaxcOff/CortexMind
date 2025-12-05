@@ -9,7 +9,6 @@
 #include <CortexMind/framework/NetBase/activation.hpp>
 #include <CortexMind/framework/NetBase/loss.hpp>
 #include <CortexMind/framework/NetBase/optimizer.hpp>
-#include <CortexMind/framework/Log/log.hpp>
 #include <vector>
 #include <memory>
 #include <stdexcept>
