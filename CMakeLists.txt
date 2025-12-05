@@ -23,6 +23,7 @@ add_library(CortexMind STATIC
         source/CortexMind/tools/Text/token.cpp
         source/CortexMind/net/NeuralNetwork/MaxPooling/max_pool.cpp
         source/CortexMind/net/ActivationFunc/Softmax/softmax.cpp
+        source/CortexMind/net/Model/Sequential/seq.cpp
 )
 
 target_include_directories(CortexMind PUBLIC

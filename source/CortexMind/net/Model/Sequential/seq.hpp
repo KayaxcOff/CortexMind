@@ -9,11 +9,12 @@
 #include <CortexMind/framework/NetBase/layer.hpp>
 #include <CortexMind/framework/NetBase/loss.hpp>
 #include <CortexMind/framework/NetBase/optimizer.hpp>
+#include <memory>
 
 namespace cortex::model {
     class Sequential {
     public:
-        Sequential(std::initializer_list<nn::Layer> _layers);
+        Sequential(std::initializer_list<std::unique_ptr<nn::Layer>> _layers);
         ~Sequential() = default;
 
         template<class LossT, class OptimT, class ActivT>
@@ -26,11 +27,10 @@ namespace cortex::model {
         void train(std::vector<tensor>& _x, std::vector<tensor>& _y, int epochs=1, int batchSize=32);
         [[nodiscard]] tensor predict(const tensor& input) const;
     private:
-        std::vector<std::unique_ptr<nn::Layer>> layers_;
+        std::initializer_list<std::unique_ptr<nn::Layer>> layers_;
         std::unique_ptr<act::Activation> activ_fn_;
         std::unique_ptr<loss::Loss> loss_fn_;
         std::unique_ptr<optim::Optimizer> optim_fn_;
-    };
     };
 }
 
