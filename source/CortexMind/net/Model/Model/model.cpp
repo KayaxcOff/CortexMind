@@ -4,6 +4,8 @@
 
 #include "CortexMind/net/Model/Model/model.hpp"
 #include <CortexMind/framework/Log/log.hpp>
+#include <numeric>
+#include <random>
 
 using namespace cortex::model;
 using namespace cortex;
@@ -27,53 +29,53 @@ void Model::train(std::vector<tensor> &_x, std::vector<tensor> &_y, int epochs, 
 
     std::vector<optim::TensorParams> tensor_params;
     for (const auto& item : this->layers_) {
-        std::vector<tensor*> weights = item->getParameters();
-        std::vector<tensor*> grads = item->getGradients();
+        auto weights = item->getParameters();
+        auto grads   = item->getGradients();
 
-        if (weights.size() != grads.size()) {
-            log("Weights and gradients sizes don't match");
-            throw std::logic_error("Weights and gradients sizes don't match");
-        }
-
-        for (size_t i = 0; i < weights.size(); ++i) {
+        for (size_t i = 0; i < weights.size(); ++i)
             tensor_params.push_back({weights[i], grads[i]});
-        }
     }
-
     this->optim_fn_->register_parameters(tensor_params);
 
     size_t num_samples = _x.size();
     size_t num_batches = (num_samples + batchSize - 1) / batchSize;
 
-    for (int i = 1; i <= epochs; ++i) {
+    std::vector<size_t> indices(num_samples);
+    std::iota(indices.begin(), indices.end(), 0);
+
+    for (int i = 0; i <= epochs; ++i) {
+        std::ranges::shuffle(indices, std::mt19937{std::random_device{}()});
+
         double epoch_loss = 0.0;
 
         for (size_t j = 0; j < num_batches; ++j) {
-            size_t startIdx = j * batchSize;
-
             this->optim_fn_->zero_grad();
 
-            const tensor& inputBatch = _x[startIdx];
+            size_t startIdx = j * batchSize;
+
+            tensor inputBatch  = _x[startIdx];
             const tensor& targetBatch = _y[startIdx];
 
-            tensor pred = this->predict(inputBatch);
+            tensor pred(0, 0, 0);
+            for (auto& item : this->layers_) {
+                pred = item->forward(inputBatch);
+            }
 
-            tensor loss_value = this->loss_fn_->forward(pred, targetBatch);
-            epoch_loss += loss_value.get_data()[0];
+            tensor loss_t = this->loss_fn_->forward(pred, targetBatch);
+            double loss_value = loss_t.get_data()[0];
+            epoch_loss += loss_value;
 
             tensor grad = this->loss_fn_->backward(pred, targetBatch);
 
-            if (this->activ_fn_) {
-                grad = this->activ_fn_->backward(grad);
-            }
+            grad = this->activ_fn_->backward(grad);
 
-            for (auto item = layers_.rbegin(); item != layers_.rend(); ++item) {
-                grad = (*item)->backward(grad);
+            for (auto it = layers_.rbegin(); it != layers_.rend(); ++it) {
+                grad = (*it)->backward(grad);
             }
 
             this->optim_fn_->step();
         }
-        std::cout << "Epoch: " << i << "/" << epochs << "\n" << " Loss: " << (epoch_loss / static_cast<double>(num_batches)) << std::endl;
+        std::cout << "Epoch " << i + 1 << "/" << epochs << " - Loss: " << (epoch_loss / static_cast<double>(num_batches)) << std::endl;
     }
 }
 
