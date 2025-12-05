@@ -53,12 +53,12 @@ void Model::train(std::vector<tensor> &_x, std::vector<tensor> &_y, int epochs, 
 
             size_t startIdx = j * batchSize;
 
-            tensor inputBatch  = _x[startIdx];
-            const tensor& targetBatch = _y[startIdx];
+            const tensor& inputBatch  = _x[indices[startIdx]];
+            const tensor& targetBatch = _y[indices[startIdx]];
 
-            tensor pred(0, 0, 0);
+            tensor pred = inputBatch;
             for (auto& item : this->layers_) {
-                pred = item->forward(inputBatch);
+                pred = item->forward(pred);
             }
 
             tensor loss_t = this->loss_fn_->forward(pred, targetBatch);

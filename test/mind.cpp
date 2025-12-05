@@ -35,7 +35,6 @@ int main() {
     }
 
     net.add<nn::Dense>(in_feats, 10);
-    net.add<nn::Flatten>();
     net.add<nn::Dense>(10, out_feats);
 
     net.compile<loss::MeanAbsolute, optim::Adam, act::ReLU>();
