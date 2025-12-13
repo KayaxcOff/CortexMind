@@ -121,14 +121,11 @@ void MindTensor::fill(const float value) noexcept {
     }
 }
 
-void MindTensor::resize(const int batch, const int channel, const int height, const int width) noexcept {
+void MindTensor::allocate(const int batch, const int channel, const int height, const int width) noexcept {
     this->m_shape = {batch, channel, height, width};
-    this->m_size = static_cast<size_t>(batch) * channel * height * width;
-    this->m_data.resize(this->m_size);
 
-    for (auto& item : this->m_data) {
-        item.fill(0.0f);
-    }
+    this->m_size = static_cast<size_t>(batch) * channel * height * width;;
+    this->m_data.resize(this->m_size);
 }
 
 MindTensor MindTensor::flatten() const noexcept {

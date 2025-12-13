@@ -13,6 +13,8 @@ add_library(CortexMind STATIC
         source/CortexMind/net/NeuralNetwork/Conv2D/conv2d.cpp
         source/CortexMind/net/NeuralNetwork/MaxPooling/max_pool.cpp
         source/CortexMind/tools/Image/image.cpp
+        source/CortexMind/tools/Tokenizer/token.cpp
+        source/CortexMind/tools/Encode/encode.cpp
 )
 
 target_compile_options(CortexMind PRIVATE

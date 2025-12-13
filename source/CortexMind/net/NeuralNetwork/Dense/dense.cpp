@@ -10,11 +10,11 @@ using namespace cortex::nn;
 using namespace cortex;
 
 Dense::Dense(const int in_size, const int out_size) : INPUT_SIZE(in_size), OUTPUT_SIZE(out_size) {
-    this->weights.resize(1, this->INPUT_SIZE, 1, this->OUTPUT_SIZE);
-    this->biases.resize(1, 1, 1, this->OUTPUT_SIZE);
+    this->weights.allocate(1, this->INPUT_SIZE, 1, this->OUTPUT_SIZE);
+    this->biases.allocate(1, 1, 1, this->OUTPUT_SIZE);
 
-    this->grad_biases.resize(1, 1, 1, this->OUTPUT_SIZE);
-    this->grad_weights.resize(1, this->INPUT_SIZE, 1, this->OUTPUT_SIZE);
+    this->grad_biases.allocate(1, 1, 1, this->OUTPUT_SIZE);
+    this->grad_weights.allocate(1, this->INPUT_SIZE, 1, this->OUTPUT_SIZE);
 
     const float limit = std::sqrt(1.0f / static_cast<float>(this->INPUT_SIZE));
     this->weights.uniform_rand(-limit, limit);

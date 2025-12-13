@@ -32,7 +32,7 @@ namespace cortex::_fw {
         void uniform_rand(float lower=0.0f, float upper=1.0f) noexcept;
         void zero() noexcept;
         void fill(float value) noexcept;
-        void resize(int batch, int channel, int height, int width) noexcept;
+        void allocate(int batch, int channel, int height, int width) noexcept;
 
         [[nodiscard]] MindTensor flatten() const noexcept;
         [[nodiscard]] MindTensor matmul(const MindTensor& other) const noexcept;

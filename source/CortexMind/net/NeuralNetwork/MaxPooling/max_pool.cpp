@@ -22,7 +22,7 @@ tensor MaxPooling::forward(const tensor &input) {
     const size_t out_w = (this->INPUT_WIDTH - this->KERNEL_WIDTH) / this->STRIDE_WIDTH + 1;
 
     tensor output(batch, this->INPUT_CHANNELS, static_cast<int>(out_w), static_cast<int>(out_h));
-    this->idx.resize(batch, this->INPUT_CHANNELS, static_cast<int>(out_w), static_cast<int>(out_h));
+    this->idx.allocate(batch, this->INPUT_CHANNELS, static_cast<int>(out_w), static_cast<int>(out_h));
 
     output.zero();
     this->idx.zero();
