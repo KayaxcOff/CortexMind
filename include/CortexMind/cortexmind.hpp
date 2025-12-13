@@ -11,6 +11,7 @@
 #include <CortexMind/net/NeuralNetwork/Dense/dense.hpp>
 
 #include <CortexMind/tools/Cast/cast.hpp>
+#include <CortexMind/tools/Image/image.hpp>
 
 #include <CortexMind/utils/Log/log.hpp>
 #include <CortexMind/utils/Version/version.hpp>

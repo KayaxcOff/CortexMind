@@ -12,7 +12,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/NeuralNetwork/Dense/dense.cpp
         source/CortexMind/net/NeuralNetwork/Conv2D/conv2d.cpp
         source/CortexMind/net/NeuralNetwork/MaxPooling/max_pool.cpp
-        source/CortexMind/framework/Tools/Views/Text/text.cpp
+        source/CortexMind/tools/Image/image.cpp
 )
 
 target_compile_options(CortexMind PRIVATE
@@ -25,7 +25,7 @@ target_include_directories(CortexMind
             ${CMAKE_SOURCE_DIR}/source
             ${CMAKE_SOURCE_DIR}/include
         PRIVATE
-            ${CMAKE_SOURCE_DIR}/third_party
+            ${CMAKE_SOURCE_DIR}/third_party/stb
 )
 
 add_executable(CXM_Test
