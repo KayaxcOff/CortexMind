@@ -1,5 +1,5 @@
 third_party/stb/
 cmake-build-debug-visual-studio/
 
-!third_party/stb/STB/
-!third_party/stb/STB/**
+!third_party/stb/include/STB/
+!third_party/stb/include/STB/**

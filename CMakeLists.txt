@@ -16,6 +16,7 @@ add_library(CortexMind STATIC
         source/CortexMind/tools/Tokenizer/token.cpp
         source/CortexMind/tools/Encode/encode.cpp
         source/CortexMind/net/NeuralNetwork/Embedding/embedding.cpp
+        source/CortexMind/net/NeuralNetwork/Dropout/dropout.cpp
 )
 
 target_compile_options(CortexMind PRIVATE
@@ -28,7 +29,7 @@ target_include_directories(CortexMind
             ${CMAKE_SOURCE_DIR}/source
             ${CMAKE_SOURCE_DIR}/include
         PRIVATE
-            ${CMAKE_SOURCE_DIR}/third_party/stb
+            ${CMAKE_SOURCE_DIR}/third_party/stb/include
 )
 
 add_executable(CXM_Test
