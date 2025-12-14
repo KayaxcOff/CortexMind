@@ -15,6 +15,7 @@ add_library(CortexMind STATIC
         source/CortexMind/tools/Image/image.cpp
         source/CortexMind/tools/Tokenizer/token.cpp
         source/CortexMind/tools/Encode/encode.cpp
+        source/CortexMind/net/NeuralNetwork/Embedding/embedding.cpp
 )
 
 target_compile_options(CortexMind PRIVATE

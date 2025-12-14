@@ -38,7 +38,7 @@ tensor ImageNetLoader::load(const std::string &path, const bool normalize, const
     spec.mean = mean;
     spec.std = std;
 
-    output.resize(spec.batch, spec.channels, height, width);
+    output.allocate(spec.batch, spec.channels, height, width);
 
     const float norm_factor = normalize ? (1.0f / 255.0f) : 1.0f;
 

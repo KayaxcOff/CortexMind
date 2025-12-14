@@ -5,7 +5,6 @@
 #ifndef CORTEXMIND_TYPE_HPP
 #define CORTEXMIND_TYPE_HPP
 
-
 #include <string>
 #include <array>
 #include <optional>
