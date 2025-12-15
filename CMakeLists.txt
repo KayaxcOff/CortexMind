@@ -17,6 +17,7 @@ add_library(CortexMind STATIC
         source/CortexMind/tools/Encode/encode.cpp
         source/CortexMind/net/NeuralNetwork/Embedding/embedding.cpp
         source/CortexMind/net/NeuralNetwork/Dropout/dropout.cpp
+        source/CortexMind/net/ActivationFunc/Sigmoid/sigmoid.cpp
 )
 
 target_compile_options(CortexMind PRIVATE
