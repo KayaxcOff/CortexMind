@@ -9,6 +9,9 @@
 #include <CortexMind/net/Model/Sequential/seq.hpp>
 #include <CortexMind/net/NeuralNetwork/Conv2D/conv2d.hpp>
 #include <CortexMind/net/NeuralNetwork/Dense/dense.hpp>
+#include <CortexMind/net/ActivationFunc/ReLU/relu.hpp>
+#include <CortexMind/net/ActivationFunc/Sigmoid/sigmoid.hpp>
+#include <CortexMind/net/ActivationFunc/LeakyReLU/leaky.hpp>
 
 #include <CortexMind/tools/Cast/cast.hpp>
 #include <CortexMind/tools/Image/image.hpp>

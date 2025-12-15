@@ -14,7 +14,7 @@ namespace cortex::_fw {
         virtual ~Activation() = default;
 
         [[nodiscard]] virtual tensor forward(const tensor& input) = 0;
-        [[nodiscard]] virtual tensor backward(const tensor& input) = 0;
+        [[nodiscard]] virtual tensor backward(const tensor& grad_output) = 0;
     };
 }
 

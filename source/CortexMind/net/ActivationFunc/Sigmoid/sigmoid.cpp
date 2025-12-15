@@ -21,14 +21,14 @@ tensor Sigmoid::forward(const tensor &input) {
     return this->output;
 }
 
-tensor Sigmoid::backward(const tensor &input) {
+tensor Sigmoid::backward(const tensor &grad_output) {
     tensor grad_input(this->output.batch(), this->output.channel(), this->output.height(), this->output.width());
 
     const reg one = broadcast(1.0f);
 
     for (size_t i = 0; i < this->output.data().size(); i++) {
         const reg y = load(&this->output.data()[i][0]);
-        const reg dy = load(&input.data()[i][0]);
+        const reg dy = load(&grad_output.data()[i][0]);
 
         const reg grad = mul(dy, mul(y, sub(one, y)));
         store(&grad_input.data()[i][0], grad);

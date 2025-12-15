@@ -18,6 +18,8 @@ add_library(CortexMind STATIC
         source/CortexMind/net/NeuralNetwork/Embedding/embedding.cpp
         source/CortexMind/net/NeuralNetwork/Dropout/dropout.cpp
         source/CortexMind/net/ActivationFunc/Sigmoid/sigmoid.cpp
+        source/CortexMind/net/ActivationFunc/ReLU/relu.cpp
+        source/CortexMind/net/ActivationFunc/LeakyReLU/leaky.cpp
 )
 
 target_compile_options(CortexMind PRIVATE

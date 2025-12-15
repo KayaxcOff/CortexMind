@@ -2,16 +2,16 @@
 // Created by muham on 15.12.2025.
 //
 
-#ifndef CORTEXMIND_SIGMOID_HPP
-#define CORTEXMIND_SIGMOID_HPP
+#ifndef CORTEXMIND_RELU_HPP
+#define CORTEXMIND_RELU_HPP
 
 #include <CortexMind/framework/Net/activ.hpp>
 
 namespace cortex::net {
-    class Sigmoid : public _fw::Activation {
+    class ReLU : _fw::Activation {
     public:
-        Sigmoid();
-        ~Sigmoid() override;
+        ReLU() = default;
+        ~ReLU() override = default;
 
         tensor forward(const tensor &input) override;
         tensor backward(const tensor &grad_output) override;
@@ -20,4 +20,4 @@ namespace cortex::net {
     };
 }
 
-#endif //CORTEXMIND_SIGMOID_HPP
+#endif //CORTEXMIND_RELU_HPP
