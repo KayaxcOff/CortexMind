@@ -1,0 +1,8 @@
+//
+// Created by muham on 16.12.2025.
+//
+
+#ifndef CORTEXMIND_BATCH_NORM_HPP
+#define CORTEXMIND_BATCH_NORM_HPP
+
+#endif //CORTEXMIND_BATCH_NORM_HPP
