@@ -12,6 +12,9 @@
 #include <CortexMind/net/ActivationFunc/ReLU/relu.hpp>
 #include <CortexMind/net/ActivationFunc/Sigmoid/sigmoid.hpp>
 #include <CortexMind/net/ActivationFunc/LeakyReLU/leaky.hpp>
+#include <CortexMind/net/OptimFunc/Adam/adam.hpp>
+#include <CortexMind/net/OptimFunc/Momentum/momentum.hpp>
+#include <CortexMind/net/OptimFunc/SGD/sgd.hpp>
 
 #include <CortexMind/tools/Cast/cast.hpp>
 #include <CortexMind/tools/Image/image.hpp>

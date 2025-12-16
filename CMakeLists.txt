@@ -20,6 +20,9 @@ add_library(CortexMind STATIC
         source/CortexMind/net/ActivationFunc/Sigmoid/sigmoid.cpp
         source/CortexMind/net/ActivationFunc/ReLU/relu.cpp
         source/CortexMind/net/ActivationFunc/LeakyReLU/leaky.cpp
+        source/CortexMind/net/OptimFunc/SGD/sgd.cpp
+        source/CortexMind/net/OptimFunc/Momentum/momentum.cpp
+        source/CortexMind/net/OptimFunc/Adam/adam.cpp
 )
 
 target_compile_options(CortexMind PRIVATE
