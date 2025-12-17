@@ -18,6 +18,8 @@ namespace cortex::_fw {
         static void tanh(tensor& input);
         static void leaky_relu(tensor& input);
         static void softmax(tensor& input);
+        static tensor mean(tensor& input);
+        static tensor variance(tensor& input);
     };
 }
 

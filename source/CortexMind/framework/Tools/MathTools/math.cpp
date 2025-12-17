@@ -77,3 +77,44 @@ void TensorFn::softmax(tensor &input) {
         }
     }
 }
+
+cortex::tensor TensorFn::mean(tensor &input) {
+    tensor output(1, input.channel(), 1, 1);
+
+    const auto N = static_cast<float>(input.batch() * input.height() * input.width());
+
+    for (int i = 0; i < input.channel(); ++i) {
+        float sum = 0;
+        for (int j = 0; j < input.batch(); ++j) {
+            for (int k = 0; k < input.width(); ++k) {
+                for (int m = 0; m < input.height(); ++m) {
+                    sum += input.at(i, j, m, k);
+                }
+            }
+        }
+        output.at(i, 0, 0, 0) = sum / N;
+    }
+    return output;
+}
+
+cortex::tensor TensorFn::variance(tensor &input) {
+    tensor result(1, input.channel(), 1, 1);
+    tensor mean_tensor = mean(input);
+
+    const auto N = static_cast<float>(input.batch() * input.height() * input.width());
+
+    for (int i = 0; i < input.channel(); ++i) {
+        float var_sum = 0;
+        const float mean_val = mean_tensor.at(i, 0, 0, 0);
+        for (int j = 0; j < input.batch(); ++j) {
+            for (int k = 0; k < input.width(); ++k) {
+                for (int m = 0; m < input.height(); ++m) {
+                    const float diff = input.at(i, j, m, k) - mean_val;
+                    var_sum += diff * diff;
+                }
+            }
+        }
+        result.at(i, 0, 0, 0) = var_sum / N;
+    }
+    return result;
+}
