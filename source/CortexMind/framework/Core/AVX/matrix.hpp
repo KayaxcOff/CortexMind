@@ -100,30 +100,34 @@ namespace cortex::_fw::avx2 {
 
             for (size_t i = 0; i < M; i += block) {
                 const size_t im = std::min(block, M - i);
+
                 for (size_t j = 0; j < N; j += block) {
                     const size_t jm = std::min(block, N - j);
 
-                    reg acc[8];
+                    reg acc[block];
 
-                    for (size_t k = 0; k < im; k++) {
-                        acc[k] = zero();
+                    for (size_t ii = 0; ii < im; ++ii) {
+                        acc[ii] = zero();
                     }
 
-                    for (size_t k = j; k < K; k++) {
+                    for (size_t k = 0; k < K; ++k) {
                         reg vec;
+                        if (jm == block)
+                            vec = load(b + k * N + j);
+                        else
+                            vec = load_partial(b + k * N + j, jm);
 
-                        if (jm == block) vec = load(b + k * N + j);
-                        else vec = load_partial(b + k * N + j, jm);
-
-                        for (size_t n = k; n < M; n += block) {
-                            const reg x = broadcast(a[(i + n) * K + k]);
-                            acc[i] = avx2::fma(x, vec, acc[n]);
+                        for (size_t ii = 0; ii < im; ++ii) {
+                            const reg a_val = broadcast(a[(i + ii) * K + k]);
+                            acc[ii] = avx2::fma(a_val, vec, acc[ii]);
                         }
                     }
 
-                    for (size_t k = 0; k < im; k++) {
-                        if (jm == block) store_partial(result, acc[k], k * N + j);
-                        else store_partial(result + (i + k) * N + j, acc[k], jm);
+                    for (size_t ii = 0; ii < im; ++ii) {
+                        if (jm == block)
+                            store(result + (i + ii) * N + j, acc[ii]);
+                        else
+                            store_partial(result + (i + ii) * N + j, acc[ii], jm);
                     }
                 }
             }

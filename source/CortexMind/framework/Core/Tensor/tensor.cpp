@@ -140,15 +140,20 @@ MindTensor MindTensor::flatten() const noexcept {
 }
 
 MindTensor MindTensor::matmul(const MindTensor &other) const noexcept {
-    if (this->width() != other.height()) CXM_ASSERT(true, "Incompatible tensor shapes for matmul!");
+    if (this->width() != other.height())
+        CXM_ASSERT(true, "Incompatible tensor shapes for matmul!");
 
     MindTensor result(this->batch(), this->channel(), this->height(), other.width());
 
     const size_t BC = this->batch() * this->channel();
+    const size_t M = this->height();
+    const size_t K = this->width();
+    const size_t N = other.width();
 
-    for (size_t i = 0; i < BC; i++) {
-        matrix_t::matmul(&this->m_data[i][0], &other.m_data[0][0], &result.m_data[i][0], this->height(), this->width(), other.width());
+    for (size_t bc = 0; bc < BC; ++bc) {
+        matrix_t::matmul(&this->m_data[bc][0], &other.m_data[0][0], &result.m_data[bc][0], M, K, N);
     }
+
     return result;
 }
 
