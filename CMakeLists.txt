@@ -25,6 +25,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/OptimFunc/Adam/adam.cpp
         source/CortexMind/net/NeuralNetwork/BatchNorm/batch_norm.cpp
         source/CortexMind/net/LossFunc/MSE/mse.cpp
+        source/CortexMind/net/LossFunc/MAE/mae.cpp
 )
 
 target_compile_options(CortexMind PRIVATE
