@@ -6,7 +6,7 @@
 #define CORTEXMIND_LAYER_HPP
 
 #include <CortexMind/framework/Params/params.hpp>
-#include <CortexMind/framework/Net/optim.hpp>
+#include <array>
 #include <string>
 
 namespace cortex::_fw {
@@ -18,14 +18,8 @@ namespace cortex::_fw {
         virtual tensor forward(const tensor &input) = 0;
         virtual tensor backward(const tensor &grad_output) = 0;
         [[nodiscard]] virtual std::string config() = 0;
-        virtual void register_params(Optimizer& optim_fn) {
-            if (!this->weights.empty()) {
-                optim_fn.add_param(&weights, &grad_biases);
-            }
-            if (!this->biases.empty()) {
-                optim_fn.add_param(&biases, &grad_biases);
-            }
-        }
+        virtual std::array<tensor*, 2> parameters() = 0;
+        virtual std::array<tensor*, 2> gradients() = 0;
     protected:
         tensor input_cache;
         tensor weights, biases;

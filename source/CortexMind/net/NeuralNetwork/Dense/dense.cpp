@@ -85,11 +85,10 @@ std::string Dense::config() {
     return "Dense";
 }
 
-void Dense::register_params(Optimizer &optim_fn) {
-    if (!this->weights.empty()) {
-        optim_fn.add_param(&this->weights, &this->grad_biases);
-    }
-    if (!this->biases.empty()) {
-        optim_fn.add_param(&this->biases, &this->grad_biases);
-    }
+std::array<tensor *, 2> Dense::parameters() {
+    return {&this->weights, &this->biases};
+}
+
+std::array<tensor *, 2> Dense::gradients() {
+    return {&this->grad_weights, &this->grad_biases};
 }

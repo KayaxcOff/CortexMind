@@ -16,7 +16,8 @@ namespace cortex::nn {
         tensor forward(const tensor &input) override;
         tensor backward(const tensor &grad_output) override;
         std::string config() override;
-        void register_params(_fw::Optimizer &optim_fn) override;
+        std::array<tensor*, 2> parameters() override;
+        std::array<tensor*, 2> gradients() override;
     private:
         int INPUT_SIZE;
         int OUTPUT_SIZE;

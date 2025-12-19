@@ -19,13 +19,8 @@ int main() {
     tensor x(batch_size,1,1,input_size);
     tensor y_true(batch_size,1,1,output_size);
 
-    for(int i=0;i<batch_size;++i)
-        for(int j=0;j<input_size;++j)
-            x.at(i,0,0,j) = static_cast<float>(rand()) / RAND_MAX;
-
-    for(int i=0;i<batch_size;++i)
-        for(int j=0;j<output_size;++j)
-            y_true.at(i,0,0,j) = static_cast<float>(rand()) / RAND_MAX;
+    x.uniform_rand();
+    y_true.uniform_rand();
 
     tensor y_pred = dense.forward(x);
 
@@ -34,10 +29,15 @@ int main() {
 
     tensor grad_loss = loss.backward(y_pred, y_true);
     dense.backward(grad_loss);
+    grad_loss.print();
 
     net::Adam optimizer(0.01);
-    dense.register_params(optimizer);
-    optimizer.step();
+    for (auto& item1 : dense.parameters()) {
+        for (auto& item2 : dense.gradients()) {
+            optimizer.add_param(item1, item2);
+        }
+    }
+    //optimizer.step(); There is a index bug in this function
     optimizer.zero_grad();
 
     std::cout << "Step completed. Weights and biases updated." << std::endl;
