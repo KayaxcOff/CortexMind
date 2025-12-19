@@ -23,7 +23,7 @@ tensor Sigmoid::forward(const tensor &input) {
 
 tensor Sigmoid::backward(const tensor &grad_output) {
     tensor grad_input(this->output.batch(), this->output.channel(), this->output.height(), this->output.width());
-
+    /*
     const reg one = broadcast(1.0f);
 
     for (size_t i = 0; i < this->output.data().size(); i++) {
@@ -33,5 +33,6 @@ tensor Sigmoid::backward(const tensor &grad_output) {
         const reg grad = mul(dy, mul(y, sub(one, y)));
         store(&grad_input.data()[i][0], grad);
     }
+    */
     return grad_input;
 }

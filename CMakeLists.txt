@@ -3,8 +3,6 @@ project(CortexMind)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_compile_options(-mavx2)
-
 add_library(CortexMind STATIC
         source/CortexMind/framework/Core/Tensor/tensor.cpp
         source/CortexMind/framework/Tools/Kernel/kernel.cpp

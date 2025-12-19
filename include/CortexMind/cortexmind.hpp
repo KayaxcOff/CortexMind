@@ -15,6 +15,8 @@
 #include <CortexMind/net/OptimFunc/Adam/adam.hpp>
 #include <CortexMind/net/OptimFunc/Momentum/momentum.hpp>
 #include <CortexMind/net/OptimFunc/SGD/sgd.hpp>
+#include <CortexMind/net/LossFunc/MAE/mae.hpp>
+#include <CortexMind/net/LossFunc/MSE/mse.hpp>
 
 #include <CortexMind/tools/Cast/cast.hpp>
 #include <CortexMind/tools/Image/image.hpp>
