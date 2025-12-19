@@ -10,7 +10,7 @@
 namespace cortex::_fw {
     class MindKernel {
     public:
-        MindKernel(int in_channel, int out_channel, int kernel_height, int kernel_width, float value);
+        MindKernel(int in_channel, int out_channel, int kernel_height, int kernel_width);
         ~MindKernel();
 
         tensor apply(const tensor& input);

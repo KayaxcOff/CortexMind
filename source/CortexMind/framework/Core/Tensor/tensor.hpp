@@ -27,6 +27,9 @@ namespace cortex::_fw {
         [[nodiscard]] int channel() const noexcept;
         [[nodiscard]] int height() const noexcept;
         [[nodiscard]] int width() const noexcept;
+        [[nodiscard]] size_t vec_size() const;
+        [[nodiscard]] float* raw_ptr(size_t idx);
+        [[nodiscard]] const float *raw_ptr(size_t idx) const noexcept;
 
         void print() const noexcept;
         void uniform_rand(float lower=0.0f, float upper=1.0f) noexcept;

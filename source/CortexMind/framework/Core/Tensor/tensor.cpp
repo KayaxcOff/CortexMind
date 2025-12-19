@@ -51,7 +51,7 @@ size_t MindTensor::size() const noexcept {
 }
 
 bool MindTensor::empty() const noexcept {
-    return this->m_data.empty();
+    return this->m_size == 0;
 }
 
 AlignedArray<float, 8> &MindTensor::dataIdx(const size_t idx) noexcept {
@@ -72,6 +72,22 @@ int MindTensor::height() const noexcept {
 
 int MindTensor::width() const noexcept {
     return this->m_shape[3];
+}
+
+size_t MindTensor::vec_size() const {
+    return (this->m_size + 7) / 8;
+}
+
+float *MindTensor::raw_ptr(const size_t idx) {
+    const size_t arrIdx = idx / 8;
+    const size_t offset = idx % 8;
+    return &this->m_data[arrIdx][offset];
+}
+
+const float *MindTensor::raw_ptr(const size_t idx) const noexcept{
+    const size_t arrIdx = idx / 8;
+    const size_t offset = idx % 8;
+    return &this->m_data[arrIdx][offset];
 }
 
 void MindTensor::print() const noexcept {
@@ -124,8 +140,9 @@ void MindTensor::fill(const float value) noexcept {
 void MindTensor::allocate(const int batch, const int channel, const int height, const int width) noexcept {
     this->m_shape = {batch, channel, height, width};
 
-    this->m_size = static_cast<size_t>(batch) * channel * height * width;;
-    this->m_data.resize(this->m_size);
+    this->m_size = static_cast<size_t>(batch) * channel * height * width;
+    const size_t num = (this->m_size + 7) / 8;
+    this->m_data.resize(num);
 }
 
 MindTensor MindTensor::flatten() const noexcept {
@@ -220,7 +237,8 @@ void MindTensor::operator()(const int b, const int c, const int h, const int w, 
     this->m_shape[2] =  h;
     this->m_shape[3] =  w;
     this->m_size = static_cast<size_t>(b) * c * h * w;
-    this->m_data.resize(this->m_size);
+    const size_t num = (this->m_size + 7) / 8;
+    this->m_data.resize(num);
     for (auto& item : this->m_data) {
         item.fill(value);
     }
