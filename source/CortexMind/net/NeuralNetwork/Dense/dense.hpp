@@ -16,8 +16,7 @@ namespace cortex::nn {
         tensor forward(const tensor &input) override;
         tensor backward(const tensor &grad_output) override;
         std::string config() override;
-
-        void update_weights(float lr);
+        void register_params(_fw::Optimizer &optim_fn) override;
     private:
         int INPUT_SIZE;
         int OUTPUT_SIZE;

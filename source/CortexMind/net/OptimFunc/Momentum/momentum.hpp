@@ -14,6 +14,8 @@ namespace cortex::net {
         ~Momentum() override = default;
 
         void step() override;
+
+        void add_param(tensor *weights, tensor *gradients);
     private:
         tensor input_cache;
         double beta;

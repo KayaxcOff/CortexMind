@@ -85,18 +85,11 @@ std::string Dense::config() {
     return "Dense";
 }
 
-void Dense::update_weights(float lr) {
-    for (int i = 0; i < grad_weights.batch(); ++i) {
-        for (int j = 0; j < grad_weights.channel(); ++j) {
-            for (int k = 0; k < grad_weights.height(); ++k) {
-                for (int l = 0; l < grad_weights.width(); ++l) {
-                    weights.at(i,j,k,l) -= lr * grad_weights.at(i,j,k,l);
-                }
-            }
-        }
+void Dense::register_params(Optimizer &optim_fn) {
+    if (!this->weights.empty()) {
+        optim_fn.add_param(&this->weights, &this->grad_biases);
     }
-
-    for (int j = 0; j < grad_biases.width(); ++j) {
-        biases.at(0,0,0,j) -= lr * grad_biases.at(0,0,0,j);
+    if (!this->biases.empty()) {
+        optim_fn.add_param(&this->biases, &this->grad_biases);
     }
 }

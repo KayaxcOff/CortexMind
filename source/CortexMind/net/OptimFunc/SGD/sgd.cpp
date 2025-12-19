@@ -18,3 +18,7 @@ void StaticGradient::step() {
         }
     }
 }
+
+void StaticGradient::add_param(tensor *weights, tensor *gradients) {
+    this->iters.emplace_back(weights, gradients);
+}

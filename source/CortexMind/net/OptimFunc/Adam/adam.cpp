@@ -12,6 +12,12 @@ using namespace cortex;
 
 Adam::Adam(const double lr, const double beta1, const double beta2, const double eps) : Optimizer(lr), b1(beta1), b2(beta2), epsilon(eps), t(0) {}
 
+void Adam::zero_grad() {
+    for (auto&[weights, gradients] : this->iters) {
+        gradients->zero();
+    }
+}
+
 void Adam::step() {
     this->t++;
     const auto b1t = static_cast<float>(std::pow(static_cast<float>(this->b1), this->t));
@@ -57,4 +63,8 @@ void Adam::step() {
             avx2::store(&w->dataIdx(i)[0], w_vec);
         }
     }
+}
+
+void Adam::add_param(tensor *weights, tensor *gradients) {
+    this->iters.emplace_back(weights, gradients);
 }

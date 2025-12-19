@@ -33,3 +33,7 @@ void Momentum::step() {
         }
     }
 }
+
+void Momentum::add_param(tensor *weights, tensor *gradients) {
+    this->iters.emplace_back(weights, gradients);
+}

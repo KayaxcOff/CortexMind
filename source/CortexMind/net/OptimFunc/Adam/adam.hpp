@@ -13,7 +13,9 @@ namespace cortex::net {
         explicit Adam(double lr = 0.001, double beta1 = 0.9, double beta2 = 0.999, double eps = 1e-8);
         ~Adam() override = default;
 
+        void zero_grad() override;
         void step() override;
+        void add_param(tensor *weights, tensor *gradients) override;
     private:
         double b1, b2;
         double epsilon;

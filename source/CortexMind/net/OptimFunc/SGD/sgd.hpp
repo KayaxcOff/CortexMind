@@ -13,6 +13,8 @@ namespace cortex::net {
         explicit StaticGradient(const double _lr = 0.001) : Optimizer(_lr) {}
 
         void step() override;
+
+        void add_param(tensor *weights, tensor *gradients) override;
     };
 }
 
