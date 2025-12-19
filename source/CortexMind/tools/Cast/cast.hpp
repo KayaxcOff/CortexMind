@@ -18,7 +18,7 @@ namespace cortex::tools {
             const auto val = static_cast<float>(value);
             tensor output;
 
-            output.resize(1, 1, 1, 1);
+            output.allocate(1, 1, 1, 1);
 
             for (auto& item : output.data()) {
                 item.fill(val);
