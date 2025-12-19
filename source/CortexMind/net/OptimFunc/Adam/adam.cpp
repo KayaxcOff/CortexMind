@@ -4,6 +4,8 @@
 
 #include "CortexMind/net/OptimFunc/Adam/adam.hpp"
 #include <CortexMind/framework/Core/AVX/funcs.hpp>
+#include <CortexMind/framework/Tools/Debug/catch.hpp>
+#include <iostream>
 #include <cmath>
 
 using namespace cortex::net;
@@ -38,13 +40,26 @@ void Adam::step() {
         tensor& m = this->m_tensors[idx];
         tensor& v = this->v_tensors[idx];
 
+        if (!w || !g) {
+            CXM_ASSERT(true, "w and g are nulll");
+        }
+        if (w->size() != g->size()) {
+            CXM_ASSERT(true, "w and g size doesn't match");
+        }
+        if (w->size() != m.size() || w->size() != v.size()) {
+            CXM_ASSERT(true, "w and m size doesn't match");
+        }
+
         const size_t vec_size = w->vec_size();
 
         for (size_t i = 0; i < vec_size; i++) {
-            auto w_vec = avx2::load(&w->dataIdx(i)[0]);
-            const auto g_vec = avx2::load(&g->dataIdx(i)[0]);
-            auto m_vec = avx2::load(&m.dataIdx(i)[0]);
-            auto v_vec = avx2::load(&v.dataIdx(i)[0]);
+            const size_t rem = std::min(static_cast<size_t>(8), w->vec_size() - i*8);
+
+            auto w_vec = (rem == 8) ? avx2::load(&w->dataIdx(i*8)[0]) : avx2::load_partial(&w->dataIdx(i*8)[0], rem);
+
+            const auto g_vec = (rem == 8) ? avx2::load(&g->dataIdx(i*8)[0]) : avx2::load_partial(&g->dataIdx(i*8)[0], rem);
+            auto m_vec = (rem == 8) ? avx2::load(&m.dataIdx(i*8)[0]) : avx2::load_partial(&m.dataIdx(i*8)[0], rem);
+            auto v_vec = (rem == 8) ? avx2::load(&v.dataIdx(i*8)[0]) : avx2::load_partial(&v.dataIdx(i*8)[0], rem);
 
             m_vec = avx2::add(avx2::mul(avx2::broadcast(static_cast<float>(this->b1)), m_vec), avx2::mul(avx2::broadcast(1.0f - static_cast<float>(this->b1)), g_vec));
 
