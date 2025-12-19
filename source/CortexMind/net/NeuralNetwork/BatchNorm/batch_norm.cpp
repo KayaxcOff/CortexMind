@@ -2,7 +2,7 @@
 // Created by muham on 16.12.2025.
 //
 
-#include "CortexMind/net/NeuralNetwork/BatchNormazilation/batch_norm.hpp"
+#include "CortexMind/net/NeuralNetwork/BatchNorm/batch_norm.hpp"
 #include <cmath>
 
 using namespace cortex::nn;
