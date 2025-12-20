@@ -4,6 +4,7 @@
 
 #include "CortexMind/framework/Tools/MathTools/math.hpp"
 #include <CortexMind/framework/Core/AVX/funcs.hpp>
+#include <cmath>
 
 using namespace cortex::_fw::avx2;
 using namespace cortex::_fw;
@@ -117,4 +118,14 @@ cortex::tensor TensorFn::variance(tensor &input) {
         result.at(i, 0, 0, 0) = var_sum / N;
     }
     return result;
+}
+
+cortex::tensor TensorFn::sqrt(tensor& input) {
+    tensor output(input.batch(), input.channel(), input.height(), input.width());
+
+    for (size_t i = 0; i < input.vec_size(); ++i) {
+        store(&output.dataIdx(i)[0], avx2::sqrt(load(&input.dataIdx(i)[0])));
+    }
+
+    return output;
 }

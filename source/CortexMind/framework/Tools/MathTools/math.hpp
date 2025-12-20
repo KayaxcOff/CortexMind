@@ -20,6 +20,7 @@ namespace cortex::_fw {
         static void softmax(tensor& input);
         static tensor mean(tensor& input);
         static tensor variance(tensor& input);
+        static tensor sqrt(tensor& input);
     };
 }
 
