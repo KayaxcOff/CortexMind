@@ -11,11 +11,17 @@ using namespace cortex;
 
 Momentum::Momentum(const double lr, const double momentum) : Optimizer(lr), beta(momentum) {}
 
-void Momentum::step() {
+void Momentum::zero_grad() {
     for (auto&[weights, gradients] : this->iters) {
-        tensor* w = weights;
-        tensor* g = gradients;
-        tensor v(weights->batch(), weights->channel(), weights->height(), weights->width());
+        gradients->zero();
+    }
+}
+
+void Momentum::step() {
+    for (size_t idx = 0; idx < this->iters.size(); ++idx) {
+        tensor* w = this->iters[idx].weights;
+        tensor* g = this->iters[idx].gradients;
+        tensor& v = this->velocities[idx];
 
         const size_t vec_size = w->vec_size();
 
@@ -24,7 +30,7 @@ void Momentum::step() {
             const auto g_vec = avx2::load(&g->dataIdx(i)[0]);
             auto v_vec = avx2::load(&v.dataIdx(i)[0]);
 
-            v_vec = avx2::add(avx2::mul(avx2::broadcast(static_cast<float>(this->beta)), v_vec),avx2::mul(avx2::broadcast(1.0f - static_cast<float>(this->beta)), g_vec));
+            v_vec = avx2::add(avx2::mul(avx2::broadcast(static_cast<float>(this->beta)), v_vec), avx2::mul(avx2::broadcast(1.0f - static_cast<float>(this->beta)), g_vec));
 
             w_vec = avx2::sub(w_vec, avx2::mul(avx2::broadcast(static_cast<float>(this->learning_rate)), v_vec));
 
@@ -36,4 +42,5 @@ void Momentum::step() {
 
 void Momentum::add_param(tensor *weights, tensor *gradients) {
     this->iters.emplace_back(weights, gradients);
+    this->velocities.emplace_back(weights->batch(), weights->channel(), weights->height(), weights->width());
 }

@@ -57,9 +57,9 @@ std::string Embedding::config() {
 }
 
 std::array<tensor *, 2> Embedding::parameters() {
-    return {&this->weights, nullptr};
+    return {&this->weights, &this->biases};
 }
 
 std::array<tensor *, 2> Embedding::gradients() {
-    return {&this->grad_weights, nullptr};
+    return {&this->grad_weights, &this->grad_biases};
 }

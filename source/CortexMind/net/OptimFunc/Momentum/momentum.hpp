@@ -13,12 +13,13 @@ namespace cortex::net {
         explicit Momentum(double lr = 0.01, double momentum = 0.9);
         ~Momentum() override = default;
 
+        void zero_grad() override;
         void step() override;
-
-        void add_param(tensor *weights, tensor *gradients);
+        void add_param(tensor *weights, tensor *gradients) override;
     private:
         tensor input_cache;
         double beta;
+        std::vector<tensor> velocities;
     };
 }
 
