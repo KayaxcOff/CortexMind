@@ -16,6 +16,8 @@ namespace cortex::nn {
         tensor forward(const tensor &input) override;
         tensor backward(const tensor &grad_output) override;
         std::string config() override;
+        std::array<tensor *, 2> parameters() override;
+        std::array<tensor *, 2> gradients() override;
     private:
         int input_dim;
         int vocab_size;

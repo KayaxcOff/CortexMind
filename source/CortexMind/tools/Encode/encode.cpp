@@ -11,13 +11,15 @@ MindTransform::MindTransform(std::unique_ptr<TokenNet> tokenizer) : token_net_(s
 
 tensor MindTransform::encode(const std::string &text, const int maxSeqLen, const int batch) const {
     const std::vector<int> ids = this->token_net_->tokenize(text);
+    tensor output(batch, 1, maxSeqLen, 1, static_cast<float>(TokenNet::UNK_ID));
 
-    tensor output(batch, 1, maxSeqLen, 1);
+    const int limit = std::min(static_cast<int>(ids.size()), maxSeqLen);
 
-    for (int i = 0; i < batch; ++i) {
-        for (int j = 0; j < ids.size(); ++j) {
-            output.at(i, 0, j, 0) = static_cast<float>(ids[j]);
+    for (int b = 0; b < batch; ++b) {
+        for (int t = 0; t < limit; ++t) {
+            output.at(b, 0, t, 0) = static_cast<float>(ids[t]);
         }
     }
+
     return output;
 }

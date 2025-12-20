@@ -10,6 +10,7 @@ using namespace cortex::nn;
 using namespace cortex;
 
 Embedding::Embedding(const int _input_dim, const int _vocab_size) : input_dim(_input_dim), vocab_size(_vocab_size) {
+    this->weights.allocate(1, 1, this->vocab_size, this->input_dim);
     this->weights.uniform_rand();
 }
 
@@ -24,7 +25,7 @@ tensor Embedding::forward(const tensor &input) {
         for (int j = 0; j < input.channel(); ++j) {
             for (int k = 0; k < input.height(); ++k) {
                 const int idx = static_cast<int>(input.at(i, j, k, 0));
-                if (idx >= 0 || idx < this->vocab_size) CXM_ASSERT(true, "Index out of bounds in Embedding layer forward pass");
+                if (idx < 0 || idx >= this->vocab_size) CXM_ASSERT(true, "Index out of bounds in Embedding layer forward pass");
                 for (int l = 0; l < this->input_dim; ++l) {
                     output.at(i, j, k, l) = this->weights.at(0, 0, idx, l);
                 }
@@ -41,7 +42,7 @@ tensor Embedding::backward(const tensor &grad_output) {
         for (int j = 0; j < this->input_cache.channel(); ++j) {
             for (int k = 0; k < this->input_cache.height(); ++k) {
                 const int idx = static_cast<int>(this->input_cache.at(i, j, k, 0));
-                if (idx >= 0 || idx < this->vocab_size) CXM_ASSERT(true, "Index out of bounds in Embedding layer backward pass");
+                if (idx < 0 || idx >= this->vocab_size) CXM_ASSERT(true, "Index out of bounds in Embedding layer backward pass");
                 for (int l = 0; l < this->input_dim; ++l) {
                     this->grad_weights.at(0, 0, idx, l) += grad_output.at(i, j, k, l);
                 }
@@ -53,4 +54,12 @@ tensor Embedding::backward(const tensor &grad_output) {
 
 std::string Embedding::config() {
     return "Embedding";
+}
+
+std::array<tensor *, 2> Embedding::parameters() {
+    return {&this->weights, nullptr};
+}
+
+std::array<tensor *, 2> Embedding::gradients() {
+    return {&this->grad_weights, nullptr};
 }

@@ -8,109 +8,71 @@
 
 using namespace cortex;
 
-float compute_accuracy(const tensor &y_pred, const tensor &y_true) {
-    int correct = 0;
-    const int total = y_pred.batch() * y_pred.channel() * y_pred.height();
-
-    for (int i = 0; i < y_pred.batch(); ++i) {
-        for (int j = 0; j < y_pred.channel(); ++j) {
-            for (int k = 0; k < y_pred.height(); ++k) {
-                int pred_label = 0;
-                float max_val = y_pred.at(i,j,k,0);
-                for (int l = 1; l < y_pred.width(); ++l) {
-                    if (y_pred.at(i,j,k,l) > max_val) {
-                        max_val = y_pred.at(i,j,k,l);
-                        pred_label = l;
-                    }
-                }
-
-                int true_label = 0;
-                float max_true = y_true.at(i,j,k,0);
-                for (int l = 1; l < y_true.width(); ++l) {
-                    if (y_true.at(i,j,k,l) > max_true) {
-                        max_true = y_true.at(i,j,k,l);
-                        true_label = l;
-                    }
-                }
-
-                if (pred_label == true_label) correct++;
-            }
-        }
-    }
-
-    return static_cast<float>(correct) / static_cast<float>(total);
-}
-
-
 int main() {
-    constexpr int input_size = 4;
-    constexpr int hidden_size = 5;
-    constexpr int output_size = 3;
-    constexpr int batch_size = 2;
+    auto tok = std::make_unique<tools::TokenNet>();
+    tok->fit({"the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog"});
 
-    nn::Dense dense1(input_size, hidden_size);
-    nn::Dense dense2(hidden_size, output_size);
-    net::ReLU relu;
+    tools::MindTransform enc(std::move(tok));
 
-    tensor x(batch_size,1,1,input_size);
-    tensor y_true(batch_size,1,1,output_size);
+    const std::string text = "the quick fox jumps high";
+    constexpr int maxSeqLen = 5;
 
-    x.uniform_rand();
-    y_true.uniform_rand();
+    auto input_tensor = enc.encode(text, maxSeqLen);
+    log("Input tensor: ");
+    input_tensor.print();
 
-    net::Adam optimizer(0.01);
+    constexpr int vocab_size = 10;
+    constexpr int embedding_dim = 16;
+    nn::Embedding embedding_layer(embedding_dim, vocab_size);
 
-    for (nn::Dense* layers[] = { &dense1, &dense2 }; nn::Dense* layer : layers) {
-        auto params = layer->parameters();
-        auto grads  = layer->gradients();
-        for (size_t i = 0; i < params.size(); ++i) {
-            optimizer.add_param(params[i], grads[i]);
-        }
-    }
+    auto output = embedding_layer.forward(input_tensor);
+    log("Output tensor: ");
+    output.print();
 
-    for (int step = 0; step < 20; ++step) {
-        net::MeanSquared loss;
-        tensor h1 = dense1.forward(x);
-        tensor h2 = relu.forward(h1);
-        tensor y_pred = dense2.forward(h2);
+    std::cout << std::endl;
 
-        tensor l = loss.forward(y_pred, y_true);
-        float acc = compute_accuracy(y_pred, y_true);
-        std::cout << "Step " << step + 1 << ", Loss: " << l.at(0,0,0,0) << ", Accuracy: " << acc << std::endl;
+    auto grad_output = output;
+    auto grad_input = embedding_layer.backward(grad_output);
+    log("Grad output tensor: ");
+    grad_output.print();
 
-        tensor grad_loss = loss.backward(y_pred, y_true);
-        tensor grad_h2 = dense2.backward(grad_loss);
-        tensor grad_h1 = relu.backward(grad_h2);
-        dense1.backward(grad_h1);
+    std::cout << "Backward done, grad_weights updated." << std::endl;
 
-        optimizer.step();
-        optimizer.zero_grad();
-    }
-
-    std::cout << "Mini training loop completed." << std::endl;
     return 0;
 }
 
-/*  ---- output ----
-*   Step 1, Loss: 0.135245, Accuracy: 0.5
-*   Step 2, Loss: 0.126451, Accuracy: 1
-*   Step 3, Loss: 0.11764, Accuracy: 1
-*   Step 4, Loss: 0.108938, Accuracy: 1
-*   Step 5, Loss: 0.100375, Accuracy: 1
-*   Step 6, Loss: 0.0919815, Accuracy: 1
-*   Step 7, Loss: 0.0837848, Accuracy: 1
-*   Step 8, Loss: 0.0758132, Accuracy: 1
-*   Step 9, Loss: 0.0680953, Accuracy: 1
-*   Step 10, Loss: 0.0606599, Accuracy: 1
-*   Step 11, Loss: 0.0535361, Accuracy: 1
-*   Step 12, Loss: 0.0467537, Accuracy: 1
-*   Step 13, Loss: 0.0411723, Accuracy: 1
-*   Step 14, Loss: 0.0361579, Accuracy: 1
-*   Step 15, Loss: 0.0313829, Accuracy: 1
-*   Step 16, Loss: 0.0268745, Accuracy: 1
-*   Step 17, Loss: 0.0226612, Accuracy: 1
-*   Step 18, Loss: 0.0187718, Accuracy: 1
-*   Step 19, Loss: 0.0152357, Accuracy: 1
-*   Step 20, Loss: 0.012082, Accuracy: 1
-*   Mini training loop completed.
+/*
+*  --- output ---
+* [LOG]: Input tensor:
+* Tensor shape: [1, 1, 5, 1]
+* Batch 0:
+* Channel 0:
+*  [ 1 ]
+*  [ 2 ]
+*  [ 4 ]
+*  [ 5 ]
+*  [ 0 ]
+
+* [LOG]: Output tensor:
+* Tensor shape: [1, 1, 5, 16]
+* Batch 0:
+* Channel 0:
+*  [ 0.579188 0.807498 0.71796 0.856809 0.526325 0.272841 0.894104 0.0698302 0.258429 0.0413345 0.139374 0.855779 0.573819 0.612758 0.243042 0.633758 ]
+*  [ 0.945054 0.121741 0.41903 0.870325 0.559316 0.773218 0.959745 0.294646 0.653366 0.707816 0.16334 0.0463936 0.640263 0.871455 0.218482 0.630835 ]
+*  [ 0.888358 0.487528 0.29816 0.474833 0.962265 0.569732 0.448245 0.869701 0.94941 0.195691 0.686307 0.530196 0.938729 0.443641 0.717141 0.0442309 ]
+*  [ 0.716377 0.481316 0.516301 0.0254524 0.0954186 0.235981 0.950911 0.715283 0.916791 0.453572 0.324668 0.762139 0.962477 0.367103 0.935506 0.165289 ]
+*  [ 0.644312 0.408271 0.266554 0.569968 0.853785 0.246696 0.419656 0.855203 0.00408989 0.135031 0.781821 0.919151 0.0764128 0.572885 0.422099 0.250859 ]
+
+
+* [LOG]: Grad output tensor:
+* Tensor shape: [1, 1, 5, 16]
+* Batch 0:
+* Channel 0:
+*  [ 0.579188 0.807498 0.71796 0.856809 0.526325 0.272841 0.894104 0.0698302 0.258429 0.0413345 0.139374 0.855779 0.573819 0.612758 0.243042 0.633758 ]
+*  [ 0.945054 0.121741 0.41903 0.870325 0.559316 0.773218 0.959745 0.294646 0.653366 0.707816 0.16334 0.0463936 0.640263 0.871455 0.218482 0.630835 ]
+*  [ 0.888358 0.487528 0.29816 0.474833 0.962265 0.569732 0.448245 0.869701 0.94941 0.195691 0.686307 0.530196 0.938729 0.443641 0.717141 0.0442309 ]
+*  [ 0.716377 0.481316 0.516301 0.0254524 0.0954186 0.235981 0.950911 0.715283 0.916791 0.453572 0.324668 0.762139 0.962477 0.367103 0.935506 0.165289 ]
+*  [ 0.644312 0.408271 0.266554 0.569968 0.853785 0.246696 0.419656 0.855203 0.00408989 0.135031 0.781821 0.919151 0.0764128 0.572885 0.422099 0.250859 ]
+
+* Backward done, grad_weights updated.
 */

@@ -7,40 +7,42 @@
 
 using namespace cortex::tools;
 
-TokenNet::TokenNet() : nextIdx(0) {
+TokenNet::TokenNet() : nextIdx(1) {
     this->tokensIdx[UNK_TOKEN] = UNK_ID;
     this->reverseIdx[UNK_ID] = UNK_TOKEN;
 }
 
 TokenNet::~TokenNet() = default;
 
-void TokenNet::fit(const std::string& token) {
-    if (!this->tokensIdx.contains(token)) {
-        this->tokensIdx[token] = UNK_ID;
-        this->reverseIdx[UNK_ID] = token;
-        this->nextIdx++;
+void TokenNet::fit(const std::string &token) {
+    std::istringstream ss(token);
+    std::string word;
+
+    while (ss >> word) {
+        if (!this->tokensIdx.contains(word)) {
+            const int idx = this->nextIdx++;
+            this->tokensIdx[word] = idx;
+            this->reverseIdx[idx] = word;
+        }
     }
 }
 
-void TokenNet::fit(const std::vector<std::string>& tokens) {
-    for (const auto& token : tokens) {
+void TokenNet::fit(const std::vector<std::string> &tokens) {
+    for (const std::string &token : tokens) {
         this->fit(token);
     }
 }
 
-std::vector<int> TokenNet::tokenize(const std::string& token) {
-    std::vector<int> tokenIds;
+std::vector<int> TokenNet::tokenize(const std::string &token) {
+    std::vector<int> ids;
     std::istringstream iss(token);
     std::string word;
+
     while (iss >> word) {
         auto it = this->tokensIdx.find(word);
-        if (it != this->tokensIdx.end()) {
-            tokenIds.push_back(it->second);
-        } else {
-            tokenIds.push_back(UNK_ID);
-        }
+        ids.push_back(it != this->tokensIdx.end() ? it->second : UNK_ID);
     }
-    return tokenIds;
+    return ids;
 }
 
 int TokenNet::getId(const std::string& token) const {
