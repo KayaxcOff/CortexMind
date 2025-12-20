@@ -2,7 +2,7 @@
 // Created by muham on 20.12.2025.
 //
 
-#include "CortexMind/models/LinearRegression/linear.h"
+#include "CortexMind/models/LinearRegression/linear.hpp"
 
 using namespace cortex::tin;
 using namespace cortex;

@@ -19,7 +19,7 @@
 #include <CortexMind/net/ActivationFunc/Sigmoid/sigmoid.hpp>
 #include <CortexMind/net/ActivationFunc/LeakyReLU/leaky.hpp>
 // --- Models ----
-#include <CortexMind/models/LinearRegression/linear.h>
+#include <CortexMind/models/LinearRegression/linear.hpp>
 // --- Optimizer Functions ---
 #include <CortexMind/net/OptimFunc/Adam/adam.hpp>
 #include <CortexMind/net/OptimFunc/Momentum/momentum.hpp>

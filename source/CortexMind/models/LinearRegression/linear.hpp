@@ -2,8 +2,8 @@
 // Created by muham on 20.12.2025.
 //
 
-#ifndef CORTEXMIND_LINEAR_H
-#define CORTEXMIND_LINEAR_H
+#ifndef CORTEXMIND_LINEAR_HPP
+#define CORTEXMIND_LINEAR_HPP
 
 #include <CortexMind/models/model.hpp>
 
@@ -22,4 +22,4 @@ namespace cortex::tin {
     };
 }
 
-#endif //CORTEXMIND_LINEAR_H
+#endif //CORTEXMIND_LINEAR_HPP
