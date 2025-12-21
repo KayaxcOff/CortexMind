@@ -18,6 +18,8 @@ namespace cortex::nn {
         tensor forward(const tensor &input) override;
         tensor backward(const tensor &grad_output) override;
         std::string config() override;
+        std::array<tensor *, 2> parameters() override;
+        std::array<tensor *, 2> gradients() override;
     private:
         std::unique_ptr<_fw::MindKernel> mind_kernel_;
     };

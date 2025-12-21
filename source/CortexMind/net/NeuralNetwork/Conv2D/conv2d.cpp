@@ -26,3 +26,11 @@ tensor Conv2D::backward(const tensor &grad_output) {
 std::string Conv2D::config() {
     return "Conv2D";
 }
+
+std::array<tensor *, 2> Conv2D::parameters() {
+    return {&this->weights, &this->biases};
+}
+
+std::array<tensor *, 2> Conv2D::gradients() {
+    return {&this->grad_biases, &this->grad_weights};
+}
