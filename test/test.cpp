@@ -35,3 +35,17 @@ int main() {
 
     return 0;
 }
+
+/*
+----- output -----
+Epoch [1/10] Loss: 0.449683 | Accuracy: 100%
+Epoch [2/10] Loss: 0.434057 | Accuracy: 100%
+Epoch [3/10] Loss: 0.418403 | Accuracy: 100%
+Epoch [4/10] Loss: 0.404859 | Accuracy: 100%
+Epoch [5/10] Loss: 0.394377 | Accuracy: 100%
+Epoch [6/10] Loss: 0.385931 | Accuracy: 100%
+Epoch [7/10] Loss: 0.378698 | Accuracy: 100%
+Epoch [8/10] Loss: 0.373438 | Accuracy: 100%
+Epoch [9/10] Loss: 0.369254 | Accuracy: 100%
+Epoch [10/10] Loss: 0.366092 | Accuracy: 100%
+*/
