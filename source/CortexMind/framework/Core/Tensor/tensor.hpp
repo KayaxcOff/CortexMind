@@ -42,7 +42,7 @@ namespace cortex::_fw {
         [[nodiscard]] MindTensor transpose() const noexcept;
         [[nodiscard]] MindTensor permute(std::array<int, 4> axes) const noexcept;
 
-        void operator()(int b, int c, int h, int w, float value=0) noexcept;
+        void operator()(int b, int c, int h, int w) noexcept;
 
         MindTensor& operator=(const MindTensor& other);
 

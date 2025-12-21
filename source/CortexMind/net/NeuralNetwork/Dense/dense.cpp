@@ -30,6 +30,13 @@ tensor Dense::forward(const tensor &input) {
 
     tensor x_flat = input.flatten();
 
+    tensor x_reshaped(input.batch(), 1, 1, this->INPUT_SIZE);
+    for (int i = 0; i < input.batch(); ++i) {
+        for (int j = 0; j < this->INPUT_SIZE; ++j) {
+            x_reshaped.at(i,0,0,j) = x_flat.at(i,0,0,j);
+        }
+    }
+
     tensor bias_expanded(input.batch(), 1, 1, this->OUTPUT_SIZE);
     for (int i = 0; i < input.batch(); ++i) {
         for (int j = 0; j < this->OUTPUT_SIZE; ++j) {
@@ -37,9 +44,8 @@ tensor Dense::forward(const tensor &input) {
         }
     }
 
-    tensor y = input.matmul(this->weights) + bias_expanded;
-
-    return y;
+    tensor output = x_reshaped.matmul(this->weights) + bias_expanded;
+    return output;
 }
 
 tensor Dense::backward(const tensor &grad_output) {

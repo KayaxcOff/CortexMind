@@ -25,6 +25,8 @@ MindTensor::MindTensor(const MindTensor &other) = default;
 MindTensor::~MindTensor() = default;
 
 float &MindTensor::at(const int b, const int c, const int h, const int w) noexcept {
+    CXM_ASSERT(b > this->batch() && c > this->channel() && h > this->height() && w > this->width(), "Out of index");
+
     const size_t idx = ((b * channel() + c) * height() + h) * width() + w;
     const size_t arrIdx = idx / 8;
     const size_t offset = idx % 8;
@@ -157,8 +159,7 @@ MindTensor MindTensor::flatten() const noexcept {
 }
 
 MindTensor MindTensor::matmul(const MindTensor &other) const noexcept {
-    if (this->width() != other.height())
-        CXM_ASSERT(true, "Incompatible tensor shapes for matmul!");
+    CXM_ASSERT(this->width() != other.height(), "Incompatible tensor shapes for matmul!");
 
     MindTensor result(this->batch(), this->channel(), this->height(), other.width());
 
@@ -231,7 +232,7 @@ MindTensor MindTensor::permute(const std::array<int, 4> axes) const noexcept{
     return output;
 }
 
-void MindTensor::operator()(const int b, const int c, const int h, const int w, const float value) noexcept {
+void MindTensor::operator()(const int b, const int c, const int h, const int w) noexcept {
     this->m_shape[0] =  b;
     this->m_shape[1] =  c;
     this->m_shape[2] =  h;
@@ -239,9 +240,6 @@ void MindTensor::operator()(const int b, const int c, const int h, const int w, 
     this->m_size = static_cast<size_t>(b) * c * h * w;
     const size_t num = (this->m_size + 7) / 8;
     this->m_data.resize(num);
-    for (auto& item : this->m_data) {
-        item.fill(value);
-    }
 }
 
 MindTensor &MindTensor::operator=(const MindTensor &other) = default;
@@ -258,9 +256,7 @@ MindTensor MindTensor::operator+(const MindTensor &other) const noexcept {
 }
 
 MindTensor MindTensor::operator-(const MindTensor &other) const noexcept {
-    if (this->shape() != other.shape()) {
-        return MindTensor();
-    }
+    if (this->shape() != other.shape()) CXM_ASSERT(true, "Tensor shapes are not equal!");
 
     MindTensor result(this->batch(), this->channel(), this->height(), this->width());
 

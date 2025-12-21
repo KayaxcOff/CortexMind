@@ -3,6 +3,8 @@
 //
 
 #include "CortexMind/net/LossFunc/MAE/mae.hpp"
+#include <CortexMind/framework/Tools/Debug/catch.hpp>
+#include <iostream>
 
 using namespace cortex::net;
 using namespace cortex;
@@ -12,6 +14,9 @@ MeanAbsolute::MeanAbsolute() = default;
 MeanAbsolute::~MeanAbsolute() = default;
 
 tensor MeanAbsolute::forward(const tensor &predictions, const tensor &targets) const {
+    if (predictions.shape() != targets.shape()) {
+        CXM_ASSERT(true, "Predictions and targets must have the same shape!");
+    }
     tensor diff = targets - predictions;
     tensor output(targets.batch(), 1, 1, 1);
 

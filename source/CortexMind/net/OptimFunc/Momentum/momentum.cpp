@@ -4,6 +4,8 @@
 
 #include "CortexMind/net/OptimFunc/Momentum/momentum.hpp"
 #include <CortexMind/framework/Core/AVX/funcs.hpp>
+#include <CortexMind/framework/Tools/Debug/catch.hpp>
+#include <iostream>
 
 using namespace cortex::net;
 using namespace cortex::_fw;
@@ -18,6 +20,7 @@ void Momentum::zero_grad() {
 }
 
 void Momentum::step() {
+    CXM_ASSERT(this->iters.size() != this->velocities.size(), "Velocities not initialized! Call add_param first.");
     for (size_t idx = 0; idx < this->iters.size(); ++idx) {
         tensor* w = this->iters[idx].weights;
         tensor* g = this->iters[idx].gradients;
@@ -42,5 +45,5 @@ void Momentum::step() {
 
 void Momentum::add_param(tensor *weights, tensor *gradients) {
     this->iters.emplace_back(weights, gradients);
-    this->velocities.emplace_back(weights->batch(), weights->channel(), weights->height(), weights->width());
+    this->velocities.emplace_back(weights->batch(), weights->channel(), weights->height(), weights->width(), 0.0f);
 }

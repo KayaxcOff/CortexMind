@@ -29,9 +29,7 @@ namespace cortex::net {
         template<typename LossT, typename OptimT, typename ActivT>
         void compile(float _lr = 0.001) {
             static_assert(std::is_base_of_v<_fw::Loss, LossT>, "LossT must derive from _fw::Loss");
-
             static_assert(std::is_base_of_v<_fw::Optimizer, OptimT>, "OptimT must derive from _fw::Optimizer");
-
             static_assert(std::is_base_of_v<_fw::Activation, ActivT>, "ActivT must derive from _fw::Activation");
 
             this->loss_fn_ = std::make_unique<LossT>();
@@ -51,9 +49,23 @@ namespace cortex::net {
         }
 
         void train(const std::vector<tensor>& feats, const std::vector<tensor>& targets, const int epochs = 1){
-            CXM_ASSERT(feats.empty() || targets.empty(), "Feature or target data is empty");
-            CXM_ASSERT(feats.size() != targets.size(), "Number of features and targets must match");
-            CXM_ASSERT(!this->isValid, "Model not compiled");
+            if (feats.empty() || targets.empty()) {
+                CXM_ASSERT(true, "Feature or target data is empty");
+            }
+            if (feats.size() != targets.size()) {
+                CXM_ASSERT(true, "Number of features and targets must match");
+            }
+            if (!this->isValid) {
+                CXM_ASSERT(true, "Model not compiled");
+            }
+
+            for (const auto& item : layers_) {
+                auto params = item->parameters();
+                auto grads  = item->gradients();
+                for (size_t k = 0; k < params.size(); ++k) {
+                    this->optim_fn_->add_param(params[k], grads[k]);
+                }
+            }
 
             for (int i = 0; i < epochs; ++i) {
                 float epoch_loss = 0.0f;
@@ -65,32 +77,29 @@ namespace cortex::net {
                     tensor x = feats[j];
                     tensor y = targets[j];
 
-                    for (const auto& item : layers_) x = item->forward(x);
+                    for (const auto& item : layers_) {
+                        x = item->forward(x);
+                    }
                     x = this->activ_fn_->forward(x);
 
                     tensor loss = this->loss_fn_->forward(x, y);
                     epoch_loss += loss.at(0, 0, 0, 0);
-
                     epoch_acc += _fw::TensorFn::accuracy(x, y);
 
-                    tensor grad = this->loss_fn_->backward(x, loss);
-                    grad = this->activ_fn_->backward(grad);
-                    for (auto it = layers_.rbegin(); it != layers_.rend(); ++it)
-                        grad = (*it)->backward(grad);
+                    tensor grad = this->loss_fn_->backward(x, y);
 
-                    for (const auto& item : layers_) {
-                        auto params = item->parameters();
-                        auto grads  = item->gradients();
-                        for (size_t k = 0; k < params.size(); ++k)
-                            this->optim_fn_->add_param(params[k], grads[k]);
+                    grad = this->activ_fn_->backward(grad);
+                    for (auto it = layers_.rbegin(); it != layers_.rend(); ++it) {
+                        grad = (*it)->backward(grad);
                     }
+
                     this->optim_fn_->step();
                 }
 
-                // Log
+
                 std::cout
                     << "Epoch [" << (i + 1) << "/" << epochs << "] "
-                    << "Loss: " << (epoch_acc / static_cast<float>(feats.size()))
+                    << "Loss: " << (epoch_loss / static_cast<float>(feats.size()))
                     << " | Accuracy: " << (epoch_acc / static_cast<float>(feats.size())) * 100.0f
                     << "%" << std::endl;
             }
@@ -103,6 +112,7 @@ namespace cortex::net {
             }
             return output;
         }
+
     private:
         std::vector<std::unique_ptr<_fw::Layer>> layers_;
         std::unique_ptr<_fw::Activation> activ_fn_;
