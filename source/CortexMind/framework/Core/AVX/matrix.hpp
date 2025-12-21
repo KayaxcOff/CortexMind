@@ -95,8 +95,14 @@ namespace cortex::_fw::avx2 {
             }
         }
 
-        static void matmul(const float* a, const float* b, float* result, const size_t M, const size_t N, const size_t K) {
+        static void matmul(const float* a, const float* b, float* result, const size_t M, const size_t N, const size_t K, const bool accumulate = false) {
             constexpr size_t block = 8;
+
+            if (!accumulate) {
+                for (size_t i = 0; i < M * N; i += 8) {
+                    store(result + i, zero());
+                }
+            }
 
             for (size_t i = 0; i < M; i += block) {
                 const size_t im = std::min(block, M - i);

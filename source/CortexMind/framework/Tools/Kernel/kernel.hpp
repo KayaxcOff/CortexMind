@@ -14,11 +14,18 @@ namespace cortex::_fw {
         ~MindKernel();
 
         tensor apply(const tensor& input);
-        tensor backward(const tensor& in, const tensor& grad_out);
+        tensor backward(const tensor& input, const tensor& grad_output);
+        void zero_grad() noexcept;
+        std::array<tensor*, 1> parameters() noexcept;
+        std::array<tensor*, 1> gradients() noexcept;
     private:
         tensor weights;
-        int IN_CHANNEL, OUT_CHANNEL;
-        int KERNEL_HEIGHT, KERNEL_WIDTH;
+        tensor grad_weights;
+
+        const int IN_CHANNEL;
+        const int OUT_CHANNEL;
+        const int KERNEL_HEIGHT;
+        const int KERNEL_WIDTH;
     };
 }
 
