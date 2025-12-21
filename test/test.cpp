@@ -8,30 +8,30 @@
 using namespace cortex;
 
 int main() {
-    tensor x(3, 1, 1, 2);
+    net::Model model;
 
-    x.uniform_rand();
+    std::vector<tensor> inputs;
+    std::vector<tensor> outputs;
 
-    tensor y(3, 1, 1, 1);
+    constexpr int num_samples = 10;
 
-    y.uniform_rand();
+    for (int i = 0; i < num_samples; ++i) {
+        tensor input;
+        input.allocate(2, 1, 1, 4);
+        input.uniform_rand();
+        inputs.push_back(input);
 
-    std::vector batchX = {x};
-    std::vector batchY = {y};
+        tensor output;
+        output.allocate(2, 1, 1, 3);
+        output.uniform_rand();
+        outputs.push_back(output);
+    }
 
-    tin::LinearRegression linear(2);
+    model.add<nn::Dense>(4, 3);
 
-    linear.fit(batchX, batchY);
+    model.compile<net::MeanAbsolute, net::Momentum, net::ReLU>();
 
-    const tensor predict = linear.predict(x);
-
-    log("True tensor:");
-    y.print();
-
-    std::cout << std::endl;
-
-    log("Predicted tensor:");
-    predict.print();
+    model.train(inputs, outputs, 5);
 
     return 0;
 }

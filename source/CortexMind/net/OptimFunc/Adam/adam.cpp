@@ -4,6 +4,8 @@
 
 #include "CortexMind/net/OptimFunc/Adam/adam.hpp"
 #include <CortexMind/framework/Tools/MathTools/math.hpp>
+#include <CortexMind/framework/Tools/Debug/catch.hpp>
+#include <iostream>
 #include <cmath>
 
 using namespace cortex::net;
@@ -14,6 +16,7 @@ Adam::Adam(const double lr, const double beta1, const double beta2, const double
 
 void Adam::zero_grad() {
     for (auto&[weights, gradients] : this->iters) {
+        CXM_ASSERT(gradients != nullptr, "Gradient tensor is nullptr in Adam::zero_grad");
         gradients->zero();
     }
 }
@@ -47,5 +50,6 @@ void Adam::step() {
 }
 
 void Adam::add_param(tensor *weights, tensor *gradients) {
+    CXM_ASSERT(weights != nullptr && gradients != nullptr, "Weights or gradients pointer is nullptr in Adam::add_param");
     this->iters.emplace_back(weights, gradients);
 }

@@ -8,7 +8,7 @@
 #include <CortexMind/framework/Net/loss.hpp>
 
 namespace cortex::net {
-    class MeanSquared : _fw::Loss {
+    class MeanSquared : public _fw::Loss {
     public:
         MeanSquared();
         ~MeanSquared() override;

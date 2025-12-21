@@ -3,6 +3,8 @@
 //
 
 #include "CortexMind/net/LossFunc/MSE/mse.hpp"
+#include <CortexMind/framework/Tools/Debug/catch.hpp>
+#include <iostream>
 
 using namespace cortex::net;
 using namespace cortex;
@@ -12,8 +14,13 @@ MeanSquared::MeanSquared() = default;
 MeanSquared::~MeanSquared() = default;
 
 tensor MeanSquared::forward(const tensor &predictions, const tensor &targets) const {
+    CXM_ASSERT(predictions.batch() != targets.batch()
+           || predictions.channel() != targets.channel()
+           || predictions.height() != targets.height()
+           || predictions.width() != targets.width(),
+           "Predictions and targets must have the same shape");
 
-    tensor output(1, 1, 1, 1);
+    tensor output(targets.batch(), 1, 1, 1);
     tensor diff = targets - predictions;
 
     for (int i = 0; i < targets.batch(); ++i) {
@@ -36,6 +43,12 @@ tensor MeanSquared::forward(const tensor &predictions, const tensor &targets) co
 }
 
 tensor MeanSquared::backward(const tensor &predictions, const tensor &targets) const {
+    CXM_ASSERT(predictions.batch() != targets.batch()
+           || predictions.channel() != targets.channel()
+           || predictions.height() != targets.height()
+           || predictions.width() != targets.width(),
+           "Predictions and targets must have the same shape");
+
     tensor grad(predictions.batch(), targets.channel(), targets.height(), targets.width());
 
     for (int i = 0; i < targets.batch(); ++i) {

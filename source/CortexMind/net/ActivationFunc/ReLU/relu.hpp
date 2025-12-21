@@ -8,7 +8,7 @@
 #include <CortexMind/framework/Net/activ.hpp>
 
 namespace cortex::net {
-    class ReLU : _fw::Activation {
+    class ReLU : public _fw::Activation {
     public:
         ReLU() = default;
         ~ReLU() override = default;

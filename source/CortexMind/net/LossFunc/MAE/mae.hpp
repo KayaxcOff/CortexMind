@@ -8,13 +8,13 @@
 #include <CortexMind/framework/Net/loss.hpp>
 
 namespace cortex::net {
-    class MeanAbsolute : _fw::Loss {
+    class MeanAbsolute : public _fw::Loss {
     public:
         MeanAbsolute();
         ~MeanAbsolute() override;
 
-        tensor backward(const tensor &predictions, const tensor &targets) const override;
-        tensor forward(const tensor &predictions, const tensor &targets) const override;
+        [[nodiscard]] tensor backward(const tensor &predictions, const tensor &targets) const override;
+        [[nodiscard]] tensor forward(const tensor &predictions, const tensor &targets) const override;
     };
 }
 

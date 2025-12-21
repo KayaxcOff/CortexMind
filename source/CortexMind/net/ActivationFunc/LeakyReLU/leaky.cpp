@@ -4,6 +4,8 @@
 
 #include "CortexMind/net/ActivationFunc/LeakyReLU/leaky.hpp"
 #include <CortexMind/framework/Tools/MathTools/math.hpp>
+#include <CortexMind/framework/Tools/Debug/catch.hpp>
+#include <iostream>
 
 using namespace cortex::net;
 using namespace cortex::_fw;
@@ -20,12 +22,17 @@ tensor LeakyReLU::backward(const tensor &grad_output) {
 
     for (int i = 0; i < grad_input.batch(); ++i) {
         for (int j = 0; j < grad_input.channel(); ++j) {
-            for (int k = 0; k < grad_input.width(); ++k) {
-                for (int l = 0; l < grad_input.height(); ++l) {
+            for (int k = 0; k < grad_input.height(); ++k) {
+                for (int l = 0; l < grad_input.width(); ++l) {
                     grad_input.at(i,j,k,l) *= this->output.at(i,j,k,l) > 0 ? 1.0f : this->alpha;
                 }
             }
         }
     }
+
+    CXM_ASSERT(!grad_output.empty(), "LeakyReLU backward: grad_output is empty");
+    CXM_ASSERT(!this->output.empty(), "LeakyReLU backward: stored output is empty");
+
+
     return grad_input;
 }

@@ -8,9 +8,9 @@
 #include <CortexMind/framework/Net/activ.hpp>
 
 namespace cortex::net {
-    class LeakyReLU : _fw::Activation {
+    class LeakyReLU : public _fw::Activation {
     public:
-        LeakyReLU(float _alpha = 0.01f) : alpha(_alpha) {}
+        explicit LeakyReLU(const float _alpha = 0.01f) : alpha(_alpha) {}
         ~LeakyReLU() override = default;
 
         tensor forward(const tensor &input) override;

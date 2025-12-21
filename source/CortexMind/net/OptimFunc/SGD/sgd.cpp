@@ -8,6 +8,12 @@
 using namespace cortex::net;
 using namespace cortex::_fw;
 
+void StaticGradient::zero_grad() {
+    for (auto&[weights, gradients] : this->iters) {
+        gradients->zero();
+    }
+}
+
 void StaticGradient::step() {
     for (auto& [weight, grad] : this->iters) {
         for (size_t i = 0; i < weight->vec_size(); i++) {

@@ -21,6 +21,8 @@ namespace cortex::_fw {
         static tensor mean(tensor& input);
         static tensor variance(tensor& input);
         static tensor sqrt(tensor& input);
+        static int argmax(tensor& input);
+        static float accuracy(tensor& y_pred, tensor& y_true);
     };
 }
 

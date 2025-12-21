@@ -8,7 +8,7 @@
 #include <CortexMind/framework/Net/optim.hpp>
 
 namespace cortex::net {
-    class Adam : _fw::Optimizer {
+    class Adam : public _fw::Optimizer {
     public:
         explicit Adam(double lr = 0.001, double beta1 = 0.9, double beta2 = 0.999, double eps = 1e-8);
         ~Adam() override = default;

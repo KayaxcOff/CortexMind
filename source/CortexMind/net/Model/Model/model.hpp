@@ -5,6 +5,8 @@
 #ifndef CORTEXMIND_MODEL_HPP
 #define CORTEXMIND_MODEL_HPP
 
+#include <CortexMind/framework/Tools/MathTools/math.hpp>
+#include <CortexMind/framework/Tools/Debug/catch.hpp>
 #include <CortexMind/framework/Net/layer.hpp>
 #include <CortexMind/framework/Net/activ.hpp>
 #include <CortexMind/framework/Net/loss.hpp>
@@ -24,9 +26,15 @@ namespace cortex::net {
             this->layers_.emplace_back(std::make_unique<T>(args...));
         }
 
-        template<typename LoosT, typename OptimT, typename ActivT>
-        void compile(float _lr) {
-            this->loss_fn_ = std::make_unique<LoosT>();
+        template<typename LossT, typename OptimT, typename ActivT>
+        void compile(float _lr = 0.001) {
+            static_assert(std::is_base_of_v<_fw::Loss, LossT>, "LossT must derive from _fw::Loss");
+
+            static_assert(std::is_base_of_v<_fw::Optimizer, OptimT>, "OptimT must derive from _fw::Optimizer");
+
+            static_assert(std::is_base_of_v<_fw::Activation, ActivT>, "ActivT must derive from _fw::Activation");
+
+            this->loss_fn_ = std::make_unique<LossT>();
             this->optim_fn_ = std::make_unique<OptimT>(_lr);
             this->activ_fn_ = std::make_unique<ActivT>();
             this->isValid = true;
@@ -38,44 +46,53 @@ namespace cortex::net {
                     std::cout << item->config() << std::endl;
                 }
             } else {
-                std::cout << "Model hasn't compile yet" << std::endl;
+                std::cout << "Model not compiled" << std::endl;
             }
         }
 
         void train(const std::vector<tensor>& feats, const std::vector<tensor>& targets, const int epochs = 1){
-            for (int e = 0; e < epochs; ++e) {
+            CXM_ASSERT(feats.empty() || targets.empty(), "Feature or target data is empty");
+            CXM_ASSERT(feats.size() != targets.size(), "Number of features and targets must match");
+            CXM_ASSERT(!this->isValid, "Model not compiled");
 
-                for (int i = 0; i < feats.size(); ++i) {
+            for (int i = 0; i < epochs; ++i) {
+                float epoch_loss = 0.0f;
+                float epoch_acc  = 0.0f;
 
-                    tensor x = feats[i];
-                    const tensor& y = targets[i];
+                for (size_t j = 0; j < feats.size(); ++j) {
+                    this->optim_fn_->zero_grad();
 
-                    for (const auto& item : this->layers_) {
-                        x = item->forward(x);
-                    }
+                    tensor x = feats[j];
+                    tensor y = targets[j];
 
+                    for (const auto& item : layers_) x = item->forward(x);
                     x = this->activ_fn_->forward(x);
+
                     tensor loss = this->loss_fn_->forward(x, y);
+                    epoch_loss += loss.at(0, 0, 0, 0);
+
+                    epoch_acc += _fw::TensorFn::accuracy(x, y);
 
                     tensor grad = this->loss_fn_->backward(x, loss);
                     grad = this->activ_fn_->backward(grad);
-
-                    for (auto it = this->layers_.rbegin(); it != this->layers_.rend(); ++it) {
+                    for (auto it = layers_.rbegin(); it != layers_.rend(); ++it)
                         grad = (*it)->backward(grad);
-                    }
 
-                    this->optim_fn_->zero_grad();
-
-                    for (const auto& item : this->layers_) {
+                    for (const auto& item : layers_) {
                         auto params = item->parameters();
                         auto grads  = item->gradients();
-                        for (int j = 0; j < params.size(); ++j) {
-                            this->optim_fn_->add_param(params[j], grads[j]);
-                        }
+                        for (size_t k = 0; k < params.size(); ++k)
+                            this->optim_fn_->add_param(params[k], grads[k]);
                     }
-
                     this->optim_fn_->step();
                 }
+
+                // Log
+                std::cout
+                    << "Epoch [" << (i + 1) << "/" << epochs << "] "
+                    << "Loss: " << (epoch_acc / static_cast<float>(feats.size()))
+                    << " | Accuracy: " << (epoch_acc / static_cast<float>(feats.size())) * 100.0f
+                    << "%" << std::endl;
             }
         }
 

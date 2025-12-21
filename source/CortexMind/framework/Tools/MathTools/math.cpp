@@ -4,6 +4,8 @@
 
 #include "CortexMind/framework/Tools/MathTools/math.hpp"
 #include <CortexMind/framework/Core/AVX/funcs.hpp>
+#include <CortexMind/framework/Tools/Debug/catch.hpp>
+#include <iostream>
 #include <cmath>
 
 using namespace cortex::_fw::avx2;
@@ -87,9 +89,9 @@ cortex::tensor TensorFn::mean(tensor &input) {
     for (int i = 0; i < input.channel(); ++i) {
         float sum = 0;
         for (int j = 0; j < input.batch(); ++j) {
-            for (int k = 0; k < input.width(); ++k) {
-                for (int m = 0; m < input.height(); ++m) {
-                    sum += input.at(i, j, m, k);
+            for (int k = 0; k < input.height(); ++k) {
+                for (int m = 0; m < input.width(); ++m) {
+                    sum += input.at(i, j, k, m);
                 }
             }
         }
@@ -108,9 +110,9 @@ cortex::tensor TensorFn::variance(tensor &input) {
         float var_sum = 0;
         const float mean_val = mean_tensor.at(i, 0, 0, 0);
         for (int j = 0; j < input.batch(); ++j) {
-            for (int k = 0; k < input.width(); ++k) {
-                for (int m = 0; m < input.height(); ++m) {
-                    const float diff = input.at(i, j, m, k) - mean_val;
+            for (int k = 0; k < input.height(); ++k) {
+                for (int m = 0; m < input.width(); ++m) {
+                    const float diff = input.at(i, j, k, m) - mean_val;
                     var_sum += diff * diff;
                 }
             }
@@ -128,4 +130,27 @@ cortex::tensor TensorFn::sqrt(tensor& input) {
     }
 
     return output;
+}
+
+int TensorFn::argmax(tensor &input) {
+    int bestIdx = 0;
+    float bestVal = input.at(0, 0, 0, 0);
+
+    for (int i = 0; i < input.channel(); ++i) {
+        const float sum = input.at(0, i, 0, 0);
+        if (sum > bestVal) {
+            bestVal = sum;
+            bestIdx = i;
+        }
+    }
+    return bestIdx;
+}
+
+float TensorFn::accuracy(tensor &y_pred, tensor &y_true) {
+    CXM_ASSERT(y_pred.batch() == 1 && y_true.batch() == 1, "accuracy(): batch must be 1");
+
+    const int predIdx = argmax(y_pred);
+    const int trueIdx = argmax(y_true);
+
+    return (predIdx == trueIdx) ? 1 : 0;
 }
