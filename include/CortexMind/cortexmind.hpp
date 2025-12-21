@@ -32,6 +32,7 @@
 #include <CortexMind/tools/Image/image.hpp>
 #include <CortexMind/tools/Tokenizer/token.hpp>
 #include <CortexMind/tools/Encode/encode.hpp>
+#include <CortexMind/tools/Text/text.hpp>
 // --- Utils ---
 #include <CortexMind/utils/Log/log.hpp>
 #include <CortexMind/utils/Version/version.hpp>
