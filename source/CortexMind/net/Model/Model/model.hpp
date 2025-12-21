@@ -16,7 +16,7 @@
 namespace cortex::net {
     class Model {
     public:
-        Model() = default;
+        Model() : isValid(false) {}
         ~Model() = default;
 
         template<typename  T, typename... Args>
@@ -29,15 +29,55 @@ namespace cortex::net {
             this->loss_fn_ = std::make_unique<LoosT>();
             this->optim_fn_ = std::make_unique<OptimT>(_lr);
             this->activ_fn_ = std::make_unique<ActivT>();
+            this->isValid = true;
         }
 
         void summary() const {
-            for (const auto& item : this->layers_) {
-                std::cout << item->config() << std::endl;
+            if (this->isValid) {
+                for (const auto& item : this->layers_) {
+                    std::cout << item->config() << std::endl;
+                }
+            } else {
+                std::cout << "Model hasn't compile yet" << std::endl;
             }
         }
 
-        void train(std::vector<tensor>& feats, std::vector<tensor>& targets, int epochs=1, int batch_size=1);
+        void train(const std::vector<tensor>& feats, const std::vector<tensor>& targets, const int epochs = 1){
+            for (int e = 0; e < epochs; ++e) {
+
+                for (int i = 0; i < feats.size(); ++i) {
+
+                    tensor x = feats[i];
+                    const tensor& y = targets[i];
+
+                    for (const auto& item : this->layers_) {
+                        x = item->forward(x);
+                    }
+
+                    x = this->activ_fn_->forward(x);
+                    tensor loss = this->loss_fn_->forward(x, y);
+
+                    tensor grad = this->loss_fn_->backward(x, loss);
+                    grad = this->activ_fn_->backward(grad);
+
+                    for (auto it = this->layers_.rbegin(); it != this->layers_.rend(); ++it) {
+                        grad = (*it)->backward(grad);
+                    }
+
+                    this->optim_fn_->zero_grad();
+
+                    for (const auto& item : this->layers_) {
+                        auto params = item->parameters();
+                        auto grads  = item->gradients();
+                        for (int j = 0; j < params.size(); ++j) {
+                            this->optim_fn_->add_param(params[j], grads[j]);
+                        }
+                    }
+
+                    this->optim_fn_->step();
+                }
+            }
+        }
 
         [[nodiscard]] tensor predict(const tensor& input) const {
             tensor output = input;
@@ -51,6 +91,7 @@ namespace cortex::net {
         std::unique_ptr<_fw::Activation> activ_fn_;
         std::unique_ptr<_fw::Loss> loss_fn_;
         std::unique_ptr<_fw::Optimizer> optim_fn_;
+        bool isValid;
     };
 }
 
