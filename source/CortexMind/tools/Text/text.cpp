@@ -31,7 +31,7 @@ tensor TextVec::to_tensor(const std::string &path) {
         rows++;
     }
 
-    tensor output(1, 1, cols, rows);
+    tensor output(1, 1, rows, cols);
 
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
