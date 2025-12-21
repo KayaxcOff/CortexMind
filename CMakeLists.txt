@@ -26,6 +26,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/LossFunc/MAE/mae.cpp
         source/CortexMind/models/LinearRegression/linear.cpp
         source/CortexMind/tools/Text/text.cpp
+        source/CortexMind/datasets/scale.cpp
 )
 
 target_compile_options(CortexMind PRIVATE
