@@ -13,7 +13,7 @@ int main() {
     std::vector<tensor> inputs;
     std::vector<tensor> outputs;
 
-    constexpr int num_samples = 10;
+    constexpr int num_samples = 100;
 
     for (int i = 0; i < num_samples; ++i) {
         tensor input;
@@ -31,7 +31,7 @@ int main() {
 
     model.compile<net::MeanAbsolute, net::Momentum, net::ReLU>();
 
-    model.train(inputs, outputs, 5);
+    model.train(inputs, outputs, 10);
 
     return 0;
 }
