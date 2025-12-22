@@ -19,8 +19,6 @@ namespace cortex::tools {
        static tensor imagenet(const std::string& path);
     private:
         static tensor load(const std::string& path, bool normalize = true, const std::optional<std::array<float, 3>>& mean = std::nullopt, const std::optional<std::array<float, 3>>& std = std::nullopt, int target_channels = 3);
-
-        static void apply(tensor& x, const std::array<float, 3>& mean, const std::array<float, 3>& std);
     };
 }
 
