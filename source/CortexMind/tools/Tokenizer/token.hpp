@@ -11,15 +11,15 @@
 namespace cortex::tools {
     class TokenNet {
     public:
-        const std::string PAD_TOKEN = "<PAD>";
-        const std::string UNK_TOKEN = "<UNK>";
-        const std::string BOS_TOKEN = "<BOS>";
-        const std::string EOS_TOKEN = "<EOS>";
+        static inline const std::string PAD_TOKEN = "<PAD>";
+        static inline const std::string UNK_TOKEN = "<UNK>";
+        static inline const std::string BOS_TOKEN = "<BOS>";
+        static inline const std::string EOS_TOKEN = "<EOS>";
 
-        const int PAD_ID = 0;
-        const int UNK_ID = 1;
-        const int BOS_ID = 2;
-        const int EOS_ID = 3;
+        static constexpr int PAD_ID = 0;
+        static constexpr int UNK_ID = 1;
+        static constexpr int BOS_ID = 2;
+        static constexpr int EOS_ID = 3;
 
         TokenNet();
         ~TokenNet();

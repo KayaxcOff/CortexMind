@@ -2,13 +2,14 @@
 // Created by muham on 13.12.2025.
 //
 
-#define STB_IMAGE_IMPLEMENTATION
-
 #include "CortexMind/tools/Image/image.hpp"
 #include <CortexMind/framework/Tools/Debug/catch.hpp>
 #include <CortexMind/framework/Tools/DataTypes/type.hpp>
 #include <CortexMind/framework/Core/AVX/funcs.hpp>
+
+#define STB_IMAGE_IMPLEMENTATION
 #include <STB/stb_image.h>
+
 #include <iostream>
 
 using namespace cortex::tools;
@@ -53,16 +54,16 @@ tensor ImageNetLoader::load(const std::string &path, const bool normalize, const
             for (; idx + 8 <= width; idx+=8) {
                 float vals[8];
                 for (int k = 0; k < 8; ++k) {
-                    vals[k] = row[(idx + k) * target_channels + i] * norm_factor;
+                    vals[k] = static_cast<float>(row[(idx + k) * target_channels + i]) * norm_factor;
                 }
                 const reg v = avx2::load(vals);
                 store(&output.at(0, i, j, idx), v);
             }
-            if (idx < 8) {
+            if (idx < width) {
                 const int remain = width - idx;
                 float vals[8] = {};
                 for (int k = 0; k < remain; ++k) {
-                    vals[k] = row[(idx + k) * target_channels + i] * norm_factor;
+                    vals[k] = static_cast<float>(row[(idx + k) * target_channels + i]) * norm_factor;
                 }
                 const reg v = avx2::load(vals);
                 store_partial(&output.at(0, i, j, idx), v, remain);
