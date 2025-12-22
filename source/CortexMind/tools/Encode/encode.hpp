@@ -15,7 +15,10 @@ namespace cortex::tools {
         explicit MindTransform(std::unique_ptr<TokenNet> tokenizer);
         ~MindTransform() = default;
 
-        [[nodiscard]] tensor encode(const std::string& text, int maxSeqLen, int batch = 1) const;
+        [[nodiscard]] tensor encode(const std::string &text, int max_seq_len, bool add_special_tokens, bool truncate) const;
+        [[nodiscard]] tensor encode_batch(const std::vector<std::string> &texts, int max_seq_len, bool add_special_tokens, bool truncate) const;
+        [[nodiscard]] std::vector<std::string> decode(const tensor &encoded, bool skip_special_tokens) const;
+        [[nodiscard]] int vocab_size() const;
     private:
         std::unique_ptr<TokenNet> token_net_;
     };

@@ -11,17 +11,27 @@
 namespace cortex::tools {
     class TokenNet {
     public:
-        static constexpr auto UNK_TOKEN = "<UNK>";
-        static constexpr int UNK_ID = 0;
+        const std::string PAD_TOKEN = "<PAD>";
+        const std::string UNK_TOKEN = "<UNK>";
+        const std::string BOS_TOKEN = "<BOS>";
+        const std::string EOS_TOKEN = "<EOS>";
+
+        const int PAD_ID = 0;
+        const int UNK_ID = 1;
+        const int BOS_ID = 2;
+        const int EOS_ID = 3;
 
         TokenNet();
         ~TokenNet();
 
         void fit(const std::string& token);
         void fit(const std::vector<std::string>& tokens);
-        std::vector<int> tokenize(const std::string& token);
+        std::vector<int> tokenize(const std::string& token, bool add_special_tokens);
+        std::vector<int> encode(const std::string &text, int max_length, bool add_special_tokens, bool truncate);
         [[nodiscard]] int getId(const std::string& token) const;
+        [[nodiscard]] std::string decode(const std::vector<int>& ids, bool skip_special_tokens) const;
         [[nodiscard]] std::string getToken(int id) const;
+        [[nodiscard]] size_t vocab_size() const;
         [[nodiscard]] size_t size() const;
     private:
         std::unordered_map<std::string, int> tokensIdx;
