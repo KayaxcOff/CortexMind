@@ -16,8 +16,8 @@ int main() {
         array.push_back(x);
     }
 
-    for (int i = 0; i < array.size(); i++) {
-        array[i] = ds::TensorScale::scale(array[i]);
+    for (auto & i : array) {
+        i = ds::TensorScale::scale(i);
     }
 
     log("3. Index of Array: ");
