@@ -27,6 +27,8 @@ add_library(CortexMind STATIC
         source/CortexMind/models/LinearRegression/linear.cpp
         source/CortexMind/tools/Text/text.cpp
         source/CortexMind/datasets/scale.cpp
+        source/CortexMind/net/ActivationFunc/Softmax/softmax.cpp
+        source/CortexMind/net/LossFunc/CrossEntropy/cross.cpp
 )
 
 target_compile_options(CortexMind PRIVATE

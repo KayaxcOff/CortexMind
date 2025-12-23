@@ -18,6 +18,7 @@
 #include <CortexMind/net/ActivationFunc/ReLU/relu.hpp>
 #include <CortexMind/net/ActivationFunc/Sigmoid/sigmoid.hpp>
 #include <CortexMind/net/ActivationFunc/LeakyReLU/leaky.hpp>
+#include <CortexMind/net/ActivationFunc/Softmax/softmax.hpp>
 // --- Models ----
 #include <CortexMind/models/LinearRegression/linear.hpp>
 // --- Optimizer Functions ---
@@ -27,6 +28,7 @@
 // --- Loss Functions
 #include <CortexMind/net/LossFunc/MAE/mae.hpp>
 #include <CortexMind/net/LossFunc/MSE/mse.hpp>
+#include <CortexMind/net/LossFunc/CrossEntropy/cross.hpp>
 // --- Tools ---
 #include <CortexMind/tools/Cast/cast.hpp>
 #include <CortexMind/tools/Image/image.hpp>
