@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 4.0)
 project(CortexMind)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(CortexMind STATIC
         source/CortexMind/framework/Core/Tensor/tensor.cpp
@@ -38,16 +40,14 @@ target_compile_options(CortexMind PRIVATE
 
 target_include_directories(CortexMind
         PUBLIC
-            ${CMAKE_SOURCE_DIR}/source
-            ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/source
+        ${CMAKE_SOURCE_DIR}/include
         PRIVATE
-            ${CMAKE_SOURCE_DIR}/third_party/stb/include
+        ${CMAKE_SOURCE_DIR}/third_party/stb/include
 )
 
-add_executable(CXM_Test
-        test/test.cpp
-)
-
+add_executable(CXM_Test test/test.cpp)
 target_link_libraries(CXM_Test PRIVATE CortexMind)
 
+enable_testing()
 add_test(NAME CortexMindTest COMMAND CXM_Test)
