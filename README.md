@@ -8,17 +8,17 @@
 
 ## API
 
->> `cortex`
+- `cortex`
 Main namespace, the tensor variable, which is a CortexMind-specific variable, can be accessed via the `cortex` namespace.
->> `cortex::nn`
+- `cortex::nn`
 Layer classes are here
->> `cortex::net`
+- `cortex::net`
 Model class, optimizer function, activation function and loss function classes are here
->> `cortex::ds`
+- `cortex::ds`
 Scale function are here
->> `cortex::tin`
+- `cortex::tin`
 Models are here
->> `cortex::tools`
+- `cortex::tools`
 Helpful tools classes are here
->> `cortex::_fw`
+- `cortex::_fw`
 Core of library
