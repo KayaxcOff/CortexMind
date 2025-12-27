@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Kaynak Dosyalar">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Üst Bilgi Dosyaları">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Kaynak Dosyaları">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\CortexMind\cortexmind.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\tools\log.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\tools\version.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\core\Engine\AVX\params.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\core\Engine\AVX\ops.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\core\Engine\AVX\matrix.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\core\Tools\debug.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\core\Params\params.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\core\Net\layer.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\core\Engine\Memory\alloc.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\core\Engine\Storage\storage.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\core\Engine\Tensor\tensor.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\core\Engine\Graph\Node\node.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\core\Engine\Graph\Node\grad_op_name.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\core\Tools\ops.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\core\Engine\Graph\Node\grad_node.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+    <ClInclude Include="source\CortexMind\core\Engine\Graph\Ops\add.hpp">
+      <Filter>Üst Bilgi Dosyaları</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\CortexMind\core\Engine\Tensor\tensor.cpp">
+      <Filter>Kaynak Dosyalar</Filter>
+    </ClCompile>
+    <ClCompile Include="source\CortexMind\core\Engine\Memory\alloc.cpp">
+      <Filter>Kaynak Dosyalar</Filter>
+    </ClCompile>
+    <ClCompile Include="test\test.cpp">
+      <Filter>Kaynak Dosyalar</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

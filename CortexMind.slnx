@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="CortexMind.vcxproj" Id="e6b15853-b7c4-4334-85da-bd7d43a4371b" />
+</Solution>
