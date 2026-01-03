@@ -1,0 +1,11 @@
+//
+// Created by muham on 2.01.2026.
+//
+
+#ifndef CORTEXMIND_TOOLS_MACRO_HPP
+#define CORTEXMIND_TOOLS_MACRO_HPP
+
+#define CXM_EXIT_SAFETY 0
+#define TARGET_EPOCH 10
+
+#endif //CORTEXMIND_TOOLS_MACRO_HPP
