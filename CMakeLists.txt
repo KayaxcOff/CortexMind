@@ -49,6 +49,7 @@ add_library(CortexMind STATIC
         # <---------- Core - Net ---------->
         source/CortexMind/core/Net/layer.cpp
         source/CortexMind/core/Net/optimization.cpp
+        source/CortexMind/core/Net/loss.cpp
         source/CortexMind/core/Net/callback.cpp
         # <---------- Core - Kernels ---------->
         source/CortexMind/core/Kernels/kernel.cpp
@@ -64,6 +65,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/NeuralNetwork/dropout.cpp
         source/CortexMind/net/NeuralNetwork/batch_norm.cpp
         source/CortexMind/net/NeuralNetwork/leaky_relu.cpp
+        source/CortexMind/net/NeuralNetwork/softmax.cpp
         # <---------- Net - Loss Functions ---------->
         source/CortexMind/net/LossFunctions/mse.cpp
         source/CortexMind/net/LossFunctions/mae.cpp
@@ -86,7 +88,6 @@ add_library(CortexMind STATIC
         source/CortexMind/dataset/Frame/df.cpp
         # <---------- Dataset - Manager ---------->
         source/CortexMind/dataset/Manager/data.cpp
-        source/CortexMind/core/Net/loss.cpp
 )
 
 # Path of OpenCL Kernels

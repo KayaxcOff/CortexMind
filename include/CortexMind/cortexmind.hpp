@@ -27,6 +27,7 @@
 #include <CortexMind/net/NeuralNetwork/dropout.hpp>
 #include <CortexMind/net/NeuralNetwork/batch_norm.hpp>
 #include <CortexMind/net/NeuralNetwork/leaky_relu.hpp>
+#include <CortexMind/net/NeuralNetwork/softmax.hpp>
 #include <CortexMind/net/LossFunctions/mse.hpp>
 #include <CortexMind/net/LossFunctions/mae.hpp>
 #include <CortexMind/net/LossFunctions/bce.hpp>

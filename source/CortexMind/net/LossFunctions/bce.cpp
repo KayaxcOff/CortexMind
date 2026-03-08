@@ -3,9 +3,7 @@
 //
 
 #include "CortexMind/net/LossFunctions/bce.hpp"
-//#include <CortexMind/core/Graph/flow_ops.hpp>
 #include <CortexMind/core/Tools/err.hpp>
-//#include <cmath>
 
 using namespace cortex::loss;
 using namespace cortex::_fw;
