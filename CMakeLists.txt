@@ -70,9 +70,11 @@ add_library(CortexMind STATIC
         source/CortexMind/net/LossFunctions/mse.cpp
         source/CortexMind/net/LossFunctions/mae.cpp
         source/CortexMind/net/LossFunctions/bce.cpp
+        source/CortexMind/net/LossFunctions/cel.cpp
         # <---------- Net - Optimization Functions ---------->
         source/CortexMind/net/OptimizationFunctions/sgd.cpp
         source/CortexMind/net/OptimizationFunctions/adam.cpp
+        source/CortexMind/net/OptimizationFunctions/rms.cpp
         # <---------- Net - Model ---------->
         source/CortexMind/net/Model/model.cpp
         # <---------- Net - Callbacks ---------->

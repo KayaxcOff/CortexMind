@@ -31,8 +31,10 @@
 #include <CortexMind/net/LossFunctions/mse.hpp>
 #include <CortexMind/net/LossFunctions/mae.hpp>
 #include <CortexMind/net/LossFunctions/bce.hpp>
+#include <CortexMind/net/LossFunctions/cel.hpp>
 #include <CortexMind/net/OptimizationFunctions/sgd.hpp>
 #include <CortexMind/net/OptimizationFunctions/adam.hpp>
+#include <CortexMind/net/OptimizationFunctions/rms.hpp>
 #include <CortexMind/net/Model/model.hpp>
 #include <CortexMind/net/Callbacks/early_stop.hpp>
 
