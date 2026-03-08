@@ -20,8 +20,9 @@ int main() {
     model.add<nn::ReLU>();
     model.add<nn::Dense>(8, 1);
     model.compile<loss::MeanSquared, opt::StochasticGradient>(0.01f);
+    model.callback<call::EarlyStopping>();
     model.summary();
-    model.fit(x_train, y_train, 50, -1);
+    model.fit(x_train, y_train, max_epochs, -1);
 
     return cortex::exit;
 }

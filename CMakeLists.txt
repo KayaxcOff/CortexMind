@@ -49,6 +49,7 @@ add_library(CortexMind STATIC
         # <---------- Core - Net ---------->
         source/CortexMind/core/Net/layer.cpp
         source/CortexMind/core/Net/optimization.cpp
+        source/CortexMind/core/Net/callback.cpp
         # <---------- Core - Kernels ---------->
         source/CortexMind/core/Kernels/kernel.cpp
         # <---------- Net - Neural Network ---------->

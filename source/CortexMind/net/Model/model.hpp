@@ -24,7 +24,7 @@ namespace cortex::net {
 
         template<typename T, typename... Args>
         void add(Args&&... args) {
-            static_assert(std::is_base_of_v<_fw::Layer, T>, "You must use Layer classes");
+            static_assert(std::is_base_of_v<_fw::Layer, T>, "Layers must derive from _fw::Layer");
             this->layers_.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
         }
 
@@ -36,6 +36,13 @@ namespace cortex::net {
             this->loss_fn_ = std::make_unique<LossT>();
             this->optim_fn_ = std::make_unique<OptimT>(std::forward<ArgsOptim>(optim_args)...);
             this->compile_flag = true;
+        }
+
+        template<typename T, typename... Args>
+        void callback(Args&&... args) {
+            static_assert(std::is_base_of_v<_fw::Callback, T>, "Callback must derive from _fw::Callback");
+            this->callbacks_.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
+            this->callback_flag = true;
         }
 
         void fit(tensor& _x, tensor& _y, int64 _epochs = epochs, int64 _batch = batch) const;
@@ -51,6 +58,7 @@ namespace cortex::net {
         std::unique_ptr<_fw::Optimization> optim_fn_;
         std::unique_ptr<_fw::Loss> loss_fn_;
         boolean compile_flag;
+        boolean callback_flag;
 
         [[nodiscard]]
         static float32 accuracy(const tensor& predicted, const tensor& target);
