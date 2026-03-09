@@ -77,6 +77,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/OptimizationFunctions/rms.cpp
         # <---------- Net - Model ---------->
         source/CortexMind/net/Model/model.cpp
+        source/CortexMind/net/Model/seq.cpp
         # <---------- Net - Callbacks ---------->
         source/CortexMind/net/Callbacks/early_stop.cpp
         # <---------- Utils - Cast ---------->

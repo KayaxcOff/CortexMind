@@ -12,10 +12,7 @@ using namespace cortex::net;
 using namespace cortex::_fw;
 using namespace cortex;
 
-Model::Model() {
-    this->compile_flag = false;
-    this->callback_flag = false;
-}
+Model::Model() : compile_flag(false), callback_flag(false) {}
 
 Model::~Model() = default;
 

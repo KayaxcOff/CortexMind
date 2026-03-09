@@ -36,6 +36,7 @@
 #include <CortexMind/net/OptimizationFunctions/adam.hpp>
 #include <CortexMind/net/OptimizationFunctions/rms.hpp>
 #include <CortexMind/net/Model/model.hpp>
+#include <CortexMind/net/Model/seq.hpp>
 #include <CortexMind/net/Callbacks/early_stop.hpp>
 
 // <---------- Tools ---------->
