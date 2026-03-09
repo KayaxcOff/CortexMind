@@ -66,6 +66,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/NeuralNetwork/batch_norm.cpp
         source/CortexMind/net/NeuralNetwork/leaky_relu.cpp
         source/CortexMind/net/NeuralNetwork/softmax.cpp
+        source/CortexMind/net/NeuralNetwork/max_pool2d.cpp
         # <---------- Net - Loss Functions ---------->
         source/CortexMind/net/LossFunctions/mse.cpp
         source/CortexMind/net/LossFunctions/mae.cpp
