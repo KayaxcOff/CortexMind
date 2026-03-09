@@ -40,7 +40,7 @@ void Adam::update() {
 }
 
 void Adam::Init() {
-    if (!this->m.empty()) return;
+    if (this->m.size() == this->params.size()) return;
 
     this->m.reserve(this->params.size());
     this->v.reserve(this->params.size());

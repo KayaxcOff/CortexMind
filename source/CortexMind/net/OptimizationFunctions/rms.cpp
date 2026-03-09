@@ -13,6 +13,15 @@ RMSProp::RMSProp(const float32 _lr, const float32 _decay, const float32 eps) : O
 RMSProp::~RMSProp() = default;
 
 void RMSProp::update() {
+    if (this->cache.size() != this->params.size()) {
+        this->cache.clear();
+        for (const auto& item : this->params) {
+            tensor c(item.get().shape(), false);
+            c.zero();
+            this->cache.emplace_back(std::move(c));
+        }
+    }
+
     for (size_t i = 0; i < this->params.size(); ++i) {
         tensor& w    = this->params[i].get();
         tensor& grad = this->grads[i].get();
