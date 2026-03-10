@@ -226,6 +226,18 @@ namespace cortex::_fw::meta {
         i64 n;
         f32 eps;
     };
+
+    struct max_pool2d : GradientFlow {
+        max_pool2d(MindTensor* x, const std::vector<i64>& indices, i64 kernel_size, i64 stride, i64 h_out, i64 w_out);
+
+        void backward(MindTensor &_grad) override;
+        std::vector<MindTensor *> inputs() override;
+    private:
+        MindTensor* tx;
+        std::vector<i64> indices;
+        i64 KERNEL_SIZE, STRIDE;
+        i64 H_OUT, W_OUT;
+    };
 } // namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_CORE_GRAPH_FLOW_OPS_HPP

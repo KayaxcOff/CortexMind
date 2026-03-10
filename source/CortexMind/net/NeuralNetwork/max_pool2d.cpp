@@ -3,6 +3,7 @@
 //
 
 #include "CortexMind/net/NeuralNetwork/max_pool2d.hpp"
+#include <CortexMind/core/Graph/flow_ops.hpp>
 #include <CortexMind/core/Tools/err.hpp>
 #include <limits>
 
@@ -62,6 +63,13 @@ tensor MaxPooling2D::forward(tensor &input) {
             }
         }
     }
+
+    if (input.requires_grad()) {
+        output.set_flow(std::make_shared<meta::max_pool2d>(
+            &this->last_input, this->maxIndices, this->KERNEL_SIZE, this->STRIDE, H_out, W_out
+        ));
+    }
+
     return output;
 }
 

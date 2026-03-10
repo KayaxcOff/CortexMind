@@ -377,3 +377,30 @@ void bce::backward(MindTensor &_grad) {
 std::vector<MindTensor *> bce::inputs() {
     return {this->tx};
 }
+
+max_pool2d::max_pool2d(MindTensor *x, const std::vector<i64>& indices, const i64 kernel_size, const i64 stride, const i64 h_out, const i64 w_out) : tx(x), indices(indices), KERNEL_SIZE(kernel_size), STRIDE(stride), H_OUT(h_out), W_OUT(w_out) {}
+
+void max_pool2d::backward(MindTensor &_grad) {
+    if (this->tx->requires_grad()) {
+        const i64 batch = tx->shape()[0];
+        const i64 C     = tx->shape()[1];
+        const i64 W     = tx->shape()[3];
+
+        for (i64 b = 0; b < batch; ++b) {
+            for (i64 c = 0; c < C; ++c) {
+                for (i64 oh = 0; oh < this->H_OUT; ++oh) {
+                    for (i64 ow = 0; ow < this->W_OUT; ++ow) {
+                        const i64 idx     = ((b * C + c) * this->H_OUT + oh) * this->W_OUT + ow;
+                        const i64 flat    = this->indices[idx];
+                        const i64 ih      = flat / W;
+                        const i64 iw      = flat % W;
+
+                        this->tx->grad().at(b, c, ih, iw) += _grad.at(b, c, oh, ow);
+                    }
+                }
+            }
+        }
+
+        this->tx->keep_backward(&this->tx->grad());
+    }
+}
