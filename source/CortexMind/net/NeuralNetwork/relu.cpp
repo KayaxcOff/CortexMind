@@ -14,6 +14,7 @@ ReLU::~ReLU() = default;
 
 tensor ReLU::forward(tensor &input) {
     this->last_input = input;
+    this->last_input.clear_flow();
     return last_input.relu();
 }
 

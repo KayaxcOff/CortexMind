@@ -29,6 +29,7 @@
 #include <CortexMind/net/NeuralNetwork/leaky_relu.hpp>
 #include <CortexMind/net/NeuralNetwork/softmax.hpp>
 #include <CortexMind/net/NeuralNetwork/max_pool2d.hpp>
+#include <CortexMind/net/NeuralNetwork/norm.hpp>
 #include <CortexMind/net/LossFunctions/mse.hpp>
 #include <CortexMind/net/LossFunctions/mae.hpp>
 #include <CortexMind/net/LossFunctions/bce.hpp>

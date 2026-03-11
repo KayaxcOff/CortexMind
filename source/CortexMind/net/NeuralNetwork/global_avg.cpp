@@ -14,6 +14,7 @@ GlobalAvgPooling::~GlobalAvgPooling() = default;
 
 tensor GlobalAvgPooling::forward(tensor &input) {
     this->last_input = input;
+    this->last_input.clear_flow();
 
     int64 batch = this->last_input.shape()[0];
     int64 channel = this->last_input.shape()[1];

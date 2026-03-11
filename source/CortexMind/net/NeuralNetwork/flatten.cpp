@@ -14,6 +14,7 @@ Flatten::~Flatten() = default;
 
 tensor Flatten::forward(tensor &input) {
     this->last_input = input;
+    this->last_input.clear_flow();
     return last_input.flatten();
 }
 

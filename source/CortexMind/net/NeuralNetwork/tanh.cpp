@@ -14,6 +14,7 @@ Tanh::~Tanh() = default;
 
 tensor Tanh::forward(tensor &input) {
     this->last_input = input;
+    this->last_input.clear_flow();
     return this->last_input.tanh();
 }
 

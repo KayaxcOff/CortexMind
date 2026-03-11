@@ -15,6 +15,7 @@ Input::~Input() = default;
 
 tensor Input::forward(tensor &input) {
     this->last_input = input;
+    this->last_input.clear_flow();
     CXM_ASSERT(input.shape() == this->target_shape, "cortex::nn::Input::forward()", "Shape mismatch");
     return this->last_input.detach();
 }

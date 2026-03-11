@@ -10,7 +10,7 @@ using namespace cortex::nn;
 using namespace cortex::_fw;
 using namespace cortex;
 
-Dense::Dense(const i64 in_feats, const i64 out_feats, const sys::device _dev) : Layer(true, "Dense(" + std::to_string(in_feats) + ", " + std::to_string(out_feats) + ")"), INPUT_FEATURES(in_feats), OUTPUT_FEATURES(out_feats) {
+Dense::Dense(const int64 in_feats, const int64 out_feats, const sys::device _dev) : Layer(true, "Dense(" + std::to_string(in_feats) + ", " + std::to_string(out_feats) + ")"), INPUT_FEATURES(in_feats), OUTPUT_FEATURES(out_feats) {
     this->weight = tensor({this->INPUT_FEATURES, this->OUTPUT_FEATURES}, _dev, true);
     this->bias = tensor({1, this->OUTPUT_FEATURES}, _dev, true);
 
