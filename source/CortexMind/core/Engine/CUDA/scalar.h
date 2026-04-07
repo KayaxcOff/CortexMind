@@ -8,10 +8,29 @@
 #include <CortexMind/framework/Tools/params.hpp>
 
 namespace cortex::_fw::cuda {
+    /**
+     * @brief High-level interface for CUDA scalar arithmetic kernels.
+     *
+     * Provides convenient static functions to launch optimized CUDA kernels
+     * that perform element-wise operations between a vector and a scalar value
+     * (addition, subtraction, multiplication, division).
+     */
     struct ScalarKernel {
+        /**
+         * @brief Launches CUDA kernel for Z = X + value (out-of-place).
+         */
         static void add(const f32* __restrict Xx, f32 value, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Launches CUDA kernel for Z = X - value (out-of-place).
+         */
         static void sub(const f32* __restrict Xx, f32 value, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Launches CUDA kernel for Z = X * value (out-of-place).
+         */
         static void mul(const f32* __restrict Xx, f32 value, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Launches CUDA kernel for Z = X / value (out-of-place).
+         */
         static void div(const f32* __restrict Xx, f32 value, f32* __restrict Xz, size_t N);
     };
 } //namespace cortex::_fw::cuda
