@@ -9,6 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 option(CXM_USE_CUDA "Enable CUDA backend" ON)
 
 if (CXM_USE_CUDA)
+    enable_language(CUDA)
     find_package(CUDAToolkit REQUIRED)
 endif ()
 
