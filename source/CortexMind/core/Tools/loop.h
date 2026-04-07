@@ -23,9 +23,9 @@
  * @param i Loop variable (usually `size_t i`)
  * @param N Total number of elements to process
  */
-#define CX_CUDA_LOOP_1D(i, N)                               \
-    for(size_t i = blockIdx.x * blockDim.x + threadIdx.x)   \
-    i < (N);                                                \
+#define CXM_CUDA_LOOP_1D(i, N)                                      \
+    for (size_t i = blockIdx.x * blockDim.x + threadIdx.x;          \
+    i < (N);                                                        \
     i += blockDim.x * gridDim.x)
 
 #endif //CORTEXMIND_CORE_TOOLS_LOOP_H

@@ -46,7 +46,7 @@ namespace cortex::_fw::cuda {
      */
     [[nodiscard]]
     __device__ inline size_t global_thread_id() {
-        return const_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+        return static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
     }
     /**
      * @brief Rounds up a value to the nearest multiple of alignment.
@@ -78,7 +78,7 @@ namespace cortex::_fw::cuda {
      * or ensuring that GPU computations are finished before proceeding.
      */
     inline void DeviceSynchronize() {
-        CXM_CUDA_CHECK(cudaDeviceSynchronize(), "cortex::_fw::cuda::DeviceSynchronize()");
+        CXM_CUDA_ASSERT(cudaDeviceSynchronize(), "cortex::_fw::cuda::DeviceSynchronize()");
     }
 
     /**
@@ -89,7 +89,7 @@ namespace cortex::_fw::cuda {
      * no asynchronous errors have occurred during execution.
      */
     inline void GetLastError() {
-        CXM_CUDA_CHECK(cudaGetLastError(), "cortex::_fw::cuda::GetLastError()");
+        CXM_CUDA_ASSERT(cudaGetLastError(), "cortex::_fw::cuda::GetLastError()");
     }
 } //namespace cortex::_fw::cuda
 
