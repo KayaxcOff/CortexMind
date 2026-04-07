@@ -1,0 +1,11 @@
+//
+// Created by muham on 8.04.2026.
+//
+
+#ifndef CORTEXMIND_RUNTIME_MACROS_HPP
+#define CORTEXMIND_RUNTIME_MACROS_HPP
+
+#define CXM_SAFE_EXIT 0
+#define CXM_ERR_EXIT  1
+
+#endif //CORTEXMIND_RUNTIME_MACROS_HPP

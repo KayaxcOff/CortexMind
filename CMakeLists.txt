@@ -32,6 +32,8 @@ add_library(CortexMind STATIC
         source/CortexMind/core/Engine/AVX2/reduce.cpp
         source/CortexMind/core/Engine/AVX2/matrix.cpp
         source/CortexMind/core/Engine/AVX2/activation.cpp
+        source/CortexMind/framework/Tools/err.cpp
+        source/CortexMind/framework/Tools/err.cu
 )
 
 if(CXM_CUDA_AVAILABLE)
