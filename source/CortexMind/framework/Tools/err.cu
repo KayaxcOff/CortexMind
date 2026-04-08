@@ -3,6 +3,7 @@
 //
 
 #include "CortexMind/framework/Tools/err.hpp"
+#include <CortexMind/core/Tools/utils.cuh>
 #include <CortexMind/runtime/macros.hpp>
 #include <iostream>
 
