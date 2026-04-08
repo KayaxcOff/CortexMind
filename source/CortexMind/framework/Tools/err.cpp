@@ -3,6 +3,9 @@
 //
 
 #include "CortexMind/framework/Tools/err.hpp"
+#if CXM_IS_CUDA_AVAILABLE
+    #include <CortexMind/core/Tools/utils.cuh>
+#endif //#if CXM_IS_CUDA_AVAILABLE
 #include <CortexMind/runtime/macros.hpp>
 #include <iostream>
 
@@ -12,6 +15,14 @@ void err::exitIf(const bool status, const std::string &where, const std::string 
     if (!status) {
         std::cerr << "[CXM-Error]: " << where << std::endl;
         std::cerr << message << std::endl;
+        std::exit(CXM_ERR_EXIT);
+    }
+}
+
+void err::exitIf(const cudaError_t error, const std::string &where) {
+    if (error != cudaSuccess) {
+        std::cerr << "[CXM-Error]: " << where << std::endl;
+        std::cerr << cuda::ErrorAsString(error) << std::endl;
         std::exit(CXM_ERR_EXIT);
     }
 }

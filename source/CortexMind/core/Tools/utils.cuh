@@ -40,14 +40,16 @@ namespace cortex::_fw::cuda {
     __host__ inline dim3 grid2d(const size_t rows, const size_t cols, const i32 tile = BLOCK_SIZE_2D) {
         return dim3(static_cast<unsigned>((cols + tile - 1) / tile), static_cast<unsigned>((rows + tile - 1) / tile));
     }
-    /**
-     * @brief Returns the global thread index in a 1D kernel.
-     * @return Global thread ID
-     */
-    [[nodiscard]]
-    __device__ inline size_t global_thread_id() {
-        return static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
-    }
+    #ifdef __CUDACC__
+        /**
+         * @brief Returns the global thread index in a 1D kernel.
+         * @return Global thread ID
+         */
+        [[nodiscard]]
+        __device__ inline size_t global_thread_id() {
+            return static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+        }
+    #endif //#ifdef __CUDACC__
     /**
      * @brief Rounds up a value to the nearest multiple of alignment.
      * @param n     Value to align
