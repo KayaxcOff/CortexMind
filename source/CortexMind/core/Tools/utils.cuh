@@ -91,6 +91,10 @@ namespace cortex::_fw::cuda {
     inline void GetLastError() {
         CXM_CUDA_ASSERT(cudaGetLastError(), "cortex::_fw::cuda::GetLastError()");
     }
+
+    inline const char* ErrorAsString(cudaError_t call) {
+        return cudaGetErrorString(call);
+    }
 } //namespace cortex::_fw::cuda
 
 #endif //CORTEXMIND_CORE_TOOLS_UTILS_CUH

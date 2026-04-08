@@ -11,7 +11,7 @@ using namespace cortex::_fw;
 void err::exitIf(cudaError_t error, const std::string& where) {
     if(error != cudaSuccess) {
         std::cerr << "[CXM-CUDA-Error]: " << where << std::endl;
-        std::cerr << cudaGetErrorString(error) << std::endl;
+        std::cerr << cuda::ErrorAsString(error) << std::endl;
         std::exit(CXM_ERR_EXIT);
     }
 }
