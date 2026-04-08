@@ -8,7 +8,7 @@
 using namespace cortex::_fw::avx2;
 
 vec8f partial::load(const f32 *src, const size_t N) {
-    auto output = vec8f();
+    vec8f output = zero();
     for (size_t i = 0; i < N; ++i) {
         reinterpret_cast<f32*>(&output)[i] = src[i];
     }
