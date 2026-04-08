@@ -36,6 +36,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/err.cpp
         source/CortexMind/framework/Tools/err.cu
         source/CortexMind/core/Engine/CUDA/scalar.cu
+        source/CortexMind/core/Engine/CUDA/matrix.cu
 )
 
 if(CXM_CUDA_AVAILABLE)
