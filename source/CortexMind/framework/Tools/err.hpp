@@ -5,7 +5,9 @@
 #ifndef CORTEXMIND_FRAMEWORK_TOOLS_ERR_HPP
 #define CORTEXMIND_FRAMEWORK_TOOLS_ERR_HPP
 
-#include <CortexMind/core/Engine/CUDA/params.h>
+#if CXM_IS_CUDA_AVAILABLE
+    #include <CortexMind/core/Engine/CUDA/params.h>
+#endif //#if CXM_IS_CUDA_AVAILABLE
 #include <string>
 
 namespace cortex::_fw {
