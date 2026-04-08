@@ -10,7 +10,7 @@ option(CXM_USE_CUDA "Enable CUDA backend" ON)
 
 if (CXM_USE_CUDA)
     enable_language(CUDA)
-    find_package(CUDAToolkit REQUIRED)
+    find_package(CUDAToolkit)
 endif ()
 
 if(CUDAToolkit_FOUND)
@@ -34,9 +34,14 @@ add_library(CortexMind STATIC
         source/CortexMind/core/Engine/AVX2/matrix.cpp
         source/CortexMind/core/Engine/AVX2/activation.cpp
         source/CortexMind/framework/Tools/err.cpp
-        source/CortexMind/core/Engine/CUDA/scalar.cu
-        source/CortexMind/core/Engine/CUDA/matrix.cu
 )
+
+if(CXM_CUDA_AVAILABLE)
+    target_sources(CortexMind PRIVATE
+            source/CortexMind/core/Engine/CUDA/scalar.cu
+            source/CortexMind/core/Engine/CUDA/matrix.cu
+    )
+endif()
 
 if(CXM_CUDA_AVAILABLE)
     target_link_libraries(CortexMind
