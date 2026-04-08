@@ -28,6 +28,17 @@
     i < (N);                                                        \
     i += blockDim.x * gridDim.x)
 
+/**
+ * @brief Macro for handling the tail (remaining) elements in CUDA kernels.
+ *
+ * This macro is used when the total number of elements is not a multiple of the
+ * vector width (e.g. after processing float4 chunks). It starts from `tail_start`
+ * and uses strided iteration so that all remaining elements are processed exactly once.
+ *
+ * @param i           Loop variable (usually `size_t i`)
+ * @param tail_start  Starting index of the remaining elements
+ * @param N           Total number of elements
+ */
 #define CXM_CUDA_LOOP_TAIL(i, tail_start, N)                            \
     for (size_t i = tail_start + blockIdx.x * blockDim.x + threadIdx.x; \
     i < (N);                                                            \

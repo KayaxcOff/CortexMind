@@ -92,6 +92,14 @@ namespace cortex::_fw::cuda {
         CXM_CUDA_ASSERT(cudaGetLastError(), "cortex::_fw::cuda::GetLastError()");
     }
 
+    /**
+     * @brief Returns a human-readable string for a given CUDA error code.
+     *
+     * Simple wrapper around `cudaGetErrorString()` for cleaner error reporting.
+     *
+     * @param call CUDA error code returned by a CUDA API function
+     * @return Const char pointer to the error description string
+     */
     inline const char* ErrorAsString(cudaError_t call) {
         return cudaGetErrorString(call);
     }
