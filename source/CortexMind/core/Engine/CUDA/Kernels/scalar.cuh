@@ -41,8 +41,8 @@ namespace cortex::_fw::cuda::kernels {
         const f32* Xx_f = reinterpret_cast<const f32*>(Xx);
         f32* Xz_f = reinterpret_cast<f32*>(Xz);
 
-        CXM_CUDA_LOOP_1D(i, N / tail_start) {
-            Xz_f[tail_start + i] = op(Xx_f[tail_start + i], value);
+        CXM_CUDA_LOOP_TAIL(i, tail_start, N) {
+            Xz_f[i] = op(Xx_f[i], value);
         }
     }
 } //namespace cortex::_fw::cuda::kernels

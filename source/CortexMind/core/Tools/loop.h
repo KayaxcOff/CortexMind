@@ -28,4 +28,9 @@
     i < (N);                                                        \
     i += blockDim.x * gridDim.x)
 
+#define CXM_CUDA_LOOP_TAIL(i, tail_start, N)                            \
+    for (size_t i = tail_start + blockIdx.x * blockDim.x + threadIdx.x; \
+    i < (N);                                                            \
+    i += blockDim.x * gridDim.x)
+
 #endif //CORTEXMIND_CORE_TOOLS_LOOP_H
