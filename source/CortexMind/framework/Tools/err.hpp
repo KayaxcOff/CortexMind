@@ -56,7 +56,11 @@ namespace cortex::_fw {
 /**
  * @brief Macro for CUDA error checking.
  */
-#define CXM_CUDA_ASSERT(status, whr) \
-    (::cortex::_fw::err::exitIf((status), (whr)))
+#if CXM_IS_CUDA_AVAILABLE
+    #define CXM_CUDA_ASSERT(status, whr) \
+        (::cortex::_fw::err::exitIf((status), (whr)))
+#else //#if CXM_IS_CUDA_AVAILABLE
+    #define CXM_CUDA_ASSERT(status, whr) ((void)0)
+#endif //#if CXM_IS_CUDA_AVAILABLE #else
 
 #endif //CORTEXMIND_FRAMEWORK_TOOLS_ERR_HPP
