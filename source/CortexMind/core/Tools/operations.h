@@ -6,7 +6,6 @@
 #define CORTEXMIND_CORE_TOOLS_OPERATIONS_H
 
 #include <CortexMind/framework/Tools/params.hpp>
-#include <crt/host_defines.h>
 
 namespace cortex::_fw::cuda::ops {
     struct Addition {
