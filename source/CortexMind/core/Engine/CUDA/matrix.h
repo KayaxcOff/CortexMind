@@ -8,11 +8,39 @@
 #include <CortexMind/framework/Tools/params.hpp>
 
 namespace cortex::_fw::cuda {
+    /**
+     * @brief High-level interface for CUDA matrix and vector arithmetic operations.
+     *
+     * Provides optimized element-wise operations (add, sub, mul, div) and
+     * matrix multiplication using cuBLAS (SGEMM).
+     */
     struct Matrix {
+        /**
+         * @brief Z = Xx + Xy (out-of-place, element-wise)
+         */
         static void add(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Z = Xx - Xy (out-of-place, element-wise)
+         */
         static void sub(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Z = Xx * Xy (out-of-place, element-wise)
+         */
         static void mul(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Z = Xx / Xy (out-of-place, element-wise)
+         */
         static void div(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t N);
+        /**
+         * @brief General matrix multiplication: Z = Xx × Xy using cuBLAS.
+         *
+         * Matrix dimensions:
+         * - Xx : xN × yN
+         * - Xy : yN × zN
+         * - Z  : xN × zN
+         *
+         * @note Uses cuBLAS SGEMM with column-major storage assumption.
+         */
         static void matmul(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t xN, size_t yN, size_t zN);
     };
 } //namespace cortex::_fw::cuda
