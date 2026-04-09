@@ -126,36 +126,40 @@ namespace cortex::_fw::cuda {
         }
     };
 
-    /**
-     * @brief Atomic operations wrapper.
-     */
-    struct atomic {
+    #ifdef __CUDACC__
         /**
-         * @brief Atomically adds a value to the address.
-         * @tparam T Type of the value (f32 or i32 supported)
+         * @brief Atomic operations wrapper.
          */
-        template<typename T>
-        __device__ __forceinline__ static void add(T* addr, T val);
+        struct atomic {
+            /**
+             * @brief Atomically adds a value to the address.
+             * @tparam T Type of the value (f32 or i32 supported)
+             */
+            template<typename T>
+            __device__ __forceinline__ static void add(T* addr, T val);
 
-        template<>
-        __device__ __forceinline__ static void add<f32>(f32* addr, f32 val) {
-            ::atomicAdd(addr, val);
+            template<>
+            __device__ __forceinline__ static void add<f32>(f32* addr, f32 val) {
+                ::atomicAdd(addr, val);
+            }
+
+            template<>
+            __device__ __forceinline__ static void add<i32>(i32* addr, i32 val) {
+                ::atomicAdd(addr, val);
+            }
+        };
+    #endif //#ifdef __CUDACC__
+
+    #ifdef __CUDACC__
+        /**
+         * @brief Synchronizes all threads within a CUDA block.
+         *
+         * Equivalent to `__syncthreads()`.
+         */
+        __device__ inline void SynchronizeThreads() {
+            __syncthreads();
         }
-
-        template<>
-        __device__ __forceinline__ static void add<i32>(i32* addr, i32 val) {
-            ::atomicAdd(addr, val);
-        }
-    };
-
-    /**
-     * @brief Synchronizes all threads within a CUDA block.
-     *
-     * Equivalent to `__syncthreads()`.
-     */
-    inline void SynchronizeThreads() {
-        __syncthreads();
-    }
+    #endif //#ifdef __CUDACC__
 } //namespace cortex::_fw::cuda
 
 #endif //CORTEXMIND_CORE_TOOLS_UTILS_CUH
