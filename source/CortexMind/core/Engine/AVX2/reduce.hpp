@@ -19,38 +19,47 @@ namespace cortex::_fw::avx2 {
         /**
          * @brief Returns the sum of all elements in the array.
          */
+        [[nodiscard]]
         static f32 sum(const f32* __restrict x, size_t N);
         /**
          * @brief Returns the mean (average) of all elements in the array.
          */
+        [[nodiscard]]
         static f32 mean(const f32* __restrict x, size_t N);
         /**
          * @brief Returns the variance of the array (population variance, divided by N).
          */
+        [[nodiscard]]
         static f32 var(const f32* __restrict x, size_t N);
         /**
          * @brief Returns the standard deviation of the array.
          */
+        [[nodiscard]]
         static f32 std(const f32* __restrict x, size_t N);
         /**
          * @brief Returns the minimum value in the array.
          */
+        [[nodiscard]]
         static f32 min(const f32* __restrict x, size_t N);
         /**
          * @brief Returns the maximum value in the array.
          */
+        [[nodiscard]]
         static f32 max(const f32* __restrict x, size_t N);
         /**
          * @brief Returns the L1 norm (sum of absolute values).
          */
+        [[nodiscard]]
         static f32 norm1(const f32* __restrict x, size_t N);
         /**
          * @brief Returns the L2 norm (Euclidean norm).
          */
+        [[nodiscard]]
         static f32 norm2(const f32* __restrict x, size_t N);
         /**
          * @brief Returns the dot product of two arrays (Xx · Xy).
          */
+        [[nodiscard]]
         static f32 dot(const f32* __restrict Xx, const f32* __restrict Xy, size_t N);
     };
 } //namespace cortex::_fw::avx2

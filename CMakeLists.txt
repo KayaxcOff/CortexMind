@@ -41,6 +41,7 @@ if(CXM_CUDA_AVAILABLE)
     target_sources(CortexMind PRIVATE
             source/CortexMind/core/Engine/CUDA/scalar.cu
             source/CortexMind/core/Engine/CUDA/matrix.cu
+            source/CortexMind/core/Engine/CUDA/reduce.cu
     )
 endif()
 
