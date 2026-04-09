@@ -21,38 +21,38 @@ namespace cortex::_fw::sys {
     struct transform {
         /**
          * @brief Uploads data from host to device (Host → Device).
-         * @param src   Source pointer on host
          * @param dst   Destination pointer on device
+         * @param src   Source pointer on host
          * @param count Number of elements to transfer
          */
-        static void upload(const T* src, T* dst, const size_t count) {
+        static void upload(T* dst, const T* src, const size_t count) {
             cuda::memcpy(dst, src, sizeof(T) * count, cuda::CXM_HOST_TO_DEVICE);
         }
         /**
          * @brief Downloads data from device to host (Device → Host).
-         * @param src   Source pointer on device
          * @param dst   Destination pointer on host
+         * @param src   Source pointer on device
          * @param count Number of elements to transfer
          */
-        static void download(const T* src, T* dst, const size_t count) {
+        static void download(T* dst, const T* src, const size_t count) {
             cuda::memcpy(dst, src, sizeof(T) * count, cuda::CXM_DEVICE_TO_HOST);
         }
         /**
          * @brief Copies data from device to device (Device → Device).
-         * @param src   Source pointer on device
          * @param dst   Destination pointer on device
+         * @param src   Source pointer on device
          * @param count Number of elements to copy
          */
-        static void copy_d2d(const T* src, T* dst, const size_t count) {
+        static void copy_d2d(T* dst, const T* src, const size_t count) {
             cuda::memcpy(dst, src, sizeof(T) * count, cuda::CXM_DEVICE_TO_DEVICE);
         }
         /**
          * @brief Copies data from host to host using std::memcpy (Host → Host).
-         * @param src   Source pointer on host
          * @param dst   Destination pointer on host
+         * @param src   Source pointer on host
          * @param count Number of elements to copy
          */
-        static void copy_h2h(const T* src, T* dst, const size_t count) {
+        static void copy_h2h(T* dst, const T* src, const size_t count) {
             std::memcpy(dst, src, sizeof(T) * count);
         }
     };

@@ -68,7 +68,7 @@ namespace cortex::_fw::cuda {
      * @param size Size in bytes
      * @param kind Direction of copy (HostToDevice, DeviceToHost, etc.)
      */
-    inline void memcpy(const void* src, void* dst, const size_t size, const cudaMemcpyKind kind) {
+    inline void memcpy(void* dst, const void* src, const size_t size, const cudaMemcpyKind kind) {
         CXM_CUDA_ASSERT(cudaMemcpy(dst, src, size, kind), "cortex::_fw::cuda::memcpy()");
     }
 
