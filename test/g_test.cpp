@@ -3,3 +3,4 @@
 //
 
 #include <CortexMind/cortexmind.hpp>
+#include <gtest/gtest.h>

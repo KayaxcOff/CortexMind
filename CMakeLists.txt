@@ -1,10 +1,30 @@
+include(FetchContent)
+
 cmake_minimum_required(VERSION 4.1)
 project(CortexMind LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_C_STANDARD 20)
+set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/heads/main.zip
+)
+
+FetchContent_Declare(
+        nlohmann_json
+        URL https://github.com/nlohmann/json/archive/refs/heads/develop.zip
+)
+
+FetchContent_Declare(
+        stb
+        GIT_REPOSITORY https://github.com/nothings/stb.git
+        GIT_TAG master
+)
+
+FetchContent_MakeAvailable(googletest nlohmann_json stb)
 
 option(CXM_USE_CUDA "Enable CUDA backend" ON)
 
@@ -45,6 +65,11 @@ if(CXM_CUDA_AVAILABLE)
             source/CortexMind/core/Engine/CUDA/activation.cu
     )
 endif()
+
+target_link_libraries(CortexMind PUBLIC nlohmann_json::nlohmann_json)
+target_include_directories(CortexMind PUBLIC
+        ${stb_SOURCE_DIR}
+)
 
 if(CXM_CUDA_AVAILABLE)
     target_link_libraries(CortexMind
@@ -88,8 +113,14 @@ target_include_directories(CortexMind
         ${CMAKE_SOURCE_DIR}/source
 )
 
-target_link_libraries(CXM_TEST PRIVATE CortexMind)
-target_link_libraries(CXM_G_TEST PRIVATE CortexMind)
+target_link_libraries(CXM_TEST PRIVATE
+        CortexMind
+)
+target_link_libraries(CXM_G_TEST PRIVATE
+        CortexMind
+        GTest::gtest
+        GTest::gtest_main
+)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(CXM_TEST PRIVATE
