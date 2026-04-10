@@ -55,6 +55,7 @@ add_library(CortexMind STATIC
         source/CortexMind/core/Engine/AVX2/activation.cpp
         source/CortexMind/framework/Tools/err.cpp
         source/CortexMind/runtime/ctx.cpp
+        source/CortexMind/framework/Benchmark/pref.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)

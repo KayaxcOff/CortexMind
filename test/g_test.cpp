@@ -3,4 +3,4 @@
 //
 
 #include <CortexMind/cortexmind.hpp>
-#include <gtest/gtest.h>
+#include <gtest/gtest.h> // from _deps/googletest-src
