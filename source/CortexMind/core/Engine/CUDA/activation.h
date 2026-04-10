@@ -8,6 +8,12 @@
 #include <CortexMind/framework/Tools/params.hpp>
 
 namespace cortex::_fw::cuda {
+    /**
+     * @brief High-level interface for CUDA activation functions.
+     *
+     * Provides optimized element-wise activation operations using vectorized
+     * CUDA kernels (float4) for high performance on GPU.
+     */
     struct Activation {
         static void relu(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
         static void leaky_relu(const f32* __restrict Xx, f32* __restrict Xz, size_t N, f32 alpha = 0.01f);

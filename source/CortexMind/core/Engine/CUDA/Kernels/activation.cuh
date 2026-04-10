@@ -11,7 +11,20 @@
 #include <CortexMind/core/Tools/operations.h>
 
 namespace cortex::_fw::cuda::kernels {
-
+    /**
+     * @brief CUDA kernel for element-wise activation functions using float4 vectorization.
+     *
+     * This templated kernel applies a unary activation function (such as ReLU, Sigmoid,
+     * GELU, Tanh, etc.) to each element of the input array. It uses `float4` (f32x4)
+     * vectorization for better memory bandwidth and performance.
+     *
+     * @tparam OpType Functor type that defines the activation operation (e.g. ops::ReLU, ops::Sigmoid, etc.)
+     *
+     * @param Xx  Input array (vectorized as f32x4)
+     * @param Xz  Output array (vectorized as f32x4)
+     * @param N   Total number of elements (not necessarily multiple of 4)
+     * @param op  Activation functor (passed by value)
+     */
     template <typename OpType>
     __global__ void activation(const f32x4* __restrict Xx, f32x4* __restrict Xz, const size_t N, const OpType op) {
         const size_t vecN       = N / 4;
