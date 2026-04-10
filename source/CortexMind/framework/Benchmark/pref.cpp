@@ -27,7 +27,7 @@ void PrefBench::run(const std::function<void()> &func) {
 }
 
 void PrefBench::result() const {
-    std::cout << "Benchmark result of " << this->name << " in " << this->iterations << "iterations" << std::endl;
+    std::cout << "Benchmark result of " << this->name << " in " << this->iterations << " iterations" << std::endl;
     std::cout << average(this->times) << std::endl;
 }
 
