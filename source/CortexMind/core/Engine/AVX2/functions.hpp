@@ -222,6 +222,11 @@ namespace cortex::_fw::avx2 {
         const vec8f r0 = _mm256_rcp_ps(x);
         return mul(r0, fnmadd(x, r0, set1(2.0f)));
     }
+    template<i32 imm>
+    [[nodiscard]]
+    vec8f shuffle(const vec8f Xx, const vec8f Xy) {
+        return _mm256_shuffle_ps(Xx, Xy, imm);
+    }
 
     /**
      * @brief Selects elements from two __m256 vectors based on a mask.

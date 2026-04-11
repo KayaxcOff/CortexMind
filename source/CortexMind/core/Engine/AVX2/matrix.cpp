@@ -6,6 +6,7 @@
 #include <CortexMind/core/Engine/AVX2/functions.hpp>
 #include <CortexMind/core/Engine/AVX2/mask.hpp>
 #include <algorithm>
+#include <vector>
 
 using namespace cortex::_fw::avx2;
 
@@ -69,52 +70,73 @@ void matrix_t::fmsub(const f32 *Xx, const f32 *Xy, const f32 *Xz, f32 *Xk, const
     }
 }
 
-void matrix_t::matmul(const f32 *Xx, const f32 *Xy, f32 *Xz, const size_t xN, const size_t yN, const size_t zN) {
-    constexpr size_t ROW_TILE = 4;
-    constexpr size_t TILE_K = 64;
-    constexpr size_t COL_TILE = 8;
+void matrix_t::matmul(const f32* Xx, const f32* Xy, f32* Xz, const size_t xN, const size_t yN, const size_t zN) {
+    std::fill_n(Xz, xN * zN, 0.0f);
 
-    for (size_t i = 0; i < xN; i += ROW_TILE) {
-        const size_t i_len = std::min(ROW_TILE, xN - i);
+    constexpr size_t MC = 96;
+    constexpr size_t KC = 256;
+    constexpr size_t NC = 256;
 
-        for (size_t j = 0; j < zN; j += COL_TILE) {
-            const size_t j_len = std::min(COL_TILE, zN - j);
+    constexpr size_t MR = 6;
+    constexpr size_t NR = 8;
 
-            const mask col_mask(j_len);
-            if (i_len == ROW_TILE && j_len == COL_TILE) {
-                vec8f acc0 = zero(), acc1 = zero(), acc2 = zero(), acc3 = zero();
+    for (size_t jc = 0; jc < zN; jc += NC) {
+        const size_t jc_end = std::min(jc + NC, zN);
 
-                for (size_t k0 = 0; k0 < yN; k0 += TILE_K) {
-                    const size_t k_end = std::min(k0 + TILE_K, yN);
-                    for (size_t k = k0; k < k_end; ++k) {
-                        const vec8f vy = loadu(Xy + k * zN + j);
+        for (size_t kc = 0; kc < yN; kc += KC) {
+            const size_t kc_end = std::min(kc + KC, yN);
 
-                        acc0 = avx2::fmadd(set1(Xx[(i + 0) * yN + k]), vy, acc0);
-                        acc1 = avx2::fmadd(set1(Xx[(i + 1) * yN + k]), vy, acc1);
-                        acc2 = avx2::fmadd(set1(Xx[(i + 2) * yN + k]), vy, acc2);
-                        acc3 = avx2::fmadd(set1(Xx[(i + 3) * yN + k]), vy, acc3);
+            for (size_t ic = 0; ic < xN; ic += MC) {
+                const size_t ic_end = std::min(ic + MC, xN);
+
+                for (size_t i = ic; i < ic_end; i += MR) {
+                    const size_t ib = std::min(MR, ic_end - i);
+
+                    for (size_t j = jc; j < jc_end; j += NR) {
+                        const size_t jb = std::min(NR, jc_end - j);
+
+                        vec8f acc[MR];
+                        for (size_t r = 0; r < ib; ++r)
+                            acc[r] = zero();
+
+                        if (ib == MR && jb == NR) {
+                            for (size_t k = kc; k < kc_end; ++k) {
+                                const vec8f bvec = loadu(Xy + k * zN + j);
+
+                                acc[0] = avx2::fmadd(set1(Xx[(i+0)*yN+k]), bvec, acc[0]);
+                                acc[1] = avx2::fmadd(set1(Xx[(i+1)*yN+k]), bvec, acc[1]);
+                                acc[2] = avx2::fmadd(set1(Xx[(i+2)*yN+k]), bvec, acc[2]);
+                                acc[3] = avx2::fmadd(set1(Xx[(i+3)*yN+k]), bvec, acc[3]);
+                                acc[4] = avx2::fmadd(set1(Xx[(i+4)*yN+k]), bvec, acc[4]);
+                                acc[5] = avx2::fmadd(set1(Xx[(i+5)*yN+k]), bvec, acc[5]);
+                            }
+
+                            for (size_t r = 0; r < MR; ++r) {
+                                const vec8f prev = loadu(Xz + (i+r)*zN + j);
+                                storeu(Xz + (i+r)*zN + j, avx2::add(prev, acc[r]));
+                            }
+                        } else {
+                            const mask col_mask(jb);
+
+                            for (size_t k = kc; k < kc_end; ++k) {
+                                const vec8f bvec = (jb == NR) ? loadu(Xy + k * zN + j) : col_mask.load(Xy + k * zN + j);
+
+                                for (size_t r = 0; r < ib; ++r) {
+                                    acc[r] = avx2::fmadd(set1(Xx[(i+r)*yN+k]), bvec, acc[r]);
+                                }
+                            }
+
+                            for (size_t r = 0; r < ib; ++r) {
+                                if (jb == NR) {
+                                    const vec8f prev = loadu(Xz + (i+r)*zN + j);
+                                    storeu(Xz + (i+r)*zN + j, avx2::add(prev, acc[r]));
+                                } else {
+                                    const vec8f prev = col_mask.load(Xz + (i+r)*zN + j);
+                                    col_mask.store(Xz + (i+r)*zN + j, avx2::add(prev, acc[r]));
+                                }
+                            }
+                        }
                     }
-                }
-                storeu(Xz + (i + 0) * zN + j, acc0);
-                storeu(Xz + (i + 1) * zN + j, acc1);
-                storeu(Xz + (i + 2) * zN + j, acc2);
-                storeu(Xz + (i + 3) * zN + j, acc3);
-            }
-            else {
-                vec8f acc[ROW_TILE];
-                for (auto& item : acc) item = zero();
-
-                for (size_t k = 0; k < yN; ++k) {
-                    const vec8f vy = (j_len == COL_TILE) ? loadu(Xy + k * zN + j) : col_mask.load(Xy + k * zN + j);
-
-                    for (size_t r = 0; r < i_len; ++r) {
-                        acc[r] = avx2::fmadd(set1(Xx[(i + r) * yN + k]), vy, acc[r]);
-                    }
-                }
-
-                for (size_t r = 0; r < i_len; ++r) {
-                    if (j_len == COL_TILE) storeu(Xz + (i + r) * zN + j, acc[r]);
-                    else col_mask.store(Xz + (i + r) * zN + j, acc[r]);
                 }
             }
         }
