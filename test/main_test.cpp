@@ -39,3 +39,6 @@ int main() {
 //Benchmark result of matmul-test in 10 iterations
 //101.739
 // matrix_t::matmul() needs a upgrade
+// Last result is
+// Benchmark result of matmul-test in 10 iterations
+// 69.2738
