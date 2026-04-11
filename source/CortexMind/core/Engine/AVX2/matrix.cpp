@@ -77,7 +77,7 @@ void matrix_t::matmul(const f32* Xx, const f32* Xy, f32* Xz, const size_t xN, co
     constexpr size_t KC = 256;
     constexpr size_t NC = 256;
 
-    constexpr size_t MR = 6;
+    constexpr size_t MR = 8;
     constexpr size_t NR = 8;
 
     for (size_t jc = 0; jc < zN; jc += NC) {
@@ -96,19 +96,22 @@ void matrix_t::matmul(const f32* Xx, const f32* Xy, f32* Xz, const size_t xN, co
                         const size_t jb = std::min(NR, jc_end - j);
 
                         vec8f acc[MR];
-                        for (size_t r = 0; r < ib; ++r)
+                        for (size_t r = 0; r < ib; ++r) {
                             acc[r] = zero();
+                        }
 
                         if (ib == MR && jb == NR) {
                             for (size_t k = kc; k < kc_end; ++k) {
-                                const vec8f bvec = loadu(Xy + k * zN + j);
+                                const vec8f b_vec = loadu(Xy + k * zN + j);
 
-                                acc[0] = avx2::fmadd(set1(Xx[(i+0)*yN+k]), bvec, acc[0]);
-                                acc[1] = avx2::fmadd(set1(Xx[(i+1)*yN+k]), bvec, acc[1]);
-                                acc[2] = avx2::fmadd(set1(Xx[(i+2)*yN+k]), bvec, acc[2]);
-                                acc[3] = avx2::fmadd(set1(Xx[(i+3)*yN+k]), bvec, acc[3]);
-                                acc[4] = avx2::fmadd(set1(Xx[(i+4)*yN+k]), bvec, acc[4]);
-                                acc[5] = avx2::fmadd(set1(Xx[(i+5)*yN+k]), bvec, acc[5]);
+                                acc[0] = avx2::fmadd(set1(Xx[(i + 0) * yN + k]), b_vec, acc[0]);
+                                acc[1] = avx2::fmadd(set1(Xx[(i + 1) * yN + k]), b_vec, acc[1]);
+                                acc[2] = avx2::fmadd(set1(Xx[(i + 2) * yN + k]), b_vec, acc[2]);
+                                acc[3] = avx2::fmadd(set1(Xx[(i + 3) * yN + k]), b_vec, acc[3]);
+                                acc[4] = avx2::fmadd(set1(Xx[(i + 4) * yN + k]), b_vec, acc[4]);
+                                acc[5] = avx2::fmadd(set1(Xx[(i + 5) * yN + k]), b_vec, acc[5]);
+                                acc[6] = avx2::fmadd(set1(Xx[(i + 6) * yN + k]), b_vec, acc[6]);
+                                acc[7] = avx2::fmadd(set1(Xx[(i + 7) * yN + k]), b_vec, acc[7]);
                             }
 
                             for (size_t r = 0; r < MR; ++r) {
@@ -119,20 +122,20 @@ void matrix_t::matmul(const f32* Xx, const f32* Xy, f32* Xz, const size_t xN, co
                             const mask col_mask(jb);
 
                             for (size_t k = kc; k < kc_end; ++k) {
-                                const vec8f bvec = (jb == NR) ? loadu(Xy + k * zN + j) : col_mask.load(Xy + k * zN + j);
+                                const vec8f b_vec = (jb == NR) ? loadu(Xy + k * zN + j) : col_mask.load(Xy + k * zN + j);
 
                                 for (size_t r = 0; r < ib; ++r) {
-                                    acc[r] = avx2::fmadd(set1(Xx[(i+r)*yN+k]), bvec, acc[r]);
+                                    acc[r] = avx2::fmadd(set1(Xx[(i + r) * yN + k]), b_vec, acc[r]);
                                 }
                             }
 
                             for (size_t r = 0; r < ib; ++r) {
                                 if (jb == NR) {
-                                    const vec8f prev = loadu(Xz + (i+r)*zN + j);
-                                    storeu(Xz + (i+r)*zN + j, avx2::add(prev, acc[r]));
+                                    const vec8f prev = loadu(Xz + (i + r) * zN + j);
+                                    storeu(Xz + (i + r) * zN + j, avx2::add(prev, acc[r]));
                                 } else {
-                                    const vec8f prev = col_mask.load(Xz + (i+r)*zN + j);
-                                    col_mask.store(Xz + (i+r)*zN + j, avx2::add(prev, acc[r]));
+                                    const vec8f prev = col_mask.load(Xz + (i + r) * zN + j);
+                                    col_mask.store(Xz + (i + r) * zN + j, avx2::add(prev, acc[r]));
                                 }
                             }
                         }
