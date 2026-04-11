@@ -14,10 +14,15 @@ namespace cortex::_fw::cuda {
     constexpr cudaMemcpyKind CXM_DEVICE_TO_HOST     = cudaMemcpyDeviceToHost;
     constexpr cudaMemcpyKind CXM_DEVICE_TO_DEVICE   = cudaMemcpyDeviceToDevice;
 
-    inline constexpr i32 WARP_SIZE = 32;
-    inline constexpr i32 BLOCK_SIZE_1D = 256;
-    inline constexpr i32 BLOCK_SIZE_2D = 16;
-    inline constexpr i32 MAT_TILE = 16;
+    constexpr unsigned int CXM_HOST_ALLOC_DEFAULT        = cudaHostAllocDefault;
+    constexpr unsigned int CXM_HOST_ALLOC_PORTABLE       = cudaHostAllocPortable;
+    constexpr unsigned int CXM_HOST_ALLOC_MAPPED         = cudaHostAllocMapped;
+    constexpr unsigned int CXM_HOST_ALLOC_WRITE_COMBINED = cudaHostAllocWriteCombined;
+
+    inline constexpr i32 WARP_SIZE      = 32;
+    inline constexpr i32 BLOCK_SIZE_1D  = 256;
+    inline constexpr i32 BLOCK_SIZE_2D  = 16;
+    inline constexpr i32 MAT_TILE       = 16;
 
     /**
      * @brief Calculates 1D grid dimensions for kernel launch.
@@ -104,6 +109,60 @@ namespace cortex::_fw::cuda {
      */
     inline const char* ErrorAsString(cudaError_t call) {
         return cudaGetErrorString(call);
+    }
+
+    /**
+     * @brief Sets a block of device memory to a specified value.
+     * @param ptr   Device pointer
+     * @param value Value to set (usually 0)
+     * @param size  Number of elements (not bytes)
+     */
+    template<typename T>
+    inline void memset(T* ptr, T value, size_t size) {
+        CXM_CUDA_ASSERT(cudaMemset(ptr, value, sizeof(T) * size), "cortex::_fw::cuda::memset()");
+    }
+
+    /**
+     * @brief Host memory (pinned memory) management utilities.
+     */
+    struct host {
+        /**
+         * @brief Allocates page-locked (pinned) host memory.
+         * @param ptr   Pointer to allocated memory
+         * @param size  Size in bytes
+         * @param flags Allocation flags (default: cudaHostAllocDefault)
+         * @return cudaSuccess on success
+         */
+        [[nodiscard]]
+        static cudaError_t allocate(void** ptr, size_t size, unsigned int flags = CXM_HOST_ALLOC_DEFAULT) {
+            return cudaHostAlloc(ptr, size, flags);
+        }
+
+        /**
+         * @brief Frees pinned host memory.
+         * @param ptr Pointer to previously allocated pinned memory
+         * @return cudaSuccess on success
+         */
+        [[nodiscard]]
+        static cudaError_t free(void* ptr) {
+            return cudaFreeHost(ptr);
+        }
+    };
+
+    /**
+     * @brief Maps pinned host memory to device address space (zero-copy memory).
+     *
+     * This function returns a device pointer that can be used directly in CUDA kernels
+     * to access the same physical memory as the host pointer without explicit copying.
+     * It is typically used together with `cudaHostAlloc(..., cudaHostAllocMapped)`.
+     *
+     * @param device_ptr  [out] Device pointer that can be used in kernels
+     * @param host_ptr    Host pointer previously allocated with pinned memory
+     * @return cudaSuccess on success
+     */
+    [[nodiscard]]
+    inline cudaError_t map(void** device_ptr, void* host_ptr) {
+        return cudaHostGetDevicePointer(device_ptr, host_ptr, 0);
     }
 
     /**

@@ -115,8 +115,8 @@ void matrix_t::matmul(const f32* Xx, const f32* Xy, f32* Xz, const size_t xN, co
                             }
 
                             for (size_t r = 0; r < MR; ++r) {
-                                const vec8f prev = loadu(Xz + (i+r)*zN + j);
-                                storeu(Xz + (i+r)*zN + j, avx2::add(prev, acc[r]));
+                                const vec8f prev = loadu(Xz + (i + r) * zN + j);
+                                storeu(Xz + (i + r) * zN + j, avx2::add(prev, acc[r]));
                             }
                         } else {
                             const mask col_mask(jb);

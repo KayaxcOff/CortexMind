@@ -14,30 +14,30 @@ using namespace cortex::_fw;
 
 ReduceOp::ReduceOp() {
     CXM_CUDA_ASSERT(
-        cudaHostAlloc(&this->host_output, sizeof(f32), cudaHostAllocMapped),
-        "ReduceOp::ReduceOp()"
+        host::allocate(reinterpret_cast<void**>(&this->host_output), sizeof(f32), CXM_HOST_ALLOC_MAPPED),
+        "cortex::_fw::cuda::ReduceOp::ReduceOp()"
     );
     CXM_CUDA_ASSERT(
-        cudaHostGetDevicePointer(&this->cuda_output, this->host_output, 0),
-        "ReduceOp::ReduceOp()"
+        map(reinterpret_cast<void**>(&this->cuda_output), this->host_output),
+        "cortex::_fw::cuda::ReduceOp::ReduceOp()"
     );
     CXM_CUDA_ASSERT(
-        cudaHostAlloc(&this->host_index, sizeof(i32), cudaHostAllocMapped),
-        "ReduceOp::ReduceOp()"
+        host::allocate(reinterpret_cast<void**>(&this->host_index), sizeof(i32), CXM_HOST_ALLOC_MAPPED),
+        "cortex::_fw::cuda::ReduceOp::ReduceOp()"
     );
     CXM_CUDA_ASSERT(
-        cudaHostGetDevicePointer(&this->cuda_index, this->host_index, 0),
-        "ReduceOp::ReduceOp()"
+        map(reinterpret_cast<void**>(&this->cuda_index), this->host_index),
+        "cortex::_fw::cuda::ReduceOp::ReduceOp()"
     );
 }
 
 ReduceOp::~ReduceOp() {
-    cudaFreeHost(this->host_output);
-    cudaFreeHost(this->host_index);
+    CXM_CUDA_ASSERT(host::free(this->host_output), "cortex::_fw::cuda::ReduceOp::~ReduceOp()");
+    CXM_CUDA_ASSERT(host::free(this->host_index), "cortex::_fw::cuda::ReduceOp::~ReduceOp()");
 }
 
 f32 ReduceOp::sum(const f32* x, const size_t N) {
-    cudaMemset(this->cuda_output, 0, sizeof(f32));
+    memset<f32>(this->cuda_output, 0, sizeof(f32));
 
     const size_t shared_mem = (BLOCK_SIZE_1D / WARP_SIZE) * sizeof(f32);
     kernels::reduce_sum<<<grid1d(N), BLOCK_SIZE_1D, shared_mem>>>(x, this->cuda_output, N);
