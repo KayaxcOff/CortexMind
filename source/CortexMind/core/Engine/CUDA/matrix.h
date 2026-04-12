@@ -42,6 +42,23 @@ namespace cortex::_fw::cuda {
          * @note Uses cuBLAS SGEMM with column-major storage assumption.
          */
         static void matmul(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t xN, size_t yN, size_t zN);
+
+        /**
+         * @brief X = X + Y (in-place)
+         */
+        static void add(f32* __restrict Xx, const f32* __restrict Xy, size_t N);
+        /**
+         * @brief X = X - Y (in-place)
+         */
+        static void sub(f32* __restrict Xx, const f32* __restrict Xy, size_t N);
+        /**
+         * @brief X = X * Y (in-place)
+         */
+        static void mul(f32* __restrict Xx, const f32* __restrict Xy, size_t N);
+        /**
+         * @brief X = X / Y (in-place)
+         */
+        static void div(f32* __restrict Xx, const f32* __restrict Xy, size_t N);
     };
 } //namespace cortex::_fw::cuda
 

@@ -29,6 +29,21 @@ namespace cortex::_fw::cuda::kernels {
     }
 
     /**
+     * @brief Performs warp-level max reduction using shuffle instructions.
+     *
+     * @param val Per-thread input value
+     * @return Max of the warp (valid only in lane 0)
+     */
+    __device__ inline f32 warp_reduce_max(f32 val) {
+        val = fmaxf(val, shfl::down(val, 16));
+        val = fmaxf(val, shfl::down(val, 8));
+        val = fmaxf(val, shfl::down(val, 4));
+        val = fmaxf(val, shfl::down(val, 2));
+        val = fmaxf(val, shfl::down(val, 1));
+        return val;
+    }
+
+    /**
      * @brief CUDA kernel for parallel sum reduction.
      *
      * Computes the sum of all elements in the input array using a highly optimized

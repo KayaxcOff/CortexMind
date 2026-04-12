@@ -37,3 +37,23 @@ void ScalarKernel::div(const f32* Xx, const f32 value, f32* Xz, const size_t N) 
 
     kernels::scalar<ops::Division><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, value, Xz4, N);
 }
+
+void ScalarKernel::add(f32* Xx, const f32 value, const size_t N) {
+    f32x4* Xx4 = reinterpret_cast<f32x4*>(Xx);
+    kernels::scalar_inplace<ops::Addition><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, value, N);
+}
+
+void ScalarKernel::sub(f32* Xx, const f32 value, const size_t N) {
+    f32x4* Xx4 = reinterpret_cast<f32x4*>(Xx);
+    kernels::scalar_inplace<ops::Subtraction><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, value, N);
+}
+
+void ScalarKernel::mul(f32* Xx, const f32 value, const size_t N) {
+    f32x4* Xx4 = reinterpret_cast<f32x4*>(Xx);
+    kernels::scalar_inplace<ops::Multiplication><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, value, N);
+}
+
+void ScalarKernel::div(f32* Xx, const f32 value, const size_t N) {
+    f32x4* Xx4 = reinterpret_cast<f32x4*>(Xx);
+    kernels::scalar_inplace<ops::Division><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, value, N);
+}

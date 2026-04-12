@@ -66,3 +66,27 @@ void Matrix::matmul(const f32* Xx, const f32* Xy, f32* Xz, const size_t xN, cons
         "cublasSgemm() failed"
     );
 }
+
+void Matrix::add(f32* Xx, const f32* Xy, const size_t N) {
+    f32x4*       Xx4 = reinterpret_cast<f32x4*>(Xx);
+    const f32x4* Xy4 = reinterpret_cast<const f32x4*>(Xy);
+    kernels::matrix_inplace<ops::Addition><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xy4, N);
+}
+
+void Matrix::sub(f32* Xx, const f32* Xy, const size_t N) {
+    f32x4*       Xx4 = reinterpret_cast<f32x4*>(Xx);
+    const f32x4* Xy4 = reinterpret_cast<const f32x4*>(Xy);
+    kernels::matrix_inplace<ops::Subtraction><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xy4, N);
+}
+
+void Matrix::mul(f32* Xx, const f32* Xy, const size_t N) {
+    f32x4*       Xx4 = reinterpret_cast<f32x4*>(Xx);
+    const f32x4* Xy4 = reinterpret_cast<const f32x4*>(Xy);
+    kernels::matrix_inplace<ops::Multiplication><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xy4, N);
+}
+
+void Matrix::div(f32* Xx, const f32* Xy, const size_t N) {
+    f32x4*       Xx4 = reinterpret_cast<f32x4*>(Xx);
+    const f32x4* Xy4 = reinterpret_cast<const f32x4*>(Xy);
+    kernels::matrix_inplace<ops::Division><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xy4, N);
+}
