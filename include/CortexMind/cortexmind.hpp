@@ -5,8 +5,11 @@
 #ifndef CORTEXMIND_CORTEXMIND_HPP
 #define CORTEXMIND_CORTEXMIND_HPP
 
-#include <CortexMind/framework/Benchmark/pref.hpp>
-
+// ---------- runtime ----------
 #include <CortexMind/runtime/compile_flags_check.hpp> // Compile time
+
+// ---------- tools ----------
+#include <CortexMind/tools/is_avx2_available.hpp>
+#include <CortexMind/tools/is_cuda_available.hpp>
 
 #endif //CORTEXMIND_CORTEXMIND_HPP
