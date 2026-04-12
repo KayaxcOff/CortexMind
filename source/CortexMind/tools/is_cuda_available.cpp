@@ -3,13 +3,22 @@
 //
 
 #include "CortexMind/tools/is_cuda_available.hpp"
+#if CXM_IS_CUDA_AVAILABLE
+    #include <CortexMind/core/Tools/utils.cuh>
+#endif //#if CXM_IS_CUDA_AVAILABLE
+#include <CortexMind/framework/Tools/err.hpp>
+#include <iostream>
 
-using namespace cortex;
+using namespace cortex::_fw;
 
-bool cortex::is_cuda_available() noexcept {
-    #if CXM_IS_CUDA_AVAILABLE
-        return true;
-    #else //#if CXM_IS_CUDA_AVAILABLE
-        return false;
-    #endif //#if CXM_IS_CUDA_AVAILABLE #else
+void cortex::is_cuda_available() {
+    int device;
+
+    CXM_CUDA_ASSERT(cuda::GetDevice(&device), "cortex::is_cuda_available()");
+
+    if (device == 0) {
+        std::cout << "Can't found CUDA" << std::endl;
+    } else {
+        std::cout << "Found CUDA! GPU Element: " << device << std::endl;
+    }
 }

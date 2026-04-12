@@ -5,5 +5,7 @@
 #include <CortexMind/cortexmind.hpp>
 
 int main() {
+    cortex::is_cuda_available();
+
     return 0;
 }

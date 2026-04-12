@@ -122,6 +122,11 @@ namespace cortex::_fw::cuda {
         CXM_CUDA_ASSERT(cudaMemset(ptr, value, sizeof(T) * size), "cortex::_fw::cuda::memset()");
     }
 
+    [[nodiscard]]
+    inline cudaError_t GetDevice(i32* device_count) {
+        return cudaGetDeviceCount(device_count);
+    }
+
     /**
      * @brief Host memory (pinned memory) management utilities.
      */

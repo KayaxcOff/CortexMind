@@ -7,12 +7,9 @@
 
 namespace cortex {
     /**
-     * @brief Returns information
-     * on whether CUDA is integrated
-     * into CMake.
+     * @brief Try to found CUDA
      */
-    [[nodiscard]]
-    bool is_cuda_available() noexcept;
+    void is_cuda_available();
 } //namespace cortex
 
 #endif //CORTEXMIND_TOOLS_IS_CUDA_AVAILABLE_HPP
