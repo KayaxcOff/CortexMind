@@ -57,6 +57,7 @@ add_library(CortexMind STATIC
         source/CortexMind/runtime/ctx.cpp
         source/CortexMind/framework/Benchmark/pref.cpp
         source/CortexMind/framework/Tools/benchmark_utils.cpp
+        source/CortexMind/framework/Tools/device_as_string.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
