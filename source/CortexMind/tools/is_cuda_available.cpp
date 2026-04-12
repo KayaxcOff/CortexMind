@@ -12,13 +12,11 @@
 using namespace cortex::_fw;
 
 void cortex::is_cuda_available() {
-    int device;
-
-    CXM_CUDA_ASSERT(cuda::GetDevice(&device), "cortex::is_cuda_available()");
-
-    if (device == 0) {
-        std::cout << "Can't found CUDA" << std::endl;
-    } else {
-        std::cout << "Found CUDA! GPU Element: " << device << std::endl;
-    }
+    #if CXM_IS_CUDA_AVAILABLE
+        int device;
+        CXM_CUDA_ASSERT(cuda::GetDevice(&device), "cortex::is_cuda_available()");
+        std::cout << "CUDA available, device: " << device << std::endl;
+    #else //#if CXM_IS_CUDA_AVAILABLE
+        std::cout << "CUDA not compiled." << std::endl;
+    #endif //#if CXM_IS_CUDA_AVAILABLE #else
 }
