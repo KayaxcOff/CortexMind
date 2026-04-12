@@ -3,35 +3,61 @@
 //
 
 #include "CortexMind/framework/Benchmark/pref.hpp"
+#include <CortexMind/framework/Tools/benchmark_utils.hpp>
+#include <algorithm>
+#include <chrono>
 #include <iostream>
+#include <iomanip>
 #include <utility>
-#include <numeric>
 
 using namespace cortex::_fw;
 
-PrefBench::PrefBench(std::string name, const i32 iterations) : name(std::move(name)), iterations(iterations) {}
+PrefBench::PrefBench(std::string name, const i32 iterations, const i32 warmup) : name(std::move(name)), iterations(iterations), warmup(warmup) {
+    this->times.reserve(iterations);
+}
 
-PrefBench::~PrefBench() = default;
+void PrefBench::run(const std::function<void()>& func) {
+    this->times.clear();
 
-void PrefBench::run(const std::function<void()> &func) {
-    for (i32 i = 0; i < this->iterations; ++i) {
-        auto start = std::chrono::high_resolution_clock::now();
-
+    for (i32 i = 0; i < this->warmup; ++i) {
         func();
-
-        auto end = std::chrono::high_resolution_clock::now();
-
-        std::chrono::duration<double, std::milli> duration = end - start;
-        this->times.push_back(duration.count());
     }
+
+    for (i32 i = 0; i < this->iterations; ++i) {
+        const auto start = std::chrono::high_resolution_clock::now();
+        func();
+        const auto end = std::chrono::high_resolution_clock::now();
+        this->times.push_back(std::chrono::duration<f64, std::milli>(end - start).count());
+    }
+
+    const f64 avg = compute_avg(this->times);
+    this->last_result = {
+        avg,
+        compute_min(this->times),
+        compute_max(this->times),
+        compute_median(this->times),
+        compute_std_dev(this->times, avg),
+        this->iterations,
+        this->name
+    };
 }
 
 void PrefBench::result() const {
-    std::cout << "Benchmark result of " << this->name << " in " << this->iterations << " iterations" << std::endl;
-    std::cout << average(this->times) << std::endl;
+    std::cout << std::fixed << std::setprecision(3);
+    std::cout << "=== Benchmark: " << this->last_result.name << " ===\n";
+    std::cout << "  Iterations : " << this->last_result.iterations << "\n";
+    std::cout << "  Avg        : " << this->last_result.avg     << " ms\n";
+    std::cout << "  Min        : " << this->last_result.min     << " ms\n";
+    std::cout << "  Max        : " << this->last_result.max     << " ms\n";
+    std::cout << "  Median     : " << this->last_result.median  << " ms\n";
+    std::cout << "  Std Dev    : " << this->last_result.std_dev << " ms\n";
 }
 
-f64 PrefBench::average(const std::vector<f64> &times) {
-    const double sum = std::accumulate(times.begin(), times.end(), 0.0);
-    return sum / static_cast<f64>(times.size());
+const BenchResult& PrefBench::get() const {
+    return this->last_result;
+}
+
+void PrefBench::reset() {
+    this->times.clear();
+    this->last_result = {};
 }

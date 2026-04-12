@@ -5,51 +5,53 @@
 #ifndef CORTEXMIND_FRAMEWORK_BENCHMARK_PREF_HPP
 #define CORTEXMIND_FRAMEWORK_BENCHMARK_PREF_HPP
 
-#include <CortexMind/framework/Tools/params.hpp>
-#include <chrono>
+#include <CortexMind/framework/Benchmark/bench_output.hpp>
 #include <functional>
-#include <string>
 #include <vector>
 
 namespace cortex::_fw {
     /**
-     * @brief Simple and lightweight benchmarking utility for performance measurements.
-     *
-     * Measures the execution time of a given function over multiple iterations
-     * and reports the average time in milliseconds.
+     * @brief Lightweight benchmarking utility with warmup support and detailed statistics.
      */
     class PrefBench {
     public:
         /**
          * @brief Constructs a benchmark object.
-         * @param name        Name of the benchmark (will be printed in results)
-         * @param iterations  Number of times the function will be executed (default: 10)
+         * @param name        Name of the benchmark
+         * @param iterations  Number of measured iterations (default: 10)
+         * @param warmup      Number of warmup iterations before measurement (default: 3)
          */
-        explicit PrefBench(std::string  name, i32 iterations = 10);
-        ~PrefBench();
+        explicit PrefBench(std::string name, i32 iterations = 10, i32 warmup = 3);
+        ~PrefBench() = default;
 
         /**
-         * @brief Executes the given function multiple times and records timings.
-         * @param func Callable object (lambda, function pointer, etc.) to benchmark
+         * @brief Executes warmup then measured iterations, records timings.
+         * @param func Callable to benchmark
          */
         void run(const std::function<void()>& func);
+
         /**
-         * @brief Prints the benchmark name and average execution time to stdout.
+         * @brief Prints detailed benchmark statistics to stdout.
          */
         void result() const;
+
+        /**
+         * @brief Returns the raw benchmark result struct.
+         */
+        [[nodiscard]]
+        const BenchResult& get() const;
+
+        /**
+         * @brief Resets recorded times for reuse.
+         */
+        void reset();
 
     private:
         std::string name;
         i32 iterations;
+        i32 warmup;
         std::vector<f64> times;
-
-        /**
-         * @brief Calculates the average of recorded times.
-         * @param times Vector containing measured durations in milliseconds
-         * @return Average time in milliseconds
-         */
-        [[nodiscard]]
-        static f64 average(const std::vector<f64>& times);
+        BenchResult last_result{};
     };
 } //namespace cortex::_fw
 
