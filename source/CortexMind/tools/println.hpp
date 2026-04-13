@@ -10,38 +10,41 @@
 
 namespace cortex {
     /**
-     * @brief Prints multiple arguments separated by space and appends a newline.
+     * @brief Prints formatted output without a trailing newline.
      *
-     * Uses the left fold expression to stream all arguments to `std::cout`.
-     *
-     * @tparam Args Variadic template parameter pack
-     * @param args  Values to print
-     *
-     * @code
-     * println("Hello", "world", 42, 3.14);
-     * @endcode
-     */
-    template<typename... Args>
-    void println(Args&&... args) {
-        (std::cout << ... << args) << '\n';
-    }
-
-    /**
-     * @brief Prints a formatted string using `std::format` and appends a newline.
-     *
-     * This overload supports C++20 `std::format` syntax for type-safe formatting.
+     * Uses `std::format` to format the arguments according to the format string.
      *
      * @tparam Args Variadic template parameter pack for format arguments
      * @param fmt   Format string (std::format_string)
-     * @param args  Arguments to be formatted
+     * @param args  Arguments to be formatted and printed
      *
      * @code
-     * println("Epoch: {}, Loss: {:.4f}, Accuracy: {:.2f}%", epoch, loss, acc * 100);
+     * print("Epoch {} - Loss: {:.4f}", epoch, loss);
+     * @endcode
+     */
+    template<typename... Args>
+    void print(std::format_string<Args...> fmt, Args&&... args) {
+        std::cout << std::format(fmt, std::forward<Args>(args)...);
+    }
+
+    /**
+     * @brief Prints formatted output and appends a newline (`\n`).
+     *
+     * This is a convenience wrapper that calls `print()` and then outputs a newline.
+     *
+     * @tparam Args Variadic template parameter pack for format arguments
+     * @param fmt   Format string
+     * @param args  Arguments to be formatted and printed
+     *
+     * @code
+     * println("Accuracy: {:.2f}%", accuracy * 100);
+     * println("Training completed in {} seconds", elapsed);
      * @endcode
      */
     template<typename... Args>
     void println(std::format_string<Args...> fmt, Args&&... args) {
-        std::cout << std::format(fmt, std::forward<Args>(args)...) << '\n';
+        print(fmt, std::forward<Args>(args)...);
+        std::cout << '\n';
     }
 } //namespace cortex
 
