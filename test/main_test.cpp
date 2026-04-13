@@ -5,7 +5,7 @@
 #include <CortexMind/cortexmind.hpp>
 
 int main() {
-    cortex::is_cuda_available();
+    cortex::println("Hello CortexMind!");
 
     return 0;
 }

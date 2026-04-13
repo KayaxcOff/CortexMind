@@ -10,5 +10,6 @@
 
 // ---------- tools ----------
 #include <CortexMind/tools/is_cuda_available.hpp>
+#include <CortexMind/tools/println.hpp>
 
 #endif //CORTEXMIND_CORTEXMIND_HPP
