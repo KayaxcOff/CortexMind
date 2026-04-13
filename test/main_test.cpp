@@ -4,8 +4,10 @@
 
 #include <CortexMind/cortexmind.hpp>
 
+using namespace cortex;
+
 int main() {
-    cortex::PrintVersion();
+    println("Hello World!");
 
     return 0;
 }
