@@ -53,7 +53,7 @@ f32 ReduceOp::mean(const f32* x, const size_t N) {
 f32 ReduceOp::var(const f32* x, const size_t N) {
     const f32 mu = this->mean(x, N);
 
-    cudaMemset(this->cuda_output, 0, sizeof(f32));
+    memset<f32>(this->cuda_output, 0, sizeof(f32));
 
     const size_t shared_mem = (BLOCK_SIZE_1D / WARP_SIZE) * sizeof(f32);
     kernels::reduce_var<<<grid1d(N), BLOCK_SIZE_1D, shared_mem>>>(x, mu, this->cuda_output, N);
@@ -76,7 +76,7 @@ f32 ReduceOp::min(const f32* x, const size_t N) {
     DeviceSynchronize();
     const i32 idx = *this->host_index - 1;
     f32 result;
-    cuda::memcpy(&result, x + idx, sizeof(f32), CXM_DEVICE_TO_HOST);
+    memcpy(&result, x + idx, sizeof(f32), CXM_DEVICE_TO_HOST);
     return result;
 }
 
@@ -90,7 +90,7 @@ f32 ReduceOp::max(const f32* x, const size_t N) {
     DeviceSynchronize();
     const i32 idx = *this->host_index - 1;
     f32 result;
-    cuda::memcpy(&result, x + idx, sizeof(f32), CXM_DEVICE_TO_HOST);
+    memcpy(&result, x + idx, sizeof(f32), CXM_DEVICE_TO_HOST);
     return result;
 }
 
