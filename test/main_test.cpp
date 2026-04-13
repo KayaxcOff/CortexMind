@@ -5,7 +5,7 @@
 #include <CortexMind/cortexmind.hpp>
 
 int main() {
-    cortex::println("Hello CortexMind!");
+    cortex::PrintVersion();
 
     return 0;
 }
