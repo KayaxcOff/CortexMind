@@ -4,8 +4,11 @@
 
 #include <CortexMind/cortexmind.hpp>
 
+using namespace cortex;
+
 int main() {
-    cortex::PrintVersion();
+    println("Epoch: {} Loss: {:.2f}", 10, 1.6438);
+    print("Hello CortexMind");
 
     return 0;
 }
