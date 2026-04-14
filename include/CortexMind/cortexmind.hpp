@@ -9,6 +9,7 @@
 #include <CortexMind/runtime/compile_flags_check.hpp> // Compile time
 
 // ---------- tools ----------
+#include <CortexMind/tools/cpp_version.hpp>
 #include <CortexMind/tools/is_cuda_available.hpp>
 #include <CortexMind/tools/println.hpp>
 #include <CortexMind/tools/version.hpp>

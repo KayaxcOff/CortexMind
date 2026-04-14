@@ -7,8 +7,7 @@
 using namespace cortex;
 
 int main() {
-    println("Epoch: {} Loss: {:.2f}", 10, 1.6438);
-    print("Hello CortexMind");
+    CXM_CPP_VERSION();
 
     return 0;
 }
