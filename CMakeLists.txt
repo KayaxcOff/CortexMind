@@ -129,6 +129,9 @@ target_link_libraries(CXM_G_TEST PRIVATE
         GTest::gtest_main
 )
 
+include(GoogleTest)
+gtest_discover_tests(CXM_G_TEST)
+
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(CXM_TEST PRIVATE
             $<$<COMPILE_LANGUAGE:CXX>:-mavx2 -mfma>
