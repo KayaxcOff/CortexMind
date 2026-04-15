@@ -58,9 +58,9 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Benchmark/pref.cpp
         source/CortexMind/framework/Tools/benchmark_utils.cpp
         source/CortexMind/framework/Tools/device_as_string.cpp
-        source/CortexMind/tools/is_cuda_available.cpp
         source/CortexMind/tools/version.cpp
         source/CortexMind/tools/cpp_version.cpp
+        source/CortexMind/tools/is_cuda_available.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)

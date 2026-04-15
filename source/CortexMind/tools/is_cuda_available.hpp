@@ -1,5 +1,5 @@
 //
-// Created by muham on 12.04.2026.
+// Created by muham on 15.04.2026.
 //
 
 #ifndef CORTEXMIND_TOOLS_IS_CUDA_AVAILABLE_HPP
@@ -7,9 +7,10 @@
 
 namespace cortex {
     /**
-     * @brief Try to found CUDA
+     * @brief Returns is cuda available
      */
-    void is_cuda_available();
+    [[nodiscard]]
+    bool has_cuda();
 } //namespace cortex
 
 #endif //CORTEXMIND_TOOLS_IS_CUDA_AVAILABLE_HPP
