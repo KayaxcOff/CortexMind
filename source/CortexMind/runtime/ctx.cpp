@@ -8,7 +8,7 @@
 #endif //#if CXM_IS_CUDA_AVAILABLE
 #include <CortexMind/framework/Tools/err.hpp>
 
-using namespace cortex::runtime;
+using namespace cortex::_fw::runtime;
 using namespace cortex::_fw;
 
 CublasContext &CublasContext::instance() {

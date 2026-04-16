@@ -10,7 +10,7 @@
 #endif //#if CXM_IS_CUDA_AVAILABLE
 #include <CortexMind/framework/Tools/params.hpp>
 
-namespace cortex::runtime {
+namespace cortex::_fw::runtime {
     /**
      * @brief Singleton context manager for cuBLAS.
      *
@@ -44,6 +44,6 @@ namespace cortex::runtime {
         CublasContext() = default;
         ~CublasContext() = default;
     };
-} //namespace cortex::runtime
+} //namespace cortex::_fw::runtime
 
 #endif //CORTEXMIND_RUNTIME_CTX_H
