@@ -12,6 +12,7 @@ add_library(CortexMind STATIC
         source/CortexMind/tools/version.cpp
         source/CortexMind/tools/cpp_version.cpp
         source/CortexMind/tools/is_cuda_available.cpp
+        source/CortexMind/framework/Tools/memory_utils.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
