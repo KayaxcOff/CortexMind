@@ -5,23 +5,37 @@
 #include <CortexMind/cortexmind.hpp>
 #include <gtest/gtest.h> // from _deps/googletest-src
 
-TEST(CXM_CUDA_AVAILABLE_TEST, CompileTimeGateWorks) {
-    #if !CXM_IS_CUDA_AVAILABLE
-        EXPECT_FALSE(cortex::has_cuda());
-    #else //#if !CXM_IS_CUDA_AVAILABLE
-        SUCCEED();
-    #endif //#if !CXM_IS_CUDA_AVAILABLE #else
+#include "CortexMind/framework/Memory/mem.hpp"
+
+using namespace cortex::_fw::sys;
+
+TEST(TrackedMemTest, BasicAllocation) {
+    TrackedMem mem(100);
+
+    const auto ptr = mem.allocate(10);
+
+    EXPECT_NE(ptr, nullptr);
+    EXPECT_EQ(mem.used(), 10);
+    EXPECT_EQ(mem.capacity(), 100);
 }
 
-TEST(CudaAvailabilityTest, IsDeterministic) {
-    const bool first = cortex::has_cuda();
-    const bool second = cortex::has_cuda();
+TEST(TrackedMemTest, AllocationFailsWhenFull) {
+    TrackedMem mem(10);
 
-    EXPECT_EQ(first, second);
+    const auto p1 = mem.allocate(10);
+    const auto p2 = mem.allocate(1);
+
+    EXPECT_NE(p1, nullptr);
+    EXPECT_EQ(p2, nullptr);
 }
 
-TEST(CudaAvailabilityTest, TrueImpliesCompileFlag) {
-    if (cortex::has_cuda()) {
-        EXPECT_TRUE(CXM_IS_CUDA_AVAILABLE);
-    }
+TEST(TrackedMemTest, DeallocateWorks) {
+    TrackedMem mem(50);
+
+    const auto ptr = mem.allocate(20);
+    ASSERT_NE(ptr, nullptr);
+
+    mem.deallocate(ptr);
+
+    EXPECT_EQ(mem.used(), 0);
 }
