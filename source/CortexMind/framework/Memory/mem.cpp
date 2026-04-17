@@ -11,14 +11,14 @@ using namespace cortex::_fw::sys;
 using namespace cortex::_fw;
 
 TrackedMem::TrackedMem(const size_t capacity) : m_capacity(capacity), m_used(0) {
-    this->m_buffer = static_cast<f32*>(operator new(capacity * sizeof(f32), static_cast<std::align_val_t>(alignof(f32))));
+    this->m_buffer = static_cast<f32*>(operator new(capacity * sizeof(f32), static_cast<std::align_val_t>(32)));
     CXM_ASSERT(this->m_buffer != nullptr, "cortex::_fw::sys::TrackedMem::TrackedMem()", "Buffer initialize of buffer has failed");
 
     this->m_arenas.emplace(0, Arena{0, capacity, false});
 }
 
 TrackedMem::~TrackedMem() {
-    operator delete(this->m_buffer, static_cast<std::align_val_t>(alignof(f32)));
+    operator delete(this->m_buffer, static_cast<std::align_val_t>(32));
 }
 
 f32 *TrackedMem::allocate(const size_t count, const size_t alignment) {
