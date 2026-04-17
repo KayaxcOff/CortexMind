@@ -127,6 +127,15 @@ namespace cortex::_fw::cuda {
         return cudaGetDeviceCount(device_count);
     }
 
+    [[nodiscard]]
+    inline cudaError_t malloc(void** ptr, size_t size) {
+        return cudaMalloc(ptr, size);
+    }
+    [[nodiscard]]
+    inline cudaError_t free(void* ptr) {
+        return cudaFree(ptr);
+    }
+
     /**
      * @brief Host memory (pinned memory) management utilities.
      */

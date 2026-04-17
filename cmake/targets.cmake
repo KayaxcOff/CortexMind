@@ -22,6 +22,7 @@ if(CXM_CUDA_AVAILABLE)
             source/CortexMind/core/Engine/CUDA/matrix.cu
             source/CortexMind/core/Engine/CUDA/reduce.cu
             source/CortexMind/core/Engine/CUDA/activation.cu
+            source/CortexMind/framework/Memory/forge.cu
     )
 endif()
 
