@@ -5,10 +5,10 @@
 #ifndef CORTEXMIND_RUNTIME_CTX_H
 #define CORTEXMIND_RUNTIME_CTX_H
 
+#include <CortexMind/framework/Tools/params.hpp>
 #if CXM_IS_CUDA_AVAILABLE
     #include <cublas_v2.h>
 #endif //#if CXM_IS_CUDA_AVAILABLE
-#include <CortexMind/framework/Tools/params.hpp>
 
 namespace cortex::_fw::runtime {
     /**
