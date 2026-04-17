@@ -30,7 +30,7 @@ namespace cortex::_fw::runtime {
          * @brief Initializes the cuBLAS context on the specified device.
          * @param device_id CUDA device ID (default: 0)
          */
-        void init(_fw::i32 device_id = 0);
+        void init(i32 device_id = 0);
         /**
          * @brief Destroys the cuBLAS handle.
          *

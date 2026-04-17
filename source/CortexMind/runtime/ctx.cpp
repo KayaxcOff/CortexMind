@@ -17,7 +17,7 @@ CublasContext &CublasContext::instance() {
 }
 
 void CublasContext::init(const i32 device_id) {
-    CXM_CUDA_ASSERT(cudaSetDevice(device_id), "cortex::runtime::CublasContext::init()");
+    CXM_CUDA_ASSERT(cudaSetDevice(device_id), "cortex::_fw::runtime::CublasContext::init()");
     CXM_ASSERT(
         cublasCreate(&this->handle) == CUBLAS_STATUS_SUCCESS,
         "cortex::runtime::CublasContext::init()",
@@ -28,7 +28,7 @@ void CublasContext::init(const i32 device_id) {
 void CublasContext::destroy() const {
     CXM_ASSERT(
         cublasDestroy(this->handle) == CUBLAS_STATUS_SUCCESS,
-        "cortex::runtime::CublasContext::destroy()",
+        "cortex::_fw::runtime::CublasContext::destroy()",
         "cublasDestroy() failed"
     );
 }
