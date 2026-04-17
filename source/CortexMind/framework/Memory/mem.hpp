@@ -7,6 +7,7 @@
 
 #include <CortexMind/framework/Memory/arena.hpp>
 #include <CortexMind/framework/Tools/params.hpp>
+#include <CortexMind/runtime/macros.hpp>
 #include <map>
 #include <mutex>
 
@@ -22,7 +23,7 @@ namespace cortex::_fw::sys {
      */
     class TrackedMem {
     public:
-        explicit TrackedMem(size_t capacity);
+        explicit TrackedMem(size_t capacity = CXM_DEFAULT_POOL_SIZE);
         TrackedMem(const TrackedMem&) = delete;
         TrackedMem(TrackedMem&&) = delete;
         ~TrackedMem();
