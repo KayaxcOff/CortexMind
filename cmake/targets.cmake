@@ -5,11 +5,12 @@ add_library(CortexMind STATIC
         source/CortexMind/core/Engine/AVX2/matrix.cpp
         source/CortexMind/core/Engine/AVX2/activation.cpp
         source/CortexMind/runtime/ctx.cpp
-        source/CortexMind/framework/Tools/err.cpp
         source/CortexMind/framework/Benchmark/pref.cpp
+        source/CortexMind/framework/Tools/err.cpp
         source/CortexMind/framework/Tools/benchmark_utils.cpp
         source/CortexMind/framework/Tools/device_as_string.cpp
         source/CortexMind/framework/Tools/memory_utils.cpp
+        source/CortexMind/framework/Memory/mem.cpp
         source/CortexMind/tools/version.cpp
         source/CortexMind/tools/cpp_version.cpp
         source/CortexMind/tools/is_cuda_available.cpp
