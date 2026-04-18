@@ -28,10 +28,11 @@ TensorStorage::TensorStorage(const size_t size, const deviceType device) : offse
 }
 
 TensorStorage::TensorStorage(const TensorStorage &other) : offset(other.offset), m_size(other.m_size), m_device(other.m_device) {
-    this->cpu_ptr = nullptr;
-    this->gpu_ptr = nullptr;
+    this->cpu_ptr = mem.allocate(this->m_size);
 
     #if CXM_IS_CUDA_AVAILABLE
+        this->gpu_ptr = forge.allocate(this->m_size);
+
         if (this->m_device == deviceType::host) {
             transform<f32>::copy_h2h(this->cpu_ptr, other.cpu_ptr, this->m_size);
         }
@@ -65,11 +66,11 @@ TensorStorage::~TensorStorage() {
 }
 
 f32 *TensorStorage::data() {
-    return this->m_device == deviceType::host ? this->cpu_ptr : this->gpu_ptr;
+    return this->m_device == deviceType::host ? this->cpu_ptr + this->offset : this->gpu_ptr + this->offset;
 }
 
 const f32 *TensorStorage::data() const {
-    return this->m_device == deviceType::host ? this->cpu_ptr : this->gpu_ptr;
+    return this->m_device == deviceType::host ? this->cpu_ptr + this->offset : this->gpu_ptr + this->offset;
 }
 
 size_t TensorStorage::size() const noexcept {
@@ -99,7 +100,7 @@ void TensorStorage::setDevice(const deviceType device) noexcept {
     #if CXM_IS_CUDA_AVAILABLE
         if (this->m_device == deviceType::cuda) {
             if (this->gpu_ptr == nullptr) {
-                this->gpu_ptr = mem.allocate(this->m_size);
+                this->gpu_ptr = forge.allocate(this->m_size);
             }
             transform<f32>::upload(this->gpu_ptr, this->cpu_ptr, this->m_size);
         }

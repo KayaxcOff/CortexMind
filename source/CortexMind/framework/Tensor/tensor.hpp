@@ -42,17 +42,17 @@ namespace cortex::_fw {
         [[nodiscard]]
         f32 mean() const;
         [[nodiscard]]
-        f32 variance();
+        f32 variance() const;
         [[nodiscard]]
-        f32 standard_deviation();
+        f32 standard_deviation() const;
         [[nodiscard]]
-        f32 max();
+        f32 max() const;
         [[nodiscard]]
-        f32 min();
+        f32 min() const;
 
-        void ones();
-        void zero();
-        void fill(f32 value);
+        void ones() const;
+        void zero() const;
+        void fill(f32 value) const;
         void rand(f32 min = 0.0f, f32 max = 1.0f);
         void backward();
         void backward(MindTensor& other);
@@ -69,8 +69,6 @@ namespace cortex::_fw {
         std::shared_ptr<meta::GradientFlow> flow_;
         std::shared_ptr<TensorStorage> storage_;
         std::unique_ptr<MindTensor> gradient_;
-
-        sys::deviceType m_device;
 
         bool m_grad_flag;
     };
