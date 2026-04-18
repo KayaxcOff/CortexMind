@@ -17,6 +17,8 @@ add_library(CortexMind STATIC
         source/CortexMind/tools/version.cpp
         source/CortexMind/tools/cpp_version.cpp
         source/CortexMind/tools/is_cuda_available.cpp
+        ../source/CortexMind/framework/Tensor/tensor.cpp
+        ../source/CortexMind/framework/Tensor/operators.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
