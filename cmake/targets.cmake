@@ -11,12 +11,12 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/device_as_string.cpp
         source/CortexMind/framework/Tools/memory_utils.cpp
         source/CortexMind/framework/Memory/mem.cpp
+        source/CortexMind/framework/Gradient/flow.cpp
+        source/CortexMind/framework/Storage/stor.cpp
+        source/CortexMind/framework/Storage/operators.cpp
         source/CortexMind/tools/version.cpp
         source/CortexMind/tools/cpp_version.cpp
         source/CortexMind/tools/is_cuda_available.cpp
-        ../source/CortexMind/framework/Gradient/flow.cpp
-        ../source/CortexMind/framework/Storage/stor.cpp
-        ../source/CortexMind/framework/Storage/operators.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)

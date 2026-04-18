@@ -41,3 +41,58 @@ TensorStorage::TensorStorage(const TensorStorage &other) : offset(other.offset),
         std::memcpy(this->cpu_ptr, other.cpu_ptr, this->m_size * sizeof(f32));
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
 }
+
+TensorStorage::TensorStorage(TensorStorage &&other) noexcept : offset(other.offset), m_size(other.m_size), m_device(other.m_device) {
+    this->cpu_ptr = other.cpu_ptr;
+
+    #if CXM_IS_CUDA_AVAILABLE
+        this->gpu_ptr = other.gpu_ptr;
+    #endif //#if CXM_IS_CUDA_AVAILABLE
+
+    other.cpu_ptr = nullptr;
+    other.gpu_ptr = nullptr;
+}
+
+TensorStorage::~TensorStorage() {
+    mem.deallocate(this->cpu_ptr);
+
+    #if CXM_IS_CUDA_AVAILABLE
+        if (this->m_device == deviceType::cuda) {
+            forge.deallocate(this->gpu_ptr);
+        }
+    #endif //#if CXM_IS_CUDA_AVAILABLE
+}
+
+f32 *TensorStorage::data() {
+    return this->m_device == deviceType::host ? this->cpu_ptr : this->gpu_ptr;
+}
+
+const f32 *TensorStorage::data() const {
+    return this->m_device == deviceType::host ? this->cpu_ptr : this->gpu_ptr;
+}
+
+size_t TensorStorage::size() const noexcept {
+    return this->m_size;
+}
+
+bool TensorStorage::isEmpty() const noexcept {
+    return this->m_size == 0;
+}
+
+bool TensorStorage::isValid() const noexcept {
+    return this->m_device == deviceType::host ? this->cpu_ptr != nullptr : this->gpu_ptr != nullptr;
+}
+
+deviceType TensorStorage::device() const noexcept {
+    return this->m_device;
+}
+
+void TensorStorage::setDevice(const deviceType device) noexcept {
+    this->m_device = device;
+
+    #if CXM_IS_CUDA_AVAILABLE
+        if (this->gpu_ptr == nullptr) {
+            this->gpu_ptr = mem.allocate(this->m_size);
+        }
+    #endif //#if CXM_IS_CUDA_AVAILABLE
+}
