@@ -3,9 +3,10 @@
 //
 
 #include <CortexMind/cortexmind.hpp>
-#include <gtest/gtest.h> // from /deps/googletest-src
+#include <gtest/gtest.h> // from _deps/googletest-src
 
 #include "CortexMind/framework/Memory/forge.hpp"
+#include "CortexMind/framework/Memory/transform.hpp"
 #include "CortexMind/core/Tools/utils.cuh"
 #include "vector"
 
@@ -17,12 +18,11 @@ TEST(ForgeChunkTest, DeviceWriteRead) {
     f32* d_ptr = forge.allocate(10, 256);
     ASSERT_NE(d_ptr, nullptr);
 
-    std::vector<f32> h_src(10, 3.14f);
-    std::vector<f32> h_dst(10, 0.0f);
+    std::vector h_src(10, 3.14f);
+    const std::vector h_dst(10, 0.0f);
 
-    cuda::memcpy(d_ptr, h_src.data(), 10 * sizeof(f32), cuda::CXM_HOST_TO_DEVICE);
-
-    cuda::memcpy(h_dst.data(), d_ptr, 10 * sizeof(f32), cuda::CXM_DEVICE_TO_HOST);
+    transform<f32>::upload(h_src.data(), d_ptr, 10);
+    transform<f32>::download(d_ptr, h_dst.data(), 10);
 
     for(int i = 0; i < 10; ++i) {
         EXPECT_FLOAT_EQ(h_dst[i], 3.14f);
@@ -34,7 +34,7 @@ TEST(ForgeChunkTest, CudaAlignment256) {
     static_cast<void>(forge.allocate(7));
 
     f32* d_ptr = forge.allocate(100, 256);
-    uintptr_t addr = reinterpret_cast<uintptr_t>(d_ptr);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(d_ptr);
 
     EXPECT_EQ(addr % 256, 0);
 }

@@ -1,10 +1,18 @@
 enable_testing()
 
-add_executable(CXM_TEST test/main_test.cpp)
-add_executable(CXM_G_TEST test/g_test.cpp)
-add_executable(CXM_CUDA_G_TEST test/cuda_g_test.cu)
+add_executable(CXM_TEST
+        test/main_test.cpp
+)
+add_executable(CXM_G_TEST
+        test/g_test.cpp
+)
+add_executable(CXM_CUDA_G_TEST
+        test/cuda_g_test.cpp
+)
 
-target_link_libraries(CXM_TEST PRIVATE CortexMind)
+target_link_libraries(CXM_TEST PRIVATE
+        CortexMind
+)
 
 target_link_libraries(CXM_G_TEST PRIVATE
         CortexMind
