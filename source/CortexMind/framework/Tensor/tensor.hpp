@@ -19,9 +19,9 @@ namespace cortex::_fw {
         MindTensor();
         explicit MindTensor(const std::vector<i64>& shape, sys::deviceType device = sys::deviceType::host, bool requires_grad = false);
         MindTensor(std::initializer_list<i64> shape, sys::deviceType device = sys::deviceType::host, bool requires_grad = false);
-        explicit MindTensor(std::shared_ptr<TensorStorage> tensor_storage);
-        MindTensor(const std::vector<i64>& shape, f32* data, sys::deviceType device = sys::deviceType::host, bool requires_grad = false);
-        MindTensor(MindTensor& other);
+        explicit MindTensor(const std::shared_ptr<TensorStorage> &tensor_storage, bool requires_grad = false);
+        MindTensor(const std::vector<i64>& shape, const f32* data, sys::deviceType device = sys::deviceType::host, bool requires_grad = false);
+        MindTensor(const MindTensor& other);
         MindTensor(MindTensor&& other) noexcept;
         ~MindTensor();
 
@@ -30,9 +30,41 @@ namespace cortex::_fw {
         [[nodiscard]]
         const f32* get() const;
         [[nodiscard]]
-        const std::vector<i64>& shape();
+        const std::vector<i64>& shape() const;
         [[nodiscard]]
-        bool requires_grad();
+        bool requires_grad() const;
+        [[nodiscard]]
+        sys::deviceType device() const;
+
+        [[nodiscard]]
+        size_t size() const;
+
+        [[nodiscard]]
+        f32 mean() const;
+        [[nodiscard]]
+        f32 variance();
+        [[nodiscard]]
+        f32 standard_deviation();
+        [[nodiscard]]
+        f32 max();
+        [[nodiscard]]
+        f32 min();
+
+        void ones();
+        void zero();
+        void fill(f32 value);
+        void rand(f32 min = 0.0f, f32 max = 1.0f);
+        void backward();
+        void backward(MindTensor& other);
+
+        [[nodiscard]]
+        MindTensor flat();
+        [[nodiscard]]
+        MindTensor dot(MindTensor other);
+        [[nodiscard]]
+        MindTensor pow(f32 exp = 2);
+        [[nodiscard]]
+        MindTensor square();
     private:
         std::shared_ptr<meta::GradientFlow> flow_;
         std::shared_ptr<TensorStorage> storage_;
