@@ -18,11 +18,11 @@ TEST(ForgeChunkTest, DeviceWriteRead) {
     f32* d_ptr = forge.allocate(10, 256);
     ASSERT_NE(d_ptr, nullptr);
 
-    std::vector h_src(10, 3.14f);
-    const std::vector h_dst(10, 0.0f);
+    const std::vector h_src(10, 3.14f);
+    std::vector h_dst(10, 0.0f);
 
-    transform<f32>::upload(h_src.data(), d_ptr, 10);
-    transform<f32>::download(d_ptr, h_dst.data(), 10);
+    transform<f32>::upload(d_ptr, h_src.data(), 10);
+    transform<f32>::download(h_dst.data(), d_ptr, 10);
 
     for(int i = 0; i < 10; ++i) {
         EXPECT_FLOAT_EQ(h_dst[i], 3.14f);
@@ -34,7 +34,7 @@ TEST(ForgeChunkTest, CudaAlignment256) {
     static_cast<void>(forge.allocate(7));
 
     f32* d_ptr = forge.allocate(100, 256);
-    const uintptr_t addr = reinterpret_cast<uintptr_t>(d_ptr);
+    const auto addr = reinterpret_cast<uintptr_t>(d_ptr);
 
     EXPECT_EQ(addr % 256, 0);
 }

@@ -2,6 +2,7 @@ set(CXM_ALL_TARGETS
         CortexMind
         CXM_TEST
         CXM_G_TEST
+        CXM_CUDA_G_TEST
 )
 
 if(CXM_CUDA_AVAILABLE)
