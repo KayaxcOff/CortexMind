@@ -4,6 +4,7 @@
 
 #include "CortexMind/framework/Storage/stor.hpp"
 #include <CortexMind/framework/Tools/err.hpp>
+#include <CortexMind/framework/Tools/device_as_string.hpp>
 #if CXM_IS_CUDA_AVAILABLE
     #include <CortexMind/framework/Memory/transform.hpp>
 #else //#if CXM_IS_CUDA_AVAILABLE
@@ -88,11 +89,25 @@ deviceType TensorStorage::device() const noexcept {
 }
 
 void TensorStorage::setDevice(const deviceType device) noexcept {
+    if (this->m_device == device) {
+        CXM_WARN(this->m_device != device, "cortex::_fw::TensorStorage::setDevice()", "You already using " + DeviceAsString(this->m_device) + " as device");
+        return;
+    }
+
     this->m_device = device;
 
     #if CXM_IS_CUDA_AVAILABLE
-        if (this->gpu_ptr == nullptr) {
-            this->gpu_ptr = mem.allocate(this->m_size);
+        if (this->m_device == deviceType::cuda) {
+            if (this->gpu_ptr == nullptr) {
+                this->gpu_ptr = mem.allocate(this->m_size);
+            }
+            transform<f32>::upload(this->gpu_ptr, this->cpu_ptr, this->m_size);
         }
-    #endif //#if CXM_IS_CUDA_AVAILABLE
+        if (this->m_device == deviceType::host) {
+            transform<f32>::download(this->cpu_ptr, this->gpu_ptr, this->m_size);
+        }
+    #else //#if CXM_IS_CUDA_AVAILABLE
+        CXM_WARN(false, "cortex::_fw::TensorStorage::setDevice()", "No CUDA support, forcing CPU");
+        this->m_device = deviceType::host;
+    #endif //#if CXM_IS_CUDA_AVAILABLE #else
 }

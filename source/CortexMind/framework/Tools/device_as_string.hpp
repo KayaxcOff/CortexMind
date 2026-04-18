@@ -6,7 +6,7 @@
 #define CORTEXMIND_FRAMEWORK_TOOLS_DEVICE_AS_STRING_HPP
 
 #include <CortexMind/framework/Memory/device.hpp>
-#include <string_view>
+#include <string>
 
 namespace cortex::_fw {
     /**
@@ -15,7 +15,7 @@ namespace cortex::_fw {
      * @return Device as string
      */
     [[nodiscard]]
-    std::string_view DeviceAsString(sys::deviceType d_type);
+    std::string DeviceAsString(sys::deviceType d_type);
 } //namespace cortex::_fw::sys
 
 #endif //CORTEXMIND_FRAMEWORK_TOOLS_DEVICE_AS_STRING_HPP
