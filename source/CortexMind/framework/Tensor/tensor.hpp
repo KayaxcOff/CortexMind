@@ -21,6 +21,18 @@ namespace cortex::_fw {
         MindTensor(std::initializer_list<i64> shape, sys::deviceType device = sys::deviceType::host, bool requires_grad = false);
         explicit MindTensor(std::shared_ptr<TensorStorage> tensor_storage);
         MindTensor(const std::vector<i64>& shape, f32* data, sys::deviceType device = sys::deviceType::host, bool requires_grad = false);
+        MindTensor(MindTensor& other);
+        MindTensor(MindTensor&& other) noexcept;
+        ~MindTensor();
+
+        [[nodiscard]]
+        f32* get();
+        [[nodiscard]]
+        const f32* get() const;
+        [[nodiscard]]
+        const std::vector<i64>& shape();
+        [[nodiscard]]
+        bool requires_grad();
     private:
         std::shared_ptr<meta::GradientFlow> flow_;
         std::shared_ptr<TensorStorage> storage_;
