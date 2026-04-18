@@ -5,7 +5,9 @@
 #include "CortexMind/tools/cpp_version.hpp"
 #include <iostream>
 
-void cortex::cpp_version() {
+using namespace cortex;
+
+u0 cortex::cpp_version() {
     std::cout << "C++ version: ";
 
     #if __cplusplus == 199711L

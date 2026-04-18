@@ -6,6 +6,6 @@
 #include <CortexMind/runtime/macros.hpp>
 #include <iostream>
 
-void cortex::PrintVersion() {
+cortex::u0 cortex::PrintVersion() {
     std::cout << "CXM-Version: " << CXM_VERSION_MAJOR << "." << CXM_VERSION_MINOR << "." << CXM_VERSION_PATCH << std::endl;
 }

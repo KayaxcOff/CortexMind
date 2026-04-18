@@ -5,6 +5,7 @@
 #ifndef CORTEXMIND_TOOLS_PRINTLN_HPP
 #define CORTEXMIND_TOOLS_PRINTLN_HPP
 
+#include <CortexMind/tools/params.hpp>
 #include <iostream>
 #include <format>
 
@@ -23,7 +24,7 @@ namespace cortex {
      * @endcode
      */
     template<typename... Args>
-    void print(std::format_string<Args...> fmt, Args&&... args) {
+    u0 print(std::format_string<Args...> fmt, Args&&... args) {
         std::cout << std::format(fmt, std::forward<Args>(args)...);
     }
 
@@ -42,7 +43,7 @@ namespace cortex {
      * @endcode
      */
     template<typename... Args>
-    void println(std::format_string<Args...> fmt, Args&&... args) {
+    u0 println(std::format_string<Args...> fmt, Args&&... args) {
         print(fmt, std::forward<Args>(args)...);
         std::cout << '\n';
     }

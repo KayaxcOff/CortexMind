@@ -4,12 +4,12 @@
 
 #include "CortexMind/tools/is_cuda_available.hpp"
 
-namespace cortex {
-    bool has_cuda() {
-        #if CXM_IS_CUDA_AVAILABLE
-            return true;
-        #else //#if CXM_IS_CUDA_AVAILABLE
-            return false;
-        #endif //#if CXM_IS_CUDA_AVAILABLE #else
-    }
-} //namespace cortex
+using namespace cortex;
+
+boolean cortex::has_cuda() {
+    #if CXM_IS_CUDA_AVAILABLE
+        return true;
+    #else //#if CXM_IS_CUDA_AVAILABLE
+        return false;
+    #endif //#if CXM_IS_CUDA_AVAILABLE #else
+}

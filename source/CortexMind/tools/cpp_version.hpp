@@ -5,11 +5,13 @@
 #ifndef CORTEXMIND_TOOLS_CPP_VERSION_HPP
 #define CORTEXMIND_TOOLS_CPP_VERSION_HPP
 
+#include <CortexMind/tools/params.hpp>
+
 namespace cortex {
     /**
      * @brief Writes C++ version you use on console
      */
-    void cpp_version();
+     u0 cpp_version();
 } //namespace cortex
 
 /**
