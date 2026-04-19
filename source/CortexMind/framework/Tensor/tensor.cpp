@@ -40,7 +40,7 @@ MindTensor::MindTensor(const std::vector<i64> &shape, const deviceType device, c
     this->storage_->stride = compute_stride(shape);
     this->storage_->offset = 0;
 
-    if (this->storage_->device() == deviceType::cuda) {
+    if (this->m_grad_flag) {
         this->gradient_ = std::make_unique<MindTensor>(this->shape(), this->device());
         this->gradient_->zero();
     }
@@ -55,7 +55,7 @@ MindTensor::MindTensor(const std::shared_ptr<TensorStorage> &tensor_storage, con
     this->storage_->stride = tensor_storage->stride;
     this->storage_->offset = 0;
 
-    if (this->storage_->device() == deviceType::cuda) {
+    if (this->m_grad_flag) {
         this->gradient_ = std::make_unique<MindTensor>(this->shape(), this->device());
         this->gradient_->zero();
     }
@@ -81,7 +81,7 @@ MindTensor::MindTensor(const std::vector<i64> &shape, const f32 *data, const dev
         std::memcpy(this->storage_->data(), data, compute_numel(shape) * sizeof(f32));
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
 
-    if (this->storage_->device() == deviceType::cuda) {
+    if (this->m_grad_flag) {
         this->gradient_ = std::make_unique<MindTensor>(this->shape(), this->device());
         this->gradient_->zero();
     }
@@ -95,7 +95,7 @@ MindTensor::MindTensor(const MindTensor &other) : m_grad_flag(other.m_grad_flag)
 
     this->flow_ = other.flow_;
 
-    if (this->storage_->device() == deviceType::cuda) {
+    if (this->m_grad_flag) {
         this->gradient_ = std::make_unique<MindTensor>(this->shape(), this->device());
         this->gradient_->zero();
     }
@@ -399,4 +399,14 @@ MindTensor MindTensor::exp() {
     }
 
     return output;
+}
+
+MindTensor &MindTensor::grad() {
+    CXM_ASSERT(this->m_grad_flag, "cortex::_fw::MindTensor::grad()", "Gradient hasn't activated");
+    return *this->gradient_;
+}
+
+const MindTensor &MindTensor::grad() const {
+    CXM_ASSERT(this->m_grad_flag, "cortex::_fw::MindTensor::grad()", "Gradient hasn't activated");
+    return *this->gradient_;
 }

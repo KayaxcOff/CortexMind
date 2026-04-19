@@ -8,11 +8,8 @@
 #include <CortexMind/framework/Memory/device.hpp>
 
 namespace cortex {
-    /**
-     * @brief It manages devices.
-     * It has two variables: `cuda` and `host`.
-     */
-    using device_t = _fw::sys::deviceType;
+    inline auto host = _fw::sys::deviceType::host;
+    inline auto cuda = _fw::sys::deviceType::cuda;
 } //namespace cortex
 
 #endif //CORTEXMIND_TOOLS_DEVICE_HPP

@@ -72,6 +72,11 @@ namespace cortex::_fw {
         [[nodiscard]]
         MindTensor exp();
 
+        [[nodiscard]]
+        MindTensor& grad();
+        [[nodiscard]]
+        const MindTensor& grad() const;
+
         friend std::ostream& operator<<(std::ostream& os, const MindTensor& tensor);
     private:
         std::shared_ptr<meta::GradientFlow> flow_;
