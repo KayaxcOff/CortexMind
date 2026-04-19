@@ -66,7 +66,11 @@ namespace cortex::_fw {
         [[nodiscard]]
         MindTensor pow(f32 exp = 2);
         [[nodiscard]]
-        MindTensor square();
+        MindTensor sqrt();
+        [[nodiscard]]
+        MindTensor log();
+        [[nodiscard]]
+        MindTensor exp();
     private:
         std::shared_ptr<meta::GradientFlow> flow_;
         std::shared_ptr<TensorStorage> storage_;

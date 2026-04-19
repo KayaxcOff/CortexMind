@@ -91,6 +91,33 @@ namespace cortex::_fw::cuda::ops {
             return __fdividef(x, 1.0f + __expf(-this->beta * x));
         }
     };
+    struct Pow {
+        f32 exp;
+        explicit __host__ __device__ Pow(const f32 e) : exp(e) {}
+        __device__ f32 operator()(const f32 x) const {
+            return __powf(x, this->exp);
+        }
+    };
+    struct Sqrt {
+        __device__ f32 operator()(const f32 x) const {
+            return __fsqrt_rn(x);
+        }
+    };
+    struct Square {
+        __device__ f32 operator()(const f32 x) const {
+            return x * x;
+        }
+    };
+    struct Log {
+        __device__ f32 operator()(const f32 x) const {
+            return __logf(x);
+        }
+    };
+    struct Exp {
+        __device__ f32 operator()(const f32 x) const {
+            return __expf(x);
+        }
+    };
 } //namespace cortex::_fw::cuda::ops
 
 #endif //CORTEXMIND_CORE_TOOLS_OPERATIONS_H
