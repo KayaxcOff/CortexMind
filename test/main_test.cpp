@@ -8,11 +8,9 @@
 using namespace cortex;
 
 int main() {
-    auto x = tensor({2, 2}, host, true);
-    x.rand();
+    const utils::TensorFactory factory(2.0f);
 
-    std::cout << "Tensor:\n" << x << std::endl;
-    std::cout << "Gradient:\n" << x.grad() << std::endl;
+    std::cout << factory.cast() << std::endl;
 
     return 0;
 }

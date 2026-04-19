@@ -16,4 +16,7 @@
 #include <CortexMind/tools/println.hpp>
 #include <CortexMind/tools/version.hpp>
 
+// ---------- utils ----------
+#include <CortexMind/utils/Cast/factory.hpp>
+
 #endif //CORTEXMIND_CORTEXMIND_HPP
