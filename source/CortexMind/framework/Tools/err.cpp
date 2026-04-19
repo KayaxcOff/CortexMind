@@ -13,7 +13,8 @@ using namespace cortex::_fw;
 
 void err::exitIf(const bool status, const std::string &where, const std::string &message) {
     if (!status) {
-        std::cerr << "[CXM-Error]: " << where << std::endl;
+        std::cerr << "==[CXM-Error]==" << std::endl;
+        std::cerr << where << std::endl;
         std::cerr << message << std::endl;
         std::exit(CXM_ERR_EXIT);
     }
@@ -22,7 +23,8 @@ void err::exitIf(const bool status, const std::string &where, const std::string 
 #if CXM_IS_CUDA_AVAILABLE
     void err::exitIf(const cudaError_t error, const std::string &where) {
         if (error != cudaSuccess) {
-            std::cerr << "[CXM-Error]: " << where << std::endl;
+            std::cerr << "==[CXM-Error]==" << std::endl;
+            std::cerr << where << std::endl;
             std::cerr << cuda::ErrorAsString(error) << std::endl;
             std::exit(CXM_ERR_EXIT);
         }
@@ -31,7 +33,8 @@ void err::exitIf(const bool status, const std::string &where, const std::string 
 
 void err::warnIf(const bool status, const std::string &where, const std::string &message) {
     if (!status) {
-        std::cerr << "[CXM-Error]: " << where << std::endl;
+        std::cerr << "==[CXM-Warning]==" << std::endl;
+        std::cerr << where << std::endl;
         std::cerr << message << std::endl;
     }
 }

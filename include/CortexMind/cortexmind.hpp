@@ -10,6 +10,7 @@
 
 // ---------- tools ----------
 #include <CortexMind/tools/cpp_version.hpp>
+#include <CortexMind/tools/device.hpp>
 #include <CortexMind/tools/is_cuda_available.hpp>
 #include <CortexMind/tools/params.hpp>
 #include <CortexMind/tools/println.hpp>
