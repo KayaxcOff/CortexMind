@@ -17,6 +17,7 @@
     #include <cstring>
 #endif //#if CXM_IS_CUDA_AVAILABLE #else
 #include <CortexMind/framework/Tools/tensor_utils.hpp>
+#include <cmath>
 #include <random>
 #include <type_traits>
 
@@ -133,73 +134,77 @@ deviceType MindTensor::device() const {
     return this->storage_->device();
 }
 
-size_t MindTensor::size() const {
+size_t MindTensor::numel() const {
     return compute_numel(this->storage_->shape);
+}
+
+size_t MindTensor::ndim() const {
+    return this->storage_->shape.size();
 }
 
 f32 MindTensor::mean() const {
     #if CXM_IS_CUDA_AVAILABLE
         if (this->storage_->device() == deviceType::cuda) {
             cuda::ReduceOp reduce_op;
-            return reduce_op.mean(this->storage_->data(), this->size());
+            return reduce_op.mean(this->storage_->data(), this->numel());
         }
     #endif //#if CXM_IS_CUDA_AVAILABLE
-    return avx2::reduce::mean(this->storage_->data(), this->size());
+    return avx2::reduce::mean(this->storage_->data(), this->numel());
 }
 
 f32 MindTensor::variance() const {
     #if CXM_IS_CUDA_AVAILABLE
         if (this->storage_->device() == deviceType::cuda) {
             cuda::ReduceOp reduce_op;
-            return reduce_op.var(this->storage_->data(), this->size());
+            return reduce_op.var(this->storage_->data(), this->numel());
         }
     #endif //#if CXM_IS_CUDA_AVAILABLE
-    return avx2::reduce::var(this->storage_->data(), this->size());
+    return avx2::reduce::var(this->storage_->data(), this->numel());
 }
 
 f32 MindTensor::standard_deviation() const {
     #if CXM_IS_CUDA_AVAILABLE
         if (this->storage_->device() == deviceType::cuda) {
             cuda::ReduceOp reduce_op;
-            return reduce_op.std(this->storage_->data(), this->size());
+            return reduce_op.std(this->storage_->data(), this->numel());
         }
     #endif //#if CXM_IS_CUDA_AVAILABLE
-    return avx2::reduce::std(this->storage_->data(), this->size());
+    return avx2::reduce::std(this->storage_->data(), this->numel());
 }
 
 f32 MindTensor::max() const {
     #if CXM_IS_CUDA_AVAILABLE
         if (this->storage_->device() == deviceType::cuda) {
             cuda::ReduceOp reduce_op;
-            return reduce_op.max(this->storage_->data(), this->size());
+            return reduce_op.max(this->storage_->data(), this->numel());
         }
     #endif //#if CXM_IS_CUDA_AVAILABLE
-    return avx2::reduce::max(this->storage_->data(), this->size());
+    return avx2::reduce::max(this->storage_->data(), this->numel());
 }
 
 f32 MindTensor::min() const {
     #if CXM_IS_CUDA_AVAILABLE
         if (this->storage_->device() == deviceType::cuda) {
             cuda::ReduceOp reduce_op;
-            return reduce_op.min(this->storage_->data(), this->size());
+            return reduce_op.min(this->storage_->data(), this->numel());
         }
     #endif //#if CXM_IS_CUDA_AVAILABLE
-    return avx2::reduce::min(this->storage_->data(), this->size());
+    return avx2::reduce::min(this->storage_->data(), this->numel());
 }
 
 void MindTensor::ones() const {
     if (this->storage_->device() == deviceType::host) {
         size_t i = 0;
-        for (; i + 8 <= this->size(); i += 8) {
+        for (; i + 8 <= this->numel(); i += 8) {
             avx2::storeu(this->storage_->data() + i, avx2::set1(1.0f));
         }
-        for (; i < this->size(); ++i) {
+        for (; i < this->numel(); ++i) {
             this->storage_->data()[i] = 1.0f;
         }
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::memset<f32>(this->storage_->data(), 1, this->size());
+            cuda::memset<f32>(this->storage_->data(), 1, this->numel());
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 }
@@ -207,16 +212,16 @@ void MindTensor::ones() const {
 void MindTensor::zero() const {
     if (this->storage_->device() == deviceType::host) {
         size_t i = 0;
-        for (; i + 8 <= this->size(); i += 8) {
+        for (; i + 8 <= this->numel(); i += 8) {
             avx2::storeu(this->storage_->data() + i, avx2::set1(0.0f));
         }
-        for (; i < this->size(); ++i) {
+        for (; i < this->numel(); ++i) {
             this->storage_->data()[i] = 0.0f;
         }
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::memset<f32>(this->storage_->data(), 0, this->size());
+            cuda::memset<f32>(this->storage_->data(), 0, this->numel());
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 }
@@ -224,16 +229,16 @@ void MindTensor::zero() const {
 void MindTensor::fill(const f32 value) const {
     if (this->storage_->device() == deviceType::host) {
         size_t i = 0;
-        for (; i + 8 <= this->size(); i += 8) {
+        for (; i + 8 <= this->numel(); i += 8) {
             avx2::storeu(this->storage_->data() + i, avx2::set1(value));
         }
-        for (; i < this->size(); ++i) {
+        for (; i < this->numel(); ++i) {
             this->storage_->data()[i] = value;
         }
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
-                cuda::memset<f32>(this->storage_->data(), value, this->size());
+                cuda::memset<f32>(this->storage_->data(), value, this->numel());
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 }
@@ -243,7 +248,7 @@ void MindTensor::rand(const f32 min, const f32 max) const {
         thread_local std::mt19937 rng(std::random_device{}());
         std::uniform_real_distribution dist(min, max);
 
-        for (size_t i = 0; i < this->size(); ++i) {
+        for (size_t i = 0; i < this->numel(); ++i) {
             this->storage_->data()[i] = dist(rng);
         }
     }
@@ -253,14 +258,14 @@ void MindTensor::rand(const f32 min, const f32 max) const {
                 curandGenerateUniform(
                     CurandContext::instance().generator,
                     this->storage_->data(),
-                    this->size()
+                    this->numel()
                 ) == CURAND_STATUS_SUCCESS,
                 "cortex::_fw::MindTensor::rand()",
                 "curandGenerateUniform() failed"
             );
             if (min != 0.0f || max != 1.0f) {
-                cuda::ScalarKernel::mul(this->storage_->data(), max - min, this->storage_->data(), this->size());
-                cuda::ScalarKernel::add(this->storage_->data(), min, this->storage_->data(), this->size());
+                cuda::ScalarKernel::mul(this->storage_->data(), max - min, this->storage_->data(), this->numel());
+                cuda::ScalarKernel::add(this->storage_->data(), min, this->storage_->data(), this->numel());
             }
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
@@ -271,7 +276,7 @@ void MindTensor::backward() const {
     CXM_ASSERT(this->gradient_ != nullptr, "cortex::_fw::MindTensor::backward()", "gradient is not initialized");
     CXM_ASSERT(this->flow_ != nullptr, "cortex::_fw::MindTensor::backward()", "no gradient function attached");
 
-    if (this->size() == 1) {
+    if (this->numel() == 1) {
         this->gradient_->ones();
     }
 
@@ -292,5 +297,71 @@ MindTensor MindTensor::flat() const {
 
     auto output = MindTensor({batch, feat}, this->storage_->device(), this->m_grad_flag);
     output.storage_ = this->storage_;
+    return output;
+}
+
+MindTensor MindTensor::dot(MindTensor other) {
+    CXM_ASSERT(this->storage_->shape.size() == 2 && other.storage_->shape.size() == 2,
+        "cortex::_fw::MindTensor::dot()", "Both tensors must be 2D");
+    CXM_ASSERT(this->storage_->shape[1] == other.storage_->shape[0],
+        "cortex::_fw::MindTensor::dot()", "Inner dimensions must match");
+    CXM_ASSERT(this->device() == other.device(),
+        "cortex::_fw::MindTensor::dot()", "Devices do not match");
+
+    const i64 M = this->storage_->shape[0];
+    const i64 K = this->storage_->shape[1];
+    const i64 N = other.storage_->shape[1];
+
+    MindTensor output({M, N}, this->device(), this->m_grad_flag && other.m_grad_flag);
+
+    if (this->device() == deviceType::host) {
+        avx2::matrix_t::matmul(
+            this->get(), other.get(), output.get(),
+            M, K, N
+        );
+    }
+    #if CXM_IS_CUDA_AVAILABLE
+        if (this->device() == deviceType::cuda) {
+            cuda::Matrix::matmul(
+                this->get(), other.get(), output.get(),
+                M, K, N
+            );
+        }
+    #endif
+
+    return output;
+}
+
+MindTensor MindTensor::pow(const f32 exp) {
+    MindTensor output(this->storage_->shape, this->storage_->device(), this->m_grad_flag);
+
+    if (this->storage_->device() == deviceType::host) {
+        size_t i = 0;
+        for (; i + 8 <= this->numel(); i += 8) {
+            avx2::storeu(output.get() + i, avx2::pow(avx2::loadu(this->get() + i), avx2::set1(exp)));
+        }
+        for (; i < this->numel(); ++i) {
+            output.get()[i] = std::pow(output.get()[i], exp);
+        }
+    }
+    if (this->storage_->device() == deviceType::cuda) {}
+
+    return output;
+}
+
+MindTensor MindTensor::square() {
+    MindTensor output(this->storage_->shape, this->storage_->device(), this->m_grad_flag);
+
+    if (this->storage_->device() == deviceType::host) {
+        size_t i = 0;
+        for (; i + 8 <= this->numel(); i += 8) {
+            avx2::storeu(output.get() + i, avx2::sqrt(avx2::loadu(this->get() + i)));
+        }
+        for (; i < this->numel(); ++i) {
+            output.get()[i] = std::sqrt(output.get()[i]);
+        }
+    }
+    if (this->storage_->device() == deviceType::cuda) {}
+
     return output;
 }

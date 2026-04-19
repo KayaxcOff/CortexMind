@@ -37,7 +37,9 @@ namespace cortex::_fw {
         sys::deviceType device() const;
 
         [[nodiscard]]
-        size_t size() const;
+        size_t numel() const;
+        [[nodiscard]]
+        size_t ndim() const;
 
         [[nodiscard]]
         f32 mean() const;
