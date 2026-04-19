@@ -4,13 +4,13 @@
 
 #include "CortexMind/framework/Tensor/tensor.hpp"
 #include <CortexMind/core/Engine/AVX2/matrix.hpp>
-#include <CortexMind/framework/Tools//err.hpp>
 #if CXM_IS_CUDA_AVAILABLE
     #include <CortexMind/core/Engine/CUDA/matrix.h>
     #include <CortexMind/framework/Memory/transform.hpp>
 #else //#if CXM_IS_CUDA_AVAILABLE
     #include <cstring>
 #endif //#if CXM_IS_CUDA_AVAILABLE #else
+#include <CortexMind/framework/Tools/err.hpp>
 #include <iostream>
 #include <functional>
 
@@ -87,6 +87,70 @@ MindTensor MindTensor::operator/(const MindTensor &other) const {
     }
 
     return output;
+}
+
+MindTensor MindTensor::operator+=(const MindTensor &other) {
+    CXM_ASSERT(this->ndim() == other.ndim(), "cortex::_fw::MindTensor::operator+=", "Shapes mismatch");
+    CXM_ASSERT(this->device() == other.device(), "cortex::_fw::MindTensor::operator+=", "Devices mismatch");
+
+    if (this->storage_->device() == deviceType::host) {
+        avx2::matrix_t::add(this->get(), other.get(), this->numel());
+    }
+    if (this->storage_->device() == deviceType::cuda) {
+        #if CXM_IS_CUDA_AVAILABLE
+            cuda::Matrix::add(this->get(), other.get(), this->numel());
+        #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+
+    return *this;
+}
+
+MindTensor MindTensor::operator-=(const MindTensor &other) {
+    CXM_ASSERT(this->ndim() == other.ndim(), "cortex::_fw::MindTensor::operator-=", "Shapes mismatch");
+    CXM_ASSERT(this->device() == other.device(), "cortex::_fw::MindTensor::operator-=", "Devices mismatch");
+
+    if (this->storage_->device() == deviceType::host) {
+        avx2::matrix_t::sub(this->get(), other.get(), this->numel());
+    }
+    if (this->storage_->device() == deviceType::cuda) {
+        #if CXM_IS_CUDA_AVAILABLE
+            cuda::Matrix::sub(this->get(), other.get(), this->numel());
+        #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+
+    return *this;
+}
+
+MindTensor MindTensor::operator*=(const MindTensor &other) {
+    CXM_ASSERT(this->ndim() == other.ndim(), "cortex::_fw::MindTensor::operator*=", "Shapes mismatch");
+    CXM_ASSERT(this->device() == other.device(), "cortex::_fw::MindTensor::operator*=", "Devices mismatch");
+
+    if (this->storage_->device() == deviceType::host) {
+        avx2::matrix_t::mul(this->get(), other.get(), this->numel());
+    }
+    if (this->storage_->device() == deviceType::cuda) {
+        #if CXM_IS_CUDA_AVAILABLE
+            cuda::Matrix::mul(this->get(), other.get(), this->numel());
+        #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+
+    return *this;
+}
+
+MindTensor MindTensor::operator/=(const MindTensor &other) {
+    CXM_ASSERT(this->ndim() == other.ndim(), "cortex::_fw::MindTensor::operator/=", "Shapes mismatch");
+    CXM_ASSERT(this->device() == other.device(), "cortex::_fw::MindTensor::operator/=", "Devices mismatch");
+
+    if (this->storage_->device() == deviceType::host) {
+        avx2::matrix_t::div(this->get(), other.get(), this->numel());
+    }
+    if (this->storage_->device() == deviceType::cuda) {
+        #if CXM_IS_CUDA_AVAILABLE
+            cuda::Matrix::div(this->get(), other.get(), this->numel());
+        #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+
+    return *this;
 }
 
 namespace cortex::_fw {

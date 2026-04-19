@@ -82,6 +82,11 @@ namespace cortex::_fw {
         MindTensor operator*(const MindTensor& other) const;
         MindTensor operator/(const MindTensor& other) const;
 
+        MindTensor operator+=(const MindTensor& other);
+        MindTensor operator-=(const MindTensor& other);
+        MindTensor operator*=(const MindTensor& other);
+        MindTensor operator/=(const MindTensor& other);
+
         friend std::ostream& operator<<(std::ostream& os, const MindTensor& tensor);
     private:
         std::shared_ptr<meta::GradientFlow> flow_;
