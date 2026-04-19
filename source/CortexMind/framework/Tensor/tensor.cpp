@@ -4,19 +4,25 @@
 
 #include "CortexMind/framework/Tensor/tensor.hpp"
 #include <CortexMind/core/Engine/AVX2/functions.hpp>
+#include <CortexMind/core/Engine/AVX2/matrix.hpp>
 #include <CortexMind/core/Engine/AVX2/reduce.hpp>
 #if CXM_IS_CUDA_AVAILABLE
+    #include <CortexMind/core/Engine/CUDA/matrix.h>
     #include <CortexMind/core/Engine/CUDA/reduce.h>
+    #include <CortexMind/core/Engine/CUDA/scalar.h>
     #include <CortexMind/core/Tools/utils.cuh>
     #include <CortexMind/framework/Memory/transform.hpp>
+    #include <CortexMind/runtime/rand.cuh>
 #else //#if CXM_IS_CUDA_AVAILABLE
     #include <cstring>
 #endif //#if CXM_IS_CUDA_AVAILABLE #else
 #include <CortexMind/framework/Tools/tensor_utils.hpp>
+#include <random>
 #include <type_traits>
 
-using namespace cortex::_fw::sys;
 using namespace cortex::_fw::meta;
+using namespace cortex::_fw::runtime;
+using namespace cortex::_fw::sys;
 using namespace cortex::_fw;
 
 MindTensor::MindTensor() : m_grad_flag(false) {
@@ -230,4 +236,61 @@ void MindTensor::fill(const f32 value) const {
                 cuda::memset<f32>(this->storage_->data(), value, this->size());
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
+}
+
+void MindTensor::rand(const f32 min, const f32 max) const {
+    if (this->storage_->device() == deviceType::host) {
+        thread_local std::mt19937 rng(std::random_device{}());
+        std::uniform_real_distribution dist(min, max);
+
+        for (size_t i = 0; i < this->size(); ++i) {
+            this->storage_->data()[i] = dist(rng);
+        }
+    }
+    if (this->storage_->device() == deviceType::cuda) {
+        #if CXM_IS_CUDA_AVAILABLE
+            CXM_ASSERT(
+                curandGenerateUniform(
+                    CurandContext::instance().generator,
+                    this->storage_->data(),
+                    this->size()
+                ) == CURAND_STATUS_SUCCESS,
+                "cortex::_fw::MindTensor::rand()",
+                "curandGenerateUniform() failed"
+            );
+            if (min != 0.0f || max != 1.0f) {
+                cuda::ScalarKernel::mul(this->storage_->data(), max - min, this->storage_->data(), this->size());
+                cuda::ScalarKernel::add(this->storage_->data(), min, this->storage_->data(), this->size());
+            }
+        #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+}
+
+void MindTensor::backward() const {
+    CXM_ASSERT(this->m_grad_flag, "cortex::_fw::MindTensor::backward()", "requires_grad is false");
+    CXM_ASSERT(this->gradient_ != nullptr, "cortex::_fw::MindTensor::backward()", "gradient is not initialized");
+    CXM_ASSERT(this->flow_ != nullptr, "cortex::_fw::MindTensor::backward()", "no gradient function attached");
+
+    if (this->size() == 1) {
+        this->gradient_->ones();
+    }
+
+    this->flow_->backward(this->gradient_.get());
+}
+
+void MindTensor::backward(MindTensor &other) const {
+    CXM_ASSERT(this->flow_ != nullptr, "cortex::_fw::MindTensor::backward()", "no gradient function attached");
+    this->flow_->backward(&other);
+}
+
+MindTensor MindTensor::flat() const {
+    i64 batch = this->storage_->shape[0];
+    i64 feat = 1;
+    for (size_t i = 1; i < this->storage_->shape.size(); ++i) {
+        feat *= this->storage_->shape[i];
+    }
+
+    auto output = MindTensor({batch, feat}, this->storage_->device(), this->m_grad_flag);
+    output.storage_ = this->storage_;
+    return output;
 }

@@ -53,12 +53,12 @@ namespace cortex::_fw {
         void ones() const;
         void zero() const;
         void fill(f32 value) const;
-        void rand(f32 min = 0.0f, f32 max = 1.0f);
-        void backward();
-        void backward(MindTensor& other);
+        void rand(f32 min = 0.0f, f32 max = 1.0f) const;
+        void backward() const;
+        void backward(MindTensor& other) const;
 
         [[nodiscard]]
-        MindTensor flat();
+        MindTensor flat() const;
         [[nodiscard]]
         MindTensor dot(MindTensor other);
         [[nodiscard]]

@@ -29,6 +29,7 @@ if(CXM_CUDA_AVAILABLE)
             source/CortexMind/core/Engine/CUDA/reduce.cu
             source/CortexMind/core/Engine/CUDA/activation.cu
             source/CortexMind/framework/Memory/forge.cu
+            source/CortexMind/runtime/rand.cu
     )
 endif()
 
@@ -43,6 +44,9 @@ target_link_libraries(CortexMind PUBLIC
 )
 
 if(CXM_CUDA_AVAILABLE)
+    target_include_directories(CortexMind PRIVATE
+            ${CUDAToolkit_INCLUDE_DIRS}
+    )
     target_link_libraries(CortexMind PRIVATE
             CUDA::cudart
             CUDA::cublas
