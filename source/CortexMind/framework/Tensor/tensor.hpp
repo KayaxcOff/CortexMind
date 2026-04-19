@@ -71,6 +71,8 @@ namespace cortex::_fw {
         MindTensor log();
         [[nodiscard]]
         MindTensor exp();
+
+        friend std::ostream& operator<<(std::ostream& os, const MindTensor& tensor);
     private:
         std::shared_ptr<meta::GradientFlow> flow_;
         std::shared_ptr<TensorStorage> storage_;
