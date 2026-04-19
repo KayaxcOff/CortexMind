@@ -8,9 +8,17 @@
 using namespace cortex;
 
 int main() {
-    const utils::TensorFactory factory(2.0f);
+    const tensor x({3, 5, 6}, host);
+    const tensor y({3, 5, 6}, host);
 
-    std::cout << factory.cast() << std::endl;
+    x.rand();
+    y.rand();
+
+    const auto z = x + y;
+
+    std::cout << "Tensor X:\n" << x << std::endl;
+    std::cout << "Tensor Y:\n" << y << std::endl;
+    std::cout << "Tensor Z:\n" << z << std::endl;
 
     return 0;
 }
