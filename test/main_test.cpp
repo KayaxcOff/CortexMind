@@ -7,10 +7,12 @@
 using namespace cortex;
 
 int main() {
-    const tensor x({3, 3}, cuda);
+    const tensor x({3, 3});
     x.rand();
 
-    info(x);
+    std::cout << "Tensor X:\n" << x << std::endl;
+    std::cout << "Max Value:\n" << x.max() << std::endl;
+    std::cout << "Max Value Index:\n" << argmax(x) << std::endl;
 
     return 0;
 }

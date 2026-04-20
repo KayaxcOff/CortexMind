@@ -22,6 +22,8 @@ add_library(CortexMind STATIC
         source/CortexMind/tools/cpp_version.cpp
         source/CortexMind/tools/is_cuda_available.cpp
         source/CortexMind/tools/tensor_info.cpp
+        source/CortexMind/tools/arithmetic_operations.cpp
+        source/CortexMind/tools/comparison_operations.cpp
         source/CortexMind/utils/Cast/factory.cpp
 )
 

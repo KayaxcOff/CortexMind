@@ -16,9 +16,7 @@ using namespace cortex::_fw;
 
 TensorStorage::TensorStorage(const size_t size, const deviceType device) : offset(0), m_size(size), m_device(device) {
     this->cpu_ptr = nullptr;
-    #if CXM_IS_CUDA_AVAILABLE
-        this->gpu_ptr = mem.allocate(this->m_size);
-    #endif //#if CXM_IS_CUDA_AVAILABLE
+    this->gpu_ptr = nullptr;
 
     if (this->m_device == deviceType::host) {
         this->cpu_ptr = mem.allocate(this->m_size);
