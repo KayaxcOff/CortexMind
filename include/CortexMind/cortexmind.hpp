@@ -15,6 +15,7 @@
 #include <CortexMind/tools/params.hpp>
 #include <CortexMind/tools/println.hpp>
 #include <CortexMind/tools/version.hpp>
+#include <CortexMind/tools/tensor_info.hpp>
 
 // ---------- utils ----------
 #include <CortexMind/utils/Cast/factory.hpp>
