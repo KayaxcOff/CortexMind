@@ -6,14 +6,14 @@
 #include <CortexMind/framework/Tools/err.hpp>
 
 using namespace cortex::_fw::runtime;
-using namespace cortex::_fw;
+using namespace cortex;
 
 Provider& Provider::instance() {
     static Provider provider;
     return provider;
 }
 
-Provider::Provider(const i32 device_id) {
+Provider::Provider(const int32 device_id) {
     CXM_CUDA_ASSERT(cudaSetDevice(device_id), "cortex::_fw::runtime::Provider::Provider()");
     CXM_ASSERT(
         cublasCreate(&this->handle) == CUBLAS_STATUS_SUCCESS,

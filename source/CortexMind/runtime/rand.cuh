@@ -9,9 +9,20 @@
 #include <curand.h>
 
 namespace cortex::_fw::runtime {
+    /**
+     * @brief Singleton random number generator engine based on cuRAND.
+     *
+     * Provides a global, thread-safe cuRAND generator for random number generation
+     * on the GPU. Uses the singleton pattern to ensure a single generator instance
+     * throughout the application lifetime.
+     */
     struct RandEngine {
         curandGenerator_t generator;
 
+        /**
+         * @brief Returns the singleton instance of the random engine.
+         * @return Reference to the static RandEngine instance
+         */
         static RandEngine& instance();
     private:
         RandEngine(uint64 seed = 42ULL);
