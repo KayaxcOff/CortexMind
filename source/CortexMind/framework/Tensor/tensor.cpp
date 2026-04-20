@@ -406,6 +406,9 @@ MindTensor MindTensor::transpose() const {
 
     MindTensor output({this->storage_->shape[1], this->storage_->shape[0]}, this->device(), this->m_grad_flag);
     output.storage_ = this->storage_;
+    output.storage_->shape  = {this->storage_->shape[1], this->storage_->shape[0]};
+    output.storage_->stride = {this->storage_->stride[0], this->storage_->stride[1]}; // ters çevir
+    output.storage_->offset = this->storage_->offset;
 
     return output;
 }
