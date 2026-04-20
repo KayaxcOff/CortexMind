@@ -8,18 +8,16 @@
 using namespace cortex;
 
 int main() {
-    tensor x({3, 5, 6}, host);
-    const tensor y({3, 5, 6}, host);
+    const tensor x({3, 3, 3});
+    constexpr float32 x_scale = 1.0f;
 
     x.rand();
-    y.rand();
+
+    const auto y = x + x_scale;
 
     std::cout << "Tensor X:\n" << x << std::endl;
-    std::cout << "Tensor Y:\n" << y << std::endl;
-
-    x += y;
-
-    std::cout << "Tensor Z:\n" << x << std::endl;
+    std::cout << "Scalar value:\n" << x_scale << std::endl;
+    std::cout << "Addition between X and Scaler value:\n" << y << std::endl;
 
     return 0;
 }
