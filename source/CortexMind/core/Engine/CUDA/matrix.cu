@@ -46,6 +46,12 @@ void Matrix::div(const f32* Xx, const f32* Xy, f32* Xz, const size_t N) {
 }
 
 void Matrix::matmul(const f32* Xx, const f32* Xy, f32* Xz, const size_t xN, const size_t yN, const size_t zN) {
+    static bool cublas_initialized = false;
+    if (!cublas_initialized) {
+        runtime::CublasContext::instance().init();
+        cublas_initialized = true;
+    }
+
     const f32 alpha = 1.0f;
     const f32 beta = 0.0f;
 
