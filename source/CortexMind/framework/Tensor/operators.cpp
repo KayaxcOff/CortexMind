@@ -215,6 +215,54 @@ MindTensor MindTensor::operator/(const f32 value) const {
     return output;
 }
 
+MindTensor MindTensor::operator+=(const f32 value) {
+    if (this->storage_->device() == deviceType::host) {
+        avx2::ScalarOp::add(this->get(), value, this->numel());
+    }
+    if (this->storage_->device() == deviceType::cuda) {
+        #if CXM_IS_CUDA_AVAILABLE
+            cuda::ScalarKernel::add(this->get(), value, this->get(), this->numel());
+        #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+    return *this;
+}
+
+MindTensor MindTensor::operator-=(const f32 value) {
+    if (this->storage_->device() == deviceType::host) {
+        avx2::ScalarOp::sub(this->get(), value, this->numel());
+    }
+    if (this->storage_->device() == deviceType::cuda) {
+        #if CXM_IS_CUDA_AVAILABLE
+            cuda::ScalarKernel::sub(this->get(), value, this->get(), this->numel());
+        #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+    return *this;
+}
+
+MindTensor MindTensor::operator*=(const f32 value) {
+    if (this->storage_->device() == deviceType::host) {
+        avx2::ScalarOp::mul(this->get(), value, this->numel());
+    }
+    if (this->storage_->device() == deviceType::cuda) {
+        #if CXM_IS_CUDA_AVAILABLE
+            cuda::ScalarKernel::mul(this->get(), value, this->get(), this->numel());
+        #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+    return *this;
+}
+
+MindTensor MindTensor::operator/=(const f32 value) {
+    if (this->storage_->device() == deviceType::host) {
+        avx2::ScalarOp::div(this->get(), value, this->numel());
+    }
+    if (this->storage_->device() == deviceType::cuda) {
+        #if CXM_IS_CUDA_AVAILABLE
+            cuda::ScalarKernel::div(this->get(), value, this->get(), this->numel());
+        #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+    return *this;
+}
+
 namespace cortex::_fw {
     std::ostream& operator<<(std::ostream& os, const MindTensor& tensor) {
         const auto& shape = tensor.storage_->shape;

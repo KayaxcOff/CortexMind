@@ -401,6 +401,32 @@ MindTensor MindTensor::exp() {
     return output;
 }
 
+MindTensor MindTensor::transpose() const {
+    CXM_ASSERT(this->ndim() == 2, "cortex::_fw::MindTensor::transpose()", "Only 2D tensors supported");
+
+    MindTensor output({this->storage_->shape[1], this->storage_->shape[0]}, this->device(), this->m_grad_flag);
+    output.storage_ = this->storage_;
+
+    return output;
+}
+
+MindTensor MindTensor::sum() const {
+    MindTensor output({1}, this->device(), this->m_grad_flag);
+
+    #if CXM_IS_CUDA_AVAILABLE
+        if (this->device() == deviceType::cuda) {
+            cuda::ReduceOp reduce_op;
+            const f32 result = reduce_op.sum(this->get(), this->numel());
+            output.fill(result);
+            return output;
+        }
+    #endif //#if CXM_IS_CUDA_AVAILABLE
+
+    const f32 result = avx2::reduce::sum(this->get(), this->numel());
+    output.fill(result);
+    return output;
+}
+
 MindTensor &MindTensor::grad() {
     CXM_ASSERT(this->m_grad_flag, "cortex::_fw::MindTensor::grad()", "Gradient hasn't activated");
     return *this->gradient_;

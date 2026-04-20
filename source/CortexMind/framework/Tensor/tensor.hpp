@@ -71,6 +71,10 @@ namespace cortex::_fw {
         MindTensor log();
         [[nodiscard]]
         MindTensor exp();
+        [[nodiscard]]
+        MindTensor transpose() const;
+        [[nodiscard]]
+        MindTensor sum() const;
 
         [[nodiscard]]
         MindTensor& grad();
@@ -91,6 +95,11 @@ namespace cortex::_fw {
         MindTensor operator-(f32 value) const;
         MindTensor operator*(f32 value) const;
         MindTensor operator/(f32 value) const;
+
+        MindTensor operator+=(f32 value);
+        MindTensor operator-=(f32 value);
+        MindTensor operator*=(f32 value);
+        MindTensor operator/=(f32 value);
 
         friend std::ostream& operator<<(std::ostream& os, const MindTensor& tensor);
     private:
