@@ -248,25 +248,35 @@ void MindTensor::rand(const f32 min, const f32 max) const {
     if (this->storage_->device() == deviceType::host) {
         thread_local std::mt19937 rng(std::random_device{}());
         std::uniform_real_distribution dist(min, max);
-
-        for (size_t i = 0; i < this->numel(); ++i) {
+        for (size_t i = 0; i < this->numel(); ++i)
             this->storage_->data()[i] = dist(rng);
-        }
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
+            static bool curand_initialized = false;
+            if (!curand_initialized) {
+                CurandContext::instance().init();
+                curand_initialized = true;
+            }
+
+            const size_t count  = this->numel();
+            const size_t padded = count % 2 == 0 ? count : count + 1;
+
             CXM_ASSERT(
                 curandGenerateUniform(
-                    CurandContext::instance().generator,
+                    runtime::CurandContext::instance().generator,
                     this->storage_->data(),
-                    this->numel()
+                    padded
                 ) == CURAND_STATUS_SUCCESS,
                 "cortex::_fw::MindTensor::rand()",
                 "curandGenerateUniform() failed"
             );
+
             if (min != 0.0f || max != 1.0f) {
-                cuda::ScalarKernel::mul(this->storage_->data(), max - min, this->storage_->data(), this->numel());
-                cuda::ScalarKernel::add(this->storage_->data(), min, this->storage_->data(), this->numel());
+                cuda::ScalarKernel::mul(this->storage_->data(), max - min,
+                                        this->storage_->data(), count);
+                cuda::ScalarKernel::add(this->storage_->data(), min,
+                                        this->storage_->data(), count);
             }
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }

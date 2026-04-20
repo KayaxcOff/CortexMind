@@ -15,6 +15,11 @@ using namespace cortex::_fw::sys;
 using namespace cortex::_fw;
 
 TensorStorage::TensorStorage(const size_t size, const deviceType device) : offset(0), m_size(size), m_device(device) {
+    this->cpu_ptr = nullptr;
+    #if CXM_IS_CUDA_AVAILABLE
+        this->gpu_ptr = mem.allocate(this->m_size);
+    #endif //#if CXM_IS_CUDA_AVAILABLE
+
     if (this->m_device == deviceType::host) {
         this->cpu_ptr = mem.allocate(this->m_size);
     }
@@ -28,15 +33,13 @@ TensorStorage::TensorStorage(const size_t size, const deviceType device) : offse
 }
 
 TensorStorage::TensorStorage(const TensorStorage &other) : offset(other.offset), m_size(other.m_size), m_device(other.m_device) {
-    this->cpu_ptr = mem.allocate(this->m_size);
-
     #if CXM_IS_CUDA_AVAILABLE
-        this->gpu_ptr = forge.allocate(this->m_size);
-
         if (this->m_device == deviceType::host) {
+            this->cpu_ptr = mem.allocate(this->m_size);
             transform<f32>::copy_h2h(this->cpu_ptr, other.cpu_ptr, this->m_size);
         }
         if (this->m_device == deviceType::cuda) {
+            this->gpu_ptr = forge.allocate(this->m_size);
             transform<f32>::copy_d2d(this->gpu_ptr, other.gpu_ptr, this->m_size);
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
@@ -56,10 +59,12 @@ TensorStorage::TensorStorage(TensorStorage &&other) noexcept : offset(other.offs
 }
 
 TensorStorage::~TensorStorage() {
-    mem.deallocate(this->cpu_ptr);
+    if (this->cpu_ptr != nullptr) {
+        mem.deallocate(this->cpu_ptr);
+    }
 
     #if CXM_IS_CUDA_AVAILABLE
-        if (this->m_device == deviceType::cuda) {
+        if (this->gpu_ptr != nullptr) {
             forge.deallocate(this->gpu_ptr);
         }
     #endif //#if CXM_IS_CUDA_AVAILABLE
@@ -91,24 +96,27 @@ deviceType TensorStorage::device() const noexcept {
 
 void TensorStorage::setDevice(const deviceType device) noexcept {
     if (this->m_device == device) {
-        CXM_WARN(this->m_device != device, "cortex::_fw::TensorStorage::setDevice()", "You already using " + DeviceAsString(this->m_device) + " as device");
+        CXM_WARN(false, "cortex::_fw::TensorStorage::setDevice()",
+            "Already using " + DeviceAsString(device));
         return;
     }
 
-    this->m_device = device;
-
     #if CXM_IS_CUDA_AVAILABLE
-        if (this->m_device == deviceType::cuda) {
-            if (this->gpu_ptr == nullptr) {
+        if (device == deviceType::cuda) {
+            // host → cuda
+            if (this->gpu_ptr == nullptr)
                 this->gpu_ptr = forge.allocate(this->m_size);
-            }
             transform<f32>::upload(this->gpu_ptr, this->cpu_ptr, this->m_size);
         }
-        if (this->m_device == deviceType::host) {
+        if (device == deviceType::host) {
+            // cuda → host
             transform<f32>::download(this->cpu_ptr, this->gpu_ptr, this->m_size);
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
-        CXM_WARN(false, "cortex::_fw::TensorStorage::setDevice()", "No CUDA support, forcing CPU");
-        this->m_device = deviceType::host;
+        CXM_WARN(false, "cortex::_fw::TensorStorage::setDevice()",
+            "No CUDA support, forcing CPU");
+        return;
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
+
+    this->m_device = device;
 }

@@ -8,10 +8,16 @@
 using namespace cortex;
 
 int main() {
-    const tensor x({3, 5, 6});
+    tensor x({3, 3}, cuda);
+    tensor y({3, 3}, cuda);
     x.rand();
+    y.rand();
 
-    std::cout << x.sum() << std::endl;
+    const auto z = x.dot(y);
+
+    std::cout << "Tensor X:\n" << x << std::endl;
+    std::cout << "Tensor Y:\n" << y << std::endl;
+    std::cout << "Tensor Z:\n" << z << std::endl;
 
     return 0;
 }
