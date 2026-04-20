@@ -253,18 +253,12 @@ void MindTensor::rand(const f32 min, const f32 max) const {
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
-            static bool curand_initialized = false;
-            if (!curand_initialized) {
-                CurandContext::instance().init();
-                curand_initialized = true;
-            }
-
             const size_t count  = this->numel();
             const size_t padded = count % 2 == 0 ? count : count + 1;
 
             CXM_ASSERT(
                 curandGenerateUniform(
-                    runtime::CurandContext::instance().generator,
+                    runtime::RandEngine::instance().generator,
                     this->storage_->data(),
                     padded
                 ) == CURAND_STATUS_SUCCESS,

@@ -5,7 +5,7 @@
 #include "CortexMind/core/Engine/CUDA/reduce.h"
 #include <CortexMind/core/Engine/CUDA/Kernels/reduce.cuh>
 #include <CortexMind/core/Tools/utils.cuh>
-#include <CortexMind/runtime/ctx.h>
+#include <CortexMind/runtime/provider.cuh>
 #include <cuda_runtime.h>
 #include <cmath>
 
@@ -68,7 +68,7 @@ f32 ReduceOp::std(const f32* x, const size_t N) {
 
 f32 ReduceOp::min(const f32* x, const size_t N) {
     cublasIsamin(
-        runtime::CublasContext::instance().handle,
+        runtime::Provider::instance().handle,
         static_cast<int>(N),
         x, 1,
         this->cuda_index
@@ -82,7 +82,7 @@ f32 ReduceOp::min(const f32* x, const size_t N) {
 
 f32 ReduceOp::max(const f32* x, const size_t N) {
     cublasIsamax(
-        runtime::CublasContext::instance().handle,
+        runtime::Provider::instance().handle,
         static_cast<int>(N),
         x, 1,
         this->cuda_index
@@ -96,7 +96,7 @@ f32 ReduceOp::max(const f32* x, const size_t N) {
 
 f32 ReduceOp::norm1(const f32* x, const size_t N) {
     cublasSasum(
-        runtime::CublasContext::instance().handle,
+        runtime::Provider::instance().handle,
         static_cast<int>(N),
         x, 1,
         this->cuda_output
@@ -107,7 +107,7 @@ f32 ReduceOp::norm1(const f32* x, const size_t N) {
 
 f32 ReduceOp::norm2(const f32* x, const size_t N) {
     cublasSnrm2(
-        runtime::CublasContext::instance().handle,
+        runtime::Provider::instance().handle,
         static_cast<int>(N),
         x, 1,
         this->cuda_output
@@ -118,7 +118,7 @@ f32 ReduceOp::norm2(const f32* x, const size_t N) {
 
 f32 ReduceOp::dot(const f32* Xx, const f32* Xy, const size_t N) {
     cublasSdot(
-        runtime::CublasContext::instance().handle,
+        runtime::Provider::instance().handle,
         static_cast<int>(N),
         Xx, 1,
         Xy, 1,

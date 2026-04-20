@@ -3,6 +3,3 @@
 //
 
 #include "CortexMind/framework/Gradient/operations.hpp"
-
-using namespace cortex::_fw::meta;
-using namespace cortex::_fw;

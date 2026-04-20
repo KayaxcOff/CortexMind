@@ -8,7 +8,7 @@
 #include <CortexMind/core/Tools/utils.cuh>
 #include <CortexMind/core/Tools/operations.h>
 #include <CortexMind/framework/Tools/err.hpp>
-#include <CortexMind/runtime/ctx.h>
+#include <CortexMind/runtime/provider.cuh>
 
 using namespace cortex::_fw::cuda;
 using namespace cortex::_fw;
@@ -46,18 +46,12 @@ void Matrix::div(const f32* Xx, const f32* Xy, f32* Xz, const size_t N) {
 }
 
 void Matrix::matmul(const f32* Xx, const f32* Xy, f32* Xz, const size_t xN, const size_t yN, const size_t zN) {
-    static bool cublas_initialized = false;
-    if (!cublas_initialized) {
-        runtime::CublasContext::instance().init();
-        cublas_initialized = true;
-    }
-
     const f32 alpha = 1.0f;
     const f32 beta = 0.0f;
 
     CXM_ASSERT(
         cublasSgemm(
-            runtime::CublasContext::instance().handle,
+            runtime::Provider::instance().handle,
             CUBLAS_OP_N, CUBLAS_OP_N,
             static_cast<i32>(zN),
             static_cast<i32>(xN),

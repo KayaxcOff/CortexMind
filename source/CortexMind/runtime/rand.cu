@@ -6,30 +6,30 @@
 #include <CortexMind/framework/Tools/err.hpp>
 
 using namespace cortex::_fw::runtime;
-using namespace cortex::_fw;
+using namespace cortex;
 
-CurandContext& CurandContext::instance() {
-    static CurandContext ctx;
-    return ctx;
+RandEngine& RandEngine::instance() {
+    static RandEngine rand;
+    return rand;
 }
 
-void CurandContext::init(const u64 seed) {
+RandEngine::RandEngine(uint64 seed) {
     CXM_ASSERT(
         curandCreateGenerator(&this->generator, CURAND_RNG_PSEUDO_DEFAULT) == CURAND_STATUS_SUCCESS,
-        "CurandContext::init()",
+        "cortex::_fw::runtime::RandEngine::RandEngine()",
         "curandCreateGenerator() failed"
     );
     CXM_ASSERT(
         curandSetPseudoRandomGeneratorSeed(this->generator, seed) == CURAND_STATUS_SUCCESS,
-        "CurandContext::init()",
+        "cortex::_fw::runtime::RandEngine::RandEngine()",
         "curandSetPseudoRandomGeneratorSeed() failed"
     );
 }
 
-void CurandContext::destroy() const {
+RandEngine::~RandEngine() {
     CXM_ASSERT(
         curandDestroyGenerator(this->generator) == CURAND_STATUS_SUCCESS,
-        "CurandContext::destroy()",
+        "cortex::_fw::runtime::RandEngine::~RandEngine()",
         "curandDestroyGenerator() failed"
     );
 }

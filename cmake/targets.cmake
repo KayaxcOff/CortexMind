@@ -5,7 +5,6 @@ add_library(CortexMind STATIC
         source/CortexMind/core/Engine/AVX2/matrix.cpp
         source/CortexMind/core/Engine/AVX2/activation.cpp
         source/CortexMind/core/Engine/AVX2/wise.cpp
-        source/CortexMind/runtime/ctx.cpp
         source/CortexMind/framework/Benchmark/pref.cpp
         source/CortexMind/framework/Tools/err.cpp
         source/CortexMind/framework/Tools/benchmark_utils.cpp
@@ -33,6 +32,7 @@ if(CXM_CUDA_AVAILABLE)
             source/CortexMind/core/Engine/CUDA/activation.cu
             source/CortexMind/core/Engine/CUDA/elem_wise.cu
             source/CortexMind/framework/Memory/forge.cu
+            source/CortexMind/runtime/provider.cu
             source/CortexMind/runtime/rand.cu
     )
 endif()
