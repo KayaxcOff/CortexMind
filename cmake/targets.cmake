@@ -18,6 +18,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tensor/tensor.cpp
         source/CortexMind/framework/Tensor/operators.cpp
         source/CortexMind/framework/Tools/tensor_utils.cpp
+        source/CortexMind/framework/Gradient/operations.cpp
         source/CortexMind/tools/version.cpp
         source/CortexMind/tools/cpp_version.cpp
         source/CortexMind/tools/is_cuda_available.cpp
