@@ -163,7 +163,7 @@ f32 MindTensor::variance() const {
     return avx2::reduce::var(this->storage_->data(), this->numel());
 }
 
-f32 MindTensor::standard_deviation() const {
+f32 MindTensor::stdv() const {
     #if CXM_IS_CUDA_AVAILABLE
         if (this->storage_->device() == deviceType::cuda) {
             cuda::ReduceOp reduce_op;
