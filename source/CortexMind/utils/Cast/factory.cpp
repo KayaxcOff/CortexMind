@@ -10,8 +10,8 @@ using namespace cortex;
 
 TensorFactory::TensorFactory(const float32 value) : value(value) {}
 
-tensor TensorFactory::cast(const deviceType d_tye, const boolean requires_grad) const {
-    auto output = tensor({1}, d_tye, requires_grad);
+tensor TensorFactory::cast(const deviceType d_type, const boolean requires_grad) const {
+    auto output = tensor({1}, d_type, requires_grad);
     output.fill(value);
     return output;
 }
