@@ -3,9 +3,9 @@
 //
 
 #include "CortexMind/framework/Net/layer.hpp"
+#include <utility>
 
 using namespace cortex::_fw;
-using namespace cortex;
 
 LayerBase::LayerBase(std::string name, const boolean _train_flag) : kName(std::move(name)), kTrainFlag(_train_flag) {}
 
@@ -19,6 +19,6 @@ void LayerBase::EvalMode() {
     this->kTrainFlag = false;
 }
 
-const std::string &LayerBase::getName() const {
+const std::string &LayerBase::name() {
     return this->kName;
 }

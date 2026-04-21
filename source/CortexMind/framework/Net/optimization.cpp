@@ -11,16 +11,16 @@ OptimizationBase::OptimizationBase(std::string name, const float32 _lr) : kName(
 
 OptimizationBase::~OptimizationBase() = default;
 
-void OptimizationBase::setParams(std::vector<tensor> params) {
+void OptimizationBase::setParams(std::vector<ref<tensor>> params) {
     this->kGradients = std::move(params);
 }
 
 void OptimizationBase::setZeroGradient() const {
     for (auto item : this->kGradients) {
-        item.grad().zero();
+        item.get().grad().zero();
     }
 }
 
-const std::string& OptimizationBase::getName() const {
+const std::string& OptimizationBase::name() const {
     return this->kName;
 }

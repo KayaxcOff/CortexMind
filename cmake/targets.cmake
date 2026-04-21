@@ -21,7 +21,6 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Net/layer.cpp
         source/CortexMind/framework/Net/optimization.cpp
         source/CortexMind/framework/Net/loss.cpp
-        source/CortexMind/net/NeuralNetwork/dense.cpp
         source/CortexMind/tools/version.cpp
         source/CortexMind/tools/cpp_version.cpp
         source/CortexMind/tools/is_cuda_available.cpp
