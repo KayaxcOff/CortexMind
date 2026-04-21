@@ -47,7 +47,7 @@ namespace cortex::_fw {
          *
          * Typically called before the backward pass in each training iteration.
          */
-        void setZeroGradient() const;
+        void zero_grad() const;
         /**
          * @brief Returns the name of the optimizer.
          */

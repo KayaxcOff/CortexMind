@@ -15,7 +15,7 @@ void OptimizationBase::setParams(std::vector<ref<tensor>> params) {
     this->kGradients = std::move(params);
 }
 
-void OptimizationBase::setZeroGradient() const {
+void OptimizationBase::zero_grad() const {
     for (auto item : this->kGradients) {
         item.get().grad().zero();
     }
