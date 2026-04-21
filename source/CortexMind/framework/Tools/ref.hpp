@@ -5,7 +5,7 @@
 #ifndef CORTEXMIND_FRAMEWORK_TOOLS_REF_HPP
 #define CORTEXMIND_FRAMEWORK_TOOLS_REF_HPP
 
-#include <functional>
+#include <type_traits>
 
 namespace cortex::_fw {
     /**
