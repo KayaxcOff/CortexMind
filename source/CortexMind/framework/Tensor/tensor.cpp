@@ -293,18 +293,6 @@ void MindTensor::backward(MindTensor &other) const {
     this->flow_->backward(&other);
 }
 
-MindTensor MindTensor::flat() const {
-    i64 batch = this->storage_->shape[0];
-    i64 feat = 1;
-    for (size_t i = 1; i < this->storage_->shape.size(); ++i) {
-        feat *= this->storage_->shape[i];
-    }
-
-    auto output = MindTensor({batch, feat}, this->storage_->device(), this->m_grad_flag);
-    output.storage_ = this->storage_;
-    return output;
-}
-
 MindTensor MindTensor::dot(MindTensor other) {
     CXM_ASSERT(this->storage_->shape.size() == 2 && other.storage_->shape.size() == 2,
         "cortex::_fw::MindTensor::dot()", "Both tensors must be 2D");

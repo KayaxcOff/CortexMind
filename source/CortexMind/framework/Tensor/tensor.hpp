@@ -60,8 +60,6 @@ namespace cortex::_fw {
         void backward(MindTensor& other) const;
 
         [[nodiscard]]
-        MindTensor flat() const;
-        [[nodiscard]]
         MindTensor dot(MindTensor other);
         [[nodiscard]]
         MindTensor pow(f32 exp = 2);
