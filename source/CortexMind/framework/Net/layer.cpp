@@ -3,7 +3,7 @@
 //
 
 #include "CortexMind/framework/Net/layer.hpp"
-#include <utility>
+#include <type_traits>
 
 using namespace cortex::_fw;
 

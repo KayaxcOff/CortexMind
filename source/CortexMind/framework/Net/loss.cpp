@@ -3,7 +3,7 @@
 //
 
 #include "CortexMind/framework/Net/loss.hpp"
-#include <utility>
+#include <type_traits>
 
 using namespace cortex::_fw;
 

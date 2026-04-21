@@ -3,9 +3,9 @@
 //
 
 #include "CortexMind/framework/Net/optimization.hpp"
+#include <type_traits>
 
 using namespace cortex::_fw;
-using namespace cortex;
 
 OptimizationBase::OptimizationBase(std::string name, const float32 _lr) : kName(std::move(name)), kLearningRate(_lr) {}
 
