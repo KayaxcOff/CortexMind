@@ -40,7 +40,7 @@ namespace cortex::_fw {
         [[nodiscard]]
         const std::string& name() const;
     private:
-        std::string kName;
+        std::string m_name;
     };
 } //namespace cortex::_fw
 

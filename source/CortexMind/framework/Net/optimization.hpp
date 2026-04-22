@@ -54,9 +54,9 @@ namespace cortex::_fw {
         [[nodiscard]]
         const std::string& name() const;
     private:
-        std::vector<ref<tensor>> kGradients;
-        std::string kName;
-        float32 kLearningRate;
+        std::vector<ref<tensor>> gradients;
+        std::string m_name;
+        float32 learning_rate;
     };
 } //namespace cortex::_fw
 

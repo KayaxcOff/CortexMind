@@ -7,10 +7,10 @@
 
 using namespace cortex::_fw;
 
-LossBase::LossBase(std::string name) : kName(std::move(name)) {}
+LossBase::LossBase(std::string name) : m_name(std::move(name)) {}
 
 LossBase::~LossBase() = default;
 
 const std::string &LossBase::name() const {
-    return this->kName;
+    return this->m_name;
 }

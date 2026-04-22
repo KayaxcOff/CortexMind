@@ -7,16 +7,16 @@
 
 using namespace cortex::_fw;
 
-OptimizationBase::OptimizationBase(std::string name, const float32 _lr) : kName(std::move(name)), kLearningRate(_lr) {}
+OptimizationBase::OptimizationBase(std::string name, const float32 _lr) : kName(std::move(name)), learning_rate(_lr) {}
 
 OptimizationBase::~OptimizationBase() = default;
 
 void OptimizationBase::setParams(std::vector<ref<tensor>>& params) {
-    this->kGradients = std::move(params);
+    this->gradients = std::move(params);
 }
 
 void OptimizationBase::zero_grad() const {
-    for (auto item : this->kGradients) {
+    for (auto item : this->gradients) {
         item.get().grad().zero();
     }
 }

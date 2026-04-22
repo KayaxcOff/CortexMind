@@ -63,8 +63,8 @@ namespace cortex::_fw {
         [[nodiscard]]
         const std::string& name() const;
     private:
-        std::string kName;
-        bool kTrainFlag;
+        std::string m_name;
+        bool train_flag;
     };
 } //namespace cortex::_fw
 
