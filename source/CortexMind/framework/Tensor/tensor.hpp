@@ -164,7 +164,7 @@ namespace cortex::_fw {
         [[nodiscard]]
         const MindTensor& grad() const;
 
-        MindTensor operator+(const MindTensor& other) const;
+        MindTensor operator+(const MindTensor& other);
         MindTensor operator-(const MindTensor& other) const;
         MindTensor operator*(const MindTensor& other) const;
         MindTensor operator/(const MindTensor& other) const;
