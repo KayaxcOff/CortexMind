@@ -31,6 +31,8 @@ TensorStorage::TensorStorage(const size_t size, const deviceType device) : offse
 }
 
 TensorStorage::TensorStorage(const TensorStorage &other) : offset(other.offset), m_size(other.m_size), m_device(other.m_device) {
+    this->m_device = other.m_device;
+
     #if CXM_IS_CUDA_AVAILABLE
         if (this->m_device == deviceType::host) {
             this->cpu_ptr = mem.allocate(this->m_size);
@@ -46,6 +48,8 @@ TensorStorage::TensorStorage(const TensorStorage &other) : offset(other.offset),
 }
 
 TensorStorage::TensorStorage(TensorStorage &&other) noexcept : offset(other.offset), m_size(other.m_size), m_device(other.m_device) {
+    this->m_device = other.m_device;
+
     this->cpu_ptr = other.cpu_ptr;
 
     #if CXM_IS_CUDA_AVAILABLE

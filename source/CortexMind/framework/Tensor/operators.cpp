@@ -269,6 +269,37 @@ MindTensor MindTensor::operator/=(const f32 value) {
     return *this;
 }
 
+MindTensor &MindTensor::operator=(const MindTensor &other) {
+    if (this == &other) {
+        return *this;
+    }
+
+    this->storage_ = other.storage_;
+    this->m_grad_flag = other.m_grad_flag;
+    this->flow_ = other.flow_;
+
+    this->storage_->shape = other.storage_->shape;
+    this->storage_->stride = other.storage_->stride;
+    this->storage_->offset = other.storage_->offset;
+
+    return *this;
+}
+
+MindTensor &MindTensor::operator=(MindTensor &&other) noexcept {
+    this->storage_ = std::move(other.storage_);
+    this->m_grad_flag = other.m_grad_flag;
+    this->flow_ = std::move(other.flow_);
+
+    this->storage_->shape = other.storage_->shape;
+    this->storage_->stride = other.storage_->stride;
+    this->storage_->offset = other.storage_->offset;
+
+    other.storage_ = nullptr;
+    other.flow_ = nullptr;
+
+    return *this;
+}
+
 namespace cortex::_fw {
     std::ostream& operator<<(std::ostream& os, const MindTensor& tensor) {
         const auto& shape = tensor.storage_->shape;
