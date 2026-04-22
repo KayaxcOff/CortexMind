@@ -15,7 +15,7 @@
 
 namespace cortex::_fw {
     /**
-     * @brief Core tensor class representing multi-dimensional arrays with device support.
+     * @brief Core tensor class representing multidimensional arrays with device support.
      *
      * `MindTensor` is the central data structure for neural network computations.
      * It supports both CPU and GPU (CUDA) backends, automatic differentiation,
@@ -164,7 +164,7 @@ namespace cortex::_fw {
         [[nodiscard]]
         const MindTensor& grad() const;
 
-        MindTensor operator+(const MindTensor& other);
+        MindTensor operator+(const MindTensor& other) const;
         MindTensor operator-(const MindTensor& other) const;
         MindTensor operator*(const MindTensor& other) const;
         MindTensor operator/(const MindTensor& other) const;

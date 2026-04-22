@@ -15,7 +15,7 @@ namespace cortex::_fw {
      * @return Device as string
      */
     [[nodiscard]]
-    std::string DeviceAsString(sys::deviceType d_type);
+    const std::string& DeviceAsString(sys::deviceType d_type);
 } //namespace cortex::_fw::sys
 
 #endif //CORTEXMIND_FRAMEWORK_TOOLS_DEVICE_AS_STRING_HPP

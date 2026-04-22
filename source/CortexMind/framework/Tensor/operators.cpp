@@ -12,16 +12,14 @@
 #else //#if CXM_IS_CUDA_AVAILABLE
     #include <cstring>
 #endif //#if CXM_IS_CUDA_AVAILABLE #else
-#include <CortexMind/framework/Gradient/operations.hpp>
 #include <CortexMind/framework/Tools/err.hpp>
 #include <iostream>
 #include <functional>
 
-using namespace cortex::_fw::meta;
 using namespace cortex::_fw::sys;
 using namespace cortex::_fw;
 
-MindTensor MindTensor::operator+(const MindTensor &other) {
+MindTensor MindTensor::operator+(const MindTensor &other) const {
     CXM_ASSERT(this->ndim() == other.ndim(), "cortex::_fw::MindTensor::operator+", "Shapes mismatch");
     CXM_ASSERT(this->device() == other.device(), "cortex::_fw::MindTensor::operator+", "Devices mismatch");
 
@@ -34,10 +32,6 @@ MindTensor MindTensor::operator+(const MindTensor &other) {
         #if CXM_IS_CUDA_AVAILABLE
             cuda::Matrix::add(this->get(), other.get(), output.get(), this->numel());
         #endif //#if CXM_IS_CUDA_AVAILABLE
-    }
-
-    if (output.m_grad_flag) {
-        output.flow_ = std::make_shared<addition>(this->storage_, other.storage_);
     }
 
     return output;
