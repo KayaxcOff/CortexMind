@@ -41,7 +41,7 @@ namespace cortex::_fw {
          * @brief Registers the parameters (and their gradients) to be optimized.
          * @param params Vector of references to trainable tensors
          */
-        void setParams(std::vector<ref<tensor>> params);
+        void setParams(std::vector<ref<tensor>>& params);
         /**
          * @brief Sets all registered gradients to zero.
          *

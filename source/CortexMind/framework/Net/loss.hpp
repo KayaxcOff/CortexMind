@@ -38,7 +38,7 @@ namespace cortex::_fw {
          * @brief Returns the name of the loss function.
          */
         [[nodiscard]]
-        const std::string& name();
+        const std::string& name() const;
     private:
         std::string kName;
     };

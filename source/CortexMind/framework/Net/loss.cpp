@@ -11,6 +11,6 @@ LossBase::LossBase(std::string name) : kName(std::move(name)) {}
 
 LossBase::~LossBase() = default;
 
-const std::string &LossBase::name() {
+const std::string &LossBase::name() const {
     return this->kName;
 }

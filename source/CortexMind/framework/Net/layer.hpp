@@ -41,13 +41,13 @@ namespace cortex::_fw {
          * @return Vector of reference_wrapper to weight tensors
          */
         [[nodiscard]]
-        virtual std::vector<ref<tensor>> getWeight() = 0;
+        virtual std::vector<ref<tensor>>& getWeight() = 0;
         /**
          * @brief Returns references to the gradients of all trainable parameters.
          * @return Vector of reference_wrapper to gradient tensors
          */
         [[nodiscard]]
-        virtual std::vector<ref<tensor>> getGradient() = 0;
+        virtual std::vector<ref<tensor>>& getGradient() = 0;
 
         /**
          * @brief Sets the layer to training mode (enables gradient computation, dropout, etc.).
@@ -61,7 +61,7 @@ namespace cortex::_fw {
          * @brief Returns the name of the layer.
          */
         [[nodiscard]]
-        const std::string& name();
+        const std::string& name() const;
     private:
         std::string kName;
         bool kTrainFlag;

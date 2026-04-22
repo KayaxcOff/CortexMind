@@ -19,6 +19,6 @@ void LayerBase::EvalMode() {
     this->kTrainFlag = false;
 }
 
-const std::string &LayerBase::name() {
+const std::string &LayerBase::name() const {
     return this->kName;
 }

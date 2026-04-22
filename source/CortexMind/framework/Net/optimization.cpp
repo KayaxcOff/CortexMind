@@ -11,7 +11,7 @@ OptimizationBase::OptimizationBase(std::string name, const float32 _lr) : kName(
 
 OptimizationBase::~OptimizationBase() = default;
 
-void OptimizationBase::setParams(std::vector<ref<tensor>> params) {
+void OptimizationBase::setParams(std::vector<ref<tensor>>& params) {
     this->kGradients = std::move(params);
 }
 
