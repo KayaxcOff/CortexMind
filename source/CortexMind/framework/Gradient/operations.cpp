@@ -23,15 +23,15 @@ addition::addition(const std::shared_ptr<TensorStorage> &tx_s, const std::shared
 }
 
 void addition::backward(MindTensor *_grad) {
-    MindTensor tx(this->tx_s);
-    MindTensor ty(this->ty_s);
+    MindTensor tx(this->tx_s, true);
+    MindTensor ty(this->ty_s, true);
 
     if (tx.requires_grad()) {
         tx.grad() += *_grad;
-        tx.backward(*_grad);
+        tx.backward(tx.grad());
     }
     if (ty.requires_grad()) {
         ty.grad() += *_grad;
-        ty.backward(*_grad);
+        ty.backward(ty.grad());
     }
 }

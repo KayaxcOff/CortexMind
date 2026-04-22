@@ -7,12 +7,18 @@
 using namespace cortex;
 
 int main() {
-    const tensor x({3, 3});
-    x.rand();
+    tensor x({2, 2}, host, true);
+    tensor y({2, 2}, host, true);
 
-    std::cout << "Tensor X:\n" << x << std::endl;
-    std::cout << "Max Value:\n" << x.max() << std::endl;
-    std::cout << "Max Value Index:\n" << argmax(x) << std::endl;
+    x.rand();
+    y.rand();
+
+    const auto z = x + y;
+    z.backward();
+
+    std::cout << "Tensor Z:\n" << z << std::endl;
+    std::cout << "Gradient X:\n" << x.grad() << std::endl;
+    std::cout << "Gradient Y:\n" << y.grad() << std::endl;
 
     return 0;
 }
