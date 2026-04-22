@@ -28,6 +28,13 @@ namespace cortex {
      */
     [[nodiscard]]
     int32 argmin(const tensor& x);
+
+    [[nodiscard]]
+    boolean greater(const tensor& Xx, const tensor& Xy);
+    [[nodiscard]]
+    boolean less(const tensor& Xx, const tensor& Xy);
+    [[nodiscard]]
+    boolean equal(const tensor& Xx, const tensor& Xy);
 } //namespace cortex
 
 #endif //CORTEXMIND_TOOLS_COMPARISON_OPERATIONS_HPP
