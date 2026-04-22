@@ -8,19 +8,7 @@
 using namespace cortex::_fw::meta;
 using namespace cortex::_fw;
 
-addition::addition(const std::shared_ptr<TensorStorage> &tx_s, const std::shared_ptr<TensorStorage> &ty_s) : GradientFlow(1) {
-    this->tx_s = tx_s;
-
-    this->tx_s->shape = tx_s->shape;
-    this->tx_s->stride = tx_s->stride;
-    this->tx_s->offset = tx_s->offset;
-
-    this->ty_s = ty_s;
-
-    this->ty_s->shape = ty_s->shape;
-    this->ty_s->stride = ty_s->stride;
-    this->ty_s->offset = ty_s->offset;
-}
+addition::addition(const std::shared_ptr<TensorStorage> &tx_s, const std::shared_ptr<TensorStorage> &ty_s) : GradientFlow(1), tx_s(tx_s), ty_s(ty_s) {}
 
 void addition::backward(MindTensor *_grad) {
     MindTensor tx(this->tx_s, true);

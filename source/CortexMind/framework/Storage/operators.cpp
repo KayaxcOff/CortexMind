@@ -8,6 +8,7 @@
 #else //#if CXM_IS_CUDA_AVAILABLE
     #include <cstring>
 #endif //#if CXM_IS_CUDA_AVAILABLE #else
+#include <type_traits>
 
 using namespace cortex::_fw::sys;
 using namespace cortex::_fw;
@@ -28,6 +29,9 @@ TensorStorage &TensorStorage::operator=(const TensorStorage &other) {
 
     this->m_device = other.m_device;
     this->m_size   = other.m_size;
+    this->shape = other.shape;
+    this->stride = other.stride;
+    this->offset = other.offset;
 
     #if CXM_IS_CUDA_AVAILABLE
         if (this->m_device == deviceType::host) {
@@ -63,6 +67,12 @@ TensorStorage &TensorStorage::operator=(TensorStorage &&other) noexcept {
     this->m_size   = other.m_size;
     this->cpu_ptr  = other.cpu_ptr;
     this->gpu_ptr  = other.gpu_ptr;
+    this->shape = std::move(other.shape);
+    this->stride = std::move(other.stride);
+    this->offset = other.offset;
+
+    other.cpu_ptr = nullptr;
+    other.gpu_ptr = nullptr;
 
     return *this;
 }

@@ -89,9 +89,6 @@ MindTensor::MindTensor(const std::vector<i64> &shape, const f32 *data, const dev
 
 MindTensor::MindTensor(const MindTensor &other) : m_grad_flag(other.m_grad_flag) {
     this->storage_ = other.storage_;
-    this->storage_->shape = other.storage_->shape;
-    this->storage_->stride = other.storage_->stride;
-    this->storage_->offset = other.storage_->offset;
 
     this->flow_ = other.flow_;
 
@@ -103,10 +100,8 @@ MindTensor::MindTensor(const MindTensor &other) : m_grad_flag(other.m_grad_flag)
 
 MindTensor::MindTensor(MindTensor &&other) noexcept : m_grad_flag(other.m_grad_flag) {
     this->storage_ = std::move(other.storage_);
-    this->storage_->shape = std::move(other.storage_->shape);
-    this->storage_->stride = std::move(other.storage_->stride);
-    this->storage_->offset = other.storage_->offset;
-    this->flow_ = other.flow_;
+
+    this->flow_ = std::move(other.flow_);
 
     if (this->m_grad_flag) {
         this->gradient_ = std::move(other.gradient_);
