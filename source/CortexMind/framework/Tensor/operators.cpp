@@ -278,10 +278,6 @@ MindTensor &MindTensor::operator=(const MindTensor &other) {
     this->m_grad_flag = other.m_grad_flag;
     this->flow_ = other.flow_;
 
-    this->storage_->shape = other.storage_->shape;
-    this->storage_->stride = other.storage_->stride;
-    this->storage_->offset = other.storage_->offset;
-
     return *this;
 }
 
@@ -289,10 +285,6 @@ MindTensor &MindTensor::operator=(MindTensor &&other) noexcept {
     this->storage_ = std::move(other.storage_);
     this->m_grad_flag = other.m_grad_flag;
     this->flow_ = std::move(other.flow_);
-
-    this->storage_->shape = other.storage_->shape;
-    this->storage_->stride = other.storage_->stride;
-    this->storage_->offset = other.storage_->offset;
 
     other.storage_ = nullptr;
     other.flow_ = nullptr;
