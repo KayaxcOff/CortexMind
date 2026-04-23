@@ -41,22 +41,18 @@ MindTensor::MindTensor(const std::vector<i64> &shape, const deviceType device, c
     this->storage_->offset = 0;
 
     if (this->m_grad_flag) {
-        this->gradient_ = std::make_unique<MindTensor>(this->shape(), this->device());
+        this->gradient_ = std::make_unique<MindTensor>(this->storage_->shape, this->storage_->device());
         this->gradient_->zero();
     }
 }
 
 MindTensor::MindTensor(const std::initializer_list<i64> shape, const deviceType device, const bool requires_grad) : MindTensor(std::vector(shape), device, requires_grad) {}
 
-MindTensor::MindTensor(const std::shared_ptr<TensorStorage> &tensor_storage, const bool requires_grad) : m_grad_flag(requires_grad) {
-    this->storage_ = tensor_storage;
-
-    this->storage_->shape = tensor_storage->shape;
-    this->storage_->stride = tensor_storage->stride;
-    this->storage_->offset = 0;
+MindTensor::MindTensor(const TensorStorage &tensor_storage, const bool requires_grad) : m_grad_flag(requires_grad) {
+    this->storage_ = std::make_shared<TensorStorage>(tensor_storage);
 
     if (this->m_grad_flag) {
-        this->gradient_ = std::make_unique<MindTensor>(this->shape(), this->device());
+        this->gradient_ = std::make_unique<MindTensor>(this->storage_->shape, this->storage_->device());
         this->gradient_->zero();
     }
 }
@@ -93,7 +89,7 @@ MindTensor::MindTensor(const MindTensor &other) : m_grad_flag(other.m_grad_flag)
     this->flow_ = other.flow_;
 
     if (this->m_grad_flag) {
-        this->gradient_ = std::make_unique<MindTensor>(this->shape(), this->device());
+        this->gradient_ = std::make_unique<MindTensor>(*other.gradient_);
         this->gradient_->zero();
     }
 }

@@ -11,8 +11,8 @@ using namespace cortex::_fw;
 addition::addition(const std::shared_ptr<TensorStorage> &tx_s, const std::shared_ptr<TensorStorage> &ty_s) : GradientFlow(1), tx_s(tx_s), ty_s(ty_s) {}
 
 void addition::backward(MindTensor *_grad) {
-    MindTensor tx(this->tx_s, true);
-    MindTensor ty(this->ty_s, true);
+    MindTensor tx(*this->tx_s, true);
+    MindTensor ty(*this->ty_s, true);
 
     if (tx.requires_grad()) {
         tx.grad() += *_grad;

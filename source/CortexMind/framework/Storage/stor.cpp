@@ -53,12 +53,12 @@ TensorStorage::TensorStorage(const TensorStorage &other) : offset(other.offset),
 }
 
 TensorStorage::TensorStorage(TensorStorage &&other) noexcept : offset(other.offset), m_size(other.m_size), m_device(other.m_device) {
-    this->m_device = other.m_device;
-    this->shape = std::move(other.shape);
-    this->stride = std::move(other.stride);
-    this->offset = other.offset;
-    this->cpu_ptr = other.cpu_ptr;
-    this->m_size = other.m_size;
+    this->m_device  = other.m_device;
+    this->offset    = other.offset;
+    this->cpu_ptr   = other.cpu_ptr;
+    this->m_size    = other.m_size;
+    this->shape     = std::move(other.shape);
+    this->stride    = std::move(other.stride);
 
     #if CXM_IS_CUDA_AVAILABLE
         this->gpu_ptr = other.gpu_ptr;

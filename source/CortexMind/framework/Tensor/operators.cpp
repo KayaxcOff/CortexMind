@@ -278,6 +278,10 @@ MindTensor &MindTensor::operator=(const MindTensor &other) {
     this->m_grad_flag = other.m_grad_flag;
     this->flow_ = other.flow_;
 
+    if (other.m_grad_flag) {
+        this->gradient_ = std::make_unique<MindTensor>(*other.gradient_);
+    }
+
     return *this;
 }
 
@@ -285,6 +289,7 @@ MindTensor &MindTensor::operator=(MindTensor &&other) noexcept {
     this->storage_ = std::move(other.storage_);
     this->m_grad_flag = other.m_grad_flag;
     this->flow_ = std::move(other.flow_);
+    this->gradient_ = std::move(other.gradient_);
 
     other.storage_ = nullptr;
     other.flow_ = nullptr;

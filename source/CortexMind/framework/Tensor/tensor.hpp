@@ -35,7 +35,7 @@ namespace cortex::_fw {
         /**
          * @brief Constructs a tensor from an existing storage (shared ownership).
          */
-        explicit MindTensor(const std::shared_ptr<TensorStorage> &tensor_storage, bool requires_grad = false);
+        explicit MindTensor(const TensorStorage &tensor_storage, bool requires_grad = false);
         /**
          * @brief Constructs a tensor from external data.
          */
