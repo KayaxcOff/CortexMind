@@ -83,9 +83,9 @@ MindTensor::MindTensor(const std::vector<i64> &shape, const f32 *data, const dev
     }
 }
 
-MindTensor::MindTensor(const TensorStorage &storage, MindTensor &_grad) : m_grad_flag(true) {
+MindTensor::MindTensor(const TensorStorage &storage, const TensorStorage &grad_storage) : m_grad_flag(true) {
     this->storage_ = std::make_shared<TensorStorage>(storage);
-    this->gradient_ = std::make_unique<MindTensor>(_grad);
+    this->gradient_ = std::make_unique<MindTensor>(grad_storage);
 }
 
 MindTensor::MindTensor(const MindTensor &other) : m_grad_flag(other.m_grad_flag) {

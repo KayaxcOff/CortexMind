@@ -8,9 +8,9 @@
 using namespace cortex::_fw::meta;
 using namespace cortex::_fw;
 
-addition::addition(const std::shared_ptr<TensorStorage> &tx_stor, const std::shared_ptr<TensorStorage> &ty_stor, const MindTensor *tx_grad, const MindTensor *ty_grad) : GradientFlow(1) {
-    this->tx = new MindTensor(*tx_stor, tx_grad);
-    this->ty = new MindTensor(*ty_stor, ty_grad);
+addition::addition(const std::shared_ptr<TensorStorage> &tx_stor, const std::shared_ptr<TensorStorage> &ty_stor, const std::shared_ptr<TensorStorage> &tx_grad, const std::shared_ptr<TensorStorage> &ty_grad) : GradientFlow(1) {
+    this->tx = new MindTensor(*tx_stor, *tx_grad);
+    this->ty = new MindTensor(*ty_stor, *ty_grad);
 }
 
 addition::~addition() {

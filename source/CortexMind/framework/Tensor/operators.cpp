@@ -37,7 +37,7 @@ MindTensor MindTensor::operator+(const MindTensor &other) const {
     }
 
     if (output.m_grad_flag) {
-        output.flow_ = std::make_shared<addition>(this->storage_, other.storage_, this->gradient_.get(), other.gradient_.get());
+        output.flow_ = std::make_shared<addition>(this->storage_, other.storage_, this->gradient_->storage_, other.gradient_->storage_);
     }
 
     return output;
