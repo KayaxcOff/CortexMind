@@ -284,6 +284,16 @@ void MindTensor::backward(MindTensor &other) const {
     this->flow_->backward(&other);
 }
 
+void MindTensor::require_grad() {
+    CXM_WARN(this->m_grad_flag == true, "cortex::_fw::MindTensor::require_grad()", "Grad flag is already true");
+    this->m_grad_flag = true;
+}
+
+void MindTensor::set_grad(MindTensor& _grad) {
+    CXM_ASSERT(this->m_grad_flag == true && this->gradient_ == nullptr, "cortex::_fw::MindTensor::set_grad()", "Gradient has already initialized");
+    this->gradient_ = std::make_unique<MindTensor>(_grad);
+}
+
 MindTensor MindTensor::dot(MindTensor other) {
     CXM_ASSERT(this->storage_->shape.size() == 2 && other.storage_->shape.size() == 2,
         "cortex::_fw::MindTensor::dot()", "Both tensors must be 2D");

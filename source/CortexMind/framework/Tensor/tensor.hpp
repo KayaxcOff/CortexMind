@@ -137,6 +137,8 @@ namespace cortex::_fw {
          * @param other Gradient to backpropagate
          */
         void backward(MindTensor& other) const;
+        void require_grad();
+        void set_grad(MindTensor& _grad);
 
         [[nodiscard]]
         MindTensor dot(MindTensor other);
