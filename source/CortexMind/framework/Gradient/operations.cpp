@@ -8,14 +8,15 @@
 using namespace cortex::_fw::meta;
 using namespace cortex::_fw;
 
-addition::addition(const std::shared_ptr<TensorStorage> &tx_s, const std::shared_ptr<TensorStorage> &ty_s, MindTensor* tx_grad, MindTensor* ty_grad) : GradientFlow(1) {
-    this->tx = new MindTensor(*tx_s);
-    this->tx->require_grad();
-    this->tx->set_grad(*tx_grad);
+addition::addition(const std::shared_ptr<TensorStorage> &tx_stor, const std::shared_ptr<TensorStorage> &ty_stor, MindTensor *tx_grad, MindTensor *ty_grad) : GradientFlow(1) {
+    this->tx = new MindTensor(*tx_stor);
+    this->ty = new MindTensor(*ty_stor);
 
-    this->ty = new MindTensor(*ty_s);
+    this->tx->require_grad();
     this->ty->require_grad();
-    this->ty->set_grad(*ty_grad);
+
+    this->tx->set_grad(tx_grad);
+    this->ty->set_grad(ty_grad);
 }
 
 addition::~addition() {
@@ -24,13 +25,12 @@ addition::~addition() {
 }
 
 void addition::backward(MindTensor *_grad) {
-
-    if (tx->requires_grad()) {
-        tx->grad() += *_grad;
-        tx->backward(tx->grad());
+    if (this->tx->requires_grad()) {
+        this->tx->grad() += *_grad;
+        this->tx->backward(this->tx->grad());
     }
-    if (ty->requires_grad()) {
-        ty->grad() += *_grad;
-        ty->backward(ty->grad());
+    if (this->ty->requires_grad()) {
+        this->ty->grad() += *_grad;
+        this->ty->backward(this->ty->grad());
     }
 }

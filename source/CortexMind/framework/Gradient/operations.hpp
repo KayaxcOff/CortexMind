@@ -14,15 +14,13 @@ namespace cortex::_fw {
 
 namespace cortex::_fw::meta {
     struct addition : GradientFlow {
-        addition(const std::shared_ptr<TensorStorage>& tx_s, const std::shared_ptr<TensorStorage>& ty_s, MindTensor* tx_grad, MindTensor* ty_grad);
+        addition(const std::shared_ptr<TensorStorage>& tx_stor, const std::shared_ptr<TensorStorage>& ty_stor, MindTensor* tx_grad, MindTensor* ty_grad);
         ~addition() override;
 
         void backward(MindTensor *_grad) override;
     private:
         MindTensor* tx;
         MindTensor* ty;
-        //std::shared_ptr<TensorStorage> tx_s;
-        //std::shared_ptr<TensorStorage> ty_s;
     };
 } //namespace cortex::_fw::meta
 

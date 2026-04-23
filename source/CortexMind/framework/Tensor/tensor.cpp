@@ -289,9 +289,9 @@ void MindTensor::require_grad() {
     this->m_grad_flag = true;
 }
 
-void MindTensor::set_grad(MindTensor& _grad) {
+void MindTensor::set_grad(MindTensor* _grad) {
     CXM_ASSERT(this->m_grad_flag == true && this->gradient_ == nullptr, "cortex::_fw::MindTensor::set_grad()", "Gradient has already initialized");
-    this->gradient_ = std::make_unique<MindTensor>(_grad);
+    this->gradient_ = std::make_unique<MindTensor>(*_grad);
 }
 
 MindTensor MindTensor::dot(MindTensor other) {
