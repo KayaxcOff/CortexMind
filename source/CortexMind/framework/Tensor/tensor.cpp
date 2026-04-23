@@ -83,6 +83,11 @@ MindTensor::MindTensor(const std::vector<i64> &shape, const f32 *data, const dev
     }
 }
 
+MindTensor::MindTensor(const TensorStorage &storage, MindTensor &_grad) : m_grad_flag(true) {
+    this->storage_ = std::make_shared<TensorStorage>(storage);
+    this->gradient_ = std::make_unique<MindTensor>(_grad);
+}
+
 MindTensor::MindTensor(const MindTensor &other) : m_grad_flag(other.m_grad_flag) {
     this->storage_ = other.storage_;
 
@@ -282,16 +287,6 @@ void MindTensor::backward() const {
 void MindTensor::backward(MindTensor &other) const {
     CXM_ASSERT(this->flow_ != nullptr, "cortex::_fw::MindTensor::backward()", "no gradient function attached");
     this->flow_->backward(&other);
-}
-
-void MindTensor::require_grad() {
-    CXM_WARN(this->m_grad_flag == true, "cortex::_fw::MindTensor::require_grad()", "Grad flag is already true");
-    this->m_grad_flag = true;
-}
-
-void MindTensor::set_grad(MindTensor* _grad) {
-    CXM_ASSERT(this->m_grad_flag == true && this->gradient_ == nullptr, "cortex::_fw::MindTensor::set_grad()", "Gradient has already initialized");
-    this->gradient_ = std::make_unique<MindTensor>(*_grad);
 }
 
 MindTensor MindTensor::dot(MindTensor other) {

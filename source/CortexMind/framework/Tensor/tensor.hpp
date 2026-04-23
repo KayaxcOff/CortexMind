@@ -40,6 +40,7 @@ namespace cortex::_fw {
          * @brief Constructs a tensor from external data.
          */
         MindTensor(const std::vector<i64>& shape, const f32* data, sys::deviceType device = sys::deviceType::host, bool requires_grad = false);
+        MindTensor(const TensorStorage& storage, MindTensor& _grad);
         MindTensor(const MindTensor& other);
         MindTensor(MindTensor&& other) noexcept;
         ~MindTensor();
@@ -137,8 +138,6 @@ namespace cortex::_fw {
          * @param other Gradient to backpropagate
          */
         void backward(MindTensor& other) const;
-        void require_grad();
-        void set_grad(MindTensor* _grad);
 
         [[nodiscard]]
         MindTensor dot(MindTensor other);
