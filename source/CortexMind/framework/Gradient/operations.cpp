@@ -4,25 +4,46 @@
 
 #include "CortexMind/framework/Gradient/operations.hpp"
 #include <CortexMind/framework/Tensor/tensor.hpp>
-#include <iostream>
 
 using namespace cortex::_fw::meta;
 using namespace cortex::_fw;
 
-addition::addition(const std::shared_ptr<TensorStorage> &tx_stor, const std::shared_ptr<TensorStorage> &ty_stor, const std::shared_ptr<TensorStorage> &tx_grad, const std::shared_ptr<TensorStorage> &ty_grad, const std::shared_ptr<GradientFlow> &tx_flow, const std::shared_ptr<GradientFlow> &ty_flow) : GradientFlow(1) {
-    this->tx_ = std::make_shared<MindTensor>(*tx_stor, *tx_grad, tx_flow);
-    this->ty_ = std::make_shared<MindTensor>(*ty_stor, *ty_grad, ty_flow);
+addition::addition(const std::weak_ptr<TensorStorage> &tx_stor, const std::weak_ptr<TensorStorage> &ty_stor, const std::weak_ptr<TensorStorage> &tx_grad_stor, const std::weak_ptr<TensorStorage> &ty_grad_stor, const std::weak_ptr<GradientFlow> &tx_flow, const std::weak_ptr<GradientFlow> &ty_flow) : GradientFlow(1) {
+    this->tx_stor = tx_stor;
+    this->ty_stor = ty_stor;
+
+    this->tx_grad_stor = tx_grad_stor;
+    this->ty_grad_stor = ty_grad_stor;
+
+    this->tx_flow = tx_flow;
+    this->ty_flow = ty_flow;
 }
 
 void addition::backward(MindTensor *_grad) {
-    if (this->tx_->requires_grad()) {
-        this->tx_->grad() += (*_grad);
-        std::cout << "x" << std::endl;
-        this->tx_->backward(this->tx_->grad());
+    const auto tx_storage = this->tx_stor.lock();
+    const auto tx_grad    = this->tx_grad_stor.lock();
+    const auto tx_fl      = this->tx_flow.lock();
+
+    if (tx_storage && tx_grad) {
+        MindTensor tx(tx_storage, tx_grad, tx_fl);
+        tx.grad() += (*_grad);
+
+        if (tx_fl != nullptr) {
+            tx.backward(tx.grad());
+        }
     }
-    if (this->ty_->requires_grad()) {
-        this->ty_->grad() += (*_grad);
-        std::cout << "x" << std::endl;
-        this->ty_->backward(this->ty_->grad());
+
+    const auto ty_storage = this->ty_stor.lock();
+    const auto ty_grad    = this->ty_grad_stor.lock();
+    const auto ty_fl      = this->ty_flow.lock();
+
+    if (ty_storage && ty_grad) {
+        MindTensor ty(ty_storage, ty_grad, ty_fl);
+
+        ty.grad() += (*_grad);
+
+        if (ty_fl != nullptr) {
+            ty.backward(ty.grad());
+        }
     }
 }

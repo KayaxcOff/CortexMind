@@ -89,6 +89,12 @@ MindTensor::MindTensor(const TensorStorage &storage, const TensorStorage &grad_s
     this->flow_ = gradient_flow;
 }
 
+MindTensor::MindTensor(std::shared_ptr<TensorStorage> tensor_storage, const std::shared_ptr<TensorStorage>& grad_storage, std::shared_ptr<GradientFlow> gradient_flow) : m_grad_flag(true) {
+    this->storage_ = std::move(tensor_storage);
+    this->gradient_ = std::make_unique<MindTensor>(*grad_storage);
+    this->flow_ = std::move(gradient_flow);
+}
+
 MindTensor::MindTensor(const MindTensor &other) : m_grad_flag(other.m_grad_flag) {
     this->storage_ = other.storage_;
 

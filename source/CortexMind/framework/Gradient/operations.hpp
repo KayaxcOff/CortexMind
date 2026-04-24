@@ -14,18 +14,18 @@ namespace cortex::_fw {
 
 namespace cortex::_fw::meta {
     struct addition : GradientFlow {
-        addition(const std::shared_ptr<TensorStorage>& tx_stor,
-                 const std::shared_ptr<TensorStorage>& ty_stor,
-                 const std::shared_ptr<TensorStorage>& tx_grad,
-                 const std::shared_ptr<TensorStorage>& ty_grad,
-                 const std::shared_ptr<GradientFlow>& tx_flow,
-                 const std::shared_ptr<GradientFlow>& ty_flow
-        );
+        addition(const std::weak_ptr<TensorStorage> &tx_stor, const std::weak_ptr<TensorStorage> &ty_stor, const std::weak_ptr<TensorStorage> &tx_grad_stor, const std::weak_ptr<TensorStorage> &ty_grad_stor, const std::weak_ptr<GradientFlow> &tx_flow, const std::weak_ptr<GradientFlow> &ty_flow);
 
         void backward(MindTensor *_grad) override;
     private:
-        std::shared_ptr<MindTensor> tx_;
-        std::shared_ptr<MindTensor> ty_;
+        std::weak_ptr<TensorStorage> tx_stor;
+        std::weak_ptr<TensorStorage> ty_stor;
+
+        std::weak_ptr<TensorStorage> tx_grad_stor;
+        std::weak_ptr<TensorStorage> ty_grad_stor;
+
+        std::weak_ptr<GradientFlow> tx_flow;
+        std::weak_ptr<GradientFlow> ty_flow;
     };
 } //namespace cortex::_fw::meta
 

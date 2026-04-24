@@ -32,6 +32,9 @@ TensorStorage::TensorStorage(const size_t size, const deviceType device) : offse
 }
 
 TensorStorage::TensorStorage(const TensorStorage &other) : offset(other.offset), m_size(other.m_size), m_device(other.m_device) {
+    this->cpu_ptr = nullptr;
+    this->gpu_ptr = nullptr;
+
     this->m_device = other.m_device;
     this->shape = other.shape;
     this->stride = other.stride;
