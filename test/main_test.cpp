@@ -13,7 +13,7 @@ int main() {
     x.rand();
     y.rand();
 
-    const auto z = x + y;
+    const auto z = x - y;
     z.backward();
 
     std::cout << "Tensor Z:\n" << z << std::endl;
@@ -22,3 +22,18 @@ int main() {
 
     return 0;
 }
+
+/*
+ * --- output ---
+ * Tensor Z:
+ * [[0.299371, -0.53601],
+ * [-0.680133, -0.193322]]
+
+ * Gradient X:
+ * [[0, 0],
+ * [0, 0]]
+
+ * Gradient Y:
+ * [[0, 0],
+ * [0, 0]]
+ */
