@@ -28,6 +28,7 @@ add_library(CortexMind STATIC
         source/CortexMind/tools/arithmetic_operations.cpp
         source/CortexMind/tools/comparison_operations.cpp
         source/CortexMind/utils/Cast/factory.cpp
+        source/CortexMind/utils/DataFrame/frame.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)

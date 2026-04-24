@@ -21,5 +21,6 @@
 
 // ---------- utils ----------
 #include <CortexMind/utils/Cast/factory.hpp>
+#include <CortexMind/utils/DataFrame/frame.hpp>
 
 #endif //CORTEXMIND_CORTEXMIND_HPP
