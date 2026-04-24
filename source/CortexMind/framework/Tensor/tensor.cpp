@@ -83,9 +83,10 @@ MindTensor::MindTensor(const std::vector<i64> &shape, const f32 *data, const dev
     }
 }
 
-MindTensor::MindTensor(const TensorStorage &storage, const TensorStorage &grad_storage) : m_grad_flag(true) {
+MindTensor::MindTensor(const TensorStorage &storage, const TensorStorage &grad_storage, const std::shared_ptr<GradientFlow>& gradient_flow) : m_grad_flag(true) {
     this->storage_ = std::make_shared<TensorStorage>(storage);
     this->gradient_ = std::make_unique<MindTensor>(grad_storage);
+    this->flow_ = gradient_flow;
 }
 
 MindTensor::MindTensor(const MindTensor &other) : m_grad_flag(other.m_grad_flag) {
@@ -285,7 +286,7 @@ void MindTensor::backward() const {
 }
 
 void MindTensor::backward(MindTensor &other) const {
-    CXM_ASSERT(this->flow_ != nullptr, "cortex::_fw::MindTensor::backward()", "no gradient function attached");
+    CXM_ASSERT(this->flow_ != nullptr, "cortex::_fw::MindTensor::backward()", "no gradient function attached | The one who I fucked his blind eye");
     this->flow_->backward(&other);
 }
 

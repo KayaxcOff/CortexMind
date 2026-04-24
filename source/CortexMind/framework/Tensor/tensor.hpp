@@ -40,7 +40,7 @@ namespace cortex::_fw {
          * @brief Constructs a tensor from external data.
          */
         MindTensor(const std::vector<i64>& shape, const f32* data, sys::deviceType device = sys::deviceType::host, bool requires_grad = false);
-        MindTensor(const TensorStorage& storage, const TensorStorage& grad_storage);
+        MindTensor(const TensorStorage& storage, const TensorStorage& grad_storage, const std::shared_ptr<meta::GradientFlow>& gradient_flow);
         MindTensor(const MindTensor& other);
         MindTensor(MindTensor&& other) noexcept;
         ~MindTensor();

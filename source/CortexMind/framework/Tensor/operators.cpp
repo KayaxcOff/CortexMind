@@ -25,7 +25,8 @@ MindTensor MindTensor::operator+(const MindTensor &other) const {
     CXM_ASSERT(this->ndim() == other.ndim(), "cortex::_fw::MindTensor::operator+", "Shapes mismatch");
     CXM_ASSERT(this->device() == other.device(), "cortex::_fw::MindTensor::operator+", "Devices mismatch");
 
-    MindTensor output(this->storage_->shape, this->storage_->device(), this->m_grad_flag || other.m_grad_flag);
+    const bool req_grad = this->m_grad_flag || other.m_grad_flag;
+    MindTensor output(this->storage_->shape, this->storage_->device(), req_grad);
 
     if (this->storage_->device() == deviceType::host) {
         avx2::matrix_t::add(this->get(), other.get(), output.get(), this->numel());
@@ -37,7 +38,7 @@ MindTensor MindTensor::operator+(const MindTensor &other) const {
     }
 
     if (output.m_grad_flag) {
-        output.flow_ = std::make_shared<addition>(this->storage_, other.storage_, this->gradient_->storage_, other.gradient_->storage_);
+        output.flow_ = std::make_shared<addition>(this->storage_, other.storage_, this->gradient_->storage_, other.gradient_->storage_, this->flow_, other.flow_);
     }
 
     return output;
