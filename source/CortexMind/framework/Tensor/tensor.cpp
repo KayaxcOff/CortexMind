@@ -346,9 +346,9 @@ MindTensor MindTensor::pow(const f32 exp) {
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
-                if (this->device() == deviceType::cuda) {
-                    cuda::ElementWise::pow(this->get(), exp, output.get(), this->numel());
-                }
+            if (this->device() == deviceType::cuda) {
+                cuda::ElementWise::pow(this->get(), exp, output.get(), this->numel());
+            }
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 
