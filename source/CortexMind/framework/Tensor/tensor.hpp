@@ -141,6 +141,8 @@ namespace cortex::_fw {
         void backward(MindTensor& other) const;
 
         [[nodiscard]]
+        MindTensor to(const sys::deviceType& d_type);
+        [[nodiscard]]
         MindTensor dot(MindTensor other);
         [[nodiscard]]
         MindTensor pow(f32 exp = 2);

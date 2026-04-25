@@ -77,9 +77,13 @@ MindTensor MindTensor::operator*(const MindTensor &other) const {
         avx2::matrix_t::mul(this->get(), other.get(), output.get(), this->numel());
     }
     if (this->storage_->device() == deviceType::cuda) {
-    #if CXM_IS_CUDA_AVAILABLE
+        #if CXM_IS_CUDA_AVAILABLE
             cuda::Matrix::mul(this->get(), other.get(), output.get(), this->numel());
-    #endif //#if CXM_IS_CUDA_AVAILABLE
+        #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+
+    if (output.m_grad_flag) {
+        output.flow_ = std::make_shared<multiply>(this->storage_, other.storage_, this->gradient_->storage_, other.gradient_->storage_, this->flow_, other.flow_);
     }
 
     return output;
@@ -98,6 +102,10 @@ MindTensor MindTensor::operator/(const MindTensor &other) const {
         #if CXM_IS_CUDA_AVAILABLE
                 cuda::Matrix::div(this->get(), other.get(), output.get(), this->numel());
         #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+
+    if (output.m_grad_flag) {
+        output.flow_ = std::make_shared<division>(this->storage_, other.storage_, this->gradient_->storage_, other.gradient_->storage_, this->flow_, other.flow_);
     }
 
     return output;

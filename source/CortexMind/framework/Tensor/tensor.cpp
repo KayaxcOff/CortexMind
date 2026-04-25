@@ -296,6 +296,11 @@ void MindTensor::backward(MindTensor &other) const {
     this->flow_->backward(&other);
 }
 
+MindTensor MindTensor::to(const deviceType &d_type) {
+    this->storage_->setDevice(d_type);
+    return *this;
+}
+
 MindTensor MindTensor::dot(MindTensor other) {
     CXM_ASSERT(this->storage_->shape.size() == 2 && other.storage_->shape.size() == 2,
         "cortex::_fw::MindTensor::dot()", "Both tensors must be 2D");
