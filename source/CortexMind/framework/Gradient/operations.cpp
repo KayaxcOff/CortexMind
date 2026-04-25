@@ -230,20 +230,24 @@ void dot::backward(MindTensor* _grad) {
 
     if (tx_storage && tx_grad) {
         MindTensor tx(tx_storage, tx_grad, tx_fl);
-        MindTensor ty(ty_storage, ty_grad, ty_fl);
+        const MindTensor ty(ty_storage, ty_grad, ty_fl);
 
         // dz/dx = grad * y^T
         tx.grad() += _grad->dot(ty.transpose());
-        if (tx_fl) tx.backward(tx.grad());
+        if (tx_fl) {
+            tx.backward(tx.grad());
+        }
     }
 
     if (ty_storage && ty_grad) {
-        MindTensor tx(tx_storage, tx_grad, tx_fl);
+        const MindTensor tx(tx_storage, tx_grad, tx_fl);
         MindTensor ty(ty_storage, ty_grad, ty_fl);
 
         // dz/dy = x^T * grad
         ty.grad() += tx.transpose().dot(*_grad);
-        if (ty_fl) ty.backward(ty.grad());
+        if (ty_fl) {
+            ty.backward(ty.grad());
+        }
     }
 }
 
@@ -263,7 +267,9 @@ void pow::backward(MindTensor* _grad) {
         MindTensor tx(tx_storage, tx_grad, tx_fl);
         // dz/dx = exp * x^(exp-1) * grad
         tx.grad() += tx.pow(this->exp - 1.0f) * this->exp * (*_grad);
-        if (tx_fl) tx.backward(tx.grad());
+        if (tx_fl) {
+            tx.backward(tx.grad());
+        }
     }
 }
 
@@ -282,7 +288,9 @@ void log::backward(MindTensor* _grad) {
         MindTensor tx(tx_storage, tx_grad, tx_fl);
         // dz/dx = grad / x
         tx.grad() += (*_grad) / tx;
-        if (tx_fl) tx.backward(tx.grad());
+        if (tx_fl) {
+            tx.backward(tx.grad());
+        }
     }
 }
 
@@ -300,9 +308,10 @@ void exp::backward(MindTensor* _grad) {
 
     if (tx_storage && tx_grad) {
         MindTensor tx(tx_storage, tx_grad, tx_fl);
-        // dz/dx = grad * exp(x)
         tx.grad() += (*_grad) * tx.exp();
-        if (tx_fl) tx.backward(tx.grad());
+        if (tx_fl) {
+            tx.backward(tx.grad());
+        }
     }
 }
 
@@ -320,9 +329,17 @@ void sum::backward(MindTensor* _grad) {
 
     if (tx_storage && tx_grad) {
         MindTensor tx(tx_storage, tx_grad, tx_fl);
-        const MindTensor ones_t(tx_storage->shape, tx_storage->device());
+
+        const f32 grad_val = _grad->get()[0];
+
+        MindTensor ones_t(tx_storage->shape, tx_storage->device());
         ones_t.ones();
-        tx.grad() += ones_t * (*_grad);
-        if (tx_fl) tx.backward(tx.grad());
+        ones_t *= grad_val;
+
+        tx.grad() += ones_t;
+
+        if (tx_fl) {
+            tx.backward(tx.grad());
+        }
     }
 }
