@@ -8,6 +8,7 @@
 #include <CortexMind/tools/params.hpp>
 #include <string>
 #include <variant>
+#include <vector>
 
 namespace cortex::utils {
     class DataFrame {
@@ -17,7 +18,7 @@ namespace cortex::utils {
 
     private:
         std::variant<int32, float32, boolean, std::string> variables;
-        tensor m_data;
+        std::vector<std::string> feats;
     };
 } //namespace cortex::utils
 
