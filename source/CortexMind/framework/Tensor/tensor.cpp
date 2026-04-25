@@ -14,11 +14,12 @@
     #include <CortexMind/core/Engine/CUDA/scalar.h>
     #include <CortexMind/core/Tools/utils.cuh>
     #include <CortexMind/framework/Memory/transform.hpp>
-    #include <CortexMind/runtime/rand.cuh>
 #else //#if CXM_IS_CUDA_AVAILABLE
     #include <cstring>
 #endif //#if CXM_IS_CUDA_AVAILABLE #else
+#include <CortexMind/framework/Gradient/operations.hpp>
 #include <CortexMind/framework/Tools/tensor_utils.hpp>
+#include <CortexMind/runtime/rand.cuh>
 #include <random>
 #include <type_traits>
 
@@ -330,6 +331,10 @@ MindTensor MindTensor::dot(MindTensor other) {
         }
     #endif //#if CXM_IS_CUDA_AVAILABLE
 
+    if (output.m_grad_flag) {
+        output.flow_ = std::make_shared<meta::dot>(this->storage_, this->gradient_->storage_, other.storage_, other.gradient_->storage_, this->flow_, other.flow_);
+    }
+
     return output;
 }
 
@@ -345,6 +350,10 @@ MindTensor MindTensor::pow(const f32 exp) {
                     cuda::ElementWise::pow(this->get(), exp, output.get(), this->numel());
                 }
         #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+
+    if (output.m_grad_flag) {
+        output.flow_ = std::make_shared<meta::pow>(this->storage_, this->gradient_->storage_, this->flow_, exp);
     }
 
     return output;
@@ -364,6 +373,10 @@ MindTensor MindTensor::sqrt() {
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 
+    if (output.m_grad_flag) {
+        output.flow_ = std::make_shared<meta::pow>(this->storage_, this->gradient_->storage_, this->flow_, 0.5f);
+    }
+
     return output;
 }
 
@@ -375,10 +388,14 @@ MindTensor MindTensor::log() {
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
-                if (this->device() == deviceType::cuda) {
-                    cuda::ElementWise::log(this->get(), output.get(), this->numel());
-                }
+            if (this->device() == deviceType::cuda) {
+                cuda::ElementWise::log(this->get(), output.get(), this->numel());
+            }
         #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+
+    if (output.m_grad_flag) {
+        output.flow_ = std::make_shared<meta::log>(this->storage_, this->gradient_->storage_, this->flow_);
     }
 
     return output;
@@ -392,10 +409,14 @@ MindTensor MindTensor::exp() {
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
-                if (this->device() == deviceType::cuda) {
-                    cuda::ElementWise::log(this->get(), output.get(), this->numel());
-                }
+            if (this->device() == deviceType::cuda) {
+                cuda::ElementWise::log(this->get(), output.get(), this->numel());
+            }
         #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+
+    if (output.m_grad_flag) {
+        output.flow_ = std::make_shared<meta::exp>(this->storage_, this->gradient_->storage_, this->flow_);
     }
 
     return output;
@@ -427,6 +448,11 @@ MindTensor MindTensor::sum() const {
 
     const f32 result = avx2::reduce::sum(this->get(), this->numel());
     output.fill(result);
+
+    if (output.m_grad_flag) {
+        output.flow_ = std::make_shared<meta::sum>(this->storage_, this->gradient_->storage_, this->flow_);
+    }
+
     return output;
 }
 
