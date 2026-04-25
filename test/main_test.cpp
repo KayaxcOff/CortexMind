@@ -18,13 +18,14 @@ int main() {
 
     std::cout << "Tensor Y\n" << y << std::endl;
 
-    const tensor z = x + y;
+    const tensor z = x * y;
     std::cout << "Tensor Z\n" << z << std::endl;
 
     z.sum().backward();
 
     std::cout << "Gradient X\n" << x.grad() << std::endl;
     std::cout << "Gradient Y\n" << y.grad() << std::endl;
+    std::cout << "Gradient Z\n" << z.grad() << std::endl;
 
     return 0;
 }
