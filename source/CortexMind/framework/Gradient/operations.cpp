@@ -163,7 +163,7 @@ void division::backward(MindTensor *_grad) {
     }
 
     if (ty_storage && ty_grad) {
-        ty.grad() += (*_grad) * (tx * (ty.pow()));
+        ty.grad() += ((*_grad) * tx / ty.pow(2.0f)) * (-1.0f);
 
         if (ty_fl != nullptr) {
             ty.backward(ty.grad());
