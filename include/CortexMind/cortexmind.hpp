@@ -5,6 +5,9 @@
 #ifndef CORTEXMIND_CORTEXMIND_HPP
 #define CORTEXMIND_CORTEXMIND_HPP
 
+// ---------- net ----------
+#include <CortexMind/net/NeuralNetwork/linear.hpp>
+
 // ---------- runtime ----------
 #include <CortexMind/runtime/compile_flags_check.hpp> // Compile time
 

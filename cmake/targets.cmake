@@ -29,6 +29,7 @@ add_library(CortexMind STATIC
         source/CortexMind/tools/comparison_operations.cpp
         source/CortexMind/utils/Cast/factory.cpp
         source/CortexMind/utils/DataFrame/frame.cpp
+        source/CortexMind/net/NeuralNetwork/linear.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
