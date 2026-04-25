@@ -187,6 +187,10 @@ MindTensor MindTensor::operator+(const f32 value) const {
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 
+    if (output.m_grad_flag) {
+        output.flow_ = std::make_shared<scalar_additive>(this->storage_, this->gradient_->storage_, this->flow_);
+    }
+
     return output;
 }
 
@@ -200,6 +204,10 @@ MindTensor MindTensor::operator-(const f32 value) const {
         #if CXM_IS_CUDA_AVAILABLE
             cuda::ScalarKernel::sub(this->get(), value, output.get(), this->numel());
         #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+
+    if (output.m_grad_flag) {
+        output.flow_ = std::make_shared<scalar_additive>(this->storage_, this->gradient_->storage_, this->flow_);
     }
 
     return output;
@@ -217,6 +225,10 @@ MindTensor MindTensor::operator*(const f32 value) const {
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 
+    if (output.m_grad_flag) {
+        output.flow_ = std::make_shared<scalar_multiply>(this->storage_, this->gradient_->storage_, this->flow_, value);
+    }
+
     return output;
 }
 
@@ -230,6 +242,10 @@ MindTensor MindTensor::operator/(const f32 value) const {
         #if CXM_IS_CUDA_AVAILABLE
             cuda::ScalarKernel::div(this->get(), value, output.get(), this->numel());
         #endif //#if CXM_IS_CUDA_AVAILABLE
+    }
+
+    if (output.m_grad_flag) {
+        output.flow_ = std::make_shared<scalar_multiply>(this->storage_, this->gradient_->storage_, this->flow_, (1 / value));
     }
 
     return output;

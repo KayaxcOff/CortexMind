@@ -170,3 +170,45 @@ void division::backward(MindTensor *_grad) {
         }
     }
 }
+
+scalar_additive::scalar_additive(const std::weak_ptr<TensorStorage>& tx_stor, const std::weak_ptr<TensorStorage>& tx_grad_stor, const std::weak_ptr<GradientFlow>&  tx_flow) : GradientFlow(5) {
+    this->tx_stor      = tx_stor;
+    this->tx_grad_stor = tx_grad_stor;
+    this->tx_flow      = tx_flow;
+}
+
+void scalar_additive::backward(MindTensor* _grad) {
+    const auto tx_storage = this->tx_stor.lock();
+    const auto tx_grad    = this->tx_grad_stor.lock();
+    const auto tx_fl      = this->tx_flow.lock();
+
+    if (tx_storage && tx_grad) {
+        MindTensor tx(tx_storage, tx_grad, tx_fl);
+        tx.grad() += *_grad;
+
+        if (tx_fl != nullptr) {
+            tx.backward(tx.grad());
+        }
+    }
+}
+
+scalar_multiply::scalar_multiply(const std::weak_ptr<TensorStorage>& tx_stor, const std::weak_ptr<TensorStorage>& tx_grad_stor, const std::weak_ptr<GradientFlow>&  tx_flow, const f32 c) : GradientFlow(6), c(c) {
+    this->tx_stor      = tx_stor;
+    this->tx_grad_stor = tx_grad_stor;
+    this->tx_flow      = tx_flow;
+}
+
+void scalar_multiply::backward(MindTensor* _grad) {
+    const auto tx_storage = this->tx_stor.lock();
+    const auto tx_grad    = this->tx_grad_stor.lock();
+    const auto tx_fl      = this->tx_flow.lock();
+
+    if (tx_storage && tx_grad) {
+        MindTensor tx(tx_storage, tx_grad, tx_fl);
+        tx.grad() += *_grad * this->c;
+
+        if (tx_fl != nullptr) {
+            tx.backward(tx.grad());
+        }
+    }
+}
