@@ -42,6 +42,36 @@ namespace cortex::_fw::meta {
         std::weak_ptr<GradientFlow> tx_flow;
         std::weak_ptr<GradientFlow> ty_flow;
     };
+
+    struct multiply : GradientFlow {
+        multiply(const std::weak_ptr<TensorStorage> &tx_stor, const std::weak_ptr<TensorStorage> &ty_stor, const std::weak_ptr<TensorStorage> &tx_grad_stor, const std::weak_ptr<TensorStorage> &ty_grad_stor, const std::weak_ptr<GradientFlow> &tx_flow, const std::weak_ptr<GradientFlow> &ty_flow);
+
+        void backward(MindTensor *_grad) override;
+    private:
+        std::weak_ptr<TensorStorage> tx_stor;
+        std::weak_ptr<TensorStorage> ty_stor;
+
+        std::weak_ptr<TensorStorage> tx_grad_stor;
+        std::weak_ptr<TensorStorage> ty_grad_stor;
+
+        std::weak_ptr<GradientFlow> tx_flow;
+        std::weak_ptr<GradientFlow> ty_flow;
+    };
+
+    struct division : GradientFlow {
+        division(const std::weak_ptr<TensorStorage> &tx_stor, const std::weak_ptr<TensorStorage> &ty_stor, const std::weak_ptr<TensorStorage> &tx_grad_stor, const std::weak_ptr<TensorStorage> &ty_grad_stor, const std::weak_ptr<GradientFlow> &tx_flow, const std::weak_ptr<GradientFlow> &ty_flow);
+
+        void backward(MindTensor *_grad) override;
+    private:
+        std::weak_ptr<TensorStorage> tx_stor;
+        std::weak_ptr<TensorStorage> ty_stor;
+
+        std::weak_ptr<TensorStorage> tx_grad_stor;
+        std::weak_ptr<TensorStorage> ty_grad_stor;
+
+        std::weak_ptr<GradientFlow> tx_flow;
+        std::weak_ptr<GradientFlow> ty_flow;
+    };
 } //namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP
