@@ -30,6 +30,7 @@ add_library(CortexMind STATIC
         source/CortexMind/utils/Cast/factory.cpp
         source/CortexMind/utils/DataFrame/frame.cpp
         source/CortexMind/net/NeuralNetwork/linear.cpp
+        source/CortexMind/net/NeuralNetwork/flatten.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
