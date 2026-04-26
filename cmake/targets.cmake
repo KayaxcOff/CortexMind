@@ -5,6 +5,9 @@ add_library(CortexMind STATIC
         source/CortexMind/core/Engine/AVX2/matrix.cpp
         source/CortexMind/core/Engine/AVX2/activation.cpp
         source/CortexMind/core/Engine/AVX2/wise.cpp
+        source/CortexMind/core/Engine/STD/scalar.cpp
+        source/CortexMind/core/Engine/STD/matrix.cpp
+        source/CortexMind/core/Engine/STD/element_wise.cpp
         source/CortexMind/framework/Benchmark/pref.cpp
         source/CortexMind/framework/Tools/err.cpp
         source/CortexMind/framework/Tools/benchmark_utils.cpp
