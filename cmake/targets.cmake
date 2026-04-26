@@ -1,48 +1,49 @@
 add_library(CortexMind STATIC
-        source/CortexMind/core/Engine/AVX2/partial.cpp
-        source/CortexMind/core/Engine/AVX2/scalar.cpp
-        source/CortexMind/core/Engine/AVX2/reduce.cpp
-        source/CortexMind/core/Engine/AVX2/matrix.cpp
         source/CortexMind/core/Engine/AVX2/activation.cpp
+        source/CortexMind/core/Engine/AVX2/matrix.cpp
+        source/CortexMind/core/Engine/AVX2/partial.cpp
+        source/CortexMind/core/Engine/AVX2/reduce.cpp
+        source/CortexMind/core/Engine/AVX2/scalar.cpp
         source/CortexMind/core/Engine/AVX2/wise.cpp
-        source/CortexMind/core/Engine/STD/scalar.cpp
-        source/CortexMind/core/Engine/STD/matrix.cpp
+        source/CortexMind/core/Engine/STD/activation.cpp
         source/CortexMind/core/Engine/STD/element_wise.cpp
+        source/CortexMind/core/Engine/STD/matrix.cpp
+        source/CortexMind/core/Engine/STD/scalar.cpp
         source/CortexMind/framework/Benchmark/pref.cpp
-        source/CortexMind/framework/Tools/err.cpp
+        source/CortexMind/framework/Gradient/flow.cpp
+        source/CortexMind/framework/Gradient/operations.cpp
+        source/CortexMind/framework/Memory/mem.cpp
+        source/CortexMind/framework/Net/layer.cpp
+        source/CortexMind/framework/Net/loss.cpp
+        source/CortexMind/framework/Net/optimization.cpp
+        source/CortexMind/framework/Storage/operators.cpp
+        source/CortexMind/framework/Storage/stor.cpp
+        source/CortexMind/framework/Tensor/operators.cpp
+        source/CortexMind/framework/Tensor/tensor.cpp
         source/CortexMind/framework/Tools/benchmark_utils.cpp
         source/CortexMind/framework/Tools/device_as_string.cpp
+        source/CortexMind/framework/Tools/err.cpp
         source/CortexMind/framework/Tools/memory_utils.cpp
-        source/CortexMind/framework/Memory/mem.cpp
-        source/CortexMind/framework/Gradient/flow.cpp
-        source/CortexMind/framework/Storage/stor.cpp
-        source/CortexMind/framework/Storage/operators.cpp
-        source/CortexMind/framework/Tensor/tensor.cpp
-        source/CortexMind/framework/Tensor/operators.cpp
         source/CortexMind/framework/Tools/tensor_utils.cpp
-        source/CortexMind/framework/Gradient/operations.cpp
-        source/CortexMind/framework/Net/layer.cpp
-        source/CortexMind/framework/Net/optimization.cpp
-        source/CortexMind/framework/Net/loss.cpp
-        source/CortexMind/tools/version.cpp
+        source/CortexMind/net/NeuralNetwork/flatten.cpp
+        source/CortexMind/net/NeuralNetwork/linear.cpp
+        source/CortexMind/tools/arithmetic_operations.cpp
+        source/CortexMind/tools/comparison_operations.cpp
         source/CortexMind/tools/cpp_version.cpp
         source/CortexMind/tools/is_cuda_available.cpp
         source/CortexMind/tools/tensor_info.cpp
-        source/CortexMind/tools/arithmetic_operations.cpp
-        source/CortexMind/tools/comparison_operations.cpp
+        source/CortexMind/tools/version.cpp
         source/CortexMind/utils/Cast/factory.cpp
         source/CortexMind/utils/DataFrame/frame.cpp
-        source/CortexMind/net/NeuralNetwork/linear.cpp
-        source/CortexMind/net/NeuralNetwork/flatten.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
     target_sources(CortexMind PRIVATE
-            source/CortexMind/core/Engine/CUDA/scalar.cu
-            source/CortexMind/core/Engine/CUDA/matrix.cu
-            source/CortexMind/core/Engine/CUDA/reduce.cu
             source/CortexMind/core/Engine/CUDA/activation.cu
             source/CortexMind/core/Engine/CUDA/elem_wise.cu
+            source/CortexMind/core/Engine/CUDA/matrix.cu
+            source/CortexMind/core/Engine/CUDA/reduce.cu
+            source/CortexMind/core/Engine/CUDA/scalar.cu
             source/CortexMind/framework/Memory/forge.cu
             source/CortexMind/runtime/provider.cu
             source/CortexMind/runtime/rand.cu

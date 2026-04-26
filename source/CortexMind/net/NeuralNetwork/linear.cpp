@@ -8,7 +8,7 @@ using namespace cortex::nn;
 using namespace cortex::_fw;
 using namespace cortex;
 
-Linear::Linear(const int64 input_dim, const int64 output_dim, const sys::deviceType d_type) : LayerBase("Dense"), input_dim(input_dim), output_dim(output_dim) {
+Linear::Linear(const int64 input_dim, const int64 output_dim, const sys::deviceType d_type) : LayerBase("Linear"), input_dim(input_dim), output_dim(output_dim) {
     this->weight = tensor({this->input_dim, this->output_dim}, d_type, true);
     this->bias = tensor({this->input_dim, this->output_dim}, d_type, true);
 
