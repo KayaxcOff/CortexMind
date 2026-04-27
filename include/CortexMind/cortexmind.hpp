@@ -20,7 +20,6 @@
 #include <CortexMind/tools/is_cuda_available.hpp>
 #include <CortexMind/tools/params.hpp>
 #include <CortexMind/tools/println.hpp>
-#include <CortexMind/tools/tensor_info.hpp>
 #include <CortexMind/tools/version.hpp>
 
 // ---------- utils ----------
