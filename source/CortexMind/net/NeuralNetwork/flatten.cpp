@@ -24,7 +24,7 @@ tensor Flatten::forward(tensor &input) {
         feat *= input.shape()[i];
     }
 
-    auto output = tensor({batch, feat}, input.get(), input.device(), input.requires_grad());
+    auto output = tensor({batch, feat}, input.get(), input.device(), input.isGradRequired());
 
     return output;
 }

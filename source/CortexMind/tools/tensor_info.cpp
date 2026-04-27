@@ -14,6 +14,6 @@ u0 cortex::info(const tensor &_tensor) {
         std::cout << item << " ";
     }
     std::cout << "}" << std::endl;
-    std::cout << "Number of elements: " << _tensor.numel() << std::endl;
+    std::cout << "Number of elements: " << _tensor.len() << std::endl;
     std::cout << "Device: " << _fw::DeviceAsString(_tensor.device()) << std::endl;
 }

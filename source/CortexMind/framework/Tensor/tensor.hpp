@@ -67,7 +67,7 @@ namespace cortex::_fw {
          * @brief Returns whether gradient tracking is enabled for this tensor.
          */
         [[nodiscard]]
-        bool requires_grad() const;
+        bool isGradRequired() const;
         /**
          * @brief Returns the current device type (host or cuda).
          */
@@ -78,12 +78,14 @@ namespace cortex::_fw {
          * @brief Returns the total number of elements in the tensor.
          */
         [[nodiscard]]
-        size_t numel() const;
+        size_t len() const;
         /**
          * @brief Returns the number of dimensions of the tensor.
          */
         [[nodiscard]]
         size_t ndim() const;
+        [[nodiscard]]
+        bool empty() const;
 
         /**
          * @brief Computes the mean of all elements in the tensor.
