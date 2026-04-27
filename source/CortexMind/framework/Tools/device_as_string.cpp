@@ -4,7 +4,7 @@
 
 #include "CortexMind/framework/Tools/device_as_string.hpp"
 
-const std::string& cortex::_fw::DeviceAsString(const sys::deviceType d_type) {
+std::string cortex::_fw::DeviceAsString(const sys::deviceType d_type) {
     switch (d_type) {
         case sys::host: return "host";
         case sys::cuda: return "cuda";

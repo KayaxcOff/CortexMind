@@ -16,6 +16,7 @@
 #include <CortexMind/tools/comparison_operations.hpp>
 #include <CortexMind/tools/cpp_version.hpp>
 #include <CortexMind/tools/defaults.hpp>
+#include <CortexMind/tools/describe.hpp>
 #include <CortexMind/tools/device.hpp>
 #include <CortexMind/tools/is_cuda_available.hpp>
 #include <CortexMind/tools/params.hpp>
