@@ -12,6 +12,10 @@ namespace cortex::_fw::stl {
         static void relu(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
         static void leaky_relu(const f32* __restrict Xx, f32 alpha, f32* __restrict Xz, size_t N);
         static void tanh(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        static void sigmoid(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        static void gelu(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        static void swish(const f32* __restrict Xx, f32 beta, f32* __restrict Xz, size_t N);
+        static void softmax(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
     };
 } //namespace cortex::_fw::stl
 
