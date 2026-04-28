@@ -6,6 +6,7 @@
 #define CORTEXMIND_CORE_ENGINE_CUDA_KERNELS_MATRIX_CUH
 
 #include <CortexMind/core/Engine/CUDA/params.h>
+#include <CortexMind/core/Tools/broadcast.hpp>
 #include <CortexMind/core/Tools/utils.cuh>
 #include <CortexMind/core/Tools/loop.h>
 
@@ -73,11 +74,34 @@ namespace cortex::_fw::cuda::kernels {
             };
         }
 
-        f32*       Xx_f = reinterpret_cast<f32*>(Xx);
+        f32* Xx_f = reinterpret_cast<f32*>(Xx);
         const f32* Xy_f = reinterpret_cast<const f32*>(Xy);
 
         CXM_CUDA_LOOP_TAIL(i, tail_start, N) {
             Xx_f[i] = op(Xx_f[i], Xy_f[i]);
+        }
+    }
+
+    template <typename OpType>
+    __global__ void matrix_broadcast(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, const size_t N, const BroadcastInfo info) {
+        OpType op;
+
+        CXM_CUDA_LOOP_1D(i, N) {
+            size_t offset_x = 0;
+            size_t offset_y = 0;
+            size_t offset_z = 0;
+
+            size_t linear_idx = i;
+
+            for (int d = 0; d < info.ndim; ++d) {
+                size_t coord = (linear_idx / info.stride_z[d]) % info.shape[d];
+
+                offset_x += coord * info.stride_x[d];
+                offset_y += coord * info.stride_y[d];
+                offset_z += coord * info.stride_z[d];
+            }
+
+            Xz[offset_z] = op(Xx[offset_x], Xy[offset_y]);
         }
     }
 } //namespace cortex::_fw::cuda::kernels
