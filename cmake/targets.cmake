@@ -10,6 +10,7 @@ add_library(CortexMind STATIC
         source/CortexMind/core/Engine/STD/matrix.cpp
         source/CortexMind/core/Engine/STD/scalar.cpp
         source/CortexMind/framework/Benchmark/pref.cpp
+        source/CortexMind/framework/Dispatch/scalar.cpp
         source/CortexMind/framework/Gradient/flow.cpp
         source/CortexMind/framework/Gradient/operations.cpp
         source/CortexMind/framework/Memory/mem.cpp
