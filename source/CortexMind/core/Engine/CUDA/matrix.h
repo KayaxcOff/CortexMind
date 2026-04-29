@@ -14,7 +14,7 @@ namespace cortex::_fw::cuda {
      * Provides optimized element-wise operations (add, sub, mul, div) and
      * matrix multiplication using cuBLAS (SGEMM).
      */
-    struct Matrix {
+    struct MatrixBroadcast {
         /**
          * @brief Z = Xx + Xy (out-of-place, element-wise)
          */

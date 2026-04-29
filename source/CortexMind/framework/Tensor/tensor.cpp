@@ -332,7 +332,7 @@ MindTensor MindTensor::dot(MindTensor other) {
     }
     #if CXM_IS_CUDA_AVAILABLE
         if (this->device() == deviceType::cuda) {
-            cuda::Matrix::matmul(
+            cuda::MatrixBroadcast::matmul(
                 this->get(), other.get(), output.get(),
                 M, K, N
             );
