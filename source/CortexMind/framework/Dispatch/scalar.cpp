@@ -14,7 +14,7 @@ using namespace cortex::_fw::sys;
 using namespace cortex::_fw::txl;
 using namespace cortex::_fw;
 
-TensorScalarExecutor::TensorScalarExecutor() : d_type(deviceType::host), max_dim(CXM_MAX_COUNT) {}
+TensorScalarExecutor::TensorScalarExecutor() : d_type(deviceType::host), max_dim(CXM_MAX_ITEMS) {}
 
 TensorScalarExecutor::~TensorScalarExecutor() = default;
 

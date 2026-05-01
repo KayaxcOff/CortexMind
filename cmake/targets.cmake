@@ -12,7 +12,9 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Benchmark/pref.cpp
         source/CortexMind/framework/Dispatch/scalar.cpp
         source/CortexMind/framework/Gradient/flow.cpp
+        source/CortexMind/framework/Dispatch/activation.cpp
         source/CortexMind/framework/Gradient/operations.cpp
+        source/CortexMind/framework/Dispatch/reduce.cpp
         source/CortexMind/framework/Memory/mem.cpp
         source/CortexMind/framework/Net/layer.cpp
         source/CortexMind/framework/Net/loss.cpp
