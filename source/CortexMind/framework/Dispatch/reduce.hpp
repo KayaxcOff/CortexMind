@@ -10,31 +10,31 @@
 #include <CortexMind/framework/Tools/params.hpp>
 
 namespace cortex::_fw::txl {
-    class ReduceManager {
+    class ReductionOps {
     public:
-        ReduceManager();
-        ~ReduceManager();
+        explicit ReductionOps(sys::deviceType _d_type);
+        ~ReductionOps();
 
         void SetDevice(sys::deviceType _d_type);
 
         [[nodiscard]]
-        f32 sum(const TensorStorage* __restrict Xx) const;
+        f32 sum(const TensorStorage* __restrict Xx, size_t N) const;
         [[nodiscard]]
-        f32 mean(const TensorStorage* __restrict Xx) const;
+        f32 mean(const TensorStorage* __restrict Xx, size_t N) const;
         [[nodiscard]]
-        f32 var(const TensorStorage* __restrict Xx) const;
+        f32 var(const TensorStorage* __restrict Xx, size_t N) const;
         [[nodiscard]]
-        f32 stdv(const TensorStorage* __restrict Xx) const;
+        f32 stdv(const TensorStorage* __restrict Xx, size_t N) const;
         [[nodiscard]]
-        f32 min(const TensorStorage* __restrict Xx) const;
+        f32 min(const TensorStorage* __restrict Xx, size_t N) const;
         [[nodiscard]]
-        f32 max(const TensorStorage* __restrict Xx) const;
+        f32 max(const TensorStorage* __restrict Xx, size_t N) const;
         [[nodiscard]]
-        f32 norm1(const TensorStorage* __restrict Xx) const;
+        f32 norm1(const TensorStorage* __restrict Xx, size_t N) const;
         [[nodiscard]]
-        f32 norm2(const TensorStorage* __restrict Xx) const;
+        f32 norm2(const TensorStorage* __restrict Xx, size_t N) const;
         [[nodiscard]]
-        f32 dot(const TensorStorage* __restrict Xx, const TensorStorage* __restrict Xy) const;
+        f32 dot(const TensorStorage* __restrict Xx, const TensorStorage* __restrict Xy, size_t N) const;
 
     private:
         sys::deviceType d_type;
