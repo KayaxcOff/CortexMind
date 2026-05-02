@@ -7,9 +7,11 @@
 
 // ---------- net ----------
 #include <CortexMind/net/NeuralNetwork/linear.hpp>
+#include <CortexMind/net/NeuralNetwork/flatten.hpp>
 
-// ---------- runtime ----------
-#include <CortexMind/runtime/compile_flags_check.hpp> // Compile time
+// ---------- platform ----------
+#include <CortexMind/platform/cuda.hpp>
+#include <CortexMind/platform/simd.hpp>
 
 // ---------- tools ----------
 #include <CortexMind/tools/arithmetic_operations.hpp>
