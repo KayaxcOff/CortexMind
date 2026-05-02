@@ -8,13 +8,15 @@ add_library(CortexMind STATIC
         source/CortexMind/core/Engine/STD/activation.cpp
         source/CortexMind/core/Engine/STD/element_wise.cpp
         source/CortexMind/core/Engine/STD/matrix.cpp
+        source/CortexMind/core/Engine/STD/reduce.cpp
         source/CortexMind/core/Engine/STD/scalar.cpp
         source/CortexMind/framework/Benchmark/pref.cpp
-        source/CortexMind/framework/Dispatch/scalar.cpp
-        source/CortexMind/framework/Gradient/flow.cpp
         source/CortexMind/framework/Dispatch/activation.cpp
-        source/CortexMind/framework/Gradient/operations.cpp
         source/CortexMind/framework/Dispatch/reduce.cpp
+        source/CortexMind/framework/Dispatch/scalar.cpp
+        source/CortexMind/framework/Dispatch/wise.cpp
+        source/CortexMind/framework/Gradient/flow.cpp
+        source/CortexMind/framework/Gradient/operations.cpp
         source/CortexMind/framework/Memory/mem.cpp
         source/CortexMind/framework/Net/layer.cpp
         source/CortexMind/framework/Net/loss.cpp
@@ -38,8 +40,6 @@ add_library(CortexMind STATIC
         source/CortexMind/tools/version.cpp
         source/CortexMind/utils/Cast/factory.cpp
         source/CortexMind/utils/DataFrame/frame.cpp
-        ../source/CortexMind/core/Engine/STD/reduce.cpp
-        ../source/CortexMind/framework/Dispatch/wise.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
