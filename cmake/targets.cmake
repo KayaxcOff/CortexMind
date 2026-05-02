@@ -39,6 +39,7 @@ add_library(CortexMind STATIC
         source/CortexMind/utils/Cast/factory.cpp
         source/CortexMind/utils/DataFrame/frame.cpp
         ../source/CortexMind/core/Engine/STD/reduce.cpp
+        ../source/CortexMind/framework/Dispatch/wise.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
