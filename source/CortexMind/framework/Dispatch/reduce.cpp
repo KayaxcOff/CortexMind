@@ -13,7 +13,7 @@ using namespace cortex::_fw::sys;
 using namespace cortex::_fw::txl;
 using namespace cortex::_fw;
 
-ReduceManager::ReduceManager() : d_type(deviceType::host), max_dim(CXM_MAX_ITEMS) {}
+ReduceManager::ReduceManager() : d_type(deviceType::host), max_dim(CXM_THRESHOLD) {}
 
 ReduceManager::~ReduceManager() = default;
 

@@ -14,122 +14,118 @@ using namespace cortex::_fw::sys;
 using namespace cortex::_fw::txl;
 using namespace cortex::_fw;
 
-TensorScalarExecutor::TensorScalarExecutor() : d_type(deviceType::host), max_dim(CXM_MAX_ITEMS) {}
+TensorScalar::TensorScalar(const deviceType _d_type) : d_type(_d_type), max_dim(CXM_THRESHOLD) {}
 
-TensorScalarExecutor::~TensorScalarExecutor() = default;
+TensorScalar::~TensorScalar() = default;
 
-void TensorScalarExecutor::SetDevice(const deviceType _d_type) {
-    this->d_type = _d_type;
-}
-
-void TensorScalarExecutor::addition(const TensorStorage *Xx, const f32 value, TensorStorage *Xz) const {
+void TensorScalar::add(const TensorStorage *Xx, const f32 value, TensorStorage *Xz, const size_t N) const {
     if (this->d_type == deviceType::host) {
-        if (Xx->size() > this->max_dim) {
-            avx2::ScalarOp::add(Xx->data(), value, Xz->data(), Xx->size());
-        } else if (Xx->size() <= this->max_dim) {
-            stl::Scalar::add(Xx->data(), value, Xz->data(), Xx->size());
+        if (N > this->max_dim) {
+            avx2::ScalarOp::add(Xx->data(), value, Xz->data(), N);
+        } else {
+            stl::Scalar::add(Xx->data(), value, Xz->data(), N);
         }
-    } else if (this->d_type == deviceType::cuda) {
+    } else {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::ScalarKernel::add(Xx->data(), value, Xz->data(), Xx->size());
+            cuda::ScalarKernel::add(Xx->data(), value, Xz->data(), N);
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 }
 
-void TensorScalarExecutor::subtraction(const TensorStorage *Xx, const f32 value, TensorStorage *Xz) const {
+void TensorScalar::sub(const TensorStorage *Xx, const f32 value, TensorStorage *Xz, const size_t N) const {
     if (this->d_type == deviceType::host) {
-        if (Xx->size() > this->max_dim) {
-            avx2::ScalarOp::sub(Xx->data(), value, Xz->data(), Xx->size());
-        } else if (Xx->size() <= this->max_dim) {
-            stl::Scalar::sub(Xx->data(), value, Xz->data(), Xx->size());
+        if (N > this->max_dim) {
+            avx2::ScalarOp::sub(Xx->data(), value, Xz->data(), N);
+        } else {
+            stl::Scalar::sub(Xx->data(), value, Xz->data(), N);
         }
-    } else if (this->d_type == deviceType::cuda) {
+    } else {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::ScalarKernel::sub(Xx->data(), value, Xz->data(), Xx->size());
+            cuda::ScalarKernel::sub(Xx->data(), value, Xz->data(), N);
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 }
 
-void TensorScalarExecutor::multiply(const TensorStorage *Xx, const f32 value, TensorStorage *Xz) const {
+void TensorScalar::mul(const TensorStorage *Xx, const f32 value, TensorStorage *Xz, const size_t N) const {
     if (this->d_type == deviceType::host) {
-        if (Xx->size() > this->max_dim) {
-            avx2::ScalarOp::mul(Xx->data(), value, Xz->data(), Xx->size());
-        } else if (Xx->size() <= this->max_dim) {
-            stl::Scalar::mul(Xx->data(), value, Xz->data(), Xx->size());
+        if (N > this->max_dim) {
+            avx2::ScalarOp::mul(Xx->data(), value, Xz->data(), N);
+        } else {
+            stl::Scalar::mul(Xx->data(), value, Xz->data(), N);
         }
-    } else if (this->d_type == deviceType::cuda) {
+    } else {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::ScalarKernel::mul(Xx->data(), value, Xz->data(), Xx->size());
+            cuda::ScalarKernel::mul(Xx->data(), value, Xz->data(), N);
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 }
 
-void TensorScalarExecutor::division(const TensorStorage *Xx, const f32 value, TensorStorage *Xz) const {
+void TensorScalar::div(const TensorStorage *Xx, const f32 value, TensorStorage *Xz, const size_t N) const {
     if (this->d_type == deviceType::host) {
-        if (Xx->size() > this->max_dim) {
-            avx2::ScalarOp::div(Xx->data(), value, Xz->data(), Xx->size());
-        } else if (Xx->size() <= this->max_dim) {
-            stl::Scalar::div(Xx->data(), value, Xz->data(), Xx->size());
+        if (N > this->max_dim) {
+            avx2::ScalarOp::div(Xx->data(), value, Xz->data(), N);
+        } else {
+            stl::Scalar::div(Xx->data(), value, Xz->data(), N);
         }
-    } else if (this->d_type == deviceType::cuda) {
+    } else {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::ScalarKernel::div(Xx->data(), value, Xz->data(), Xx->size());
+            cuda::ScalarKernel::div(Xx->data(), value, Xz->data(), N);
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 }
 
-void TensorScalarExecutor::addition(TensorStorage *Xx, const f32 value) const {
+void TensorScalar::add(TensorStorage *Xx, const f32 value, const size_t N) const {
     if (this->d_type == deviceType::host) {
-        if (Xx->size() > this->max_dim) {
-            avx2::ScalarOp::add(Xx->data(), value, Xx->size());
-        } else if (Xx->size() <= this->max_dim) {
-            stl::Scalar::add(Xx->data(), value, Xx->size());
+        if (N > this->max_dim) {
+            avx2::ScalarOp::add(Xx->data(), value, N);
+        } else {
+            stl::Scalar::add(Xx->data(), value, N);
         }
-    } else if (this->d_type == deviceType::cuda) {
+    } else {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::ScalarKernel::add(Xx->data(), value, Xx->size());
+            cuda::ScalarKernel::add(Xx->data(), value, N);
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 }
 
-void TensorScalarExecutor::subtraction(TensorStorage *Xx, const f32 value) const {
+void TensorScalar::sub(TensorStorage *Xx, const f32 value, const size_t N) const {
     if (this->d_type == deviceType::host) {
-        if (Xx->size() > this->max_dim) {
-            avx2::ScalarOp::sub(Xx->data(), value, Xx->size());
-        } else if (Xx->size() <= this->max_dim) {
-            stl::Scalar::sub(Xx->data(), value, Xx->size());
+        if (N > this->max_dim) {
+            avx2::ScalarOp::sub(Xx->data(), value, N);
+        } else {
+            stl::Scalar::sub(Xx->data(), value, N);
         }
-    } else if (this->d_type == deviceType::cuda) {
+    } else {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::ScalarKernel::sub(Xx->data(), value, Xx->size());
+            cuda::ScalarKernel::sub(Xx->data(), value, N);
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 }
 
-void TensorScalarExecutor::multiply(TensorStorage *Xx, const f32 value) const {
+void TensorScalar::mul(TensorStorage *Xx, const f32 value, const size_t N) const {
     if (this->d_type == deviceType::host) {
-        if (Xx->size() > this->max_dim) {
-            avx2::ScalarOp::mul(Xx->data(), value, Xx->size());
-        } else if (Xx->size() <= this->max_dim) {
-            stl::Scalar::mul(Xx->data(), value, Xx->size());
+        if (N > this->max_dim) {
+            avx2::ScalarOp::mul(Xx->data(), value, N);
+        } else {
+            stl::Scalar::mul(Xx->data(), value, N);
         }
-    } else if (this->d_type == deviceType::cuda) {
+    } else {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::ScalarKernel::mul(Xx->data(), value, Xx->size());
+            cuda::ScalarKernel::mul(Xx->data(), value, N);
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 }
 
-void TensorScalarExecutor::division(TensorStorage *Xx, const f32 value) const {
+void TensorScalar::div(TensorStorage *Xx, const f32 value, const size_t N) const {
     if (this->d_type == deviceType::host) {
-        if (Xx->size() > this->max_dim) {
-            avx2::ScalarOp::div(Xx->data(), value, Xx->size());
-        } else if (Xx->size() <= this->max_dim) {
-            stl::Scalar::div(Xx->data(), value, Xx->size());
+        if (N > this->max_dim) {
+            avx2::ScalarOp::div(Xx->data(), value, N);
+        } else {
+            stl::Scalar::div(Xx->data(), value, N);
         }
-    } else if (this->d_type == deviceType::cuda) {
+    } else {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::ScalarKernel::div(Xx->data(), value, Xx->size());
+            cuda::ScalarKernel::div(Xx->data(), value, N);
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 }

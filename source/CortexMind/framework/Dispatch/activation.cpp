@@ -14,7 +14,7 @@ using namespace cortex::_fw::sys;
 using namespace cortex::_fw::txl;
 using namespace cortex::_fw;
 
-ActivationManager::ActivationManager() : d_type(deviceType::host), max_dim(CXM_MAX_ITEMS) {}
+ActivationManager::ActivationManager() : d_type(deviceType::host), max_dim(CXM_THRESHOLD) {}
 
 ActivationManager::~ActivationManager() = default;
 

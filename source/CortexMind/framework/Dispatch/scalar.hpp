@@ -10,26 +10,24 @@
 #include <CortexMind/framework/Tools/params.hpp>
 
 namespace cortex::_fw::txl {
-    class TensorScalarExecutor {
+    class TensorScalar {
     public:
-        TensorScalarExecutor();
-        ~TensorScalarExecutor();
+        explicit TensorScalar(sys::deviceType _d_type);
+        ~TensorScalar();
 
         void SetDevice(sys::deviceType _d_type);
 
-        void addition(const TensorStorage* __restrict Xx, f32 value, TensorStorage* __restrict Xz) const;
-        void subtraction(const TensorStorage* __restrict Xx, f32 value, TensorStorage* __restrict Xz) const;
-        void multiply(const TensorStorage* __restrict Xx, f32 value, TensorStorage* __restrict Xz) const;
-        void division(const TensorStorage* __restrict Xx, f32 value, TensorStorage* __restrict Xz) const;
+        void add(const TensorStorage* __restrict Xx, f32 value, TensorStorage* __restrict Xz, size_t N) const;
+        void sub(const TensorStorage* __restrict Xx, f32 value, TensorStorage* __restrict Xz, size_t N) const;
+        void mul(const TensorStorage* __restrict Xx, f32 value, TensorStorage* __restrict Xz, size_t N) const;
+        void div(const TensorStorage* __restrict Xx, f32 value, TensorStorage* __restrict Xz, size_t N) const;
 
-        void addition(TensorStorage* Xx, f32 value) const;
-        void subtraction(TensorStorage* Xx, f32 value) const;
-        void multiply(TensorStorage* Xx, f32 value) const;
-        void division(TensorStorage* Xx, f32 value) const;
-
+        void add(TensorStorage* Xx, f32 value, size_t N) const;
+        void sub(TensorStorage* Xx, f32 value, size_t N) const;
+        void mul(TensorStorage* Xx, f32 value, size_t N) const;
+        void div(TensorStorage* Xx, f32 value, size_t N) const;
     private:
         sys::deviceType d_type;
-
         i32 max_dim;
     };
 } //namespace cortex::_fw::txl

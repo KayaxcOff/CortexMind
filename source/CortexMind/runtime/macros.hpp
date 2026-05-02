@@ -21,6 +21,6 @@
 
 #define CXM_MAX_DIMS 4
 
-#define CXM_MAX_ITEMS 7
+#define CXM_THRESHOLD 7
 
 #endif //CORTEXMIND_RUNTIME_MACROS_HPP
