@@ -18,6 +18,10 @@ TensorScalar::TensorScalar(const deviceType _d_type) : d_type(_d_type), max_dim(
 
 TensorScalar::~TensorScalar() = default;
 
+void TensorScalar::SetDevice(const deviceType _d_type) {
+    this->d_type = _d_type;
+}
+
 void TensorScalar::add(const TensorStorage *Xx, const f32 value, TensorStorage *Xz, const size_t N) const {
     if (this->d_type == deviceType::host) {
         if (N > this->max_dim) {
