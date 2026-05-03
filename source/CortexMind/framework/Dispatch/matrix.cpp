@@ -9,7 +9,6 @@
 #if CXM_IS_CUDA_AVAILABLE
     #include <CortexMind/core/Engine/CUDA/matrix.h>
     #include <CortexMind/core/Engine/CUDA/matrix_broadcast.h>
-    #include <CortexMind/core/Engine/CUDA/Kernels/matrix.cuh>
 #endif //#if CXM_IS_CUDA_AVAILABLE
 #include <CortexMind/framework/Tools/tensor_utils.hpp>
 #include <CortexMind/runtime/macros.hpp>

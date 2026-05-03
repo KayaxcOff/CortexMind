@@ -6,6 +6,7 @@
 #define CORTEXMIND_CORE_ENGINE_STD_MATRIX_HPP
 
 #include <CortexMind/framework/Tools/params.hpp>
+#include <CortexMind/core/Tools/broadcast.hpp>
 
 namespace cortex::_fw::stl {
     struct matrix {
