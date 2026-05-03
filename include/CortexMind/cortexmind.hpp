@@ -6,8 +6,7 @@
 #define CORTEXMIND_CORTEXMIND_HPP
 
 // ---------- net ----------
-#include <CortexMind/net/NeuralNetwork/linear.hpp>
-#include <CortexMind/net/NeuralNetwork/flatten.hpp>
+#include <CortexMind/net/NeuralNetwork/dense.hpp>
 
 // ---------- platform ----------
 #include <CortexMind/platform/cuda.hpp>
