@@ -40,6 +40,7 @@ add_library(CortexMind STATIC
         source/CortexMind/tools/version.cpp
         source/CortexMind/utils/Cast/factory.cpp
         source/CortexMind/utils/DataFrame/frame.cpp
+        ../source/CortexMind/framework/Dispatch/matrix.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)

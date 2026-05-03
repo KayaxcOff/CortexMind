@@ -87,18 +87,17 @@ namespace cortex::_fw::cuda::kernels {
         OpType op;
 
         CXM_CUDA_LOOP_1D(i, N) {
-            size_t offset_x = 0;
-            size_t offset_y = 0;
-            size_t offset_z = 0;
-
+            size_t offset_x   = 0;
+            size_t offset_y   = 0;
+            size_t offset_z   = 0;
             size_t linear_idx = i;
 
-            for (int d = 0; d < info.ndim; ++d) {
-                size_t coord = (linear_idx / info.stride_z[d]) % info.shape[d];
-
-                offset_x += coord * info.stride_x[d];
-                offset_y += coord * info.stride_y[d];
-                offset_z += coord * info.stride_z[d];
+            for (int d = info.ndim - 1; d >= 0; --d) {
+                const size_t coord = linear_idx % info.shape[d];
+                offset_x  += coord * info.stride_x[d];
+                offset_y  += coord * info.stride_y[d];
+                offset_z  += coord * info.stride_z[d];
+                linear_idx /= info.shape[d];
             }
 
             Xz[offset_z] = op(Xx[offset_x], Xy[offset_y]);

@@ -33,7 +33,7 @@ MindTensor MindTensor::operator+(const MindTensor &other) const {
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::MatrixBroadcast::add(this->get(), other.get(), output.get(), this->len());
+            cuda::Matrix::add(this->get(), other.get(), output.get(), this->len());
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 
@@ -56,7 +56,7 @@ MindTensor MindTensor::operator-(const MindTensor &other) const {
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::MatrixBroadcast::sub(this->get(), other.get(), output.get(), this->len());
+            cuda::Matrix::sub(this->get(), other.get(), output.get(), this->len());
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 
@@ -78,7 +78,7 @@ MindTensor MindTensor::operator*(const MindTensor &other) const {
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::MatrixBroadcast::mul(this->get(), other.get(), output.get(), this->len());
+            cuda::Matrix::mul(this->get(), other.get(), output.get(), this->len());
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 
@@ -100,7 +100,7 @@ MindTensor MindTensor::operator/(const MindTensor &other) const {
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
-                cuda::MatrixBroadcast::div(this->get(), other.get(), output.get(), this->len());
+                cuda::Matrix::div(this->get(), other.get(), output.get(), this->len());
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 
@@ -120,7 +120,7 @@ MindTensor MindTensor::operator+=(const MindTensor &other) {
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::MatrixBroadcast::add(this->get(), other.get(), this->len());
+            cuda::Matrix::add(this->get(), other.get(), this->len());
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 
@@ -136,7 +136,7 @@ MindTensor MindTensor::operator-=(const MindTensor &other) {
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::MatrixBroadcast::sub(this->get(), other.get(), this->len());
+            cuda::Matrix::sub(this->get(), other.get(), this->len());
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 
@@ -152,7 +152,7 @@ MindTensor MindTensor::operator*=(const MindTensor &other) {
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::MatrixBroadcast::mul(this->get(), other.get(), this->len());
+            cuda::Matrix::mul(this->get(), other.get(), this->len());
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 
@@ -168,7 +168,7 @@ MindTensor MindTensor::operator/=(const MindTensor &other) {
     }
     if (this->storage_->device() == deviceType::cuda) {
         #if CXM_IS_CUDA_AVAILABLE
-            cuda::MatrixBroadcast::div(this->get(), other.get(), this->len());
+            cuda::Matrix::div(this->get(), other.get(), this->len());
         #endif //#if CXM_IS_CUDA_AVAILABLE
     }
 

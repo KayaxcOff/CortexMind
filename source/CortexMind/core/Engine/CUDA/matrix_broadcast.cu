@@ -13,18 +13,18 @@
 using namespace cortex::_fw::cuda;
 using namespace cortex::_fw;
 
-void MatrixBroadcast::add(const f32* Xx, const f32* Xy, f32* Xz, const size_t N, const BroadcastInfo* info_ptr) {
-    kernels::matrix_broadcast<ops::Addition><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx, Xy, Xz, N, *info_ptr);
+void MatrixBroadcast::add(const f32* Xx, const f32* Xy, f32* Xz, const size_t N, const BroadcastInfo& info_ptr) {
+    kernels::matrix_broadcast<ops::Addition><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx, Xy, Xz, N, info_ptr);
 }
 
-void MatrixBroadcast::sub(const f32* Xx, const f32* Xy, f32* Xz, const size_t N, const BroadcastInfo* info_ptr) {
-    kernels::matrix_broadcast<ops::Subtraction><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx, Xy, Xz, N, *info_ptr);
+void MatrixBroadcast::sub(const f32* Xx, const f32* Xy, f32* Xz, const size_t N, const BroadcastInfo& info_ptr) {
+    kernels::matrix_broadcast<ops::Subtraction><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx, Xy, Xz, N, info_ptr);
 }
 
-void MatrixBroadcast::mul(const f32* Xx, const f32* Xy, f32* Xz, const size_t N, const BroadcastInfo* info_ptr) {
+void MatrixBroadcast::mul(const f32* Xx, const f32* Xy, f32* Xz, const size_t N, const BroadcastInfo& info_ptr) {
     kernels::matrix_broadcast<ops::Multiplication><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx, Xy, Xz, N, *info_ptr);
 }
 
-void MatrixBroadcast::div(const f32* Xx, const f32* Xy, f32* Xz, const size_t N, const BroadcastInfo* info_ptr) {
-    kernels::matrix_broadcast<ops::Division><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx, Xy, Xz, N, *info_ptr);
+void MatrixBroadcast::div(const f32* Xx, const f32* Xy, f32* Xz, const size_t N, const BroadcastInfo& info_ptr) {
+    kernels::matrix_broadcast<ops::Division><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx, Xy, Xz, N, info_ptr);
 }

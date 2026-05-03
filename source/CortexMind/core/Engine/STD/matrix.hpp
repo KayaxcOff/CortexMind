@@ -20,6 +20,30 @@ namespace cortex::_fw::stl {
         static void sub(f32* Xx, const f32* __restrict Xy, size_t N);
         static void mul(f32* Xx, const f32* __restrict Xy, size_t N);
         static void div(f32* Xx, const f32* __restrict Xy, size_t N);
+
+        template<typename OpScalar>
+        static void broadcast(const f32* Xx, const f32* Xy, f32* Xz, const BroadcastInfo& info, OpScalar op) {
+            size_t numel = 1;
+            for (int d = 0; d < info.ndim; ++d)
+                numel *= info.shape[d];
+
+            for (size_t i = 0; i < numel; ++i) {
+                size_t offset_x  = 0;
+                size_t offset_y  = 0;
+                size_t offset_z  = 0;
+                size_t linear_idx = i;
+
+                for (int d = info.ndim - 1; d >= 0; --d) {
+                    const size_t coord = linear_idx % info.shape[d];
+                    offset_x  += coord * info.stride_x[d];
+                    offset_y  += coord * info.stride_y[d];
+                    offset_z  += coord * info.stride_z[d];
+                    linear_idx /= info.shape[d];
+                }
+
+                Xz[offset_z] = op(Xx[offset_x], Xy[offset_y]);
+            }
+        }
     };
 } //namespace cortex::_fw::stl
 

@@ -10,10 +10,10 @@
 
 namespace cortex::_fw::cuda {
     struct MatrixBroadcast {
-        static void add(const f32* Xx, const f32* Xy, f32* Xz, size_t N, const BroadcastInfo* info_ptr = nullptr);
-        static void sub(const f32* Xx, const f32* Xy, f32* Xz, size_t N, const BroadcastInfo* info_ptr = nullptr);
-        static void mul(const f32* Xx, const f32* Xy, f32* Xz, size_t N, const BroadcastInfo* info_ptr = nullptr);
-        static void div(const f32* Xx, const f32* Xy, f32* Xz, size_t N, const BroadcastInfo* info_ptr = nullptr);
+        static void add(const f32* Xx, const f32* Xy, f32* Xz, size_t N, const BroadcastInfo& info_ptr);
+        static void sub(const f32* Xx, const f32* Xy, f32* Xz, size_t N, const BroadcastInfo& info_ptr);
+        static void mul(const f32* Xx, const f32* Xy, f32* Xz, size_t N, const BroadcastInfo& info_ptr);
+        static void div(const f32* Xx, const f32* Xy, f32* Xz, size_t N, const BroadcastInfo& info_ptr);
     };
 } //namespace cortex::_fw::cuda
 
