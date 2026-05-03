@@ -12,6 +12,7 @@ add_library(CortexMind STATIC
         source/CortexMind/core/Engine/STD/scalar.cpp
         source/CortexMind/framework/Benchmark/pref.cpp
         source/CortexMind/framework/Dispatch/activation.cpp
+        source/CortexMind/framework/Dispatch/matrix.cpp
         source/CortexMind/framework/Dispatch/reduce.cpp
         source/CortexMind/framework/Dispatch/scalar.cpp
         source/CortexMind/framework/Dispatch/wise.cpp
@@ -40,7 +41,6 @@ add_library(CortexMind STATIC
         source/CortexMind/tools/version.cpp
         source/CortexMind/utils/Cast/factory.cpp
         source/CortexMind/utils/DataFrame/frame.cpp
-        ../source/CortexMind/framework/Dispatch/matrix.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
