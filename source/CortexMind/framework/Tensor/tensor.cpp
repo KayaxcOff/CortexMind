@@ -137,6 +137,10 @@ deviceType MindTensor::device() const {
     return this->storage_->device();
 }
 
+bool MindTensor::empty() {
+    return this->storage_->isEmpty();
+}
+
 size_t MindTensor::len() const {
     return compute_numel(this->storage_->shape);
 }
@@ -267,6 +271,14 @@ void MindTensor::backward() const {
 void MindTensor::backward(MindTensor &other) const {
     CXM_ASSERT(this->flow_ != nullptr, "cortex::_fw::MindTensor::backward()", "no gradient function attached | The one who I fucked his blind eye");
     this->flow_->backward(&other);
+}
+
+void MindTensor::set_flow(const std::shared_ptr<GradientFlow> &_flow) {
+    this->flow_ = _flow;
+}
+
+void MindTensor::set_grad(const MindTensor &_grad) {
+    this->gradient_ = std::make_unique<MindTensor>(_grad);
 }
 
 MindTensor MindTensor::to(const deviceType &d_type) {
