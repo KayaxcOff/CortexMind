@@ -210,10 +210,10 @@ MindTensor &MindTensor::operator=(MindTensor &&other) noexcept {
     this->flow_ = std::move(other.flow_);
     this->gradient_ = std::move(other.gradient_);
 
-    this->matrix.SetDevice(other.device());
-    this->scalar.SetDevice(other.device());
-    this->reduction_ops.SetDevice(other.device());
-    this->wise.SetDevice(other.device());
+    this->matrix.SetDevice(this->storage_->device());
+    this->scalar.SetDevice(this->storage_->device());
+    this->reduction_ops.SetDevice(this->storage_->device());
+    this->wise.SetDevice(this->storage_->device());
 
     other.storage_ = nullptr;
     other.flow_ = nullptr;
