@@ -15,6 +15,8 @@ namespace cortex::_fw::txl {
         explicit Wise(sys::deviceType _d_type);
         ~Wise();
 
+        void SetDevice(sys::deviceType _d_type);
+
         void pow(const TensorStorage* __restrict Xx, f32 exp, TensorStorage* __restrict Xz, size_t N) const;
         void sqrt(const TensorStorage* __restrict Xx, TensorStorage* __restrict Xz, size_t N) const;
         void log(const TensorStorage* __restrict Xx, TensorStorage* __restrict Xz, size_t N) const;

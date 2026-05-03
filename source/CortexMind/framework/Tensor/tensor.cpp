@@ -4,13 +4,7 @@
 
 #include "CortexMind/framework/Tensor/tensor.hpp"
 #include <CortexMind/core/Engine/AVX2/functions.hpp>
-#include <CortexMind/core/Engine/AVX2/matrix.hpp>
-#include <CortexMind/core/Engine/AVX2/reduce.hpp>
-#include <CortexMind/core/Engine/AVX2/wise.hpp>
 #if CXM_IS_CUDA_AVAILABLE
-    #include <CortexMind/core/Engine/CUDA/elem_wise.h>
-    #include <CortexMind/core/Engine/CUDA/matrix.h>
-    #include <CortexMind/core/Engine/CUDA/reduce.h>
     #include <CortexMind/core/Engine/CUDA/scalar.h>
     #include <CortexMind/core/Tools/utils.cuh>
     #include <CortexMind/framework/Memory/transform.hpp>
@@ -28,13 +22,13 @@ using namespace cortex::_fw::runtime;
 using namespace cortex::_fw::sys;
 using namespace cortex::_fw;
 
-MindTensor::MindTensor() : m_grad_flag(false) {
+MindTensor::MindTensor() : m_grad_flag(false), matrix(deviceType::host), reduction_ops(deviceType::host), scalar(deviceType::host), wise(deviceType::host) {
     this->storage_ = nullptr;
     this->flow_ = nullptr;
     this->gradient_ = nullptr;
 }
 
-MindTensor::MindTensor(const std::vector<i64> &shape, const deviceType device, const bool requires_grad) : m_grad_flag(requires_grad) {
+MindTensor::MindTensor(const std::vector<i64> &shape, const deviceType device, const bool requires_grad) : m_grad_flag(requires_grad), matrix(device), reduction_ops(device), scalar(device), wise(device) {
     this->storage_ = std::make_shared<TensorStorage>(compute_numel(shape), device);
 
     this->storage_->shape = shape;
@@ -49,7 +43,7 @@ MindTensor::MindTensor(const std::vector<i64> &shape, const deviceType device, c
 
 MindTensor::MindTensor(const std::initializer_list<i64> shape, const deviceType device, const bool requires_grad) : MindTensor(std::vector(shape), device, requires_grad) {}
 
-MindTensor::MindTensor(const TensorStorage &tensor_storage, const bool requires_grad) : m_grad_flag(requires_grad) {
+MindTensor::MindTensor(const TensorStorage &tensor_storage, const bool requires_grad) : m_grad_flag(requires_grad), matrix(tensor_storage.device()), reduction_ops(tensor_storage.device()), scalar(tensor_storage.device()), wise(tensor_storage.device()) {
     this->storage_ = std::make_shared<TensorStorage>(tensor_storage);
 
     if (this->m_grad_flag) {
@@ -58,7 +52,7 @@ MindTensor::MindTensor(const TensorStorage &tensor_storage, const bool requires_
     }
 }
 
-MindTensor::MindTensor(const std::vector<i64> &shape, const f32 *data, const deviceType device, const bool requires_grad) : m_grad_flag(requires_grad) {
+MindTensor::MindTensor(const std::vector<i64> &shape, const f32 *data, const deviceType device, const bool requires_grad) : m_grad_flag(requires_grad), matrix(device), reduction_ops(device), scalar(device), wise(device) {
     this->storage_ = std::make_shared<TensorStorage>(compute_numel(shape), device);
 
     this->storage_->shape = shape;
@@ -84,13 +78,13 @@ MindTensor::MindTensor(const std::vector<i64> &shape, const f32 *data, const dev
     }
 }
 
-MindTensor::MindTensor(const TensorStorage &storage, const TensorStorage &grad_storage, const std::shared_ptr<GradientFlow>& gradient_flow) : m_grad_flag(true) {
+MindTensor::MindTensor(const TensorStorage &storage, const TensorStorage &grad_storage, const std::shared_ptr<GradientFlow>& gradient_flow) : m_grad_flag(true), matrix(storage.device()), reduction_ops(storage.device()), scalar(storage.device()), wise(storage.device()) {
     this->storage_ = std::make_shared<TensorStorage>(storage);
     this->gradient_ = std::make_unique<MindTensor>(grad_storage);
     this->flow_ = gradient_flow;
 }
 
-MindTensor::MindTensor(std::shared_ptr<TensorStorage> tensor_storage, const std::shared_ptr<TensorStorage>& grad_storage, std::shared_ptr<GradientFlow> gradient_flow) : m_grad_flag(true) {
+MindTensor::MindTensor(std::shared_ptr<TensorStorage> tensor_storage, const std::shared_ptr<TensorStorage>& grad_storage, std::shared_ptr<GradientFlow> gradient_flow) : m_grad_flag(true), matrix(tensor_storage->device()), reduction_ops(tensor_storage->device()), scalar(tensor_storage->device()), wise(tensor_storage->device()) {
     this->storage_ = std::move(tensor_storage);
 
     this->gradient_ = std::make_unique<MindTensor>();
@@ -100,7 +94,7 @@ MindTensor::MindTensor(std::shared_ptr<TensorStorage> tensor_storage, const std:
     this->flow_ = std::move(gradient_flow);
 }
 
-MindTensor::MindTensor(const MindTensor &other) : m_grad_flag(other.m_grad_flag) {
+MindTensor::MindTensor(const MindTensor &other) : m_grad_flag(other.m_grad_flag), matrix(other.device()), reduction_ops(other.device()), scalar(other.device()), wise(other.device()) {
     this->storage_ = other.storage_;
 
     this->flow_ = other.flow_;
@@ -111,7 +105,7 @@ MindTensor::MindTensor(const MindTensor &other) : m_grad_flag(other.m_grad_flag)
     }
 }
 
-MindTensor::MindTensor(MindTensor &&other) noexcept : m_grad_flag(other.m_grad_flag) {
+MindTensor::MindTensor(MindTensor &&other) noexcept : m_grad_flag(other.m_grad_flag), matrix(other.device()), reduction_ops(other.device()), scalar(other.device()), wise(other.device()) {
     this->storage_ = std::move(other.storage_);
 
     this->flow_ = std::move(other.flow_);
@@ -156,53 +150,23 @@ bool MindTensor::empty() const {
 }
 
 f32 MindTensor::mean() const {
-    #if CXM_IS_CUDA_AVAILABLE
-        if (this->storage_->device() == deviceType::cuda) {
-            cuda::ReduceOp reduce_op;
-            return reduce_op.mean(this->storage_->data(), this->len());
-        }
-    #endif //#if CXM_IS_CUDA_AVAILABLE
-    return avx2::reduce::mean(this->storage_->data(), this->len());
+    return this->reduction_ops.mean(this->storage_.get(), this->len());
 }
 
 f32 MindTensor::variance() const {
-    #if CXM_IS_CUDA_AVAILABLE
-        if (this->storage_->device() == deviceType::cuda) {
-            cuda::ReduceOp reduce_op;
-            return reduce_op.var(this->storage_->data(), this->len());
-        }
-    #endif //#if CXM_IS_CUDA_AVAILABLE
-    return avx2::reduce::var(this->storage_->data(), this->len());
+    return this->reduction_ops.mean(this->storage_.get(), this->len());
 }
 
 f32 MindTensor::stdv() const {
-    #if CXM_IS_CUDA_AVAILABLE
-        if (this->storage_->device() == deviceType::cuda) {
-            cuda::ReduceOp reduce_op;
-            return reduce_op.std(this->storage_->data(), this->len());
-        }
-    #endif //#if CXM_IS_CUDA_AVAILABLE
-    return avx2::reduce::std(this->storage_->data(), this->len());
+    return this->reduction_ops.stdv(this->storage_.get(), this->len());
 }
 
 f32 MindTensor::max() const {
-    #if CXM_IS_CUDA_AVAILABLE
-        if (this->storage_->device() == deviceType::cuda) {
-            cuda::ReduceOp reduce_op;
-            return reduce_op.max(this->storage_->data(), this->len());
-        }
-    #endif //#if CXM_IS_CUDA_AVAILABLE
-    return avx2::reduce::max(this->storage_->data(), this->len());
+    return this->reduction_ops.max(this->storage_.get(), this->len());
 }
 
 f32 MindTensor::min() const {
-    #if CXM_IS_CUDA_AVAILABLE
-        if (this->storage_->device() == deviceType::cuda) {
-            cuda::ReduceOp reduce_op;
-            return reduce_op.min(this->storage_->data(), this->len());
-        }
-    #endif //#if CXM_IS_CUDA_AVAILABLE
-    return avx2::reduce::min(this->storage_->data(), this->len());
+    return this->reduction_ops.min(this->storage_.get(), this->len());
 }
 
 void MindTensor::ones() const {
@@ -307,10 +271,16 @@ void MindTensor::backward(MindTensor &other) const {
 
 MindTensor MindTensor::to(const deviceType &d_type) {
     this->storage_->setDevice(d_type);
+
+    this->matrix.SetDevice(d_type);
+    this->scalar.SetDevice(d_type);
+    this->reduction_ops.SetDevice(d_type);
+    this->wise.SetDevice(d_type);
+
     return *this;
 }
 
-MindTensor MindTensor::dot(MindTensor other) {
+MindTensor MindTensor::dot(const MindTensor& other) {
     CXM_ASSERT(this->storage_->shape.size() == 2 && other.storage_->shape.size() == 2,
         "cortex::_fw::MindTensor::dot()", "Both tensors must be 2D");
     CXM_ASSERT(this->storage_->shape[1] == other.storage_->shape[0],
@@ -324,20 +294,7 @@ MindTensor MindTensor::dot(MindTensor other) {
 
     MindTensor output({M, N}, this->device(), this->m_grad_flag && other.m_grad_flag);
 
-    if (this->device() == deviceType::host) {
-        avx2::matrix_t::matmul(
-            this->get(), other.get(), output.get(),
-            M, K, N
-        );
-    }
-    #if CXM_IS_CUDA_AVAILABLE
-        if (this->device() == deviceType::cuda) {
-            cuda::Matrix::matmul(
-                this->get(), other.get(), output.get(),
-                M, K, N
-            );
-        }
-    #endif //#if CXM_IS_CUDA_AVAILABLE
+    this->matrix.matmul(this->storage_.get(), other.storage_.get(), output.storage_.get(), M, K, N);
 
     if (output.m_grad_flag) {
         output.flow_ = std::make_shared<meta::dot>(this->storage_, this->gradient_->storage_, other.storage_, other.gradient_->storage_, this->flow_, other.flow_);
@@ -349,16 +306,7 @@ MindTensor MindTensor::dot(MindTensor other) {
 MindTensor MindTensor::pow(const f32 exp) {
     MindTensor output(this->storage_->shape, this->storage_->device(), this->m_grad_flag);
 
-    if (this->storage_->device() == deviceType::host) {
-        avx2::wise::pow(this->get(), exp, output.get(), this->len());
-    }
-    if (this->storage_->device() == deviceType::cuda) {
-        #if CXM_IS_CUDA_AVAILABLE
-            if (this->device() == deviceType::cuda) {
-                cuda::ElementWise::pow(this->get(), exp, output.get(), this->len());
-            }
-        #endif //#if CXM_IS_CUDA_AVAILABLE
-    }
+    this->wise.pow(this->storage_.get(), exp, output.storage_.get(), this->len());
 
     if (output.m_grad_flag) {
         output.flow_ = std::make_shared<meta::pow>(this->storage_, this->gradient_->storage_, this->flow_, exp);
@@ -370,16 +318,7 @@ MindTensor MindTensor::pow(const f32 exp) {
 MindTensor MindTensor::sqrt() {
     MindTensor output(this->storage_->shape, this->storage_->device(), this->m_grad_flag);
 
-    if (this->storage_->device() == deviceType::host) {
-        avx2::wise::square(this->get(), output.get(), this->len());
-    }
-    if (this->storage_->device() == deviceType::cuda) {
-        #if CXM_IS_CUDA_AVAILABLE
-            if (this->device() == deviceType::cuda) {
-                cuda::ElementWise::sqrt(this->get(), output.get(), this->len());
-            }
-        #endif //#if CXM_IS_CUDA_AVAILABLE
-    }
+    this->wise.sqrt(this->storage_.get(), output.storage_.get(), this->len());
 
     if (output.m_grad_flag) {
         output.flow_ = std::make_shared<meta::pow>(this->storage_, this->gradient_->storage_, this->flow_, 0.5f);
@@ -391,16 +330,7 @@ MindTensor MindTensor::sqrt() {
 MindTensor MindTensor::log() {
     MindTensor output(this->storage_->shape, this->storage_->device(), this->m_grad_flag);
 
-    if (this->storage_->device() == deviceType::host) {
-        avx2::wise::log(this->get(), output.get(), this->len());
-    }
-    if (this->storage_->device() == deviceType::cuda) {
-        #if CXM_IS_CUDA_AVAILABLE
-            if (this->device() == deviceType::cuda) {
-                cuda::ElementWise::log(this->get(), output.get(), this->len());
-            }
-        #endif //#if CXM_IS_CUDA_AVAILABLE
-    }
+    this->wise.log(this->storage_.get(), output.storage_.get(), this->len());
 
     if (output.m_grad_flag) {
         output.flow_ = std::make_shared<meta::log>(this->storage_, this->gradient_->storage_, this->flow_);
@@ -412,16 +342,7 @@ MindTensor MindTensor::log() {
 MindTensor MindTensor::exp() {
     MindTensor output(this->storage_->shape, this->storage_->device(), this->m_grad_flag);
 
-    if (this->storage_->device() == deviceType::host) {
-        avx2::wise::exp(this->get(), output.get(), this->len());
-    }
-    if (this->storage_->device() == deviceType::cuda) {
-        #if CXM_IS_CUDA_AVAILABLE
-            if (this->device() == deviceType::cuda) {
-                cuda::ElementWise::log(this->get(), output.get(), this->len());
-            }
-        #endif //#if CXM_IS_CUDA_AVAILABLE
-    }
+    this->wise.exp(this->storage_.get(), output.storage_.get(), this->len());
 
     if (output.m_grad_flag) {
         output.flow_ = std::make_shared<meta::exp>(this->storage_, this->gradient_->storage_, this->flow_);
@@ -445,16 +366,7 @@ MindTensor MindTensor::transpose() const {
 MindTensor MindTensor::sum() const {
     MindTensor output({1}, this->device(), this->m_grad_flag);
 
-    #if CXM_IS_CUDA_AVAILABLE
-        if (this->device() == deviceType::cuda) {
-            cuda::ReduceOp reduce_op;
-            const f32 result = reduce_op.sum(this->get(), this->len());
-            output.fill(result);
-            return output;
-        }
-    #endif //#if CXM_IS_CUDA_AVAILABLE
-
-    const f32 result = avx2::reduce::sum(this->get(), this->len());
+    const f32 result = this->reduction_ops.sum(this->storage_.get(), this->len());
     output.fill(result);
 
     if (output.m_grad_flag) {

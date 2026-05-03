@@ -5,6 +5,10 @@
 #ifndef CORTEXMIND_FRAMEWORK_TENSOR_TENSOR_HPP
 #define CORTEXMIND_FRAMEWORK_TENSOR_TENSOR_HPP
 
+#include <CortexMind/framework/Dispatch/matrix.hpp>
+#include <CortexMind/framework/Dispatch/reduce.hpp>
+#include <CortexMind/framework/Dispatch/scalar.hpp>
+#include <CortexMind/framework/Dispatch/wise.hpp>
 #include <CortexMind/framework/Memory/device.hpp>
 #include <CortexMind/framework/Gradient/flow.hpp>
 #include <CortexMind/framework/Tools/params.hpp>
@@ -145,7 +149,7 @@ namespace cortex::_fw {
         [[nodiscard]]
         MindTensor to(const sys::deviceType& d_type);
         [[nodiscard]]
-        MindTensor dot(MindTensor other);
+        MindTensor dot(const MindTensor& other);
         [[nodiscard]]
         MindTensor pow(f32 exp = 2);
         [[nodiscard]]
@@ -200,6 +204,11 @@ namespace cortex::_fw {
         std::unique_ptr<MindTensor> gradient_;
 
         bool m_grad_flag;
+
+        txl::MatrixExecutor matrix;
+        txl::ReductionOps reduction_ops;
+        txl::TensorScalar scalar;
+        txl::Wise wise;
     };
 } //namespace cortex::_fw
 

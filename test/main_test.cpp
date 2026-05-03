@@ -8,12 +8,13 @@
 using namespace cortex;
 
 int main() {
-    const tensor x({2, 2});
-    x.rand(2, 5);
+    const tensor x1({2, 2});
+    const tensor x2({2, 2});
 
-    std::cout << "Tensor\n" << x << std::endl;
-    std::cout << "--- Tensor Info ----" << std::endl;
-    describe(x);
+    x1.rand();
+    x2.rand();
+
+    std::cout << x1 + x2 << std::endl;
 
     return 0;
 }
