@@ -75,16 +75,22 @@ BroadcastInfo cortex::_fw::compute_broadcast(const std::vector<i64> &shape_x, co
         info.stride_z[i] = info.stride_z[i + 1] * info.shape[i + 1];
     }
 
+    size_t current_stride_x = 1;
     for (size_t i = 0; i < ndim; ++i) {
         const size_t ix = ndim - 1 - i;
         const size_t dx = (i < ndim_x) ? static_cast<size_t>(shape_x[ndim_x - 1 - i]) : 1;
-        info.stride_x[ix] = (dx == 1 && info.shape[ix] != 1) ? 0 : info.stride_z[ix];
+
+        info.stride_x[ix] = (dx == 1 && info.shape[ix] != 1) ? 0 : current_stride_x;
+        current_stride_x *= dx;
     }
 
+    size_t current_stride_y = 1;
     for (size_t i = 0; i < ndim; ++i) {
         const size_t ix = ndim - 1 - i;
         const size_t dy = (i < ndim_y) ? static_cast<size_t>(shape_y[ndim_y - 1 - i]) : 1;
-        info.stride_y[ix] = (dy == 1 && info.shape[ix] != 1) ? 0 : info.stride_z[ix];
+
+        info.stride_y[ix] = (dy == 1 && info.shape[ix] != 1) ? 0 : current_stride_y;
+        current_stride_y *= dy;
     }
 
     return info;

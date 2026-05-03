@@ -60,8 +60,8 @@ namespace cortex::_fw::avx2 {
         template <typename OpScalar>
         static void generic_broadcast(const f32* Xx, const f32* Xy, f32* Xz, const BroadcastInfo& info, OpScalar op_scalar) {
             size_t numel = 1;
-            for (const auto item : info.shape) {
-                numel *= item;
+            for (i32 d = 0; d < info.ndim; ++d) {
+                numel *= info.shape[d];
             }
 
             for (size_t i = 0; i < numel; ++i) {
@@ -70,7 +70,7 @@ namespace cortex::_fw::avx2 {
                 size_t offset_z = 0;
 
                 size_t linear_idx = i;
-                for (int d = info.ndim - 1; d >= 0; --d) {
+                for (i32 d = info.ndim - 1; d >= 0; --d) {
                     const size_t coord = linear_idx % info.shape[d];
                     offset_x += coord * info.stride_x[d];
                     offset_y += coord * info.stride_y[d];
