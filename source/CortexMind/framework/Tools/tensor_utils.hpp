@@ -5,6 +5,7 @@
 #ifndef CORTEXMIND_FRAMEWORK_TOOLS_TENSOR_UTILS_HPP
 #define CORTEXMIND_FRAMEWORK_TOOLS_TENSOR_UTILS_HPP
 
+#include <CortexMind/core/Tools/broadcast.hpp>
 #include <CortexMind/framework/Tools/params.hpp>
 #include <vector>
 
@@ -49,6 +50,33 @@ namespace cortex::_fw {
      */
     [[nodiscard]]
     bool is_contiguous(const std::vector<i64>& shape, const std::vector<i64>& stride);
+
+    /**
+     * @brief Checks if two shapes are broadcastable and computes BroadcastInfo.
+     *
+     * Follows NumPy broadcasting rules:
+     * - Shapes are aligned from the right
+     * - A dimension of 1 can be broadcast to any size
+     * - Missing dimensions are treated as 1
+     *
+     * @param shape_x Shape of first tensor
+     * @param shape_y Shape of second tensor
+     * @return BroadcastInfo containing output shape and strides
+     */
+    [[nodiscard]]
+    BroadcastInfo compute_broadcast(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
+
+    /**
+     * @brief Checks if two shapes are equal (no broadcast needed).
+     */
+    [[nodiscard]]
+    bool shapes_equal(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
+
+    /**
+     * @brief Checks if two shapes are broadcastable without computing full info.
+     */
+    [[nodiscard]]
+    bool is_broadcastable(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
 } //namespace cortex::_fw
 
 #endif //CORTEXMIND_FRAMEWORK_TOOLS_TENSOR_UTILS_HPP
