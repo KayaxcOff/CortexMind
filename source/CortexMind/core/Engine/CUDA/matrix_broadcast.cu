@@ -22,7 +22,7 @@ void MatrixBroadcast::sub(const f32* Xx, const f32* Xy, f32* Xz, const size_t N,
 }
 
 void MatrixBroadcast::mul(const f32* Xx, const f32* Xy, f32* Xz, const size_t N, const BroadcastInfo& info_ptr) {
-    kernels::matrix_broadcast<ops::Multiplication><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx, Xy, Xz, N, *info_ptr);
+    kernels::matrix_broadcast<ops::Multiplication><<<grid1d(N), BLOCK_SIZE_1D>>>(Xx, Xy, Xz, N, info_ptr);
 }
 
 void MatrixBroadcast::div(const f32* Xx, const f32* Xy, f32* Xz, const size_t N, const BroadcastInfo& info_ptr) {
