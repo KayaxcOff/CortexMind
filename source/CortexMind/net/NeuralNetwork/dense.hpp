@@ -49,8 +49,6 @@ namespace cortex::nn {
     private:
         tensor weight;
         tensor bias;
-
-        int64 INPUT_DIM, OUTPUT_DIM;
     };
 } //namespace cortex::nn
 

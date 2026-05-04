@@ -9,11 +9,11 @@ using namespace cortex::nn;
 using namespace cortex::_fw;
 using namespace cortex;
 
-Dense::Dense(const int64 in_dim, const int64 out_dim, const sys::deviceType d_type) : LayerBase("Dense"), INPUT_DIM(in_dim), OUTPUT_DIM(out_dim) {
-    this->weight = tensor({this->INPUT_DIM, this->OUTPUT_DIM}, d_type, true);
-    this->bias = tensor({1, this->OUTPUT_DIM}, d_type, true);
+Dense::Dense(const int64 in_dim, const int64 out_dim, const sys::deviceType d_type) : LayerBase("Dense")  {
+    this->weight = tensor({in_dim, out_dim}, d_type, true);
+    this->bias = tensor({1, in_dim}, d_type, true);
     //Xavier initialization
-    auto limit = static_cast<float32>(std::sqrt(6.0 / static_cast<float64>(this->INPUT_DIM + this->OUTPUT_DIM)));
+    auto limit = static_cast<float32>(std::sqrt(6.0 / static_cast<float64>(in_dim + out_dim)));
 
     this->weight.rand(-limit, limit);
     this->bias.zero();
