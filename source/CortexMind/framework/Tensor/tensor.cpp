@@ -309,7 +309,7 @@ MindTensor MindTensor::dot(const MindTensor& other) {
     this->matrix.matmul(this->storage_.get(), other.storage_.get(), output.storage_.get(), M, K, N);
 
     if (output.m_grad_flag) {
-        output.flow_ = std::make_shared<meta::dot>(this->storage_, this->gradient_->storage_, other.storage_, other.gradient_->storage_, this->flow_, other.flow_);
+        output.flow_ = std::make_shared<meta::dot>(this->storage_, other.storage_, this->gradient_->storage_, other.gradient_->storage_, this->flow_, other.flow_);
     }
 
     return output;
