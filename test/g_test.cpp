@@ -26,3 +26,29 @@ TEST(DenseTest, DebugShape) {
 
     std::cout << "shape size: " << s.size() << std::endl;
 }
+
+TEST(DenseTest, BackwardPass) {
+    cortex::nn::Dense layer(2, 2, cortex::host);
+
+    cortex::tensor input({1, 2}, cortex::host, true);
+    input.rand();
+
+    cortex::tensor output = layer.forward(input);
+    output.sum().backward();
+
+    const auto grads = layer.getGradient();
+
+    EXPECT_NE(grads[0].get().mean(), 0.0f);
+}
+
+/*
+ * output:
+ * C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_G_TEST.exe --gtest_color=no
+ * Testing started at 16:27 ...
+ * Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
+ * C:\software\Cpp\projects\CortexMind\test\g_test.cpp(41): error: Expected: (grads[0].get().mean()) != (0.0f), actual: 0 vs 0
+
+
+
+ * Process finished with exit code 1
+ */
