@@ -252,7 +252,7 @@ void dot::backward(MindTensor* _grad) {
 }
 
 // pow_op
-pow::pow(const std::weak_ptr<TensorStorage> &tx_stor, const std::weak_ptr<TensorStorage> &tx_grad_stor, const std::weak_ptr<GradientFlow> &tx_flow, f32 exp) : GradientFlow(8), exp(exp) {
+pow::pow(const std::weak_ptr<TensorStorage> &tx_stor, const std::weak_ptr<TensorStorage> &tx_grad_stor, const std::weak_ptr<GradientFlow> &tx_flow, const f32 exp) : GradientFlow(8), exp(exp) {
     this->tx_stor = tx_stor;
     this->tx_grad_stor = tx_grad_stor;
     this->tx_flow = tx_flow;
