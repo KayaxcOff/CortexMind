@@ -20,11 +20,11 @@ addition::~addition() {
 
 void addition::backward(MindTensor *_grad) {
     if (this->tx->isGradRequired()) {
-        this->tx->grad() += *(_grad);
+        this->tx->grad() += (*_grad);
         this->tx->backward(this->tx->grad());
     }
     if (this->ty->isGradRequired()) {
-        this->ty->grad() += *(_grad);
+        this->ty->grad() += (*_grad);
         this->ty->backward(this->ty->grad());
     }
 }
@@ -41,11 +41,11 @@ subtraction::~subtraction() {
 
 void subtraction::backward(MindTensor *_grad) {
     if (this->tx->isGradRequired()) {
-        this->tx->grad() += *(_grad);
+        this->tx->grad() += (*_grad);
         this->tx->backward(this->tx->grad());
     }
     if (this->ty->isGradRequired()) {
-        this->ty->grad() -= *(_grad);
+        this->ty->grad() -= (*_grad);
         this->ty->backward(this->ty->grad());
     }
 }
@@ -62,11 +62,11 @@ multiply::~multiply() {
 
 void multiply::backward(MindTensor *_grad) {
     if (this->tx->isGradRequired()) {
-        this->tx->grad() += *(_grad) * (*this->ty);
+        this->tx->grad() += (*_grad) * (*this->ty);
         this->tx->backward(this->tx->grad());
     }
     if (this->ty->isGradRequired()) {
-        this->ty->grad() += *(_grad) * (*this->tx);
+        this->ty->grad() += (*_grad) * (*this->tx);
         this->ty->backward(this->ty->grad());
     }
 }
@@ -83,7 +83,7 @@ division::~division() {
 
 void division::backward(MindTensor *_grad) {
     if (this->tx->isGradRequired()) {
-        this->tx->grad() += *(_grad) / (*this->ty);
+        this->tx->grad() += (*_grad) / (*this->ty);
         this->tx->backward(this->tx->grad());
     }
     if (this->ty->isGradRequired()) {
@@ -102,7 +102,7 @@ scalar_additive::~scalar_additive() {
 
 void scalar_additive::backward(MindTensor *_grad) {
     if (this->tx->isGradRequired()) {
-        this->tx->grad() += *(_grad);
+        this->tx->grad() += (*_grad);
         this->tx->backward(this->tx->grad());
     }
 }
@@ -117,7 +117,7 @@ scalar_multiply::~scalar_multiply() {
 
 void scalar_multiply::backward(MindTensor *_grad) {
     if (this->tx->isGradRequired()) {
-        this->tx->grad() += *(_grad) * this->c;
+        this->tx->grad() += (*_grad) * this->c;
         this->tx->backward(this->tx->grad());
     }
 }
@@ -168,7 +168,7 @@ log::~log() {
 
 void log::backward(MindTensor *_grad) {
     if (this->tx->isGradRequired()) {
-        this->tx->grad() += *(_grad) / (*this->tx);
+        this->tx->grad() += (*_grad) / (*this->tx);
         this->tx->backward(this->tx->grad());
     }
 }
