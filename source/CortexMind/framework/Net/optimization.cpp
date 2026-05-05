@@ -11,12 +11,12 @@ OptimizationBase::OptimizationBase(std::string name, const float32 _lr) : m_name
 
 OptimizationBase::~OptimizationBase() = default;
 
-void OptimizationBase::setParams(std::vector<ref<tensor>>& params) {
-    this->gradients = std::move(params);
+void OptimizationBase::setParams(std::vector<ref<tensor>>& _params) {
+    this->params = std::move(_params);
 }
 
 void OptimizationBase::zero_grad() const {
-    for (auto item : this->gradients) {
+    for (auto item : this->params) {
         item.get().grad().zero();
     }
 }

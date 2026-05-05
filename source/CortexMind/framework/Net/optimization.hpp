@@ -39,9 +39,9 @@ namespace cortex::_fw {
 
         /**
          * @brief Registers the parameters (and their gradients) to be optimized.
-         * @param params Vector of references to trainable tensors
+         * @param _params Vector of references to trainable tensors
          */
-        void setParams(std::vector<ref<tensor>>& params);
+        void setParams(std::vector<ref<tensor>>& _params);
         /**
          * @brief Sets all registered gradients to zero.
          *
@@ -53,10 +53,11 @@ namespace cortex::_fw {
          */
         [[nodiscard]]
         const std::string& name() const;
-    private:
-        std::vector<ref<tensor>> gradients;
-        std::string m_name;
+    protected:
+        std::vector<ref<tensor>> params;
         float32 learning_rate;
+    private:
+        std::string m_name;
     };
 } //namespace cortex::_fw
 
