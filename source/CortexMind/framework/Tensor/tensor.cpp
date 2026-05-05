@@ -269,7 +269,9 @@ void MindTensor::backward() const {
 }
 
 void MindTensor::backward(MindTensor &other) const {
-    CXM_ASSERT(this->flow_ != nullptr, "cortex::_fw::MindTensor::backward()", "no gradient function attached | The one who I fucked his blind eye");
+    if (this->flow_ == nullptr) {
+        return;
+    }
     this->flow_->backward(&other);
 }
 
@@ -364,13 +366,17 @@ MindTensor MindTensor::exp() {
 }
 
 MindTensor MindTensor::transpose() const {
-    CXM_ASSERT(this->ndim() == 2, "cortex::_fw::MindTensor::transpose()", "Only 2D tensors supported");
+    CXM_ASSERT(this->ndim() == 2, "cortex::_fw::MindTensor::transpose()", "Shape must be 2D");
+    const i64 R = this->storage_->shape[0];
+    const i64 C = this->storage_->shape[1];
 
-    MindTensor output({this->storage_->shape[1], this->storage_->shape[0]}, this->device(), this->m_grad_flag);
-    output.storage_ = this->storage_;
-    output.storage_->shape  = {this->storage_->shape[1], this->storage_->shape[0]};
-    output.storage_->stride = {this->storage_->stride[0], this->storage_->stride[1]}; // ters çevir
-    output.storage_->offset = this->storage_->offset;
+    MindTensor output({C, R}, this->device(), false);
+
+    for (i64 i = 0; i < R; ++i) {
+        for (i64 j = 0; j < C; ++j) {
+            output.get()[j * R + i] = this->get()[i * C + j];
+        }
+    }
 
     return output;
 }

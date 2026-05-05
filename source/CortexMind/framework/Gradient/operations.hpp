@@ -14,147 +14,109 @@ namespace cortex::_fw {
 
 namespace cortex::_fw::meta {
     struct addition : GradientFlow {
-        addition(const std::weak_ptr<TensorStorage> &tx_stor, const std::weak_ptr<TensorStorage> &ty_stor, const std::weak_ptr<TensorStorage> &tx_grad_stor, const std::weak_ptr<TensorStorage> &ty_grad_stor, const std::weak_ptr<GradientFlow> &tx_flow, const std::weak_ptr<GradientFlow> &ty_flow);
+        addition(const std::shared_ptr<TensorStorage>& tx_stor, const std::shared_ptr<TensorStorage>& ty_stor, const std::shared_ptr<TensorStorage>& tx_grad_stor, const std::shared_ptr<TensorStorage>& ty_grad_stor, const std::shared_ptr<GradientFlow>& tx_flow, const std::shared_ptr<GradientFlow>& ty_flow);
+        ~addition() override;
 
         void backward(MindTensor *_grad) override;
     private:
-        std::weak_ptr<TensorStorage> tx_stor;
-        std::weak_ptr<TensorStorage> ty_stor;
-
-        std::weak_ptr<TensorStorage> tx_grad_stor;
-        std::weak_ptr<TensorStorage> ty_grad_stor;
-
-        std::weak_ptr<GradientFlow> tx_flow;
-        std::weak_ptr<GradientFlow> ty_flow;
+        MindTensor* tx;
+        MindTensor* ty;
     };
 
     struct subtraction : GradientFlow {
-        subtraction(const std::weak_ptr<TensorStorage> &tx_stor, const std::weak_ptr<TensorStorage> &ty_stor, const std::weak_ptr<TensorStorage> &tx_grad_stor, const std::weak_ptr<TensorStorage> &ty_grad_stor, const std::weak_ptr<GradientFlow> &tx_flow, const std::weak_ptr<GradientFlow> &ty_flow);
+        subtraction(const std::shared_ptr<TensorStorage>& tx_stor, const std::shared_ptr<TensorStorage>& ty_stor, const std::shared_ptr<TensorStorage>& tx_grad_stor, const std::shared_ptr<TensorStorage>& ty_grad_stor, const std::shared_ptr<GradientFlow>& tx_flow, const std::shared_ptr<GradientFlow>& ty_flow);
+        ~subtraction() override;
 
         void backward(MindTensor *_grad) override;
     private:
-        std::weak_ptr<TensorStorage> tx_stor;
-        std::weak_ptr<TensorStorage> ty_stor;
-
-        std::weak_ptr<TensorStorage> tx_grad_stor;
-        std::weak_ptr<TensorStorage> ty_grad_stor;
-
-        std::weak_ptr<GradientFlow> tx_flow;
-        std::weak_ptr<GradientFlow> ty_flow;
+        MindTensor* tx;
+        MindTensor* ty;
     };
 
     struct multiply : GradientFlow {
-        multiply(const std::weak_ptr<TensorStorage> &tx_stor, const std::weak_ptr<TensorStorage> &ty_stor, const std::weak_ptr<TensorStorage> &tx_grad_stor, const std::weak_ptr<TensorStorage> &ty_grad_stor, const std::weak_ptr<GradientFlow> &tx_flow, const std::weak_ptr<GradientFlow> &ty_flow);
+        multiply(const std::shared_ptr<TensorStorage>& tx_stor, const std::shared_ptr<TensorStorage>& ty_stor, const std::shared_ptr<TensorStorage>& tx_grad_stor, const std::shared_ptr<TensorStorage>& ty_grad_stor, const std::shared_ptr<GradientFlow>& tx_flow, const std::shared_ptr<GradientFlow>& ty_flow);
+        ~multiply() override;
 
         void backward(MindTensor *_grad) override;
     private:
-        std::weak_ptr<TensorStorage> tx_stor;
-        std::weak_ptr<TensorStorage> ty_stor;
-
-        std::weak_ptr<TensorStorage> tx_grad_stor;
-        std::weak_ptr<TensorStorage> ty_grad_stor;
-
-        std::weak_ptr<GradientFlow> tx_flow;
-        std::weak_ptr<GradientFlow> ty_flow;
+        MindTensor* tx;
+        MindTensor* ty;
     };
 
     struct division : GradientFlow {
-        division(const std::weak_ptr<TensorStorage> &tx_stor, const std::weak_ptr<TensorStorage> &ty_stor, const std::weak_ptr<TensorStorage> &tx_grad_stor, const std::weak_ptr<TensorStorage> &ty_grad_stor, const std::weak_ptr<GradientFlow> &tx_flow, const std::weak_ptr<GradientFlow> &ty_flow);
+        division(const std::shared_ptr<TensorStorage>& tx_stor, const std::shared_ptr<TensorStorage>& ty_stor, const std::shared_ptr<TensorStorage>& tx_grad_stor, const std::shared_ptr<TensorStorage>& ty_grad_stor, const std::shared_ptr<GradientFlow>& tx_flow, const std::shared_ptr<GradientFlow>& ty_flow);
+        ~division() override;
 
         void backward(MindTensor *_grad) override;
     private:
-        std::weak_ptr<TensorStorage> tx_stor;
-        std::weak_ptr<TensorStorage> ty_stor;
-
-        std::weak_ptr<TensorStorage> tx_grad_stor;
-        std::weak_ptr<TensorStorage> ty_grad_stor;
-
-        std::weak_ptr<GradientFlow> tx_flow;
-        std::weak_ptr<GradientFlow> ty_flow;
+        MindTensor* tx;
+        MindTensor* ty;
     };
 
-    /**
-     * @brief Gradient flow for scalar addition and subtraction.
-     * z = x +/- c → dz/dx = 1
-     */
     struct scalar_additive : GradientFlow {
-        scalar_additive(const std::weak_ptr<TensorStorage>& tx_stor,
-                        const std::weak_ptr<TensorStorage>& tx_grad_stor,
-                        const std::weak_ptr<GradientFlow>&  tx_flow);
-        void backward(MindTensor* _grad) override;
+        scalar_additive(const std::shared_ptr<TensorStorage>& tx_stor, const std::shared_ptr<TensorStorage>& tx_grad_stor, const std::shared_ptr<GradientFlow>& tx_flow);
+        ~scalar_additive() override;
+
+        void backward(MindTensor *_grad) override;
     private:
-        std::weak_ptr<TensorStorage> tx_stor;
-        std::weak_ptr<TensorStorage> tx_grad_stor;
-        std::weak_ptr<GradientFlow>  tx_flow;
+        MindTensor* tx;
     };
 
-    /**
-     * @brief Gradient flow for scalar multiplication.
-     * z = x * c → dz/dx = c
-     */
     struct scalar_multiply : GradientFlow {
-        scalar_multiply(const std::weak_ptr<TensorStorage>& tx_stor,
-                        const std::weak_ptr<TensorStorage>& tx_grad_stor,
-                        const std::weak_ptr<GradientFlow>&  tx_flow,
-                        f32 c);
-        void backward(MindTensor* _grad) override;
+        scalar_multiply(const std::shared_ptr<TensorStorage>& tx_stor, const std::shared_ptr<TensorStorage>& tx_grad_stor, const std::shared_ptr<GradientFlow>& tx_flow, f32 c);
+        ~scalar_multiply() override;
+
+        void backward(MindTensor *_grad) override;
     private:
-        std::weak_ptr<TensorStorage> tx_stor;
-        std::weak_ptr<TensorStorage> tx_grad_stor;
-        std::weak_ptr<GradientFlow>  tx_flow;
+        MindTensor* tx;
         f32 c;
     };
 
     struct dot : GradientFlow {
-        dot(const std::weak_ptr<TensorStorage>& tx_stor, const std::weak_ptr<TensorStorage>& ty_stor, const std::weak_ptr<TensorStorage>& tx_grad_stor, const std::weak_ptr<TensorStorage>& ty_grad_stor, const std::weak_ptr<GradientFlow>&  tx_flow, const std::weak_ptr<GradientFlow>&  ty_flow);
+        dot(const std::shared_ptr<TensorStorage>& tx_stor, const std::shared_ptr<TensorStorage>& ty_stor, const std::shared_ptr<TensorStorage>& tx_grad_stor, const std::shared_ptr<TensorStorage>& ty_grad_stor, const std::shared_ptr<GradientFlow>& tx_flow, const std::shared_ptr<GradientFlow>& ty_flow);
+        ~dot() override;
 
-        void backward(MindTensor* _grad) override;
+        void backward(MindTensor *_grad) override;
     private:
-        std::weak_ptr<TensorStorage> tx_stor;
-        std::weak_ptr<TensorStorage> ty_stor;
-        std::weak_ptr<TensorStorage> tx_grad_stor;
-        std::weak_ptr<TensorStorage> ty_grad_stor;
-        std::weak_ptr<GradientFlow>  tx_flow;
-        std::weak_ptr<GradientFlow>  ty_flow;
+        MindTensor* tx;
+        MindTensor* ty;
     };
 
     struct pow : GradientFlow {
-        pow(const std::weak_ptr<TensorStorage>& tx_stor, const std::weak_ptr<TensorStorage>& tx_grad_stor, const std::weak_ptr<GradientFlow>&  tx_flow, f32 exp);
+        pow(const std::shared_ptr<TensorStorage>& tx_stor, const std::shared_ptr<TensorStorage>& tx_grad_stor, const std::shared_ptr<GradientFlow>& tx_flow, f32 exp);
+        ~pow() override;
 
-        void backward(MindTensor* _grad) override;
+        void backward(MindTensor *_grad) override;
     private:
-        std::weak_ptr<TensorStorage> tx_stor;
-        std::weak_ptr<TensorStorage> tx_grad_stor;
-        std::weak_ptr<GradientFlow>  tx_flow;
+        MindTensor* tx;
         f32 exp;
     };
 
     struct log : GradientFlow {
-        log(const std::weak_ptr<TensorStorage>& tx_stor, const std::weak_ptr<TensorStorage>& tx_grad_stor, const std::weak_ptr<GradientFlow>&  tx_flow);
+        log(const std::shared_ptr<TensorStorage>& tx_stor, const std::shared_ptr<TensorStorage>& tx_grad_stor, const std::shared_ptr<GradientFlow>& tx_flow);
+        ~log() override;
 
-        void backward(MindTensor* _grad) override;
+        void backward(MindTensor *_grad) override;
     private:
-        std::weak_ptr<TensorStorage> tx_stor;
-        std::weak_ptr<TensorStorage> tx_grad_stor;
-        std::weak_ptr<GradientFlow>  tx_flow;
+        MindTensor* tx;
     };
 
     struct exp : GradientFlow {
-        exp(const std::weak_ptr<TensorStorage>& tx_stor, const std::weak_ptr<TensorStorage>& tx_grad_stor, const std::weak_ptr<GradientFlow>&  tx_flow);
-        void backward(MindTensor* _grad) override;
+        exp(const std::shared_ptr<TensorStorage>& tx_stor, const std::shared_ptr<TensorStorage>& tx_grad_stor, const std::shared_ptr<GradientFlow>& tx_flow);
+        ~exp() override;
+
+        void backward(MindTensor *_grad) override;
     private:
-        std::weak_ptr<TensorStorage> tx_stor;
-        std::weak_ptr<TensorStorage> tx_grad_stor;
-        std::weak_ptr<GradientFlow>  tx_flow;
+        MindTensor* tx;
     };
 
     struct sum : GradientFlow {
-        sum(const std::weak_ptr<TensorStorage>& tx_stor, const std::weak_ptr<TensorStorage>& tx_grad_stor, const std::weak_ptr<GradientFlow>&  tx_flow);
-        void backward(MindTensor* _grad) override;
+        sum(const std::shared_ptr<TensorStorage>& tx_stor, const std::shared_ptr<TensorStorage>& tx_grad_stor, const std::shared_ptr<GradientFlow>& tx_flow);
+        ~sum() override;
+
+        void backward(MindTensor *_grad) override;
     private:
-        std::weak_ptr<TensorStorage> tx_stor;
-        std::weak_ptr<TensorStorage> tx_grad_stor;
-        std::weak_ptr<GradientFlow>  tx_flow;
+        MindTensor* tx;
     };
 } //namespace cortex::_fw::meta
 
