@@ -31,6 +31,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/err.cpp
         source/CortexMind/framework/Tools/memory_utils.cpp
         source/CortexMind/framework/Tools/tensor_utils.cpp
+        source/CortexMind/net/LossFunctions/mse.cpp
         source/CortexMind/net/NeuralNetwork/dense.cpp
         source/CortexMind/net/OptimizationFunctions/sgd.cpp
         source/CortexMind/tools/arithmetic_operations.cpp

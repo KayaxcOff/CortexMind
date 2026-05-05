@@ -6,7 +6,9 @@
 #define CORTEXMIND_CORTEXMIND_HPP
 
 // ---------- net ----------
+#include <CortexMind/net/LossFunctions/mse.hpp>
 #include <CortexMind/net/NeuralNetwork/dense.hpp>
+#include <CortexMind/net/OptimizationFunctions/sgd.hpp>
 
 // ---------- platform ----------
 #include <CortexMind/platform/cuda.hpp>
