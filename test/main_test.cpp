@@ -19,5 +19,5 @@ int main() {
 
 /*
  * output:
- * [[0.291248, 0.0591238]]
+ * Process finished with exit code -1073741819 (0xC0000005)
  */
