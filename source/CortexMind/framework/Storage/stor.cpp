@@ -51,7 +51,12 @@ TensorStorage::TensorStorage(const TensorStorage &other) : offset(other.offset),
             transform<f32>::copy_d2d(this->gpu_ptr, other.gpu_ptr, this->m_size);
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
-        std::memcpy(this->cpu_ptr, other.cpu_ptr, this->m_size * sizeof(f32));
+        if (this->m_device == deviceType::host) {
+            this->cpu_ptr = mem.allocate(this->m_size);
+            if (this->m_size > 0 && other.cpu_ptr != nullptr) {
+                std::memcpy(this->cpu_ptr, other.cpu_ptr, this->m_size * sizeof(f32));
+            }
+        }
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
 }
 
@@ -123,6 +128,9 @@ void TensorStorage::setDevice(const deviceType device) noexcept {
         }
         if (device == deviceType::host) {
             // cuda → host
+            if (this->cpu_ptr == nullptr) {
+                this->cpu_ptr = mem.allocate(this->m_size);
+            }
             transform<f32>::download(this->cpu_ptr, this->gpu_ptr, this->m_size);
         }
     #else //#if CXM_IS_CUDA_AVAILABLE

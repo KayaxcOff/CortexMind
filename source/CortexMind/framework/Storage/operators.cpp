@@ -43,7 +43,12 @@ TensorStorage &TensorStorage::operator=(const TensorStorage &other) {
             transform<f32>::copy_d2d(this->gpu_ptr, other.gpu_ptr, this->m_size);
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
-        std::memcpy(this->cpu_ptr, other.cpu_ptr, this->m_size * sizeof(f32));
+        if (this->m_device == deviceType::host) {
+            this->cpu_ptr = mem.allocate(this->m_size);
+            if (this->m_size > 0 && other.cpu_ptr != nullptr) {
+                std::memcpy(this->cpu_ptr, other.cpu_ptr, this->m_size * sizeof(f32));
+            }
+        }
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
 
     return *this;
