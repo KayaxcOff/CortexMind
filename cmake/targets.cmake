@@ -1,0 +1,54 @@
+add_library(CortexMind STATIC
+        source/CortexMind/framework/Engine/AVX2/activation.cpp
+        source/CortexMind/framework/Engine/AVX2/broadcast.cpp
+        source/CortexMind/framework/Engine/AVX2/matrix.cpp
+        source/CortexMind/framework/Engine/AVX2/partial.cpp
+        source/CortexMind/framework/Engine/AVX2/reduce.cpp
+        source/CortexMind/framework/Engine/AVX2/scalar.cpp
+        source/CortexMind/framework/Engine/AVX2/wise.cpp
+        source/CortexMind/framework/Memory/mem.cpp
+        source/CortexMind/framework/Tools/alignment.cpp
+        source/CortexMind/framework/Tools/as_string.cpp
+        source/CortexMind/framework/Tools/err.cpp
+)
+
+if(CXM_CUDA_AVAILABLE)
+    target_sources(CortexMind PRIVATE
+            source/CortexMind/framework/Engine/CUDA/activation.cu
+            source/CortexMind/framework/Engine/CUDA/broadcast.cu
+            source/CortexMind/framework/Engine/CUDA/element_wise.cu
+            source/CortexMind/framework/Engine/CUDA/matrix.cu
+            source/CortexMind/framework/Engine/CUDA/reduce.cu
+            source/CortexMind/framework/Engine/CUDA/scalar.cu
+            source/CortexMind/framework/Memory/forge.cu
+            source/CortexMind/framework/Memory/transform.cu
+            source/CortexMind/framework/Tools/cuda.cu
+            source/CortexMind/runtime/provider.cu
+    )
+endif()
+
+target_include_directories(CortexMind PUBLIC
+        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/source
+        ${stb_SOURCE_DIR}
+)
+
+target_link_libraries(CortexMind PUBLIC
+        nlohmann_json::nlohmann_json
+)
+
+if(CXM_CUDA_AVAILABLE)
+    target_include_directories(CortexMind PRIVATE
+            ${CUDAToolkit_INCLUDE_DIRS}
+    )
+    target_link_libraries(CortexMind PRIVATE
+            CUDA::cudart
+            CUDA::cublas
+            CUDA::curand
+    )
+endif()
+
+target_compile_definitions(CortexMind PUBLIC
+        $<$<BOOL:${CXM_CUDA_AVAILABLE}>:CXM_IS_CUDA_AVAILABLE=1>
+        $<$<BOOL:${CXM_CUDA_AVAILABLE}>:CXM_CUDA_ARCH=86>
+)

@@ -1,0 +1,8 @@
+//
+// Created by muham on 9.05.2026.
+//
+
+#ifndef CORTEXMIND_CORTEXMIND_HPP
+#define CORTEXMIND_CORTEXMIND_HPP
+
+#endif //CORTEXMIND_CORTEXMIND_HPP
