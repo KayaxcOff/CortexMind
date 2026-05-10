@@ -59,6 +59,7 @@ TensorStorage &TensorStorage::operator=(TensorStorage &&other) noexcept {
 
     other.m_host_ptr = nullptr;
     other.m_cuda_ptr = nullptr;
+    other.m_size = 0;
 
     return *this;
 }

@@ -84,6 +84,7 @@ TensorStorage::TensorStorage(TensorStorage &&other) noexcept : m_size(other.m_si
 
     other.m_host_ptr = nullptr;
     other.m_cuda_ptr = nullptr;
+    other.m_size = 0;
 }
 
 TensorStorage::~TensorStorage() {
