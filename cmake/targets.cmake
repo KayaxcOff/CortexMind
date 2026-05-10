@@ -7,6 +7,8 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Engine/AVX2/scalar.cpp
         source/CortexMind/framework/Engine/AVX2/wise.cpp
         source/CortexMind/framework/Memory/mem.cpp
+        source/CortexMind/framework/Storage/operators.cpp
+        source/CortexMind/framework/Storage/stor.cpp
         source/CortexMind/framework/Tools/alignment.cpp
         source/CortexMind/framework/Tools/as_string.cpp
         source/CortexMind/framework/Tools/err.cpp
