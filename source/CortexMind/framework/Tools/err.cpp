@@ -56,7 +56,7 @@ void err::warnIf(const bool condition, const std::string_view &message, const ch
 }
 
 #if CXM_IS_CUDA_AVAILABLE
-    void err::exitIf_c(const cudaError_t call, const char *file, const i32 line) {
+    void err::exitIf(const cudaError_t call, const char *file, const i32 line) {
         if (call != cudaSuccess) [[unlikely]] {
             cuda_exit_impl(call, trim_path(file), line);
         }

@@ -47,13 +47,12 @@ namespace cortex::_fw {
              * @brief Checks CUDA runtime error and terminates if not successful.
              *
              * @param call    CUDA API return value (`cudaError_t`).
-             * @param message Descriptive error message.
              * @param file    Source file name.
              * @param line    Line number.
              *
              * @note Only available when `CXM_IS_CUDA_AVAILABLE` is defined.
              */
-            static void exitIf_c(cudaError_t call, const char* file, i32 line);
+            static void exitIf(cudaError_t call, const char* file, i32 line);
         #endif //#if CXM_IS_CUDA_AVAILABLE
     };
 } //namespace cortex::_fw
@@ -78,7 +77,7 @@ namespace cortex::_fw {
      * @brief CUDA error checking macro.
      */
     #define CXM_CUDA_ASSERT(call) \
-        ::cortex::_fw::err::exitIf_c((call), __FILE__, __LINE__)
+        ::cortex::_fw::err::exitIf((call), __FILE__, __LINE__)
 #else //#if CXM_IS_CUDA_AVAILABLE
     #define CXM_CUDA_ASSERT(call, msg) ((void)(0))
 #endif //#if CXM_IS_CUDA_AVAILABLE #else
