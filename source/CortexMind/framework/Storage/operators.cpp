@@ -3,7 +3,9 @@
 //
 
 #include "CortexMind/framework/Storage/stor.hpp"
-#include <iostream>
+#if !CXM_IS_CUDA_AVAILABLE
+    #include <iostream>
+#endif //#if !CXM_IS_CUDA_AVAILABLE
 
 using namespace cortex::_fw::sys;
 using namespace cortex::_fw;

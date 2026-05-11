@@ -36,6 +36,14 @@ namespace cortex::_fw {
          * @param _device Target device (HOST or CUDA)
          */
         TensorStorage(size_t _size, sys::DeviceType _device);
+        /**
+         * @brief Constructs a new storage with specified size and device.
+         *
+         * @param _size   Number of `f32` elements
+         * @param data    Data
+         * @param _device Target device (HOST or CUDA)
+         */
+        TensorStorage(size_t _size, const f32* data, sys::DeviceType _device);
         TensorStorage(const TensorStorage& other);
         TensorStorage(TensorStorage&& other) noexcept;
         ~TensorStorage();

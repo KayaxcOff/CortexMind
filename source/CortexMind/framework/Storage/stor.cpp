@@ -7,10 +7,10 @@
     #include <CortexMind/framework/Memory/transform.cuh>
 #else //#if CXM_IS_CUDA_AVAILABLE
     #include <cstring>
+    #include <iostream>
 #endif //#if CXM_IS_CUDA_AVAILABLE #else
 #include <CortexMind/framework/Tools/as_string.hpp>
 #include <CortexMind/framework/Tools/err.hpp>
-#include <iostream>
 
 using namespace cortex::_fw::sys;
 using namespace cortex::_fw;
@@ -35,24 +35,40 @@ TensorStorage::TensorStorage(const size_t _size, const DeviceType _device) : m_s
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
 }
 
+TensorStorage::TensorStorage(const size_t _size, const f32 *data, const DeviceType _device) : m_size(_size), m_dev(_device) {
+    this->m_host_ptr = nullptr;
+    this->m_cuda_ptr = nullptr;
+
+    #if CXM_IS_CUDA_AVAILABLE
+        if (this->m_dev == DeviceType::HOST) {
+            transform::copy_h2h(this->m_host_ptr, data, this->m_size);
+        } else {
+            transform::upload(this->m_cuda_ptr, data, this->m_size);
+        }
+    #else //#if CXM_IS_CUDA_AVAILABLE
+        if (this->m_dev == DeviceType::HOST) {
+            std::memcpy(this->m_host_ptr, data, this->m_size * sizeof(f32));
+        } else {
+            std::memcpy(this->m_host_ptr, data, this->m_size * sizeof(f32));
+            std::cerr << "You can't use GPU so only HOST pointer allocated" << std::endl;
+        }
+    #endif //#if CXM_IS_CUDA_AVAILABLE #else
+}
+
 TensorStorage::TensorStorage(const TensorStorage &other) : m_size(other.m_size), m_dev(other.m_dev) {
     this->m_host_ptr = nullptr;
     this->m_cuda_ptr = nullptr;
 
     #if CXM_IS_CUDA_AVAILABLE
         if (this->m_dev == DeviceType::HOST) {
-            this->m_host_ptr = mem.allocate(this->m_size);
             this->m_host_ptr = other.m_host_ptr;
         } else {
-            this->m_cuda_ptr = forge.allocate(this->m_size);
             this->m_cuda_ptr = other.m_cuda_ptr;
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
         if (this->m_dev == DeviceType::HOST) {
-            this->m_host_ptr = mem.allocate(this->m_size);
             this->m_host_ptr = other.m_host_ptr;
         } else {
-            this->m_host_ptr = mem.allocate(this->m_size);
             this->m_host_ptr = other.m_host_ptr;
             std::cerr << "You can't use GPU so only HOST pointer allocated" << std::endl;
         }
@@ -65,18 +81,14 @@ TensorStorage::TensorStorage(TensorStorage &&other) noexcept : m_size(other.m_si
 
     #if CXM_IS_CUDA_AVAILABLE
     if (this->m_dev == DeviceType::HOST) {
-        this->m_host_ptr = mem.allocate(this->m_size);
         this->m_host_ptr = other.m_host_ptr;
     } else {
-        this->m_cuda_ptr = forge.allocate(this->m_size);
         this->m_cuda_ptr = other.m_cuda_ptr;
     }
     #else //#if CXM_IS_CUDA_AVAILABLE
         if (this->m_dev == DeviceType::HOST) {
-            this->m_host_ptr = mem.allocate(this->m_size);
             this->m_host_ptr = other.m_host_ptr;
         } else {
-            this->m_host_ptr = mem.allocate(this->m_size);
             this->m_host_ptr = other.m_host_ptr;
             std::cerr << "You can't use GPU so only HOST pointer allocated" << std::endl;
         }
@@ -105,11 +117,13 @@ const f32 *TensorStorage::data() const {
 }
 
 void TensorStorage::SetDevice(const DeviceType _device) {
-    CXM_WARN(this->m_dev == _device, "You're already on " + as_string(this->m_dev) + " device");
+    if (this->m_dev == _device) {
+        CXM_WARN(true, "Already on " + as_string(_device) + "device");
+        return;
+    }
 
-    this->m_dev = _device;
     #if CXM_IS_CUDA_AVAILABLE
-        if (this->m_dev == DeviceType::HOST) {
+        if (_device == DeviceType::HOST) {
             if (this->m_host_ptr == nullptr) {
                 this->m_host_ptr = mem.allocate(this->m_size);
             }
@@ -123,6 +137,8 @@ void TensorStorage::SetDevice(const DeviceType _device) {
     #else //#if CXM_IS_CUDA_AVAILABLE
         std::cerr << "You can't use GPU so only HOST pointer allocated" << std::endl;
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
+
+    this->m_dev = _device;
 }
 
 size_t TensorStorage::size() const {
@@ -142,17 +158,5 @@ DeviceType TensorStorage::device() const noexcept {
 }
 
 TensorStorage TensorStorage::clone() const {
-    TensorStorage output(this->m_size, this->m_dev);
-
-    #if CXM_IS_CUDA_AVAILABLE
-        if (this->m_dev == DeviceType::HOST) {
-            transform::copy_h2h(output.m_host_ptr, this->m_host_ptr, this->m_size);
-        } else {
-            transform::copy_d2d(output.m_cuda_ptr, this->m_cuda_ptr, this->m_size);
-        }
-    #else //#if CXM_IS_CUDA_AVAILABLE
-        std::memcpy(output.m_host_ptr, this->m_host_ptr, this->m_size * sizeof(f32));
-    #endif //#if CXM_IS_CUDA_AVAILABLE #else
-
-    return output;
+    return {this->m_size, this->data(), this->m_dev};
 }
