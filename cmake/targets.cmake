@@ -1,4 +1,5 @@
 add_library(CortexMind STATIC
+        source/CortexMind/framework/Dispatch/elem_wise_operations.cpp
         source/CortexMind/framework/Dispatch/reduce_operations.cpp
         source/CortexMind/framework/Dispatch/scalar_operations.cpp
         source/CortexMind/framework/Engine/AVX2/activation.cpp
