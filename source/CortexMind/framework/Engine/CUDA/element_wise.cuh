@@ -24,7 +24,7 @@ namespace cortex::_fw::cuda {
          * @param Xz  Output array
          * @param N   Number of elements
          */
-        static void pow(const f32* __restrict__ Xx, f32 exp, f32* __restrict__ Xz, size_t N);
+        static void pow(const f32* __restrict Xx, f32 exp, f32* __restrict Xz, size_t N);
 
         /**
          * @brief Element-wise square root: `Z[i] = sqrt(X[i])`
@@ -34,7 +34,7 @@ namespace cortex::_fw::cuda {
          * @param Xz  Output array
          * @param N   Number of elements
          */
-        static void sqrt(const f32* __restrict__ Xx, f32* __restrict__ Xz, size_t N);
+        static void sqrt(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
 
         /**
          * @brief Element-wise reciprocal square root: `Z[i] = 1 / sqrt(X[i])`
@@ -44,7 +44,7 @@ namespace cortex::_fw::cuda {
          * @param Xz  Output array
          * @param N   Number of elements
          */
-        static void rsqrt(const f32* __restrict__ Xx, f32* __restrict__ Xz, size_t N);
+        static void rsqrt(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
 
         /**
          * @brief Element-wise square: `Z[i] = X[i]²`
@@ -54,7 +54,7 @@ namespace cortex::_fw::cuda {
          * @param Xz  Output array
          * @param N   Number of elements
          */
-        static void square(const f32* __restrict__ Xx, f32* __restrict__ Xz, size_t N);
+        static void square(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
 
         /**
          * @brief Element-wise natural logarithm: `Z[i] = log(X[i])`
@@ -64,7 +64,7 @@ namespace cortex::_fw::cuda {
          * @param Xz  Output array
          * @param N   Number of elements
          */
-        static void log(const f32* __restrict__ Xx, f32* __restrict__ Xz, size_t N);
+        static void log(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
 
         /**
          * @brief Element-wise exponential: `Z[i] = e^X[i]`
@@ -74,7 +74,7 @@ namespace cortex::_fw::cuda {
          * @param Xz  Output array
          * @param N   Number of elements
          */
-        static void exp(const f32* __restrict__ Xx, f32* __restrict__ Xz, size_t N);
+        static void exp(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
 
         /**
          * @brief Element-wise absolute value: `Z[i] = |X[i]|`
@@ -84,7 +84,7 @@ namespace cortex::_fw::cuda {
          * @param Xz  Output array
          * @param N   Number of elements
          */
-        static void abs(const f32* __restrict__ Xx, f32* __restrict__ Xz, size_t N);
+        static void abs(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
     };
 } //namespace cortex::_fw::cuda
 
