@@ -15,6 +15,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/alignment.cpp
         source/CortexMind/framework/Tools/as_string.cpp
         source/CortexMind/framework/Tools/err.cpp
+        source/CortexMind/framework/Tools/tensor_meta.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
