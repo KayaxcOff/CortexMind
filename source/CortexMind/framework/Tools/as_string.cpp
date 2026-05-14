@@ -17,3 +17,23 @@ std::string cortex::_fw::as_string(const sys::DeviceType d_type) {
         }
     }
 }
+
+std::string cortex::_fw::as_string(const BroadcastKind kind) {
+    switch (kind) {
+        case BroadcastKind::Col: {
+            return "col";
+        }
+        case BroadcastKind::Row: {
+            return "row";
+        }
+        case BroadcastKind::None: {
+            return "none";
+        }
+        case BroadcastKind::General: {
+            return "general";
+        }
+        default: {
+            return "unknown";
+        }
+    }
+}

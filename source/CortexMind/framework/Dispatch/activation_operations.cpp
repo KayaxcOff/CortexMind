@@ -77,7 +77,7 @@ void Activation::sigmoid_fast(const TensorStorage *Xx, TensorStorage *Xz, const 
             cuda::Activation::sigmoid_fast(Xx->data(), Xz->data(), N);
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
-        avx2::Activation::sigmoid(Xx->data(), Xz->data(), N);
+        avx2::Activation::sigmoid_fast(Xx->data(), Xz->data(), N);
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
 }
 

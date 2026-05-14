@@ -5,6 +5,7 @@
 #ifndef CORTEXMIND_FRAMEWORK_TOOLS_TENSOR_META_HPP
 #define CORTEXMIND_FRAMEWORK_TOOLS_TENSOR_META_HPP
 
+#include <CortexMind/framework/Tools/broadcast_kind.hpp>
 #include <CortexMind/framework/Tools/types.hpp>
 #include <vector>
 
@@ -34,6 +35,10 @@ namespace cortex::_fw {
      */
     [[nodiscard]]
     size_t compute_size(const std::vector<i64>& shape);
+    [[nodiscard]]
+    bool is_broadcastable(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
+    [[nodiscard]]
+    BroadcastKind classify_broadcast(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
 } //namespace cortex::_fw
 
 #endif //CORTEXMIND_FRAMEWORK_TOOLS_TENSOR_META_HPP

@@ -99,7 +99,7 @@ void Scalar::add(TensorStorage *Xx, const f32 value, const size_t N) {
             cuda::ScalarKernel::add(Xx->data(), value, N);
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
-        avx2::ScalarOp::add(Xx->data(), value, Xz->data(), N);
+        avx2::ScalarOp::add(Xx->data(), value, N);
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
 }
 
