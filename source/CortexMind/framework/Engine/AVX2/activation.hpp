@@ -70,6 +70,10 @@ namespace cortex::_fw::avx2 {
         static void softmax(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
 
         /**
+         * @brief Fast Sigmoid approximation.
+         */
+        static void sigmoid_fast(const f32* Xx, f32* Xz, size_t N);
+        /**
          * @brief In-place ReLU: `X[i] = max(0, X[i])`
          */
         static void relu(f32* Xx, size_t N);
@@ -121,6 +125,11 @@ namespace cortex::_fw::avx2 {
          * @note Modifies the input array in-place.
          */
         static void softmax(f32* Xx, size_t N);
+
+        /**
+         * @brief In-place fast sigmoid
+         */
+        static void sigmoid_fast(f32* Xx, size_t N);
     };
 } //namespace cortex::_fw::avx2
 

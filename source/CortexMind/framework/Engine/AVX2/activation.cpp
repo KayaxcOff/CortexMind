@@ -25,6 +25,11 @@ namespace {
     f32 scalar_gelu_exact(const f32 x) {
         return 0.5f * x * (1.0f + std::erf(x * 0.7071067811865475f));
     }
+
+    f32 scalar_sigmoid_fast(const f32 x) {
+        const f32 e = std::exp(-x);
+        return 1.0f / (1.0f + e);
+    }
 } //unnamed namespace
 
 void Activation::relu(const f32* Xx, f32* Xz, const size_t N) {
@@ -150,6 +155,18 @@ void Activation::softmax(const f32* Xx, f32* Xz, const size_t N) {
     }
     for (; i < N; ++i) {
         Xz[i] *= 1.0f / sum;
+    }
+}
+
+void Activation::sigmoid_fast(const f32* Xx, f32* Xz, const size_t N) {
+    size_t i = 0;
+
+    for (; i + 8 <= N; i += 8) {
+        storeu(Xz + i, avx2::sigmoid_fast(loadu(Xx + i)));
+    }
+
+    for (; i < N; ++i) {
+        Xz[i] = scalar_sigmoid_fast(Xx[i]);
     }
 }
 
@@ -280,5 +297,17 @@ void Activation::softmax(f32* Xx, const size_t N) {
     }
     for (; i < N; ++i) {
         Xx[i] *= 1.0f / sum;
+    }
+}
+
+void Activation::sigmoid_fast(f32* Xx, const size_t N) {
+    size_t i = 0;
+
+    for (; i + 8 <= N; i += 8) {
+        storeu(Xx + i, avx2::sigmoid_fast(loadu(Xx + i)));
+    }
+
+    for (; i < N; ++i) {
+        Xx[i] = scalar_sigmoid_fast(Xx[i]);
     }
 }
