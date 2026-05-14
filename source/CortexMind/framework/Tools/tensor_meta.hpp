@@ -35,8 +35,24 @@ namespace cortex::_fw {
      */
     [[nodiscard]]
     size_t compute_size(const std::vector<i64>& shape);
+    /**
+     * @brief Checks whether two shapes are broadcastable according to broadcasting rules.
+     *
+     * Follows NumPy/PyTorch style broadcasting rules.
+     *
+     * @param shape_x First shape
+     * @param shape_y Second shape
+     * @return `true` if shapes are broadcastable
+     */
     [[nodiscard]]
     bool is_broadcastable(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
+    /**
+     * @brief Classifies the type of broadcast needed between two shapes.
+     *
+     * @param shape_x First shape
+     * @param shape_y Second shape
+     * @return BroadcastKind (None, Row, Col, General)
+     */
     [[nodiscard]]
     BroadcastKind classify_broadcast(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
 } //namespace cortex::_fw
