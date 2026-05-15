@@ -15,6 +15,8 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Memory/mem.cpp
         source/CortexMind/framework/Storage/operators.cpp
         source/CortexMind/framework/Storage/stor.cpp
+        source/CortexMind/framework/Tensor/operators.cpp
+        source/CortexMind/framework/Tensor/tensor.cpp
         source/CortexMind/framework/Tools/alignment.cpp
         source/CortexMind/framework/Tools/as_string.cpp
         source/CortexMind/framework/Tools/err.cpp

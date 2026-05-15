@@ -348,4 +348,3 @@ void Matrix::dispatch_div(const f32 *x, const f32 *y, f32 *z, const std::vector<
         }
     }
 }
-}
