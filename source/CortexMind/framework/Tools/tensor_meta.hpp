@@ -36,15 +36,51 @@ namespace cortex::_fw {
      */
     [[nodiscard]]
     size_t compute_size(const std::vector<i64>& shape);
+    /**
+     * @brief Checks whether two shapes can be broadcasted together.
+     *
+     * Follows standard broadcasting rules (NumPy/PyTorch style).
+     *
+     * @param shape_x First tensor shape
+     * @param shape_y Second tensor shape
+     * @return `true` if the shapes are broadcastable
+     */
+    [[nodiscard]]
     bool is_broadcastable(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
+    /**
+     * @brief Computes the resulting shape after broadcasting two shapes.
+     *
+     * @param shape_x First tensor shape
+     * @param shape_y Second tensor shape
+     * @return The broadcasted common shape
+     */
+    [[nodiscard]]
     std::vector<i64> broadcast_shape(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
+    /**
+     * @brief Classifies the type of broadcasting needed between two shapes.
+     *
+     * @param shape_x First tensor shape
+     * @param shape_y Second tensor shape
+     * @return Broadcast kind (`kNone`, `kRow`, `kCol`, `kGeneral`)
+     */
+    [[nodiscard]]
     BroadcastKind classify_broadcast(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
-    BroadcastInfo make_broadcast_info(const std::vector<i64>& shape_a,
-                                   const std::vector<i64>& stride_a,
-                                   const std::vector<i64>& shape_b,
-                                   const std::vector<i64>& stride_b,
-                                   const std::vector<i64>& shape_z,
-                                   const std::vector<i64>& stride_z);
+    /**
+     * @brief Creates a `BroadcastInfo` structure for efficient kernel execution.
+     *
+     * Precomputes shape and stride information to avoid repeated calculations
+     * inside hot loops during broadcasting operations.
+     *
+     * @param shape_a  Shape of first input
+     * @param stride_a Strides of first input
+     * @param shape_b  Shape of second input
+     * @param stride_b Strides of second input
+     * @param shape_z  Broadcasted output shape
+     * @param stride_z Strides of output
+     * @return Fully filled `BroadcastInfo` struct
+     */
+    [[nodiscard]]
+    BroadcastInfo make_broadcast_info(const std::vector<i64> &shape_a, const std::vector<i64> &stride_a, const std::vector<i64> &shape_b, const std::vector<i64> &stride_b, const std::vector<i64> &shape_z, const std::vector<i64> &stride_z);
 } //namespace cortex::_fw
 
 #endif //CORTEXMIND_FRAMEWORK_TOOLS_TENSOR_META_HPP

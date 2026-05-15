@@ -1,6 +1,7 @@
 add_library(CortexMind STATIC
         source/CortexMind/framework/Dispatch/activation_operations.cpp
         source/CortexMind/framework/Dispatch/elem_wise_operations.cpp
+        source/CortexMind/framework/Dispatch/matrix_operations.cpp
         source/CortexMind/framework/Dispatch/reduce_operations.cpp
         source/CortexMind/framework/Dispatch/scalar_operations.cpp
         source/CortexMind/framework/Engine/AVX2/activation.cpp
@@ -10,6 +11,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Engine/AVX2/reduce.cpp
         source/CortexMind/framework/Engine/AVX2/scalar.cpp
         source/CortexMind/framework/Engine/AVX2/wise.cpp
+        source/CortexMind/framework/Gradient/flow.cpp
         source/CortexMind/framework/Memory/mem.cpp
         source/CortexMind/framework/Storage/operators.cpp
         source/CortexMind/framework/Storage/stor.cpp
@@ -17,7 +19,6 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/as_string.cpp
         source/CortexMind/framework/Tools/err.cpp
         source/CortexMind/framework/Tools/tensor_meta.cpp
-        ../source/CortexMind/framework/Dispatch/matrix_operations.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
