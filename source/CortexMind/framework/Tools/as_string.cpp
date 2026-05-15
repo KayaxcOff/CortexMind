@@ -6,10 +6,10 @@
 
 std::string cortex::_fw::as_string(const sys::DeviceType d_type) {
     switch (d_type) {
-        case sys::DeviceType::HOST: {
+        case sys::DeviceType::kHOST: {
             return "host";
         }
-        case sys::DeviceType::CUDA: {
+        case sys::DeviceType::kCUDA: {
             return "cuda";
         }
         default: {
@@ -20,16 +20,16 @@ std::string cortex::_fw::as_string(const sys::DeviceType d_type) {
 
 std::string cortex::_fw::as_string(const BroadcastKind kind) {
     switch (kind) {
-        case BroadcastKind::Col: {
+        case BroadcastKind::kCol: {
             return "col";
         }
-        case BroadcastKind::Row: {
+        case BroadcastKind::kRow: {
             return "row";
         }
-        case BroadcastKind::None: {
+        case BroadcastKind::kNone: {
             return "none";
         }
-        case BroadcastKind::General: {
+        case BroadcastKind::kGeneral: {
             return "general";
         }
         default: {

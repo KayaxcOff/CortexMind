@@ -20,7 +20,7 @@ TensorStorage::TensorStorage(const size_t _size, const DeviceType _device) : m_s
     this->m_cuda_ptr = nullptr;
 
     #if CXM_IS_CUDA_AVAILABLE
-        if (this->m_dev == DeviceType::HOST) {
+        if (this->m_dev == DeviceType::kHOST) {
             this->m_host_ptr = mem.allocate(this->m_size);
         } else {
             this->m_cuda_ptr = forge.allocate(this->m_size);
@@ -40,13 +40,13 @@ TensorStorage::TensorStorage(const size_t _size, const f32 *data, const DeviceTy
     this->m_cuda_ptr = nullptr;
 
     #if CXM_IS_CUDA_AVAILABLE
-        if (this->m_dev == DeviceType::HOST) {
+        if (this->m_dev == DeviceType::kHOST) {
             transform::copy_h2h(this->m_host_ptr, data, this->m_size);
         } else {
             transform::upload(this->m_cuda_ptr, data, this->m_size);
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
-        if (this->m_dev == DeviceType::HOST) {
+        if (this->m_dev == DeviceType::kHOST) {
             std::memcpy(this->m_host_ptr, data, this->m_size * sizeof(f32));
         } else {
             std::memcpy(this->m_host_ptr, data, this->m_size * sizeof(f32));
@@ -60,13 +60,13 @@ TensorStorage::TensorStorage(const TensorStorage &other) : m_size(other.m_size),
     this->m_cuda_ptr = nullptr;
 
     #if CXM_IS_CUDA_AVAILABLE
-        if (this->m_dev == DeviceType::HOST) {
+        if (this->m_dev == DeviceType::kHOST) {
             this->m_host_ptr = other.m_host_ptr;
         } else {
             this->m_cuda_ptr = other.m_cuda_ptr;
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
-        if (this->m_dev == DeviceType::HOST) {
+        if (this->m_dev == DeviceType::kHOST) {
             this->m_host_ptr = other.m_host_ptr;
         } else {
             this->m_host_ptr = other.m_host_ptr;
@@ -80,13 +80,13 @@ TensorStorage::TensorStorage(TensorStorage &&other) noexcept : m_size(other.m_si
     this->m_cuda_ptr = nullptr;
 
     #if CXM_IS_CUDA_AVAILABLE
-    if (this->m_dev == DeviceType::HOST) {
+    if (this->m_dev == DeviceType::kHOST) {
         this->m_host_ptr = other.m_host_ptr;
     } else {
         this->m_cuda_ptr = other.m_cuda_ptr;
     }
     #else //#if CXM_IS_CUDA_AVAILABLE
-        if (this->m_dev == DeviceType::HOST) {
+        if (this->m_dev == DeviceType::kHOST) {
             this->m_host_ptr = other.m_host_ptr;
         } else {
             this->m_host_ptr = other.m_host_ptr;
@@ -109,11 +109,11 @@ TensorStorage::~TensorStorage() {
 }
 
 f32 *TensorStorage::data() {
-    return this->m_dev == DeviceType::HOST ? this->m_host_ptr : this->m_cuda_ptr;
+    return this->m_dev == DeviceType::kHOST ? this->m_host_ptr : this->m_cuda_ptr;
 }
 
 const f32 *TensorStorage::data() const {
-    return this->m_dev == DeviceType::HOST ? this->m_host_ptr : this->m_cuda_ptr;
+    return this->m_dev == DeviceType::kHOST ? this->m_host_ptr : this->m_cuda_ptr;
 }
 
 void TensorStorage::SetDevice(const DeviceType _device) {
@@ -123,7 +123,7 @@ void TensorStorage::SetDevice(const DeviceType _device) {
     }
 
     #if CXM_IS_CUDA_AVAILABLE
-        if (_device == DeviceType::HOST) {
+        if (_device == DeviceType::kHOST) {
             if (this->m_host_ptr == nullptr) {
                 this->m_host_ptr = mem.allocate(this->m_size);
             }
@@ -150,7 +150,7 @@ bool TensorStorage::isEmpty() const noexcept {
 }
 
 bool TensorStorage::isValid() const noexcept {
-    return this->m_dev == DeviceType::HOST ? this->m_host_ptr != nullptr : this->m_cuda_ptr != nullptr;
+    return this->m_dev == DeviceType::kHOST ? this->m_host_ptr != nullptr : this->m_cuda_ptr != nullptr;
 }
 
 DeviceType TensorStorage::device() const noexcept {

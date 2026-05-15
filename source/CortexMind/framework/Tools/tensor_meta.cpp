@@ -4,6 +4,7 @@
 
 #include "CortexMind/framework/Tools/tensor_meta.hpp"
 #include <numeric>
+#include <utility>
 #include <xutility>
 
 using namespace cortex::_fw;
@@ -44,25 +45,59 @@ bool cortex::_fw::is_broadcastable(const std::vector<i64>& shape_x, const std::v
     return true;
 }
 
+std::vector<i64> cortex::_fw::broadcast_shape(const std::vector<i64> &shape_x, const std::vector<i64> &shape_y) {
+    const size_t ndim = std::max(shape_x.size(), shape_y.size());
+    std::vector<i64> out(ndim);
+    for (size_t i = 0; i < ndim; ++i) {
+        const i64 da = i < shape_x.size() ? shape_x[shape_x.size() - 1 - i] : 1;
+        const i64 db = i < shape_y.size() ? shape_y[shape_y.size() - 1 - i] : 1;
+        out[ndim - 1 - i] = std::max(da, db);
+    }
+    return out;
+}
+
 BroadcastKind cortex::_fw::classify_broadcast(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y) {
     if (!is_broadcastable(shape_x, shape_y)) {
-        return BroadcastKind::None;
+        return BroadcastKind::kNone;
     }
 
     if (shape_x == shape_y) {
-        return BroadcastKind::None;
+        return BroadcastKind::kNone;
     }
 
     const size_t rank_x = shape_x.size();
     const size_t rank_y = shape_y.size();
 
     if (rank_y == 1 && shape_y[0] == shape_x.back()) {
-        return BroadcastKind::Row;
+        return BroadcastKind::kRow;
     }
 
     if (rank_x == 1 && shape_x[0] == shape_y.back()) {
-        return BroadcastKind::Col;
+        return BroadcastKind::kCol;
     }
 
-    return BroadcastKind::General;
+    return BroadcastKind::kGeneral;
+}
+
+BroadcastInfo cortex::_fw::make_broadcast_info(const std::vector<i64>& shape_a, const std::vector<i64>& stride_a, const std::vector<i64>& shape_b, const std::vector<i64>& stride_b, const std::vector<i64>& shape_z, const std::vector<i64>& stride_z){
+    BroadcastInfo info{};
+    info.ndim = static_cast<i32>(shape_z.size());
+
+    const i32 off_a = info.ndim - static_cast<i32>(shape_a.size());
+    const i32 off_b = info.ndim - static_cast<i32>(shape_b.size());
+
+    for (i32 d = 0; d < info.ndim; ++d) {
+        info.shape[d] = static_cast<size_t>(shape_z[d]);
+
+        const i32 da = d - off_a;
+        info.stride_x[d] = (da >= 0 && shape_a[da] != 1)
+            ? static_cast<size_t>(stride_a[da]) : 0;
+
+        const i32 db = d - off_b;
+        info.stride_y[d] = (db >= 0 && shape_b[db] != 1)
+            ? static_cast<size_t>(stride_b[db]) : 0;
+
+        info.stride_z[d] = static_cast<size_t>(stride_z[d]);
+    }
+    return info;
 }

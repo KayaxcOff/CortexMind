@@ -7,10 +7,10 @@
 
 namespace cortex::_fw {
     enum class BroadcastKind {
-        None,
-        Row,
-        Col,
-        General
+        kNone,
+        kRow,
+        kCol,
+        kGeneral
     };
 } //namespace cortex::_fw
 

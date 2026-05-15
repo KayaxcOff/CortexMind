@@ -16,8 +16,8 @@ namespace cortex::_fw::sys {
      * where the data physically resides.
      */
     enum class DeviceType : i64 {
-        HOST = CXM_HOST_DEVICE,   ///< Host (CPU) memory (RAM)
-        CUDA = CXM_CUDA_DEVICE    ///< CUDA device (GPU) memory (VRAM)
+        kHOST = CXM_HOST_DEVICE,   ///< Host (CPU) memory (RAM)
+        kCUDA = CXM_CUDA_DEVICE    ///< CUDA device (GPU) memory (VRAM)
     };
 } //namespace cortex::_fw::sys
 

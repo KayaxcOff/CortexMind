@@ -5,6 +5,7 @@
 #ifndef CORTEXMIND_FRAMEWORK_TOOLS_TENSOR_META_HPP
 #define CORTEXMIND_FRAMEWORK_TOOLS_TENSOR_META_HPP
 
+#include <CortexMind/framework/Tools/broadcast_info.hpp>
 #include <CortexMind/framework/Tools/broadcast_kind.hpp>
 #include <CortexMind/framework/Tools/types.hpp>
 #include <vector>
@@ -35,26 +36,15 @@ namespace cortex::_fw {
      */
     [[nodiscard]]
     size_t compute_size(const std::vector<i64>& shape);
-    /**
-     * @brief Checks whether two shapes are broadcastable according to broadcasting rules.
-     *
-     * Follows NumPy/PyTorch style broadcasting rules.
-     *
-     * @param shape_x First shape
-     * @param shape_y Second shape
-     * @return `true` if shapes are broadcastable
-     */
-    [[nodiscard]]
     bool is_broadcastable(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
-    /**
-     * @brief Classifies the type of broadcast needed between two shapes.
-     *
-     * @param shape_x First shape
-     * @param shape_y Second shape
-     * @return BroadcastKind (None, Row, Col, General)
-     */
-    [[nodiscard]]
+    std::vector<i64> broadcast_shape(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
     BroadcastKind classify_broadcast(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
+    BroadcastInfo make_broadcast_info(const std::vector<i64>& shape_a,
+                                   const std::vector<i64>& stride_a,
+                                   const std::vector<i64>& shape_b,
+                                   const std::vector<i64>& stride_b,
+                                   const std::vector<i64>& shape_z,
+                                   const std::vector<i64>& stride_z);
 } //namespace cortex::_fw
 
 #endif //CORTEXMIND_FRAMEWORK_TOOLS_TENSOR_META_HPP

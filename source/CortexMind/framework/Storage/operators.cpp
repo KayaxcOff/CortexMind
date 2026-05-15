@@ -19,7 +19,7 @@ TensorStorage &TensorStorage::operator=(const TensorStorage &other) {
     this->m_dev = other.m_dev;
 
     #if CXM_IS_CUDA_AVAILABLE
-        if (this->m_dev == DeviceType::HOST) {
+        if (this->m_dev == DeviceType::kHOST) {
             this->m_host_ptr = other.m_host_ptr;
         } else {
             this->m_cuda_ptr = other.m_cuda_ptr;
@@ -45,7 +45,7 @@ TensorStorage &TensorStorage::operator=(TensorStorage &&other) noexcept {
     this->m_dev = other.m_dev;
 
     #if CXM_IS_CUDA_AVAILABLE
-        if (this->m_dev == DeviceType::HOST) {
+        if (this->m_dev == DeviceType::kHOST) {
             this->m_host_ptr = other.m_host_ptr;
         } else {
             this->m_cuda_ptr = other.m_cuda_ptr;
