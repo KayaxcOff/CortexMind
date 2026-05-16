@@ -157,14 +157,6 @@ namespace cortex::_fw {
         Tensor& operator*=(f32 value);
         Tensor& operator/=(f32 value);
 
-        bool operator==(const Tensor& other) const;
-        bool operator!=(const Tensor& other) const;
-
-        Tensor operator>(const Tensor& other) const;
-        Tensor operator<(const Tensor& other) const;
-        Tensor operator>=(const Tensor& other) const;
-        Tensor operator<=(const Tensor& other) const;
-
         friend std::ostream& operator<<(std::ostream& os, const Tensor& tensor);
         friend Tensor operator-(f32 value, const Tensor& tensor);
         friend Tensor operator*(f32 value, const Tensor& tensor);

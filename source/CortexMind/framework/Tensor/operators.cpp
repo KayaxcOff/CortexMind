@@ -5,10 +5,15 @@
 #include "CortexMind/framework/Tensor/tensor.hpp"
 #include <CortexMind/framework/Engine/IX/matrix.hpp>
 #include <CortexMind/framework/Engine/IX/scalar.hpp>
+#include <CortexMind/framework/Tools/err.hpp>
 #include <CortexMind/framework/Tools/tensor_meta.hpp>
+#include <functional>
+#include <ostream>
 
 using namespace cortex::_fw::ix;
 using namespace cortex::_fw;
+
+
 
 Tensor Tensor::operator+(const Tensor &other) const {
     const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
@@ -120,7 +125,7 @@ Tensor &Tensor::operator-=(const Tensor &other) {
 
 Tensor &Tensor::operator*=(const Tensor &other) {
 
-    MatrixOp::div(
+    MatrixOp::mul(
         this->storage_.get(),
         this->m_shape,
         this->m_strides,
@@ -197,3 +202,74 @@ Tensor &Tensor::operator/=(const f32 value) {
     ScalarOp::div(this->storage_.get(), value, this->len());
     return *this;
 }
+
+
+namespace cortex::_fw {
+
+    static void print_recursive(std::ostream& os, const Tensor& tensor, const size_t dim, const size_t offset) {
+        const auto& shape = tensor.shape();
+
+        if (dim == shape.size() - 1) {
+            os << "[";
+
+            for (i64 i = 0; i < shape[dim]; ++i) {
+                os << tensor.get()[offset + i];
+
+                if (i + 1 < shape[dim]) {
+                    os << ", ";
+                }
+            }
+
+            os << "]";
+            return;
+        }
+
+        os << "[";
+
+        size_t stride = 1;
+        for (size_t i = dim + 1; i < shape.size(); ++i) {
+            stride *= shape[i];
+        }
+
+        for (i64 i = 0; i < shape[dim]; ++i) {
+
+            print_recursive(
+                os,
+                tensor,
+                dim + 1,
+                offset + i * stride
+            );
+
+            if (i + 1 < shape[dim]) {
+                os << ",\n";
+
+                for (size_t j = 0; j < dim + 1; ++j) {
+                    os << " ";
+                }
+            }
+        }
+
+        os << "]";
+    }
+
+    Tensor operator-(const f32 value, const Tensor& tensor) {
+        return tensor.neg() + value;
+    }
+
+    Tensor operator*(const f32 value, const Tensor& tensor) {
+        return tensor * value;
+    }
+
+    std::ostream& operator<<(std::ostream& os, const Tensor& tensor) {
+
+        if (tensor.empty()) {
+            os << "[]";
+            return os;
+        }
+
+        print_recursive(os, tensor, 0, 0);
+
+        return os;
+    }
+
+} //namespace cortex::_fw

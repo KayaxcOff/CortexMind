@@ -16,7 +16,7 @@ namespace cortex::_fw::runtime {
 
         static Curand& instance();
 
-        static void reseed(unsigned long long seed)
+        //static void reseed(unsigned long long seed);
     };
 } //namespace cortex::_fw::runtime
 

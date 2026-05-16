@@ -30,10 +30,11 @@ Curand& Curand::instance() {
     static Curand curand{42ULL};
     return curand;
 }
-
+/*
 void reseed(unsigned long long seed) {
     CXM_ASSERT(
         curandSetPseudoRandomGeneratorSeed(instance().rand_handle, seed) != CURAND_STATUS_SUCCESS,
         "curandSetPseudoRandomGeneratorSeed() failed"
     );
 }
+*/
