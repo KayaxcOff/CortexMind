@@ -7,5 +7,6 @@
 
 // ----- tools -----
 #include <CortexMind/tools/types.hpp>
+#include <CortexMind/tools/values.hpp>
 
 #endif //CORTEXMIND_CORTEXMIND_HPP
