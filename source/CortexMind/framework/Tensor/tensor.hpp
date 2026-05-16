@@ -180,7 +180,8 @@ namespace cortex::_fw {
 
         bool m_requires_grad;
 
-        Tensor(const std::vector<i64>& shape, const std::shared_ptr<TensorStorage>& storage, sys::DeviceType _device, bool _requires_grad);
+        Tensor(const std::vector<i64>& shape, const std::shared_ptr<TensorStorage>& storage, bool _requires_grad);
+        Tensor(const std::vector<i64>& shape, const std::vector<i64>& stride, const std::shared_ptr<TensorStorage>& storage, bool _requires_grad);
     };
 } //namespace cortex::_fw
 
