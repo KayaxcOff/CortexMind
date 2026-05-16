@@ -13,8 +13,6 @@
 using namespace cortex::_fw::ix;
 using namespace cortex::_fw;
 
-
-
 Tensor Tensor::operator+(const Tensor &other) const {
     const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
 
