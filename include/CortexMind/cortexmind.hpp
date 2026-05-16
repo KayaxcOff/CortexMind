@@ -5,4 +5,7 @@
 #ifndef CORTEXMIND_CORTEXMIND_HPP
 #define CORTEXMIND_CORTEXMIND_HPP
 
+// ----- tools -----
+#include <CortexMind/tools/types.hpp>
+
 #endif //CORTEXMIND_CORTEXMIND_HPP
