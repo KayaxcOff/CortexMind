@@ -20,6 +20,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/as_string.cpp
         source/CortexMind/framework/Tools/err.cpp
         source/CortexMind/framework/Tools/tensor_meta.cpp
+        ../source/CortexMind/framework/Engine/IX/random.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
@@ -30,9 +31,11 @@ if(CXM_CUDA_AVAILABLE)
             source/CortexMind/framework/Engine/CUDA/matrix.cu
             source/CortexMind/framework/Engine/CUDA/reduce.cu
             source/CortexMind/framework/Engine/CUDA/scalar.cu
+            source/CortexMind/framework/Engine/IX/fill.cu
             source/CortexMind/framework/Memory/forge.cu
             source/CortexMind/framework/Memory/transform.cu
             source/CortexMind/framework/Tools/cuda.cu
+            source/CortexMind/runtime/curand.cu
             source/CortexMind/runtime/provider.cu
     )
 endif()

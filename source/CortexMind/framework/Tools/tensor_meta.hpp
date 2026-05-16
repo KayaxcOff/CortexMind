@@ -81,6 +81,10 @@ namespace cortex::_fw {
      */
     [[nodiscard]]
     BroadcastInfo make_broadcast_info(const std::vector<i64> &shape_a, const std::vector<i64> &stride_a, const std::vector<i64> &shape_b, const std::vector<i64> &stride_b, const std::vector<i64> &shape_z, const std::vector<i64> &stride_z);
+    [[nodiscard]]
+    i64 compute_linear_index(const std::vector<i64>& strides, const std::vector<i64>& indices, i64 offset);
+    [[nodiscard]]
+    bool is_contiguous(const std::vector<i64>& strides, const std::vector<i64>& shape);
 } //namespace cortex::_fw
 
 #endif //CORTEXMIND_FRAMEWORK_TOOLS_TENSOR_META_HPP

@@ -101,3 +101,18 @@ BroadcastInfo cortex::_fw::make_broadcast_info(const std::vector<i64>& shape_a, 
     }
     return info;
 }
+
+i64 cortex::_fw::compute_linear_index(const std::vector<i64> &strides, const std::vector<i64> &indices, i64 offset) {
+    i64 output = offset;
+    for (size_t d = 0; d < strides.size(); ++d) {
+        output += indices[d] * strides[d];
+    }
+    return output;
+}
+
+// tensor_meta.cpp
+bool cortex::_fw::is_contiguous(const std::vector<i64>& strides, const std::vector<i64>& shape) {
+    if (strides.size() != shape.size()) return false;
+    const auto expected = compute_stride(shape);
+    return strides == expected;
+}

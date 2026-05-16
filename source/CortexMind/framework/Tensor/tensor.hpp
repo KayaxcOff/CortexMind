@@ -74,11 +74,11 @@ namespace cortex::_fw {
         void fill(f32 value);
         void zero();
         void ones();
-        void uniform(f32 min = 0.0f, f32 max = 1.0f);
-        void backward();
-        void backward(const Tensor& _grad);
+        void uniform(f32 min = 0.0f, f32 max = 1.0f) const;
+        void backward() const;
+        void backward(const Tensor& _grad) const;
         void SetData(const f32* _data);
-        void SetGrad(std::unique_ptr<Tensor> _grad);
+        void SetGrad(const std::shared_ptr<Tensor> &_grad);
         void SetGrad(const Tensor& _grad);
         void SetFlow(const std::shared_ptr<meta::GradientFlow>& _flow);
 

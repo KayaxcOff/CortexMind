@@ -287,6 +287,15 @@ namespace cortex::_fw::ops {
     private:
         f32 beta;
     };
+
+    struct Constant {
+        explicit __host__ __device__ Constant(const f32 val) : value(val) {}
+        __device__ __forceinline__ f32 operator()(const f32) const {
+            return value;
+        }
+    private:
+        f32 value;
+    };
 } //namespace cortex::_fw::ops
 
 #endif //CORTEXMIND_FRAMEWORK_TOOLS_KERNEL_OPERATIONS_HPP
