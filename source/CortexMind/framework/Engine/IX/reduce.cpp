@@ -16,6 +16,10 @@ reduce::reduce() = default;
 
 reduce::~reduce() = default;
 
+#if CXM_IS_CUDA_AVAILABLE
+    static cuda::ReduceOp op;
+#endif //#if CXM_IS_CUDA_AVAILABLE
+
 f32 reduce::sum(const TensorStorage *x, const size_t N) {
     CXM_ASSERT(x->isValid(), "Input Storage is null");
     CXM_ASSERT(x->isEmpty(), "Input Storage is empty");

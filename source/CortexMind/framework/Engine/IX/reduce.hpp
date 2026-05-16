@@ -68,10 +68,6 @@ namespace cortex::_fw::ix {
          */
         [[nodiscard]]
         static f32 dot(const TensorStorage* __restrict Xx, const TensorStorage* __restrict Xy, size_t N);
-    private:
-        #if CXM_IS_CUDA_AVAILABLE
-            static cuda::ReduceOp op;
-        #endif //#if CXM_IS_CUDA_AVAILABLE
     };
 } //namespace cortex::_fw::ix
 

@@ -27,6 +27,10 @@ namespace cortex::_fw::cuda {
         CXM_CUDA_ASSERT(cudaGetLastError());
     }
 
+    void map(void** device_ptr, void* host_ptr) {
+        CXM_CUDA_ASSERT(cudaHostGetDevicePointer(device_ptr, host_ptr, 0));
+    }
+
     const char* ErrorAsString(const cudaError_t call) {
         return cudaGetErrorString(call);
     }
