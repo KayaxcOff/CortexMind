@@ -6,6 +6,7 @@
 #define CORTEXMIND_FRAMEWORK_TENSOR_TENSOR_HPP
 
 #include <CortexMind/framework/Gradient/flow.hpp>
+#include <CortexMind/framework/Gradient/saved_tensor.hpp>
 #include <CortexMind/framework/Storage/stor.hpp>
 #include <concepts>
 #include <initializer_list>
@@ -20,6 +21,7 @@ namespace cortex::_fw {
         explicit Tensor(const std::vector<i64>& shape, sys::DeviceType _device = sys::DeviceType::kHOST, bool _requires_grad = false);
         explicit Tensor(std::initializer_list<i64> shape, sys::DeviceType _device = sys::DeviceType::kHOST, bool _requires_grad = false);
         Tensor(const std::vector<i64>& shape, const f32* data, sys::DeviceType _device = sys::DeviceType::kHOST, bool _requires_grad = false);
+        explicit Tensor(const meta::GradientPacked& packed);
         Tensor(const Tensor& other);
         Tensor(Tensor&& other) noexcept;
         ~Tensor();
@@ -169,7 +171,7 @@ namespace cortex::_fw {
 
     private:
         std::shared_ptr<TensorStorage> storage_;
-        std::unique_ptr<Tensor> gradient_;
+        std::shared_ptr<Tensor> gradient_;
         std::shared_ptr<meta::GradientFlow> flow_;
 
         std::vector<i64> m_shape;
