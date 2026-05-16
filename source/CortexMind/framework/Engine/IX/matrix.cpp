@@ -71,7 +71,7 @@ void MatrixOp::dispatch(
             }
             break;
 
-        case BroadcastKind::Row:
+        case BroadcastKind::kRow:
             if (op == '+') {
                 #if CXM_IS_CUDA_AVAILABLE
                     if (dev == DeviceType::kHOST) avx2::Broadcast::row_add(x, y, z, M, Nc);
