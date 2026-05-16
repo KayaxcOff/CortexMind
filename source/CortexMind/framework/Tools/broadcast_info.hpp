@@ -17,7 +17,7 @@ namespace cortex::_fw {
      * dynamic shape checks inside hot loops.
      */
     struct BroadcastInfo {
-        i32    ndim;                          ///< Number of dimensions after broadcasting
+        i32 ndim;                             ///< Number of dimensions after broadcasting
         size_t shape[CXM_MAX_DIMS];           ///< Broadcasted common shape
         size_t stride_x[CXM_MAX_DIMS];        ///< Strides for first input
         size_t stride_y[CXM_MAX_DIMS];        ///< Strides for second input

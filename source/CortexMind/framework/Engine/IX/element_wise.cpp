@@ -179,7 +179,7 @@ void ElementWise::sin(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
         if (dev == DeviceType::kHOST) {
             avx2::wise::sin(Xx->data(), Xz->data(), N);
         } else {
-            //cuda::ElementWise::sin(Xx->data(), Xz->data(), N);
+            cuda::ElementWise::sin(Xx->data(), Xz->data(), N);
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
         avx2::wise::sin(Xx->data(), Xz->data(), N);
@@ -207,7 +207,7 @@ void ElementWise::cos(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
         if (dev == DeviceType::kHOST) {
             avx2::wise::cos(Xx->data(), Xz->data(), N);
         } else {
-            //cuda::ElementWise::cos(Xx->data(), Xz->data(), N);
+            cuda::ElementWise::cos(Xx->data(), Xz->data(), N);
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
         avx2::wise::cos(Xx->data(), Xz->data(), N);
