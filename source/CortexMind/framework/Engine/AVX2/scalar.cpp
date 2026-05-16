@@ -8,10 +8,6 @@
 using namespace cortex::_fw::avx2;
 
 void ScalarOp::add(const f32 *Xx, const f32 value, f32 *Xz, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     const auto val = set1(value);
     for (; i + 8 <= N; i += 8) {
@@ -23,10 +19,6 @@ void ScalarOp::add(const f32 *Xx, const f32 value, f32 *Xz, const size_t N) {
 }
 
 void ScalarOp::sub(const f32 *Xx, const f32 value, f32 *Xz, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     const auto val = set1(value);
     for (; i + 8 <= N; i += 8) {
@@ -38,10 +30,6 @@ void ScalarOp::sub(const f32 *Xx, const f32 value, f32 *Xz, const size_t N) {
 }
 
 void ScalarOp::mul(const f32 *Xx, const f32 value, f32 *Xz, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     const auto val = set1(value);
     for (; i + 8 <= N; i += 8) {
@@ -53,10 +41,6 @@ void ScalarOp::mul(const f32 *Xx, const f32 value, f32 *Xz, const size_t N) {
 }
 
 void ScalarOp::div(const f32 *Xx, const f32 value, f32 *Xz, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     const auto val = set1(value);
     for (; i + 8 <= N; i += 8) {
@@ -68,10 +52,6 @@ void ScalarOp::div(const f32 *Xx, const f32 value, f32 *Xz, const size_t N) {
 }
 
 void ScalarOp::add(f32 *Xx, const f32 value, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     const auto val = set1(value);
     for (; i + 8 <= N; i += 8) {
@@ -83,10 +63,6 @@ void ScalarOp::add(f32 *Xx, const f32 value, const size_t N) {
 }
 
 void ScalarOp::sub(f32 *Xx, const f32 value, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     const auto val = set1(value);
     for (; i + 8 <= N; i += 8) {
@@ -98,10 +74,6 @@ void ScalarOp::sub(f32 *Xx, const f32 value, const size_t N) {
 }
 
 void ScalarOp::mul(f32 *Xx, const f32 value, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     const auto val = set1(value);
     for (; i + 8 <= N; i += 8) {
@@ -113,10 +85,6 @@ void ScalarOp::mul(f32 *Xx, const f32 value, const size_t N) {
 }
 
 void ScalarOp::div(f32 *Xx, const f32 value, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     const auto val = set1(value);
     for (; i + 8 <= N; i += 8) {

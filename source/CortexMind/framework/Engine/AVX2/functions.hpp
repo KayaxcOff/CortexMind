@@ -162,6 +162,13 @@ namespace cortex::_fw::avx2 {
         return _mm256_sin_ps(x);
     }
     /**
+     * @brief Element-wise cos.
+     */
+    [[nodiscard]]
+    inline vec8f cos(const vec8f x) {
+        return _mm256_cos_ps(x);
+    }
+    /**
      * @brief Element-wise hyperbolic sine.
      */
     [[nodiscard]]

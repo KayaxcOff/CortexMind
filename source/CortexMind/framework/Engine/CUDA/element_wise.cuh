@@ -85,6 +85,14 @@ namespace cortex::_fw::cuda {
          * @param N   Number of elements
          */
         static void abs(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+
+        static void sin(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+
+        static void cos(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+
+        static void sign(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+
+        static void neg(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
     };
 } //namespace cortex::_fw::cuda
 

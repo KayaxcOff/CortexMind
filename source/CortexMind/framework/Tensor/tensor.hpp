@@ -83,11 +83,13 @@ namespace cortex::_fw {
         [[nodiscard]]
         Tensor to(const sys::DeviceType& _device) const;
         [[nodiscard]]
-        Tensor gemm(const Tensor& other) const;
+        Tensor matmul(const Tensor& other) const;
         [[nodiscard]]
         Tensor transpose() const;
         [[nodiscard]]
         Tensor permute(const std::vector<i64>& dims) const;
+        [[nodiscard]]
+        Tensor reshape(const std::vector<i64>& _new_shape) const;
         [[nodiscard]]
         Tensor log() const;
         [[nodiscard]]
@@ -109,7 +111,21 @@ namespace cortex::_fw {
         [[nodiscard]]
         Tensor sum() const;
         [[nodiscard]]
-        Tensor sum(i64 dim, i64 start, i64 end) const;
+        Tensor neg() const;
+        [[nodiscard]]
+        Tensor sign() const;
+        [[nodiscard]]
+        Tensor squeeze(i64 dim = -1) const;
+        [[nodiscard]]
+        Tensor unsqueeze(i64 dim) const;
+        [[nodiscard]]
+        Tensor addition(const Tensor& other) const;
+        [[nodiscard]]
+        Tensor subtract(const Tensor& other) const;
+        [[nodiscard]]
+        Tensor multiply(const Tensor& other) const;
+        [[nodiscard]]
+        Tensor divide(const Tensor& other) const;
 
         [[nodiscard]]
         Tensor clone() const;

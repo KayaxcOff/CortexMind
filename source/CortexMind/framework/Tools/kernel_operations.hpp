@@ -100,6 +100,42 @@ namespace cortex::_fw::ops {
     };
 
     /**
+     * @brief Functor for sine operation.
+     */
+    struct Sin {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return sinf(x);
+        }
+    };
+
+    /**
+     * @brief Fast sine approximation using hardware intrinsics.
+     */
+    struct SinFast {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return __sinf(x);
+        }
+    };
+
+    /**
+     * @brief Functor for cosine operation.
+     */
+    struct Cos {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return cosf(x);
+        }
+    };
+
+    /**
+     * @brief Fast cosine approximation using hardware intrinsics.
+     */
+    struct CosFast {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return __cosf(x);
+        }
+    };
+
+    /**
      * @brief Functor for natural logarithm.
      */
     struct Log {
@@ -107,6 +143,25 @@ namespace cortex::_fw::ops {
             return __logf(x);
         }
     };
+
+    /**
+     * @brief Functor for sign operation (Returns -1.0 for negative, 1.0 for positive, 0.0 for zero).
+     */
+    struct Sign {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return (0.0f < x) - (x < 0.0f);
+        }
+    };
+
+    /**
+     * @brief Functor for negation operation (-x).
+     */
+    struct Neg {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return -x;
+        }
+    };
+
 
     /**
      * @brief Functor for exponential (e^x).

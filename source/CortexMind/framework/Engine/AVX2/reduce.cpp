@@ -9,16 +9,12 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
-#include <limits>
 #include <utility>
 
 using namespace cortex::_fw::avx2;
 using namespace cortex::_fw;
 
 f32 reduce::sum(const f32 *x, const size_t N) {
-    if (N <= 0) {
-        return std::numeric_limits<f32>::quiet_NaN();
-    }
 
     size_t i = 0;
     vec8f acc = zero();
@@ -33,18 +29,10 @@ f32 reduce::sum(const f32 *x, const size_t N) {
 }
 
 f32 reduce::mean(const f32 *x, const size_t N) {
-    if (N <= 0) {
-        return std::numeric_limits<f32>::quiet_NaN();
-    }
-
     return sum(x, N) / static_cast<f32>(N);
 }
 
 f32 reduce::var(const f32 *x, const size_t N) {
-    if (N <= 0) {
-        return std::numeric_limits<f32>::quiet_NaN();
-    }
-
     const f32 mu = mean(x, N);
     const vec8f vmu = set1(mu);
 
@@ -63,18 +51,10 @@ f32 reduce::var(const f32 *x, const size_t N) {
 }
 
 f32 reduce::std(const f32* x, const size_t N) {
-    if (N <= 0) {
-        return std::numeric_limits<f32>::quiet_NaN();
-    }
-
     return std::sqrt(var(x, N));
 }
 
 f32 reduce::min(const f32* x, const size_t N) {
-    if (N <= 0) {
-        return std::numeric_limits<f32>::quiet_NaN();
-    }
-
     size_t i = 8;
     vec8f acc = set1(x[0]);
     for (; i + 8 <= N; i += 8) {
@@ -88,10 +68,6 @@ f32 reduce::min(const f32* x, const size_t N) {
 }
 
 f32 reduce::max(const f32 *x, const size_t N) {
-    if (N <= 0) {
-        return std::numeric_limits<f32>::quiet_NaN();
-    }
-
     size_t i = 8;
     vec8f acc = set1(x[0]);
     for (; i + 8 <= N; i += 8) {
@@ -105,10 +81,6 @@ f32 reduce::max(const f32 *x, const size_t N) {
 }
 
 f32 reduce::norm1(const f32 *x, const size_t N) {
-    if (N <= 0) {
-        return std::numeric_limits<f32>::quiet_NaN();
-    }
-
     size_t i = 0;
     vec8f acc = zero();
     for (; i + 8 <= N; i += 8) {
@@ -122,10 +94,6 @@ f32 reduce::norm1(const f32 *x, const size_t N) {
 }
 
 f32 reduce::norm2(const f32* x, const size_t N) {
-    if (N <= 0) {
-        return std::numeric_limits<f32>::quiet_NaN();
-    }
-
     size_t i = 0;
     vec8f acc = zero();
     for (; i + 8 <= N; i += 8) {
@@ -140,10 +108,6 @@ f32 reduce::norm2(const f32* x, const size_t N) {
 }
 
 f32 reduce::dot(const f32* Xx, const f32* Xy, const size_t N) {
-    if (N <= 0) {
-        return std::numeric_limits<f32>::quiet_NaN();
-    }
-
     size_t i = 0;
     vec8f acc = zero();
     for (; i + 8 <= N; i += 8) {

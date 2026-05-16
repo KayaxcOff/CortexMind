@@ -8,6 +8,7 @@
 
 #include "CortexMind/framework/Engine/AVX2/broadcast.hpp"
 #include <CortexMind/framework/Engine/AVX2/functions.hpp>
+#include <vector>
 
 using namespace cortex::_fw::avx2;
 using namespace cortex::_fw;
@@ -56,6 +57,32 @@ namespace {
             x_row[i] = op_scalar(x_row[i], ys);
         }
     }
+
+    template<typename OpVec, typename OpScalar>
+    void execute_broadcast_2d(
+    const f32* __restrict x, const std::vector<int64_t>& x_shape, const std::vector<int64_t>& x_strides, const f32* __restrict y, const std::vector<int64_t>& y_shape, const std::vector<int64_t>& y_strides, f32* __restrict z, OpVec op_vec, OpScalar op_scalar) {
+        const size_t rows = x_shape[0];
+        const size_t cols = x_shape[1];
+
+        const int64_t y_stride_row = y_strides[0];
+        const int64_t y_stride_col = y_strides[1];
+
+        for (size_t r = 0; r < rows; ++r) {
+            const f32* x_row = x + r * x_strides[0];
+            f32* z_row = z + r * cols;
+
+            const f32* y_row = y + r * y_stride_row;
+
+            if (y_stride_col == 0) {
+                const f32 ys = y_row[0];
+                const vec8f yv = _mm256_set1_ps(ys);
+                apply_row_broadcast(x_row, yv, ys, z_row, cols, op_vec, op_scalar);
+            } else {
+                apply_row(x_row, y_row, z_row, cols, op_vec, op_scalar);
+            }
+        }
+    }
+
 } //unnamed namespace
 
 void Broadcast::row_add(const f32* Xx, const f32* Xy, f32* Xz, const size_t M, const size_t N) {

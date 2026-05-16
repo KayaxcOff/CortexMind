@@ -12,10 +12,6 @@
 using namespace cortex::_fw::avx2;
 
 void matrix_t::add(const f32 *Xx, const f32 *Xy, f32 *Xz, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     for (; i + 8 <= N; i += 8) {
         storeu(Xz + i, avx2::add(loadu(Xx + i), loadu(Xy + i)));
@@ -26,10 +22,6 @@ void matrix_t::add(const f32 *Xx, const f32 *Xy, f32 *Xz, const size_t N) {
 }
 
 void matrix_t::sub(const f32 *Xx, const f32 *Xy, f32 *Xz, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     for (; i + 8 <= N; i += 8) {
         storeu(Xz + i, avx2::sub(loadu(Xx + i), loadu(Xy + i)));
@@ -40,10 +32,6 @@ void matrix_t::sub(const f32 *Xx, const f32 *Xy, f32 *Xz, const size_t N) {
 }
 
 void matrix_t::mul(const f32 *Xx, const f32 *Xy, f32 *Xz, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     for (; i + 8 <= N; i += 8) {
         storeu(Xz + i, avx2::mul(loadu(Xx + i), loadu(Xy + i)));
@@ -54,10 +42,6 @@ void matrix_t::mul(const f32 *Xx, const f32 *Xy, f32 *Xz, const size_t N) {
 }
 
 void matrix_t::div(const f32 *Xx, const f32 *Xy, f32 *Xz, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     for (; i + 8 <= N; i += 8) {
         storeu(Xz + i, avx2::div(loadu(Xx + i), loadu(Xy + i)));
@@ -141,10 +125,6 @@ void matrix_t::matmul(const f32* Xx, const f32* Xy, f32* Xz, const size_t xN, co
 }
 
 void matrix_t::add(f32 *Xx, const f32 *Xy, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     for (; i + 8 <= N; i += 8) {
         storeu(Xx + i, avx2::add(loadu(Xx + i), loadu(Xy + i)));
@@ -155,10 +135,6 @@ void matrix_t::add(f32 *Xx, const f32 *Xy, const size_t N) {
 }
 
 void matrix_t::sub(f32 *Xx, const f32 *Xy, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     for (; i + 8 <= N; i += 8) {
         storeu(Xx + i, avx2::sub(loadu(Xx + i), loadu(Xy + i)));
@@ -169,10 +145,6 @@ void matrix_t::sub(f32 *Xx, const f32 *Xy, const size_t N) {
 }
 
 void matrix_t::mul(f32 *Xx, const f32 *Xy, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     for (; i + 8 <= N; i += 8) {
         storeu(Xx + i, avx2::mul(loadu(Xx + i), loadu(Xy + i)));
@@ -183,10 +155,6 @@ void matrix_t::mul(f32 *Xx, const f32 *Xy, const size_t N) {
 }
 
 void matrix_t::div(f32 *Xx, const f32 *Xy, const size_t N) {
-    if (N <= 0) {
-        return;
-    }
-
     size_t i = 0;
     for (; i + 8 <= N; i += 8) {
         storeu(Xx + i, avx2::div(loadu(Xx + i), loadu(Xy + i)));

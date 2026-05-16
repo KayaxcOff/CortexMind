@@ -29,13 +29,21 @@ namespace cortex::_fw::avx2 {
          */
         static void pow(const f32* __restrict Xx, f32 exp, f32* __restrict Xz, size_t N);
         /**
-         * @brief Element-wise square root: `Z[i] = sqrt(X[i])`
+         * @brief Element-wise sqrt root: `Z[i] = sqrt(X[i])`
          *
          * @param Xx Input array pointer
          * @param Xz Output array pointer
          * @param N  Number of elements
          */
         static void sqrt(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Element-wise rsqrt root: `Z[i] = 1 / sqrt(X[i])`
+         *
+         * @param Xx Input array pointer
+         * @param Xz Output array pointer
+         * @param N  Number of elements
+         */
+        static void rsqrt(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
         /**
          * @brief Element-wise natural logarithm: `Z[i] = log(X[i])`
          *
@@ -61,6 +69,14 @@ namespace cortex::_fw::avx2 {
          */
         static void sin(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
         /**
+         * @brief Element-wise cose: `Z[i] = cos(X[i])`
+         *
+         * @param Xx Input array pointer
+         * @param Xz Output array pointer
+         * @param N  Number of elements
+         */
+        static void cos(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        /**
          * @brief Element-wise absolute value: `Z[i] = |X[i]|`
          *
          * @param Xx Input array pointer
@@ -68,6 +84,22 @@ namespace cortex::_fw::avx2 {
          * @param N  Number of elements
          */
         static void abs(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Element-wise neg value: `Z[i] = -X[i]`
+         *
+         * @param Xx Input array pointer
+         * @param Xz Output array pointer
+         * @param N  Number of elements
+         */
+        static void neg(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Element-wise neg value: `Z[i] < 0 = -1 | Z[i] = 0 = 0 | Z[i] > o = 1`
+         *
+         * @param Xx Input array pointer
+         * @param Xz Output array pointer
+         * @param N  Number of elements
+         */
+        static void sign(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
     };
 } //namespace cortex::_fw::avx2
 

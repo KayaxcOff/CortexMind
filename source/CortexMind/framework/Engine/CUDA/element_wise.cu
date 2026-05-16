@@ -50,3 +50,27 @@ void ElementWise::abs(const f32 *Xx, f32 *Xz, size_t N) {
     f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);
     kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Abs{});
 }
+
+void ElementWise::sin(const f32 *Xx, f32 *Xz, size_t N) {
+    const f32x4* Xx4 = reinterpret_cast<const f32x4*>(Xx);
+    f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);
+    kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Sin{});
+}
+
+void ElementWise::cos(const f32 *Xx, f32 *Xz, size_t N) {
+    const f32x4* Xx4 = reinterpret_cast<const f32x4*>(Xx);
+    f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);
+    kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Cos{});
+}
+
+void ElementWise::sign(const f32 *Xx, f32 *Xz, size_t N) {
+    const f32x4* Xx4 = reinterpret_cast<const f32x4*>(Xx);
+    f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);
+    kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Sign{});
+}
+
+void ElementWise::neg(const f32 *Xx, f32 *Xz, size_t N) {
+    const f32x4* Xx4 = reinterpret_cast<const f32x4*>(Xx);
+    f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);
+    kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Neg{});
+}
