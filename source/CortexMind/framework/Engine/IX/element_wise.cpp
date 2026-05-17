@@ -19,10 +19,10 @@ ElementWise::ElementWise() = default;
 ElementWise::~ElementWise() = default;
 
 void ElementWise::pow(const TensorStorage *Xx, const f32 exp, TensorStorage *Xz, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
-    CXM_ASSERT(Xz->isValid(), "Output Storage is null");
+    CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -47,10 +47,10 @@ void ElementWise::pow(const TensorStorage *Xx, const f32 exp, TensorStorage *Xz,
 }
 
 void ElementWise::sqrt(const TensorStorage *Xx, TensorStorage *Xz, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
-    CXM_ASSERT(Xz->isValid(), "Output Storage is null");
+    CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -75,10 +75,10 @@ void ElementWise::sqrt(const TensorStorage *Xx, TensorStorage *Xz, const size_t 
 }
 
 void ElementWise::log(const TensorStorage *Xx, TensorStorage *Xz, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
-    CXM_ASSERT(Xz->isValid(), "Output Storage is null");
+    CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -103,10 +103,10 @@ void ElementWise::log(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
 }
 
 void ElementWise::exp(const TensorStorage *Xx, TensorStorage *Xz, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
-    CXM_ASSERT(Xz->isValid(), "Output Storage is null");
+    CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -131,10 +131,10 @@ void ElementWise::exp(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
 }
 
 void ElementWise::abs(const TensorStorage *Xx, TensorStorage *Xz, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
-    CXM_ASSERT(Xz->isValid(), "Output Storage is null");
+    CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -159,10 +159,10 @@ void ElementWise::abs(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
 }
 
 void ElementWise::sin(const TensorStorage *Xx, TensorStorage *Xz, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
-    CXM_ASSERT(Xz->isValid(), "Output Storage is null");
+    CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -187,10 +187,10 @@ void ElementWise::sin(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
 }
 
 void ElementWise::cos(const TensorStorage *Xx, TensorStorage *Xz, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
-    CXM_ASSERT(Xz->isValid(), "Output Storage is null");
+    CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -215,10 +215,10 @@ void ElementWise::cos(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
 }
 
 void ElementWise::rsqrt(const TensorStorage *Xx, TensorStorage *Xz, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
-    CXM_ASSERT(Xz->isValid(), "Output Storage is null");
+    CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -243,10 +243,10 @@ void ElementWise::rsqrt(const TensorStorage *Xx, TensorStorage *Xz, const size_t
 }
 
 void ElementWise::sign(const TensorStorage *Xx, TensorStorage *Xz, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
-    CXM_ASSERT(Xz->isValid(), "Output Storage is null");
+    CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -271,10 +271,10 @@ void ElementWise::sign(const TensorStorage *Xx, TensorStorage *Xz, const size_t 
 }
 
 void ElementWise::neg(const TensorStorage *Xx, TensorStorage *Xz, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
-    CXM_ASSERT(Xz->isValid(), "Output Storage is null");
+    CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");

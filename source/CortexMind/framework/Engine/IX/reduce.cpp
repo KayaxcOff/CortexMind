@@ -21,7 +21,7 @@ reduce::~reduce() = default;
 #endif //#if CXM_IS_CUDA_AVAILABLE
 
 f32 reduce::sum(const TensorStorage *x, const size_t N) {
-    CXM_ASSERT(x->isValid(), "Input Storage is null");
+    CXM_ASSERT(!x->isValid(), "Input Storage is null");
     CXM_ASSERT(x->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -44,7 +44,7 @@ f32 reduce::sum(const TensorStorage *x, const size_t N) {
 }
 
 f32 reduce::mean(const TensorStorage *x, const size_t N) {
-    CXM_ASSERT(x->isValid(), "Input Storage is null");
+    CXM_ASSERT(!x->isValid(), "Input Storage is null");
     CXM_ASSERT(x->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -67,7 +67,7 @@ f32 reduce::mean(const TensorStorage *x, const size_t N) {
 }
 
 f32 reduce::var(const TensorStorage *x, const size_t N) {
-    CXM_ASSERT(x->isValid(), "Input Storage is null");
+    CXM_ASSERT(!x->isValid(), "Input Storage is null");
     CXM_ASSERT(x->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -90,7 +90,7 @@ f32 reduce::var(const TensorStorage *x, const size_t N) {
 }
 
 f32 reduce::stdv(const TensorStorage *x, const size_t N) {
-    CXM_ASSERT(x->isValid(), "Input Storage is null");
+    CXM_ASSERT(!x->isValid(), "Input Storage is null");
     CXM_ASSERT(x->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -113,7 +113,7 @@ f32 reduce::stdv(const TensorStorage *x, const size_t N) {
 }
 
 f32 reduce::min(const TensorStorage *x, const size_t N) {
-    CXM_ASSERT(x->isValid(), "Input Storage is null");
+    CXM_ASSERT(!x->isValid(), "Input Storage is null");
     CXM_ASSERT(x->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -136,7 +136,7 @@ f32 reduce::min(const TensorStorage *x, const size_t N) {
 }
 
 f32 reduce::max(const TensorStorage *x, const size_t N) {
-    CXM_ASSERT(x->isValid(), "Input Storage is null");
+    CXM_ASSERT(!x->isValid(), "Input Storage is null");
     CXM_ASSERT(x->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -159,7 +159,7 @@ f32 reduce::max(const TensorStorage *x, const size_t N) {
 }
 
 f32 reduce::norm1(const TensorStorage *x, const size_t N) {
-    CXM_ASSERT(x->isValid(), "Input Storage is null");
+    CXM_ASSERT(!x->isValid(), "Input Storage is null");
     CXM_ASSERT(x->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -182,7 +182,7 @@ f32 reduce::norm1(const TensorStorage *x, const size_t N) {
 }
 
 f32 reduce::norm2(const TensorStorage *x, const size_t N) {
-    CXM_ASSERT(x->isValid(), "Input Storage is null");
+    CXM_ASSERT(!x->isValid(), "Input Storage is null");
     CXM_ASSERT(x->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -205,12 +205,12 @@ f32 reduce::norm2(const TensorStorage *x, const size_t N) {
 }
 
 f32 reduce::dot(const TensorStorage *Xx, const TensorStorage *Xy, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
 
-    CXM_ASSERT(Xy->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xy->isValid(), "Input Storage is null");
     CXM_ASSERT(Xy->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xy->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xy->device()));

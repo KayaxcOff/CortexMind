@@ -20,12 +20,12 @@ ScalarOp::ScalarOp() = default;
 ScalarOp::~ScalarOp() = default;
 
 void ScalarOp::add(const TensorStorage *Xx, const f32 value, TensorStorage *Xz, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
 
-    CXM_ASSERT(Xz->isValid(), "Output Storage is null");
+    CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
@@ -48,12 +48,12 @@ void ScalarOp::add(const TensorStorage *Xx, const f32 value, TensorStorage *Xz, 
 }
 
 void ScalarOp::sub(const TensorStorage *Xx, const f32 value, TensorStorage *Xz, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
 
-    CXM_ASSERT(Xz->isValid(), "Output Storage is null");
+    CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
@@ -76,12 +76,12 @@ void ScalarOp::sub(const TensorStorage *Xx, const f32 value, TensorStorage *Xz, 
 }
 
 void ScalarOp::mul(const TensorStorage *Xx, const f32 value, TensorStorage *Xz, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
 
-    CXM_ASSERT(Xz->isValid(), "Output Storage is null");
+    CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
@@ -104,13 +104,13 @@ void ScalarOp::mul(const TensorStorage *Xx, const f32 value, TensorStorage *Xz, 
 }
 
 void ScalarOp::div(const TensorStorage *Xx, const f32 value, TensorStorage *Xz, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
     CXM_ASSERT(value == 0, "Scalar value can't be zero for division");
 
-    CXM_ASSERT(Xz->isValid(), "Output Storage is null");
+    CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
@@ -133,7 +133,7 @@ void ScalarOp::div(const TensorStorage *Xx, const f32 value, TensorStorage *Xz, 
 }
 
 void ScalarOp::add(TensorStorage *Xx, const f32 value, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -152,7 +152,7 @@ void ScalarOp::add(TensorStorage *Xx, const f32 value, const size_t N) {
 }
 
 void ScalarOp::sub(TensorStorage *Xx, const f32 value, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -171,7 +171,7 @@ void ScalarOp::sub(TensorStorage *Xx, const f32 value, const size_t N) {
 }
 
 void ScalarOp::mul(TensorStorage *Xx, const f32 value, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
@@ -190,7 +190,7 @@ void ScalarOp::mul(TensorStorage *Xx, const f32 value, const size_t N) {
 }
 
 void ScalarOp::div(TensorStorage *Xx, const f32 value, const size_t N) {
-    CXM_ASSERT(Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
     CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
