@@ -27,7 +27,7 @@ void ElementWise::pow(const TensorStorage *Xx, const f32 exp, TensorStorage *Xz,
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
 
-    CXM_ASSERT(Xx->device() == Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
+    CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
 
     auto dev = DeviceType::kHOST;
 
@@ -55,7 +55,7 @@ void ElementWise::sqrt(const TensorStorage *Xx, TensorStorage *Xz, const size_t 
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
 
-    CXM_ASSERT(Xx->device() == Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
+    CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
 
     auto dev = DeviceType::kHOST;
 
@@ -87,7 +87,7 @@ void ElementWise::log(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
 
     auto dev = DeviceType::kHOST;
 
-    if (Xx->device() == Xz->device()) {
+    if (Xx->device() != Xz->device()) {
         dev = Xx->device();
     }
 
@@ -115,7 +115,7 @@ void ElementWise::exp(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
 
     auto dev = DeviceType::kHOST;
 
-    if (Xx->device() == Xz->device()) {
+    if (Xx->device() != Xz->device()) {
         dev = Xx->device();
     }
 
@@ -143,7 +143,7 @@ void ElementWise::abs(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
 
     auto dev = DeviceType::kHOST;
 
-    if (Xx->device() == Xz->device()) {
+    if (Xx->device() != Xz->device()) {
         dev = Xx->device();
     }
 
@@ -171,7 +171,7 @@ void ElementWise::sin(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
 
     auto dev = DeviceType::kHOST;
 
-    if (Xx->device() == Xz->device()) {
+    if (Xx->device() != Xz->device()) {
         dev = Xx->device();
     }
 
@@ -195,7 +195,7 @@ void ElementWise::cos(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
 
-    CXM_ASSERT(Xx->device() == Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
+    CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
 
     auto dev = DeviceType::kHOST;
 
@@ -223,7 +223,7 @@ void ElementWise::rsqrt(const TensorStorage *Xx, TensorStorage *Xz, const size_t
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
 
-    CXM_ASSERT(Xx->device() == Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
+    CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
 
     auto dev = DeviceType::kHOST;
 
@@ -251,7 +251,7 @@ void ElementWise::sign(const TensorStorage *Xx, TensorStorage *Xz, const size_t 
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
 
-    CXM_ASSERT(Xx->device() == Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
+    CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
 
     auto dev = DeviceType::kHOST;
 
@@ -279,7 +279,7 @@ void ElementWise::neg(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
 
     CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
 
-    CXM_ASSERT(Xx->device() == Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
+    CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
 
     auto dev = DeviceType::kHOST;
 
