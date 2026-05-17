@@ -13,8 +13,6 @@
 #else //#if CXM_IS_CUDA_AVAILABLE
     #include <cstring>
 #endif //#if CXM_IS_CUDA_AVAILABLE #else
-#include <CortexMind/framework/Tools/err.hpp>
-#include <CortexMind/framework/Tools/tensor_meta.hpp>
 #include <string>
 #include <type_traits>
 
@@ -92,50 +90,6 @@ Tensor::Tensor(Tensor &&other) noexcept {
 }
 
 Tensor::~Tensor() = default;
-
-template<typename... Args> requires (std::integral<Args> && ...)
-f32 &Tensor::at(Args... args) {
-    CXM_ASSERT(this->storage_ == nullptr, "Tensor storage is null");
-    CXM_ASSERT(this->storage_->device() != sys::DeviceType::kHOST,
-        "at() is only supported on HOST tensors");
-
-    const std::vector<i64> indices = { static_cast<i64>(args)... };
-
-    CXM_ASSERT(indices.size() != this->m_shape.size(),
-        "Index dimension mismatch: got " + std::to_string(indices.size()) +
-        " expected " + std::to_string(this->m_shape.size()));
-
-    for (size_t d = 0; d < indices.size(); ++d) {
-        CXM_ASSERT(indices[d] < 0 || indices[d] >= this->m_shape[d],
-            "Index out of bounds at dim " + std::to_string(d) +
-            ": got " + std::to_string(indices[d]) +
-            " size " + std::to_string(this->m_shape[d]));
-    }
-    const i64 linear = compute_linear_index(this->m_strides, indices, this->m_offset);
-    return this->storage_->data()[linear];
-}
-
-template<typename... Args> requires (std::integral<Args> && ...)
-const f32 &Tensor::at(Args... args) const {
-    CXM_ASSERT(this->storage_ == nullptr, "Tensor storage is null");
-    CXM_ASSERT(this->storage_->device() != sys::DeviceType::kHOST,
-        "at() is only supported on HOST tensors");
-
-    const std::vector<i64> indices = { static_cast<i64>(args)... };
-
-    CXM_ASSERT(indices.size() != this->m_shape.size(),
-        "Index dimension mismatch: got " + std::to_string(indices.size()) +
-        " expected " + std::to_string(this->m_shape.size()));
-
-    for (size_t d = 0; d < indices.size(); ++d) {
-        CXM_ASSERT(indices[d] < 0 || indices[d] >= this->m_shape[d],
-            "Index out of bounds at dim " + std::to_string(d) +
-            ": got " + std::to_string(indices[d]) +
-            " size " + std::to_string(this->m_shape[d]));
-    }
-    const i64 linear = compute_linear_index(this->m_strides, indices, this->m_offset);
-    return this->storage_->data()[linear];
-}
 
 f32 *Tensor::get() {
     return this->storage_->data() + this->m_offset;

@@ -8,6 +8,8 @@
 #include <CortexMind/framework/Gradient/flow.hpp>
 #include <CortexMind/framework/Gradient/saved_tensor.hpp>
 #include <CortexMind/framework/Storage/stor.hpp>
+#include <CortexMind/framework/Tools/err.hpp>
+#include <CortexMind/framework/Tools/tensor_meta.hpp>
 #include <concepts>
 #include <initializer_list>
 #include <iosfwd>
@@ -81,7 +83,26 @@ namespace cortex::_fw {
          */
         template<typename ... Args> requires (std::integral<Args> && ...)
         [[nodiscard]]
-        f32& at(Args...args);
+        f32& at(Args...args) {
+            CXM_ASSERT(this->storage_ == nullptr, "Tensor storage is null");
+            CXM_ASSERT(this->storage_->device() != sys::DeviceType::kHOST,
+                "at() is only supported on HOST tensors");
+
+            const std::vector<i64> indices = { static_cast<i64>(args)... };
+
+            CXM_ASSERT(indices.size() != this->m_shape.size(),
+                "Index dimension mismatch: got " + std::to_string(indices.size()) +
+                " expected " + std::to_string(this->m_shape.size()));
+
+            for (size_t d = 0; d < indices.size(); ++d) {
+                CXM_ASSERT(indices[d] < 0 || indices[d] >= this->m_shape[d],
+                    "Index out of bounds at dim " + std::to_string(d) +
+                    ": got " + std::to_string(indices[d]) +
+                    " size " + std::to_string(this->m_shape[d]));
+            }
+            const i64 linear = compute_linear_index(this->m_strides, indices, this->m_offset);
+            return this->storage_->data()[linear];
+        }
 
         /**
          * @brief Returns a constant reference to an element.
@@ -94,7 +115,26 @@ namespace cortex::_fw {
          */
         template<typename ... Args> requires (std::integral<Args> && ...)
         [[nodiscard]]
-        const f32& at(Args...args) const;
+        const f32& at(Args...args) const {
+            CXM_ASSERT(this->storage_ == nullptr, "Tensor storage is null");
+            CXM_ASSERT(this->storage_->device() != sys::DeviceType::kHOST,
+                "at() is only supported on HOST tensors");
+
+            const std::vector<i64> indices = { static_cast<i64>(args)... };
+
+            CXM_ASSERT(indices.size() != this->m_shape.size(),
+                "Index dimension mismatch: got " + std::to_string(indices.size()) +
+                " expected " + std::to_string(this->m_shape.size()));
+
+            for (size_t d = 0; d < indices.size(); ++d) {
+                CXM_ASSERT(indices[d] < 0 || indices[d] >= this->m_shape[d],
+                    "Index out of bounds at dim " + std::to_string(d) +
+                    ": got " + std::to_string(indices[d]) +
+                    " size " + std::to_string(this->m_shape[d]));
+            }
+            const i64 linear = compute_linear_index(this->m_strides, indices, this->m_offset);
+            return this->storage_->data()[linear];
+        }
 
         /**
          * @brief Returns a pointer to the tensor data.
