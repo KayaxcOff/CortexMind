@@ -28,20 +28,20 @@ TEST(ReduceSimple, AllocOnly) {
 }
 
 TEST(ReduceSimple, DataConstructor) {
-    std::vector<float32> data = {1.0f, 2.0f, 3.0f};
-    tensor t({3}, data.data(), host);
+    const std::vector data = {1.0f, 2.0f, 3.0f};
+    const tensor t({3}, data.data(), host);
     EXPECT_FALSE(t.empty());
 }
 
 TEST(ReduceSimple, DataAccess) {
-    std::vector<float32> data = {1.0f, 2.0f, 3.0f};
+    const std::vector data = {1.0f, 2.0f, 3.0f};
     tensor t({3}, data.data(), host);
     EXPECT_NEAR(t.at(0), 1.0f, 1e-4f);
 }
 
 TEST(ReduceSimple, SumSmall) {
-    std::vector<float32> data = {1.0f, 2.0f, 3.0f};
-    tensor t({3}, data.data(), host);
+    const std::vector data = {1.0f, 2.0f, 3.0f};
+    const tensor t({3}, data.data(), host);
     EXPECT_NEAR(t.sum_all(), 6.0f, 1e-4f);
 }
 
@@ -76,6 +76,20 @@ TEST_F(ReduceTest, Max) {
     EXPECT_NEAR(t.max(), 8.0f, 1e-4f);
 }
 
+/**
+ * C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_G_TEST.exe --gtest_color=no
+ * Testing started at 14:43 ...
+ * Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
+ * C:\software\Cpp\projects\CortexMind\test\g_test.cpp(76): error: The difference between t.max() and 8.0f is 7, which exceeds 1e-4f, where
+ * t.max() evaluates to 1,
+ * 8.0f evaluates to 8, and
+ * 1e-4f evaluates to 9.9999997473787516e-05.
+
+
+
+ * Process finished with exit code 1
+ */
+
 TEST_F(ReduceTest, Norm1) {
     // |1|+|2|+...+|8| = 36
     EXPECT_NEAR(t.norm1(), 36.0f, 1e-4f);
@@ -99,6 +113,19 @@ TEST_F(ReduceTest, MeanSingleElement) {
     EXPECT_NEAR(t1.mean(), 7.0f, 1e-4f);
 }
 
+/**
+ * C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_G_TEST.exe --gtest_color=no
+ * Testing started at 14:44 ...
+ * Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
+ * unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
+ * Stack trace:
+
+
+
+
+ * Process finished with exit code 1
+ */
+
 TEST_F(ReduceTest, MinNegative) {
     const std::vector data = {-3.0f, -1.0f, 0.0f, 2.0f};
     const tensor tn({4}, data.data(), host);
@@ -110,3 +137,17 @@ TEST_F(ReduceTest, MaxNegative) {
     const tensor tn({4}, data.data(), host);
     EXPECT_NEAR(tn.max(), 2.0f, 1e-4f);
 }
+
+/**
+ * C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_G_TEST.exe --gtest_color=no
+ * Testing started at 14:45 ...
+ * Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
+ * C:\software\Cpp\projects\CortexMind\test\g_test.cpp(138): error: The difference between tn.max() and 2.0f is 5, which exceeds 1e-4f, where
+ * tn.max() evaluates to -3,
+ * 2.0f evaluates to 2, and
+ * 1e-4f evaluates to 9.9999997473787516e-05.
+
+
+
+ * Process finished with exit code 1
+ */
