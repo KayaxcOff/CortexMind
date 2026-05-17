@@ -25,195 +25,467 @@ namespace cortex::_fw {
     class Tensor {
     public:
         /**
-         * @brief Default constructor - creates an empty tensor.
+         * @brief Default constructor.
+         *
+         * Creates an empty tensor with no allocated storage,
+         * no gradient tracking, and no computation flow.
          */
         Tensor();
         /**
-         * @brief Constructs a tensor with given shape.
+         * @brief Constructs a tensor with the specified shape.
          *
-         * @param shape        Tensor dimensions
-         * @param _device      Target device (default: HOST)
-         * @param _requires_grad Whether gradient should be tracked
+         * Allocates tensor storage on the given device.
+         *
+         * @param shape Shape of the tensor.
+         * @param _device Target device where the tensor will be allocated.
+         * @param _requires_grad Enables automatic gradient tracking if true.
          */
         explicit Tensor(const std::vector<i64>& shape, sys::DeviceType _device = sys::DeviceType::kHOST, bool _requires_grad = false);
         /**
-         * @brief Constructs a tensor from initializer list.
+         * @brief Constructs a tensor using an initializer list shape.
+         *
+         * @param shape Shape of the tensor.
+         * @param _device Target device where the tensor will be allocated.
+         * @param _requires_grad Enables automatic gradient tracking if true.
          */
         explicit Tensor(std::initializer_list<i64> shape, sys::DeviceType _device = sys::DeviceType::kHOST, bool _requires_grad = false);
         /**
-         * @brief Constructs a tensor from existing data.
+         * @brief Constructs a tensor from raw data.
+         *
+         * Copies the given data into tensor storage.
+         *
+         * @param shape Shape of the tensor.
+         * @param data Pointer to source data.
+         * @param _device Target device.
+         * @param _requires_grad Enables automatic gradient tracking if true.
          */
         Tensor(const std::vector<i64>& shape, const f32* data, sys::DeviceType _device = sys::DeviceType::kHOST, bool _requires_grad = false);
+        /**
+         * @brief Constructs a tensor from a packed gradient structure.
+         *
+         * @param packed Gradient-packed tensor metadata and storage.
+         */
         explicit Tensor(const meta::GradientPacked& packed);
         Tensor(const Tensor& other);
         Tensor(Tensor&& other) noexcept;
         ~Tensor();
 
         /**
-         * @brief Multidimensional indexing (host memory only).
+         * @brief Returns a mutable reference to an element.
+         *
+         * This function is only supported for tensors located on the HOST device.
+         *
+         * @tparam Args Integral index types.
+         * @param args Tensor indices.
+         * @return Reference to the selected element.
          */
         template<typename ... Args> requires (std::integral<Args> && ...)
         [[nodiscard]]
         f32& at(Args...args);
 
         /**
-         * @brief Multidimensional indexing as const (host memory only).
+         * @brief Returns a constant reference to an element.
+         *
+         * This function is only supported for tensors located on the HOST device.
+         *
+         * @tparam Args Integral index types.
+         * @param args Tensor indices.
+         * @return Constant reference to the selected element.
          */
         template<typename ... Args> requires (std::integral<Args> && ...)
         [[nodiscard]]
         const f32& at(Args...args) const;
 
         /**
-         * @brief Returns raw mutable pointer to the underlying data.
+         * @brief Returns a pointer to the tensor data.
+         *
+         * @return Pointer to tensor memory.
          */
         [[nodiscard]]
         f32* get();
         /**
-         * @brief Returns raw const pointer to the underlying data.
+         * @brief Returns a constant pointer to the tensor data.
+         *
+         * @return Constant pointer to tensor memory.
          */
         [[nodiscard]]
         const f32* get() const;
         /**
-         * @brief Returns the shape of the tensor.
+         * @brief Returns the tensor shape.
+         *
+         * @return Tensor shape vector.
          */
         [[nodiscard]]
         const std::vector<i64>& shape() const;
         /**
-         * @brief Returns whether gradient tracking is enabled.
+         * @brief Checks whether the tensor has gradient storage.
+         *
+         * @return True if gradient storage exists.
          */
         [[nodiscard]]
         bool has_grad() const;
         /**
-         * @brief Returns true if tensor has zero elements.
+         * @brief Checks whether the tensor storage is empty.
+         *
+         * @return True if tensor storage is empty.
          */
         [[nodiscard]]
         bool empty() const;
         /**
-         * @brief Returns true if tensor is contiguous in memory.
+         * @brief Checks whether the tensor memory layout is contiguous.
+         *
+         * @return True if tensor is contiguous.
          */
         [[nodiscard]]
         bool contiguous() const;
         /**
-         * @brief Returns the current device of the tensor.
+         * @brief Returns the device where the tensor is stored.
+         *
+         * @return Tensor device type.
          */
         [[nodiscard]]
         sys::DeviceType device() const;
 
         /**
-         * @brief Returns total number of elements.
+         * @brief Returns the total number of elements.
+         *
+         * @return Element count.
          */
         [[nodiscard]]
         size_t len() const;
         /**
-         * @brief Returns number of dimensions.
+         * @brief Returns the number of tensor dimensions.
+         *
+         * @return Dimension count.
          */
         [[nodiscard]]
         size_t ndim() const;
 
         /**
-         * @brief Returns the mean of all elements.
+         * @brief Computes the arithmetic mean of all tensor elements.
+         *
+         * @return Mean value.
          */
         [[nodiscard]]
         f32 mean() const;
         /**
-         * @brief Returns the variance of all elements.
+         * @brief Computes the variance of all tensor elements.
+         *
+         * @return Variance value.
          */
         [[nodiscard]]
         f32 variance() const;
         /**
-         * @brief Returns the standard deviation of all elements.
+         * @brief Computes the standard deviation of all tensor elements.
+         *
+         * @return Standard deviation value.
          */
         [[nodiscard]]
         f32 stdv() const;
         /**
-         * @brief Returns the maximum value.
+         * @brief Returns the maximum element value.
+         *
+         * @return Maximum value.
          */
         [[nodiscard]]
         f32 max() const;
         /**
-         * @brief Returns the minimum value.
+         * @brief Returns the minimum element value.
+         *
+         * @return Minimum value.
          */
         [[nodiscard]]
         f32 min() const;
         /**
-         * @brief Returns the sum of all elements.
+         * @brief Computes the sum of all tensor elements.
+         *
+         * @return Sum of all values.
          */
         [[nodiscard]]
         f32 sum_all() const;
         /**
-         * @brief Returns L1 norm (sum of absolute values).
+         * @brief Computes the L1 norm of the tensor.
+         *
+         * @return L1 norm value.
          */
         [[nodiscard]]
         f32 norm1() const;
         /**
-         * @brief Returns L2 norm (Euclidean norm).
+         * @brief Computes the L2 norm of the tensor.
+         *
+         * @return L2 norm value.
          */
         [[nodiscard]]
         f32 norm2() const;
 
+        /**
+         * @brief Fills the tensor with a constant value.
+         *
+         * @param value Fill value.
+         */
         void fill(f32 value);
+        /**
+         * @brief Fills the tensor with zeros.
+         */
         void zero();
+        /**
+         * @brief Fills the tensor with ones.
+         */
         void ones();
+        /**
+         * @brief Fills the tensor with uniformly distributed random values.
+         *
+         * @param min Minimum random value.
+         * @param max Maximum random value.
+         */
         void uniform(f32 min = 0.0f, f32 max = 1.0f) const;
+        /**
+         * @brief Starts backpropagation using the stored gradient tensor.
+         *
+         * If the tensor is scalar, its gradient is initialized to 1.
+         */
         void backward() const;
+        /**
+         * @brief Starts backpropagation using a custom gradient tensor.
+         *
+         * @param _grad External gradient tensor.
+         */
         void backward(const Tensor& _grad) const;
+        /**
+         * @brief Copies external data into the tensor.
+         *
+         * @param _data Source data pointer.
+         */
         void SetData(const f32* _data);
+        /**
+         * @brief Assigns a shared gradient tensor.
+         *
+         * @param _grad Shared gradient tensor.
+         */
         void SetGrad(const std::shared_ptr<Tensor> &_grad);
+        /**
+         * @brief Assigns a gradient tensor copy.
+         *
+         * @param _grad Gradient tensor.
+         */
         void SetGrad(const Tensor& _grad);
+        /**
+         * @brief Sets the computation graph flow object.
+         *
+         * @param _flow Gradient flow implementation.
+         */
         void SetFlow(const std::shared_ptr<meta::GradientFlow>& _flow);
 
+        /**
+         * @brief Transfers the tensor to another device.
+         *
+         * @param _device Target device.
+         * @return Tensor located on the target device.
+         */
         [[nodiscard]]
         Tensor to(const sys::DeviceType& _device) const;
+        /**
+         * @brief Performs matrix multiplication.
+         *
+         * Both tensors must be 2D and compatible for multiplication.
+         *
+         * @param other Right-hand tensor.
+         * @return Result tensor.
+         */
         [[nodiscard]]
         Tensor matmul(const Tensor& other) const;
+        /**
+         * @brief Transposes a 2D tensor.
+         *
+         * @return Transposed tensor.
+         */
         [[nodiscard]]
         Tensor transpose() const;
+        /**
+         * @brief Permutes tensor dimensions.
+         *
+         * @param dims Dimension permutation order.
+         * @return Permuted tensor view.
+         */
         [[nodiscard]]
         Tensor permute(const std::vector<i64>& dims) const;
+        /**
+         * @brief Reshapes the tensor without copying memory.
+         *
+         * Tensor must be contiguous.
+         *
+         * @param _new_shape New tensor shape.
+         * @return Reshaped tensor view.
+         */
         [[nodiscard]]
         Tensor reshape(const std::vector<i64>& _new_shape) const;
+        /**
+         * @brief Applies natural logarithm element-wise.
+         *
+         * @return Result tensor.
+         */
         [[nodiscard]]
         Tensor log() const;
+        /**
+         * @brief Applies exponential function element-wise.
+         *
+         * @return Result tensor.
+         */
         [[nodiscard]]
         Tensor exp() const;
+        /**
+         * @brief Raises tensor elements to a power.
+         *
+         * @param exp Exponent value.
+         * @return Result tensor.
+         */
         [[nodiscard]]
         Tensor pow(f32 exp = 2.0f) const;
+        /**
+         * @brief Applies square root element-wise.
+         *
+         * @return Result tensor.
+         */
         [[nodiscard]]
         Tensor sqrt() const;
+        /**
+         * @brief Applies reciprocal square root element-wise.
+         *
+         * @return Result tensor.
+         */
         [[nodiscard]]
         Tensor rsqrt() const;
+        /**
+         * @brief Applies sine function element-wise.
+         *
+         * @return Result tensor.
+         */
         [[nodiscard]]
         Tensor sin() const;
+        /**
+         * @brief Applies cosine function element-wise.
+         *
+         * @return Result tensor.
+         */
         [[nodiscard]]
         Tensor cos() const;
+        /**
+         * @brief Computes absolute value element-wise.
+         *
+         * @return Result tensor.
+         */
         [[nodiscard]]
         Tensor abs() const;
+        /**
+         * @brief Returns a sliced tensor view.
+         *
+         * @param dim Target dimension.
+         * @param start Slice start index.
+         * @param end Slice end index.
+         * @return Sliced tensor view.
+         */
         [[nodiscard]]
         Tensor slice(i64 dim, i64 start, i64 end) const;
+        /**
+         * @brief Computes the sum of all tensor elements.
+         *
+         * Returns the result as a scalar tensor.
+         *
+         * @return Scalar tensor containing the sum.
+         */
         [[nodiscard]]
         Tensor sum() const;
+        /**
+         * @brief Negates all tensor elements.
+         *
+         * @return Result tensor.
+         */
         [[nodiscard]]
         Tensor neg() const;
+        /**
+         * @brief Computes the sign of each tensor element.
+         *
+         * @return Result tensor.
+         */
         [[nodiscard]]
         Tensor sign() const;
+        /**
+         * @brief Removes a singleton dimension.
+         *
+         * @param dim Dimension to remove.
+         * @return Tensor view with reduced dimensions.
+         */
         [[nodiscard]]
         Tensor squeeze(i64 dim = -1) const;
+        /**
+         * @brief Inserts a singleton dimension.
+         *
+         * @param dim Insertion dimension.
+         * @return Expanded tensor view.
+         */
         [[nodiscard]]
         Tensor unsqueeze(i64 dim) const;
+        /**
+         * @brief Performs element-wise tensor addition.
+         *
+         * Supports broadcasting.
+         *
+         * @param other Right-hand tensor.
+         * @return Result tensor.
+         */
         [[nodiscard]]
         Tensor addition(const Tensor& other) const;
+        /**
+         * @brief Performs element-wise tensor subtraction.
+         *
+         * Supports broadcasting.
+         *
+         * @param other Right-hand tensor.
+         * @return Result tensor.
+         */
         [[nodiscard]]
         Tensor subtract(const Tensor& other) const;
+        /**
+         * @brief Performs element-wise tensor multiplication.
+         *
+         * Supports broadcasting.
+         *
+         * @param other Right-hand tensor.
+         * @return Result tensor.
+         */
         [[nodiscard]]
         Tensor multiply(const Tensor& other) const;
+        /**
+         * @brief Performs element-wise tensor division.
+         *
+         * Supports broadcasting.
+         *
+         * @param other Right-hand tensor.
+         * @return Result tensor.
+         */
         [[nodiscard]]
         Tensor divide(const Tensor& other) const;
 
+        /**
+         * @brief Creates a deep copy of the tensor.
+         *
+         * @return Cloned tensor.
+         */
         [[nodiscard]]
         Tensor clone() const;
 
+        /**
+         * @brief Returns the gradient tensor.
+         *
+         * @return Mutable gradient tensor reference.
+         */
         [[nodiscard]]
         Tensor& grad();
+        /**
+         * @brief Returns the gradient tensor.
+         *
+         * @return Constant gradient tensor reference.
+         */
         [[nodiscard]]
         const Tensor& grad() const;
 
