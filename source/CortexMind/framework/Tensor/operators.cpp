@@ -9,6 +9,7 @@
 #include <CortexMind/framework/Tools/tensor_meta.hpp>
 #include <functional>
 #include <ostream>
+#include <type_traits>
 
 using namespace cortex::_fw::ix;
 using namespace cortex::_fw;
@@ -224,7 +225,7 @@ Tensor &Tensor::operator=(Tensor &&other) noexcept {
     this->m_requires_grad = other.m_requires_grad;
 
     this->storage_ = std::move(other.storage_);
-    this->flow_ = other.flow_;
+    this->flow_ = std::move(other.flow_);
 
     if (other.m_requires_grad) {
         this->gradient_ = std::move(other.gradient_);
