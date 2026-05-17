@@ -56,8 +56,8 @@ f32 reduce::std(const f32* x, const size_t N) {
 }
 
 f32 reduce::min(const f32* x, const size_t N) {
-    size_t i = 8;
-    vec8f acc = set1(std::numeric_limits<f32>::lowest());
+    size_t i = 0;
+    vec8f acc = set1(std::numeric_limits<f32>::max());
     for (; i + 8 <= N; i += 8) {
         acc = avx2::min(acc, loadu(x + i));
     }
@@ -69,7 +69,7 @@ f32 reduce::min(const f32* x, const size_t N) {
 }
 
 f32 reduce::max(const f32 *x, const size_t N) {
-    size_t i = 8;
+    size_t i = 0;
     vec8f acc = set1(std::numeric_limits<f32>::lowest());
     for (; i + 8 <= N; i += 8) {
         acc = avx2::max(acc, loadu(x + i));
