@@ -4,12 +4,12 @@
 
 #include "CortexMind/framework/Engine/IX/fill.hpp"
 #include <CortexMind/framework/Engine/AVX2/functions.hpp>
-#include <CortexMind/framework/Tools/err.hpp>
 #if CXM_IS_CUDA_AVAILABLE
     #include <CortexMind/framework/Engine/CUDA/Kernels/activation.cuh>
     #include <CortexMind/framework/Tools/cuda.cuh>
     #include <CortexMind/framework/Tools/kernel_operations.hpp>
 #endif
+#include <CortexMind/framework/Tools/err.hpp>
 
 using namespace cortex::_fw::ix;
 using namespace cortex::_fw::sys;
@@ -53,7 +53,7 @@ void FillOp::zero(TensorStorage* x, const size_t N) {
             for (; i + 8 <= N; i += 8) avx2::storeu(ptr + i, val);
             for (; i < N; ++i) ptr[i] = 0.0f;
         } else {
-            cuda::memset<f32>(x->data(), 0.0f, N);
+            CXM_CUDA_ASSERT(cuda::memset<f32>(x->data(), 0.0f, N));
         }
     #else
         f32* ptr = x->data();
