@@ -42,18 +42,25 @@ TensorStorage::TensorStorage(const size_t _size, const f32 *data, const DeviceTy
     #if CXM_IS_CUDA_AVAILABLE
         if (this->m_dev == DeviceType::kHOST) {
             this->m_host_ptr = mem.allocate(this->m_size);
-            transform::copy_h2h(this->m_host_ptr, data, this->m_size);
+            if (data != nullptr) {
+                transform::copy_h2h(this->m_host_ptr, data, this->m_size);
+            }
         } else {
             this->m_cuda_ptr = forge.allocate(this->m_size);
-            transform::upload(this->m_cuda_ptr, data, this->m_size);
+            if (data != nullptr) {
+                transform::upload(this->m_cuda_ptr, data, this->m_size);
+            }
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
         if (this->m_dev == DeviceType::kHOST) {
             transform::copy_h2h(this->m_host_ptr, data, this->m_size);
-            std::memcpy(this->m_host_ptr, data, this->m_size * sizeof(f32));
+            if (data != nullptr) {
+                std::memcpy(this->m_host_ptr, data, this->m_size * sizeof(f32));
+            }
         } else {
-            transform::copy_h2h(this->m_host_ptr, data, this->m_size);
-            std::memcpy(this->m_host_ptr, data, this->m_size * sizeof(f32));
+            if (data != nullptr) {
+                std::memcpy(this->m_host_ptr, data, this->m_size * sizeof(f32));
+            }
             std::cerr << "You can't use GPU so only HOST pointer allocated" << std::endl;
         }
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
