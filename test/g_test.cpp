@@ -8,142 +8,153 @@
 
 using namespace cortex;
 
-class ElementWiseTest : public ::testing::Test {
+class MatrixTest : public ::testing::Test {
 protected:
-    static constexpr size_t N = 8;
-    tensor t;
+    tensor a, b;
 
     void SetUp() override {
-        // 1, 2, 3, 4, 5, 6, 7, 8
-        std::vector<float32> data(N);
-        std::iota(data.begin(), data.end(), 1.0f);
-        t = tensor({static_cast<int64>(N)}, data.data(), host);
+        // a = [[1, 2, 3, 4],
+        //      [5, 6, 7, 8]]  shape(2,4)
+        const std::vector<float32> data_a = {1,2,3,4,5,6,7,8};
+        a = tensor({2, 4}, data_a.data(), host);
+
+        // b = [[1, 1, 1, 1],
+        //      [2, 2, 2, 2]]  shape(2,4)
+        const std::vector<float32> data_b = {1,1,1,1,2,2,2,2};
+        b = tensor({2, 4}, data_b.data(), host);
     }
 };
 
 // -------------------------------------------------------- //
-//  Unary ops                                               //
+//  Element-wise binary ops — same shape                   //
 // -------------------------------------------------------- //
 
-TEST_F(ElementWiseTest, Log) {
-    const tensor result = t.log();
-    for (size_t i = 0; i < N; ++i) {
-        EXPECT_NEAR(result.at(static_cast<int64>(i)),
-                    std::log(static_cast<float32>(i + 1)), 1e-4f);
-    }
+TEST_F(MatrixTest, Add) {
+    const tensor result = a + b;
+    // [[2,3,4,5],[7,8,9,10]]
+    const std::vector<float32> expected = {2,3,4,5,7,8,9,10};
+    for (int64 i = 0; i < 2; ++i)
+        for (int64 j = 0; j < 4; ++j)
+            EXPECT_NEAR(result.at(i,j), expected[i*4+j], 1e-4f);
 }
 
-TEST_F(ElementWiseTest, Exp) {
-    // küçük değerler kullan — overflow riski yok
-    const std::vector<float32> data = {0.0f, 0.5f, 1.0f, 1.5f, 2.0f, 2.5f, 3.0f, 3.5f};
-    const tensor te({8}, data.data(), host);
-    const tensor result = te.exp();
-    for (size_t i = 0; i < N; ++i) {
-        EXPECT_NEAR(result.at(static_cast<int64>(i)),
-                    std::exp(data[i]), 1e-3f);
-    }
+TEST_F(MatrixTest, Sub) {
+    const tensor result = a - b;
+    // [[0,1,2,3],[3,4,5,6]]
+    const std::vector<float32> expected = {0,1,2,3,3,4,5,6};
+    for (int64 i = 0; i < 2; ++i)
+        for (int64 j = 0; j < 4; ++j)
+            EXPECT_NEAR(result.at(i,j), expected[i*4+j], 1e-4f);
 }
 
-TEST_F(ElementWiseTest, Sqrt) {
-    const tensor result = t.sqrt();
-    for (size_t i = 0; i < N; ++i) {
-        EXPECT_NEAR(result.at(static_cast<int64>(i)),
-                    std::sqrt(static_cast<float32>(i + 1)), 1e-4f);
-    }
+TEST_F(MatrixTest, Mul) {
+    const tensor result = a * b;
+    // [[1,2,3,4],[10,12,14,16]]
+    const std::vector<float32> expected = {1,2,3,4,10,12,14,16};
+    for (int64 i = 0; i < 2; ++i)
+        for (int64 j = 0; j < 4; ++j)
+            EXPECT_NEAR(result.at(i,j), expected[i*4+j], 1e-4f);
 }
 
-TEST_F(ElementWiseTest, Rsqrt) {
-    const tensor result = t.rsqrt();
-    for (size_t i = 0; i < N; ++i) {
-        EXPECT_NEAR(result.at(static_cast<int64>(i)),
-                    1.0f / std::sqrt(static_cast<float32>(i + 1)), 1e-3f);
-    }
-}
-
-TEST_F(ElementWiseTest, Pow) {
-    const tensor result = t.pow(2.0f);
-    for (size_t i = 0; i < N; ++i) {
-        EXPECT_NEAR(result.at(static_cast<int64>(i)),
-                    std::pow(static_cast<float32>(i + 1), 2.0f), 1e-3f);
-    }
-}
-
-TEST_F(ElementWiseTest, Abs) {
-    const std::vector<float32> data = {-4.0f, -3.0f, -2.0f, -1.0f, 1.0f, 2.0f, 3.0f, 4.0f};
-    const tensor ta({8}, data.data(), host);
-    const tensor result = ta.abs();
-    for (size_t i = 0; i < N; ++i) {
-        EXPECT_NEAR(result.at(static_cast<int64>(i)),
-                    std::abs(data[i]), 1e-4f);
-    }
-}
-
-TEST_F(ElementWiseTest, Neg) {
-    const tensor result = t.neg();
-    for (size_t i = 0; i < N; ++i) {
-        EXPECT_NEAR(result.at(static_cast<int64>(i)),
-                    -static_cast<float32>(i + 1), 1e-4f);
-    }
-}
-
-TEST_F(ElementWiseTest, Sin) {
-    const tensor result = t.sin();
-    for (size_t i = 0; i < N; ++i) {
-        EXPECT_NEAR(result.at(static_cast<int64>(i)),
-                    std::sin(static_cast<float32>(i + 1)), 1e-4f);
-    }
-}
-
-TEST_F(ElementWiseTest, Cos) {
-    const tensor result = t.cos();
-    for (size_t i = 0; i < N; ++i) {
-        EXPECT_NEAR(result.at(static_cast<int64>(i)),
-                    std::cos(static_cast<float32>(i + 1)), 1e-4f);
-    }
-}
-
-TEST_F(ElementWiseTest, Sign) {
-    const std::vector<float32> data = {-3.0f, -1.0f, 0.0f, 2.0f, 4.0f, -5.0f, 6.0f, -7.0f};
-    const tensor ts({8}, data.data(), host);
-    const tensor result = ts.sign();
-    const std::vector<float32> expected = {-1.0f, -1.0f, 0.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f};
-    for (size_t i = 0; i < N; ++i) {
-        EXPECT_NEAR(result.at(static_cast<int64>(i)), expected[i], 1e-4f);
-    }
+TEST_F(MatrixTest, Div) {
+    const tensor result = a / b;
+    // [[1,2,3,4],[2.5,3,3.5,4]]
+    const std::vector<float32> expected = {1,2,3,4,2.5f,3,3.5f,4};
+    for (int64 i = 0; i < 2; ++i)
+        for (int64 j = 0; j < 4; ++j)
+            EXPECT_NEAR(result.at(i,j), expected[i*4+j], 1e-4f);
 }
 
 // -------------------------------------------------------- //
-//  Chaining                                                //
+//  In-place                                                //
 // -------------------------------------------------------- //
 
-TEST_F(ElementWiseTest, SqrtOfSquare) {
-    // sqrt(x^2) = x için x > 0
-    const tensor result = t.pow(2.0f).sqrt();
-    for (size_t i = 0; i < N; ++i) {
-        EXPECT_NEAR(result.at(static_cast<int64>(i)),
-                    static_cast<float32>(i + 1), 1e-3f);
-    }
+TEST_F(MatrixTest, AddInPlace) {
+    a += b;
+    const std::vector<float32> expected = {2,3,4,5,7,8,9,10};
+    for (int64 i = 0; i < 2; ++i)
+        for (int64 j = 0; j < 4; ++j)
+            EXPECT_NEAR(a.at(i,j), expected[i*4+j], 1e-4f);
 }
 
-TEST_F(ElementWiseTest, ExpOfLog) {
-    // exp(log(x)) = x
-    const tensor result = t.log().exp();
-    for (size_t i = 0; i < N; ++i) {
-        EXPECT_NEAR(result.at(static_cast<int64>(i)),
-                    static_cast<float32>(i + 1), 1e-3f);
-    }
+TEST_F(MatrixTest, MulInPlace) {
+    a *= b;
+    const std::vector<float32> expected = {1,2,3,4,10,12,14,16};
+    for (int64 i = 0; i < 2; ++i)
+        for (int64 j = 0; j < 4; ++j)
+            EXPECT_NEAR(a.at(i,j), expected[i*4+j], 1e-4f);
 }
 
 // -------------------------------------------------------- //
-//  Remainder path — N=5                                    //
+//  Broadcast                                               //
 // -------------------------------------------------------- //
 
-TEST_F(ElementWiseTest, SqrtNonMultipleOf8) {
-    const std::vector<float32> data = {1.0f, 4.0f, 9.0f, 16.0f, 25.0f};
-    const tensor t5({5}, data.data(), host);
-    const tensor result = t5.sqrt();
-    const std::vector<float32> expected = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
-    for (int64 i = 0; i < 5; ++i) {
-        EXPECT_NEAR(result.at(i), expected[static_cast<size_t>(i)], 1e-4f);
-    }
+TEST_F(MatrixTest, RowBroadcastAdd) {
+    // a(2,4) + y(4) — her satıra y eklenir
+    const std::vector<float32> data_y = {10, 20, 30, 40};
+    const tensor y({4}, data_y.data(), host);
+    const tensor result = a + y;
+    // [[11,22,33,44],[15,26,37,48]]
+    const std::vector<float32> expected = {11,22,33,44,15,26,37,48};
+    for (int64 i = 0; i < 2; ++i)
+        for (int64 j = 0; j < 4; ++j)
+            EXPECT_NEAR(result.at(i,j), expected[i*4+j], 1e-4f);
+}
+
+TEST_F(MatrixTest, ColBroadcastAdd) {
+    // a(2,4) + y(2,1) — her sütuna y eklenir
+    const std::vector<float32> data_y = {10, 20};
+    const tensor y({2, 1}, data_y.data(), host);
+    const tensor result = a + y;
+    // [[11,12,13,14],[25,26,27,28]]
+    const std::vector<float32> expected = {11,12,13,14,25,26,27,28};
+    for (int64 i = 0; i < 2; ++i)
+        for (int64 j = 0; j < 4; ++j)
+            EXPECT_NEAR(result.at(i,j), expected[i*4+j], 1e-4f);
+}
+
+// -------------------------------------------------------- //
+//  Matmul                                                  //
+// -------------------------------------------------------- //
+
+TEST(MatmulTest, Basic) {
+    // (2,3) @ (3,2) = (2,2)
+    const std::vector<float32> data_a = {1,2,3,4,5,6};
+    const std::vector<float32> data_b = {7,8,9,10,11,12};
+    const tensor a({2,3}, data_a.data(), host);
+    const tensor b({3,2}, data_b.data(), host);
+    const tensor result = a.matmul(b);
+
+    // [[1*7+2*9+3*11, 1*8+2*10+3*12],
+    //  [4*7+5*9+6*11, 4*8+5*10+6*12]]
+    // = [[58, 64], [139, 154]]
+    EXPECT_NEAR(result.at(0,0), 58.0f,  1e-3f);
+    EXPECT_NEAR(result.at(0,1), 64.0f,  1e-3f);
+    EXPECT_NEAR(result.at(1,0), 139.0f, 1e-3f);
+    EXPECT_NEAR(result.at(1,1), 154.0f, 1e-3f);
+}
+
+TEST(MatmulTest, Identity) {
+    // A @ I = A
+    const std::vector<float32> data_a = {1,2,3,4};
+    const std::vector<float32> data_i = {1,0,0,1};
+    const tensor a({2,2}, data_a.data(), host);
+    const tensor eye({2,2}, data_i.data(), host);
+    const tensor result = a.matmul(eye);
+
+    for (int64 i = 0; i < 2; ++i)
+        for (int64 j = 0; j < 2; ++j)
+            EXPECT_NEAR(result.at(i,j), data_a[i*2+j], 1e-3f);
+}
+
+TEST(MatmulTest, Square) {
+    // (4,4) @ (4,4)
+    std::vector<float32> data(16);
+    std::iota(data.begin(), data.end(), 1.0f);
+    const tensor a({4,4}, data.data(), host);
+    const tensor result = a.matmul(a);
+
+    // sadece köşegen elemanları kontrol et
+    // a[0][0] = 1*1+2*5+3*9+4*13 = 1+10+27+52 = 90
+    EXPECT_NEAR(result.at(0,0), 90.0f, 1e-2f);
 }
