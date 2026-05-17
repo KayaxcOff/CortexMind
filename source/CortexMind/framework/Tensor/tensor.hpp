@@ -509,6 +509,9 @@ namespace cortex::_fw {
         Tensor& operator*=(f32 value);
         Tensor& operator/=(f32 value);
 
+        Tensor& operator=(const Tensor& other);
+        Tensor& operator=(Tensor&& other) noexcept;
+
         friend std::ostream& operator<<(std::ostream& os, const Tensor& tensor);
         friend Tensor operator-(f32 value, const Tensor& tensor);
         friend Tensor operator*(f32 value, const Tensor& tensor);

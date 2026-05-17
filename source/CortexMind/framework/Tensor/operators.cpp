@@ -201,6 +201,37 @@ Tensor &Tensor::operator/=(const f32 value) {
     return *this;
 }
 
+Tensor &Tensor::operator=(const Tensor &other) {
+    this->m_shape = other.m_shape;
+    this->m_strides = other.m_strides;
+    this->m_offset = other.m_offset;
+    this->m_requires_grad = other.m_requires_grad;
+
+    this->storage_ = other.storage_;
+    this->flow_ = other.flow_;
+
+    if (other.m_requires_grad) {
+        this->gradient_ = other.gradient_;
+    }
+
+    return *this;
+}
+
+Tensor &Tensor::operator=(Tensor &&other) noexcept {
+    this->m_shape = std::move(other.m_shape);
+    this->m_strides = std::move(other.m_strides);
+    this->m_offset = other.m_offset;
+    this->m_requires_grad = other.m_requires_grad;
+
+    this->storage_ = std::move(other.storage_);
+    this->flow_ = other.flow_;
+
+    if (other.m_requires_grad) {
+        this->gradient_ = std::move(other.gradient_);
+    }
+
+    return *this;
+}
 
 namespace cortex::_fw {
 
