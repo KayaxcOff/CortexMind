@@ -60,7 +60,7 @@ void Matrix::matmul(const f32* Xx, const f32* Xy, f32* Xz, const size_t xN, cons
                                     &beta,
                                     Xz, static_cast<i32>(zN)
                                 );
-    CXM_ASSERT(stat == CUBLAS_STATUS_SUCCESS, "cublasSgemm() failed");
+    CXM_ASSERT(stat != CUBLAS_STATUS_SUCCESS, "cublasSgemm() failed");
 }
 
 void Matrix::add(f32* Xx, const f32* Xy, const size_t N) {

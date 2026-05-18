@@ -4,244 +4,432 @@
 
 #include <CortexMind/cortexmind.hpp>
 #include <gtest/gtest.h>
-#include <cmath>
-#include <numbers>
+#include <numeric>
 
 using namespace cortex;
 
-float32 pi = std::numbers::pi_v<float32>;
-float32 half_pi = std::numbers::pi_v<float32> / 2.0f;
+// ========================================================== //
+// Helper Class for CUDA Binary Operations Tests
+// ========================================================== //
 
-class CudaUnaryTest : public ::testing::Test {
+class CudaBinaryTest : public ::testing::Test {
 protected:
-    tensor t;
+    tensor a_host, b_host;
 
     void SetUp() override {
-        const std::vector data = {
-            1.0f,
-            4.0f,
-            9.0f,
-            16.0f
-        };
+        // a = [[1, 2, 3, 4],
+        //      [5, 6, 7, 8]]  shape(2,4)
+        const std::vector<float32> data_a = {1, 2, 3, 4, 5, 6, 7, 8};
+        a_host = tensor({2, 4}, data_a.data(), host);
 
-        t = tensor({4}, data.data(), host).to(cuda);
+        // b = [[1, 1, 1, 1],
+        //      [2, 2, 2, 2]]  shape(2,4)
+        const std::vector<float32> data_b = {1, 1, 1, 1, 2, 2, 2, 2};
+        b_host = tensor({2, 4}, data_b.data(), host);
     }
 
-    static void ExpectTensorNear(tensor x, const std::vector<float32>& expected, const float eps = 1e-4f) {
-        x = x.to(host);
+    static void ExpectMatrix2DNear(const tensor& result,
+                                    const std::vector<float32>& expected,
+                                    const float eps = 1e-4f) {
+        tensor result_host = result.to(host);
 
-        ASSERT_EQ(x.len(), expected.size());
+        ASSERT_EQ(result_host.len(), expected.size());
 
-        for (int64 i = 0; i < static_cast<int64>(expected.size()); ++i) {
-            EXPECT_NEAR(x.at(i), expected[i], eps);
+        for (size_t idx = 0; idx < expected.size(); ++idx) {
+            EXPECT_NEAR(result_host.get()[idx], expected[idx], eps)
+                << "Mismatch at linear index " << idx;
         }
     }
 };
 
-TEST_F(CudaUnaryTest, Sqrt) {
-    const tensor r = t.sqrt();
+// ========================================================== //
+// Element-wise Binary Operations - Same Shape
+// ========================================================== //
 
-    EXPECT_EQ(r.device(), cuda);
+TEST_F(CudaBinaryTest, Add) {
+    const tensor a_cuda = a_host.to(cuda);
+    const tensor b_cuda = b_host.to(cuda);
+    const tensor result = a_cuda + b_cuda;
 
-    ExpectTensorNear(r, {
-        1.0f,
-        2.0f,
-        3.0f,
-        4.0f
-    });
+    // [[2,3,4,5],[7,8,9,10]]
+    const std::vector<float32> expected = {2, 3, 4, 5, 7, 8, 9, 10};
+    ExpectMatrix2DNear(result, expected);
 }
 
-TEST_F(CudaUnaryTest, RSqrt) {
-    const tensor r = t.rsqrt();
+TEST_F(CudaBinaryTest, Sub) {
+    const tensor a_cuda = a_host.to(cuda);
+    const tensor b_cuda = b_host.to(cuda);
+    const tensor result = a_cuda - b_cuda;
 
-    ExpectTensorNear(r, {
-        1.0f,
-        0.5f,
-        1.0f / 3.0f,
-        0.25f
-    }, 1e-3f);
+    // [[0,1,2,3],[3,4,5,6]]
+    const std::vector<float32> expected = {0, 1, 2, 3, 3, 4, 5, 6};
+    ExpectMatrix2DNear(result, expected);
 }
 
-TEST_F(CudaUnaryTest, Pow) {
-    const tensor r = t.pow(2.0f);
+TEST_F(CudaBinaryTest, Mul) {
+    const tensor a_cuda = a_host.to(cuda);
+    const tensor b_cuda = b_host.to(cuda);
+    const tensor result = a_cuda * b_cuda;
 
-    ExpectTensorNear(r, {
-        1.0f,
-        16.0f,
-        81.0f,
-        256.0f
-    });
+    // [[1,2,3,4],[10,12,14,16]]
+    const std::vector<float32> expected = {1, 2, 3, 4, 10, 12, 14, 16};
+    ExpectMatrix2DNear(result, expected);
 }
 
-TEST(CudaUnaryOps, Exp) {
-    const std::vector data = {
-        0.0f,
-        1.0f,
-        2.0f
-    };
+TEST_F(CudaBinaryTest, Div) {
+    const tensor a_cuda = a_host.to(cuda);
+    const tensor b_cuda = b_host.to(cuda);
+    const tensor result = a_cuda / b_cuda;
 
-    tensor t({3}, data.data(), host);
-    t = t.to(cuda);
-
-    tensor r = t.exp();
-    r = r.to(host);
-
-    EXPECT_NEAR(r.at(0), std::exp(0.0f), 1e-4f);
-    EXPECT_NEAR(r.at(1), std::exp(1.0f), 1e-4f);
-    EXPECT_NEAR(r.at(2), std::exp(2.0f), 1e-4f);
+    // [[1,2,3,4],[2.5,3,3.5,4]]
+    const std::vector<float32> expected = {1, 2, 3, 4, 2.5f, 3, 3.5f, 4};
+    ExpectMatrix2DNear(result, expected);
 }
 
-TEST(CudaUnaryOps, Log) {
-    const std::vector data = {
-        1.0f,
-        2.7182818f,
-        7.389056f
-    };
+// ========================================================== //
+// In-Place Operations
+// ========================================================== //
 
-    tensor t({3}, data.data(), host);
-    t = t.to(cuda);
+TEST_F(CudaBinaryTest, AddInPlace) {
+    tensor a_cuda = a_host.clone().to(cuda);
+    const tensor b_cuda = b_host.to(cuda);
+    a_cuda += b_cuda;
 
-    tensor r = t.log();
-    r = r.to(host);
-
-    EXPECT_NEAR(r.at(0), 0.0f, 1e-4f);
-    EXPECT_NEAR(r.at(1), 1.0f, 1e-3f);
-    EXPECT_NEAR(r.at(2), 2.0f, 1e-3f);
+    const std::vector<float32> expected = {2, 3, 4, 5, 7, 8, 9, 10};
+    ExpectMatrix2DNear(a_cuda, expected);
 }
 
-TEST(CudaUnaryOps, Sin) {
-    const std::vector data = {
-        0.0f,
-        half_pi,
-        pi
-    };
+TEST_F(CudaBinaryTest, SubInPlace) {
+    tensor a_cuda = a_host.clone().to(cuda);
+    const tensor b_cuda = b_host.to(cuda);
+    a_cuda -= b_cuda;
 
-    tensor t({3}, data.data(), host);
-    t = t.to(cuda);
-
-    tensor r = t.sin();
-    r = r.to(host);
-
-    EXPECT_NEAR(r.at(0), 0.0f, 1e-4f);
-    EXPECT_NEAR(r.at(1), 1.0f, 1e-4f);
-    EXPECT_NEAR(r.at(2), 0.0f, 1e-4f);
+    const std::vector<float32> expected = {0, 1, 2, 3, 3, 4, 5, 6};
+    ExpectMatrix2DNear(a_cuda, expected);
 }
 
-TEST(CudaUnaryOps, Cos) {
-    const std::vector data = {
-        0.0f,
-        pi
-    };
+TEST_F(CudaBinaryTest, MulInPlace) {
+    tensor a_cuda = a_host.clone().to(cuda);
+    const tensor b_cuda = b_host.to(cuda);
+    a_cuda *= b_cuda;
 
-    tensor t({2}, data.data(), host);
-    t = t.to(cuda);
+    const std::vector<float32> expected = {1, 2, 3, 4, 10, 12, 14, 16};
+    ExpectMatrix2DNear(a_cuda, expected);
+}
 
-    tensor r = t.cos();
-    r = r.to(host);
+TEST_F(CudaBinaryTest, DivInPlace) {
+    tensor a_cuda = a_host.clone().to(cuda);
+    const tensor b_cuda = b_host.to(cuda);
+    a_cuda /= b_cuda;
 
-    EXPECT_NEAR(r.at(0), 1.0f, 1e-4f);
-    EXPECT_NEAR(r.at(1), -1.0f, 1e-4f);
+    const std::vector<float32> expected = {1, 2, 3, 4, 2.5f, 3, 3.5f, 4};
+    ExpectMatrix2DNear(a_cuda, expected);
+}
+
+// ========================================================== //
+// Broadcasting - Row Broadcast
+// ========================================================== //
+
+TEST_F(CudaBinaryTest, RowBroadcastAdd) {
+    const std::vector<float32> data_y = {10, 20, 30, 40};
+    tensor y_host({4}, data_y.data(), host);
+
+    tensor a_cuda = a_host.to(cuda);
+    tensor y_cuda = y_host.to(cuda);
+    tensor result = a_cuda + y_cuda;
+
+    // [[11,22,33,44],[15,26,37,48]]
+    const std::vector<float32> expected = {11, 22, 33, 44, 15, 26, 37, 48};
+    ExpectMatrix2DNear(result, expected);
+}
+
+TEST_F(CudaBinaryTest, RowBroadcastMul) {
+    const std::vector<float32> data_y = {2, 2, 2, 2};
+    tensor y_host({4}, data_y.data(), host);
+
+    tensor a_cuda = a_host.to(cuda);
+    tensor y_cuda = y_host.to(cuda);
+    tensor result = a_cuda * y_cuda;
+
+    // [[2,4,6,8],[10,12,14,16]]
+    const std::vector<float32> expected = {2, 4, 6, 8, 10, 12, 14, 16};
+    ExpectMatrix2DNear(result, expected);
+}
+
+// ========================================================== //
+// Broadcasting - Column Broadcast
+// ========================================================== //
+
+TEST_F(CudaBinaryTest, ColBroadcastAdd) {
+    const std::vector<float32> data_y = {10, 20};
+    tensor y_host({2, 1}, data_y.data(), host);
+
+    tensor a_cuda = a_host.to(cuda);
+    tensor y_cuda = y_host.to(cuda);
+    tensor result = a_cuda + y_cuda;
+
+    // [[11,12,13,14],[25,26,27,28]]
+    const std::vector<float32> expected = {11, 12, 13, 14, 25, 26, 27, 28};
+    ExpectMatrix2DNear(result, expected);
 }
 /*
-TEST(CudaUnaryOps, Abs) {
-    const std::vector data = {
-        -1.0f,
-        -2.0f,
-        3.0f
-    };
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
+Testing started at 20:59 ...
+Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
+[WARN]  [CortexMind\framework\Engine\IX\matrix.cpp | 140] General broadcast on CUDA not supported, falling back to HOST
+unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
+Stack trace:
 
-    tensor t({3}, data.data(), host);
-    t = t.to(cuda);
 
-    tensor r = t.abs();
 
-    ExpectTensorNear(r, {
-        1.0f,
-        2.0f,
-        3.0f
-    });
-}
 
-TEST(CudaUnaryOps, Neg) {
-    const std::vector data = {
-        1.0f,
-        -2.0f,
-        3.0f
-    };
-
-    tensor t({3}, data.data(), host);
-    t = t.to(cuda);
-
-    tensor r = t.neg();
-
-    ExpectTensorNear(r, {
-        -1.0f,
-        2.0f,
-        -3.0f
-    });
-}
-
-TEST(CudaUnaryOps, Sign) {
-    const std::vector data = {
-        -5.0f,
-        0.0f,
-        8.0f
-    };
-
-    tensor t({3}, data.data(), host);
-    t = t.to(cuda);
-
-    tensor r = t.sign();
-
-    ExpectTensorNear(r, {
-        -1.0f,
-        0.0f,
-        1.0f
-    });
-}
+Process finished with exit code 1
 */
-TEST(CudaUnaryAdvanced, UnaryOnTranspose) {
-    tensor t({2,2}, cuda);
-    t.fill(4.0f);
+TEST_F(CudaBinaryTest, ColBroadcastMul) {
+    const std::vector<float32> data_y = {2, 3};
+    tensor y_host({2, 1}, data_y.data(), host);
 
-    const tensor x = t.transpose();
+    tensor a_cuda = a_host.to(cuda);
+    tensor y_cuda = y_host.to(cuda);
+    tensor result = a_cuda * y_cuda;
 
-    tensor r = x.sqrt();
+    // [[2,4,6,8],[15,18,21,24]]
+    const std::vector<float32> expected = {2, 4, 6, 8, 15, 18, 21, 24};
+    ExpectMatrix2DNear(result, expected);
+}
+/*
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
+Testing started at 20:59 ...
+Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
+[WARN]  [CortexMind\framework\Engine\IX\matrix.cpp | 140] General broadcast on CUDA not supported, falling back to HOST
+unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
+Stack trace:
 
-    r = r.to(host);
 
-    for (int i = 0; i < 2; ++i) {
-        for (int j = 0; j < 2; ++j) {
-            EXPECT_NEAR(r.at(i,j), 2.0f, 1e-4f);
+
+
+Process finished with exit code 1
+*/
+// ========================================================== //
+// Matrix Multiplication
+// ========================================================== //
+
+TEST(CudaMatmulTest, BasicMatmul) {
+    // (2,3) @ (3,2) = (2,2)
+    const std::vector<float32> data_a = {1, 2, 3, 4, 5, 6};
+    const std::vector<float32> data_b = {7, 8, 9, 10, 11, 12};
+
+    tensor a_host({2, 3}, data_a.data(), host);
+    tensor b_host({3, 2}, data_b.data(), host);
+
+    tensor a_cuda = a_host.to(cuda);
+    tensor b_cuda = b_host.to(cuda);
+    tensor result = a_cuda.matmul(b_cuda);
+
+    // [[1*7+2*9+3*11, 1*8+2*10+3*12],
+    //  [4*7+5*9+6*11, 4*8+5*10+6*12]]
+    // = [[58, 64], [139, 154]]
+    tensor result_host = result.to(host);
+    EXPECT_NEAR(result_host.at(0, 0), 58.0f, 1e-3f);
+    EXPECT_NEAR(result_host.at(0, 1), 64.0f, 1e-3f);
+    EXPECT_NEAR(result_host.at(1, 0), 139.0f, 1e-3f);
+    EXPECT_NEAR(result_host.at(1, 1), 154.0f, 1e-3f);
+}
+
+TEST(CudaMatmulTest, MatmulIdentity) {
+    // A @ I = A
+    const std::vector<float32> data_a = {1, 2, 3, 4};
+    const std::vector<float32> data_i = {1, 0, 0, 1};
+
+    tensor a_host({2, 2}, data_a.data(), host);
+    tensor eye_host({2, 2}, data_i.data(), host);
+
+    tensor a_cuda = a_host.to(cuda);
+    tensor eye_cuda = eye_host.to(cuda);
+    tensor result = a_cuda.matmul(eye_cuda);
+
+    tensor result_host = result.to(host);
+    for (int64 i = 0; i < 2; ++i) {
+        for (int64 j = 0; j < 2; ++j) {
+            EXPECT_NEAR(result_host.at(i, j), data_a[i * 2 + j], 1e-3f);
         }
     }
 }
 
-TEST(CudaUnaryStress, LargeExp) {
-    constexpr int64 N = 1 << 20;
+TEST(CudaMatmulTest, MatmulSquare) {
+    // (4,4) @ (4,4)
+    std::vector<float32> data(16);
+    std::iota(data.begin(), data.end(), 1.0f);
 
-    tensor t({N}, cuda);
-    t.zero();
+    tensor a_host({4, 4}, data.data(), host);
+    tensor a_cuda = a_host.to(cuda);
+    tensor result = a_cuda.matmul(a_cuda);
 
-    const tensor r = t.exp();
+    tensor result_host = result.to(host);
 
-    EXPECT_NEAR(r.mean(), 1.0f, 1e-3f);
+    // a[0][0] = 1*1+2*5+3*9+4*13 = 1+10+27+52 = 90
+    EXPECT_NEAR(result_host.at(0, 0), 90.0f, 1e-2f);
 }
 
-TEST(CudaUnaryNumerics, SmallValues) {
-    const std::vector data = {
-        1e-6f,
-        1e-4f,
-        1e-2f
-    };
+TEST(CudaMatmulTest, MatmulRectangular) {
+    // (3,2) @ (2,3) = (3,3)
+    const std::vector<float32> data_a = {1, 2, 3, 4, 5, 6};
+    const std::vector<float32> data_b = {7, 8, 9, 10, 11, 12};
 
-    tensor t({3}, data.data(), host);
-    t = t.to(cuda);
+    tensor a_host({3, 2}, data_a.data(), host);
+    tensor b_host({2, 3}, data_b.data(), host);
 
-    tensor r = t.rsqrt();
-    r = r.to(host);
+    tensor a_cuda = a_host.to(cuda);
+    tensor b_cuda = b_host.to(cuda);
+    tensor result = a_cuda.matmul(b_cuda);
 
-    EXPECT_TRUE(std::isfinite(r.at(0)));
-    EXPECT_TRUE(std::isfinite(r.at(1)));
-    EXPECT_TRUE(std::isfinite(r.at(2)));
+    tensor result_host = result.to(host);
+
+    // a[0][0] = 1*7 + 2*10 = 7 + 20 = 27
+    EXPECT_NEAR(result_host.at(0, 0), 27.0f, 1e-3f);
+    // a[0][1] = 1*8 + 2*11 = 8 + 22 = 30
+    EXPECT_NEAR(result_host.at(0, 1), 30.0f, 1e-3f);
 }
+
+// ========================================================== //
+// Mixed Device Operations
+// ========================================================== //
+
+TEST(CudaMixedDeviceTest, CudaToHostTransfer) {
+    const std::vector<float32> data = {1, 2, 3, 4};
+    const tensor t_host({2, 2}, data.data(), host);
+
+    const tensor t_cuda = t_host.to(cuda);
+    tensor t_back = t_cuda.to(host);
+
+    for (size_t i = 0; i < data.size(); ++i) {
+        EXPECT_NEAR(t_back.get()[i], data[i], 1e-6f);
+    }
+}
+
+TEST(CudaMixedDeviceTest, ChainedOperations) {
+    const std::vector<float32> data_a = {1, 2, 3, 4};
+    const std::vector<float32> data_b = {5, 6, 7, 8};
+
+    tensor a_host({2, 2}, data_a.data(), host);
+    tensor b_host({2, 2}, data_b.data(), host);
+
+    tensor result = a_host.to(cuda) + b_host.to(cuda);
+
+    tensor result_host = result.to(host);
+
+    const std::vector<float32> expected = {6, 8, 10, 12};
+    for (size_t i = 0; i < expected.size(); ++i) {
+        EXPECT_NEAR(result_host.get()[i], expected[i], 1e-4f);
+    }
+}
+
+// ========================================================== //
+// Stress Tests - Large Tensors
+// ========================================================== //
+
+TEST(CudaStressTest, LargeTensorAdd) {
+    constexpr size_t N = 1024 * 256;  // 256K elements
+
+    std::vector data_a(N, 1.0f);
+    std::vector data_b(N, 2.0f);
+
+    tensor a_host({N}, data_a.data(), host);
+    tensor b_host({N}, data_b.data(), host);
+
+    tensor a_cuda = a_host.to(cuda);
+    tensor b_cuda = b_host.to(cuda);
+    tensor result = a_cuda + b_cuda;
+
+    tensor result_host = result.to(host);
+
+    for (size_t i = 0; i < 100; i += 10) {
+        EXPECT_NEAR(result_host.get()[i], 3.0f, 1e-4f);
+    }
+}
+
+TEST(CudaStressTest, LargeTensor2D) {
+    constexpr size_t rows = 512;
+    constexpr size_t cols = 512;
+
+    std::vector data_a(rows * cols, 1.5f);
+    std::vector data_b(rows * cols, 2.5f);
+
+    tensor a_host({static_cast<int64>(rows), static_cast<int64>(cols)}, data_a.data(), host);
+    tensor b_host({static_cast<int64>(rows), static_cast<int64>(cols)}, data_b.data(), host);
+
+    tensor a_cuda = a_host.to(cuda);
+    tensor b_cuda = b_host.to(cuda);
+    tensor result = a_cuda * b_cuda;
+
+    tensor result_host = result.to(host);
+
+    EXPECT_NEAR(result_host.get()[0], 3.75f, 1e-3f);
+}
+
+// ========================================================== //
+// Advanced Broadcasting Tests
+// ========================================================== //
+
+TEST(CudaBroadcastAdvancedTest, Broadcast1DTo2D) {
+    const std::vector data_a = {5.0f};
+    const std::vector<float32> data_b = {1, 2, 3, 4, 5, 6};
+
+    tensor a_host({1}, data_a.data(), host);
+    tensor b_host({2, 3}, data_b.data(), host);
+
+    tensor a_cuda = a_host.to(cuda);
+    tensor b_cuda = b_host.to(cuda);
+    tensor result = a_cuda + b_cuda;
+
+    tensor result_host = result.to(host);
+    const std::vector<float32> expected = {6, 7, 8, 9, 10, 11};
+
+    for (size_t i = 0; i < expected.size(); ++i) {
+        EXPECT_NEAR(result_host.get()[i], expected[i], 1e-4f);
+    }
+}
+/*
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
+Testing started at 20:58 ...
+Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
+[WARN]  [CortexMind\framework\Engine\IX\matrix.cpp | 140] General broadcast on CUDA not supported, falling back to HOST
+unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
+Stack trace:
+
+
+
+
+Process finished with exit code 1
+*/
+TEST(CudaBroadcastAdvancedTest, Broadcast1DScalar) {
+    const std::vector data_a = {3.0f};
+    const std::vector<float32> data_b = {2, 4, 6, 8, 10, 12};
+
+    tensor a_host({1}, data_a.data(), host);
+    tensor b_host({2, 3}, data_b.data(), host);
+
+    tensor a_cuda = a_host.to(cuda);
+    tensor b_cuda = b_host.to(cuda);
+    tensor result = a_cuda * b_cuda;
+
+    tensor result_host = result.to(host);
+    const std::vector<float32> expected = {6, 12, 18, 24, 30, 36};
+
+    for (size_t i = 0; i < expected.size(); ++i) {
+        EXPECT_NEAR(result_host.get()[i], expected[i], 1e-4f);
+    }
+}
+/*
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
+Testing started at 20:58 ...
+Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
+[WARN]  [CortexMind\framework\Engine\IX\matrix.cpp | 140] General broadcast on CUDA not supported, falling back to HOST
+unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
+Stack trace:
+
+
+
+
+Process finished with exit code 1
+*/
