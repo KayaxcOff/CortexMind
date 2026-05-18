@@ -54,7 +54,8 @@ namespace cortex::_fw::cuda {
     /**
      * @brief Checks the last CUDA error.
      */
-    void GetLastError();
+    [[nodiscard]]
+    cudaError_t GetLastError();
     /**
      * @brief Returns a human-readable string for a CUDA error code.
      */

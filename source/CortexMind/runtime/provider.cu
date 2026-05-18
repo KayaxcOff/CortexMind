@@ -14,9 +14,9 @@ Provider& Provider::instance() {
 
 Provider::Provider(const i32 device_id) {
     CXM_CUDA_ASSERT(cudaSetDevice(device_id));
-    CXM_ASSERT(cublasCreate(&this->handle) == CUBLAS_STATUS_SUCCESS, "cublasCreate() failed");
+    CXM_ASSERT(cublasCreate(&this->handle) != CUBLAS_STATUS_SUCCESS, "cublasCreate() failed");
 }
 
 Provider::~Provider() {
-    CXM_ASSERT(cublasDestroy(this->handle) == CUBLAS_STATUS_SUCCESS, "cublasDestroy() failed");
+    CXM_ASSERT(cublasDestroy(this->handle) != CUBLAS_STATUS_SUCCESS, "cublasDestroy() failed");
 }

@@ -23,8 +23,8 @@ namespace cortex::_fw::cuda {
         CXM_CUDA_ASSERT(cudaDeviceSynchronize());
     }
 
-    void GetLastError() {
-        CXM_CUDA_ASSERT(cudaGetLastError());
+    cudaError_t GetLastError() {
+        return cudaGetLastError();
     }
 
     void map(void** device_ptr, void* host_ptr) {
