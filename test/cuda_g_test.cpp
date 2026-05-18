@@ -90,17 +90,7 @@ TEST(CudaUnaryOps, Exp) {
     EXPECT_NEAR(r.at(1), std::exp(1.0f), 1e-4f);
     EXPECT_NEAR(r.at(2), std::exp(2.0f), 1e-4f);
 }
-/*
-Testing started at 20:04 ...
-Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
-unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
-Stack trace:
 
-
-
-
-Process finished with exit code 1
-*/
 TEST(CudaUnaryOps, Log) {
     const std::vector data = {
         1.0f,
@@ -118,18 +108,6 @@ TEST(CudaUnaryOps, Log) {
     EXPECT_NEAR(r.at(1), 1.0f, 1e-3f);
     EXPECT_NEAR(r.at(2), 2.0f, 1e-3f);
 }
-/*
-C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
-Testing started at 17:32 ...
-Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
-unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
-Stack trace:
-
-
-
-
-Process finished with exit code 1
-*/
 
 TEST(CudaUnaryOps, Sin) {
     const std::vector data = {
@@ -148,18 +126,7 @@ TEST(CudaUnaryOps, Sin) {
     EXPECT_NEAR(r.at(1), 1.0f, 1e-4f);
     EXPECT_NEAR(r.at(2), 0.0f, 1e-4f);
 }
-/*
-C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
-Testing started at 17:32 ...
-Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
-unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
-Stack trace:
 
-
-
-
-Process finished with exit code 1
-*/
 TEST(CudaUnaryOps, Cos) {
     const std::vector data = {
         0.0f,
@@ -260,18 +227,7 @@ TEST(CudaUnaryStress, LargeExp) {
 
     EXPECT_NEAR(r.mean(), 1.0f, 1e-3f);
 }
-/*
-C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
-Testing started at 17:33 ...
-Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
-unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
-Stack trace:
 
-
-
-
-Process finished with exit code 1
-*/
 TEST(CudaUnaryNumerics, SmallValues) {
     const std::vector data = {
         1e-6f,

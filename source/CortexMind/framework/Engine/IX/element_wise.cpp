@@ -87,7 +87,7 @@ void ElementWise::log(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
 
     auto dev = DeviceType::kHOST;
 
-    if (Xx->device() != Xz->device()) {
+    if (Xx->device() == Xz->device()) {
         dev = Xx->device();
     }
 
@@ -115,7 +115,7 @@ void ElementWise::exp(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
 
     auto dev = DeviceType::kHOST;
 
-    if (Xx->device() != Xz->device()) {
+    if (Xx->device() == Xz->device()) {
         dev = Xx->device();
     }
 
@@ -143,7 +143,7 @@ void ElementWise::abs(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
 
     auto dev = DeviceType::kHOST;
 
-    if (Xx->device() != Xz->device()) {
+    if (Xx->device() == Xz->device()) {
         dev = Xx->device();
     }
 
@@ -171,7 +171,7 @@ void ElementWise::sin(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
 
     auto dev = DeviceType::kHOST;
 
-    if (Xx->device() != Xz->device()) {
+    if (Xx->device() == Xz->device()) {
         dev = Xx->device();
     }
 
