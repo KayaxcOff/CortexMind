@@ -549,6 +549,9 @@ namespace cortex::_fw {
         Tensor& operator*=(f32 value);
         Tensor& operator/=(f32 value);
 
+        bool operator==(const Tensor& other) const;
+        bool operator!=(const Tensor& other) const;
+
         Tensor& operator=(const Tensor& other);
         Tensor& operator=(Tensor&& other) noexcept;
 

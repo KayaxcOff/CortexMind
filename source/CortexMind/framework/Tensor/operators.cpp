@@ -14,6 +14,75 @@
 using namespace cortex::_fw::ix;
 using namespace cortex::_fw;
 
+namespace {
+    /**
+     * @brief Recursively prints a multi-dimensional tensor in a nested array format.
+     *
+     * This function traverses the tensor dimensions recursively and writes the
+     * tensor contents into the given output stream using bracket notation.
+     * Each dimension is represented as a nested list, similar to Python-style arrays.
+     *
+     * The recursion terminates when the last dimension is reached, where the
+     * actual tensor elements are printed sequentially.
+     *
+     * @param os Output stream used to print the tensor contents.
+     * @param tensor Tensor instance containing the data and shape information.
+     * @param dim Current dimension being processed.
+     * @param offset Linear memory offset corresponding to the current sub-tensor.
+     *
+     * @note The function assumes that the tensor data is stored contiguously
+     *       in row-major order.
+     *
+     * @warning The caller must ensure that `dim` and `offset` are valid
+     *          with respect to the tensor shape and underlying storage.
+     */
+    void print_recursive(std::ostream& os, const Tensor& tensor, const size_t dim, const size_t offset) {
+        const auto& shape = tensor.shape();
+
+        if (dim == shape.size() - 1) {
+            os << "[";
+
+            for (i64 i = 0; i < shape[dim]; ++i) {
+                os << tensor.get()[offset + i];
+
+                if (i + 1 < shape[dim]) {
+                    os << ", ";
+                }
+            }
+
+            os << "]";
+            return;
+        }
+
+        os << "[";
+
+        size_t stride = 1;
+        for (size_t i = dim + 1; i < shape.size(); ++i) {
+            stride *= shape[i];
+        }
+
+        for (i64 i = 0; i < shape[dim]; ++i) {
+
+            print_recursive(
+                os,
+                tensor,
+                dim + 1,
+                offset + i * stride
+            );
+
+            if (i + 1 < shape[dim]) {
+                os << ",\n";
+
+                for (size_t j = 0; j < dim + 1; ++j) {
+                    os << " ";
+                }
+            }
+        }
+
+        os << "]";
+    }
+} // unnamed namespace
+
 Tensor Tensor::operator+(const Tensor &other) const {
     const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
 
@@ -202,7 +271,22 @@ Tensor &Tensor::operator/=(const f32 value) {
     return *this;
 }
 
+bool Tensor::operator==(const Tensor &other) const {
+    if (this->storage_.get() == other.storage_.get()) {
+        return true;
+    }
+    return false;
+}
+
+bool Tensor::operator!=(const Tensor &other) const {
+    return !(*this == other);
+}
+
 Tensor &Tensor::operator=(const Tensor &other) {
+    if (this == &other) {
+        return *this;
+    }
+
     this->m_shape = other.m_shape;
     this->m_strides = other.m_strides;
     this->m_offset = other.m_offset;
@@ -235,52 +319,6 @@ Tensor &Tensor::operator=(Tensor &&other) noexcept {
 }
 
 namespace cortex::_fw {
-
-    static void print_recursive(std::ostream& os, const Tensor& tensor, const size_t dim, const size_t offset) {
-        const auto& shape = tensor.shape();
-
-        if (dim == shape.size() - 1) {
-            os << "[";
-
-            for (i64 i = 0; i < shape[dim]; ++i) {
-                os << tensor.get()[offset + i];
-
-                if (i + 1 < shape[dim]) {
-                    os << ", ";
-                }
-            }
-
-            os << "]";
-            return;
-        }
-
-        os << "[";
-
-        size_t stride = 1;
-        for (size_t i = dim + 1; i < shape.size(); ++i) {
-            stride *= shape[i];
-        }
-
-        for (i64 i = 0; i < shape[dim]; ++i) {
-
-            print_recursive(
-                os,
-                tensor,
-                dim + 1,
-                offset + i * stride
-            );
-
-            if (i + 1 < shape[dim]) {
-                os << ",\n";
-
-                for (size_t j = 0; j < dim + 1; ++j) {
-                    os << " ";
-                }
-            }
-        }
-
-        os << "]";
-    }
 
     Tensor operator-(const f32 value, const Tensor& tensor) {
         return tensor.neg() + value;
