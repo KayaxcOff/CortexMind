@@ -16,7 +16,7 @@ using namespace cortex::_fw;
 
 namespace {
     /**
-     * @brief Recursively prints a multi-dimensional tensor in a nested array format.
+     * @brief Recursively prints a multidimensional tensor in a nested array format.
      *
      * This function traverses the tensor dimensions recursively and writes the
      * tensor contents into the given output stream using bracket notation.

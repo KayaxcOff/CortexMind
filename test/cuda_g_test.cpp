@@ -90,20 +90,17 @@ TEST(CudaUnaryOps, Exp) {
     EXPECT_NEAR(r.at(1), std::exp(1.0f), 1e-4f);
     EXPECT_NEAR(r.at(2), std::exp(2.0f), 1e-4f);
 }
-
-/**
- * C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
- * Testing started at 17:27 ...
- * Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
- * unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
- * Stack trace:
+/*
+Testing started at 20:04 ...
+Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
+unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
+Stack trace:
 
 
 
 
- * Process finished with exit code 1
- */
-
+Process finished with exit code 1
+*/
 TEST(CudaUnaryOps, Log) {
     const std::vector data = {
         1.0f,
