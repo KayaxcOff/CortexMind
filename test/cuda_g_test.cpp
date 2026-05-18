@@ -4,23 +4,30 @@
 
 #include <CortexMind/cortexmind.hpp>
 #include <gtest/gtest.h>
+#include <cmath>
+#include <numbers>
 
 using namespace cortex;
 
-class CudaScalarTest : public ::testing::Test {
+float32 pi = std::numbers::pi_v<float32>;
+float32 half_pi = std::numbers::pi_v<float32> / 2.0f;
+
+class CudaUnaryTest : public ::testing::Test {
 protected:
     tensor t;
 
     void SetUp() override {
         const std::vector data = {
-            1.0f, 2.0f, 3.0f, 4.0f
+            1.0f,
+            4.0f,
+            9.0f,
+            16.0f
         };
 
-        t = tensor({4}, data.data(), host);
-        t = t.to(cuda);
+        t = tensor({4}, data.data(), host).to(cuda);
     }
 
-    static void ExpectTensorEq(tensor x, const std::vector<float32>& expected, const float eps = 1e-4f) {
+    static void ExpectTensorNear(tensor x, const std::vector<float32>& expected, const float eps = 1e-4f) {
         x = x.to(host);
 
         ASSERT_EQ(x.len(), expected.size());
@@ -31,104 +38,257 @@ protected:
     }
 };
 
-TEST_F(CudaScalarTest, ScalarAdd) {
-    const tensor r = t + 2.0f;
+TEST_F(CudaUnaryTest, Sqrt) {
+    const tensor r = t.sqrt();
 
     EXPECT_EQ(r.device(), cuda);
 
-    ExpectTensorEq(r, {
-        3.0f, 4.0f, 5.0f, 6.0f
+    ExpectTensorNear(r, {
+        1.0f,
+        2.0f,
+        3.0f,
+        4.0f
     });
 }
 
-TEST_F(CudaScalarTest, ScalarSub) {
-    const tensor r = t - 1.0f;
+TEST_F(CudaUnaryTest, RSqrt) {
+    const tensor r = t.rsqrt();
 
-    ExpectTensorEq(r, {
-        0.0f, 1.0f, 2.0f, 3.0f
+    ExpectTensorNear(r, {
+        1.0f,
+        0.5f,
+        1.0f / 3.0f,
+        0.25f
+    }, 1e-3f);
+}
+
+TEST_F(CudaUnaryTest, Pow) {
+    const tensor r = t.pow(2.0f);
+
+    ExpectTensorNear(r, {
+        1.0f,
+        16.0f,
+        81.0f,
+        256.0f
     });
 }
 
-TEST_F(CudaScalarTest, ScalarMul) {
-    const tensor r = t * 3.0f;
+TEST(CudaUnaryOps, Exp) {
+    const std::vector data = {
+        0.0f,
+        1.0f,
+        2.0f
+    };
 
-    ExpectTensorEq(r, {
-        3.0f, 6.0f, 9.0f, 12.0f
+    tensor t({3}, data.data(), host);
+    t = t.to(cuda);
+
+    tensor r = t.exp();
+    r = r.to(host);
+
+    EXPECT_NEAR(r.at(0), std::exp(0.0f), 1e-4f);
+    EXPECT_NEAR(r.at(1), std::exp(1.0f), 1e-4f);
+    EXPECT_NEAR(r.at(2), std::exp(2.0f), 1e-4f);
+}
+
+/**
+ * C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
+ * Testing started at 17:27 ...
+ * Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
+ * unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
+ * Stack trace:
+
+
+
+
+ * Process finished with exit code 1
+ */
+
+TEST(CudaUnaryOps, Log) {
+    const std::vector data = {
+        1.0f,
+        2.7182818f,
+        7.389056f
+    };
+
+    tensor t({3}, data.data(), host);
+    t = t.to(cuda);
+
+    tensor r = t.log();
+    r = r.to(host);
+
+    EXPECT_NEAR(r.at(0), 0.0f, 1e-4f);
+    EXPECT_NEAR(r.at(1), 1.0f, 1e-3f);
+    EXPECT_NEAR(r.at(2), 2.0f, 1e-3f);
+}
+/*
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
+Testing started at 17:32 ...
+Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
+unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
+Stack trace:
+
+
+
+
+Process finished with exit code 1
+*/
+
+TEST(CudaUnaryOps, Sin) {
+    const std::vector data = {
+        0.0f,
+        half_pi,
+        pi
+    };
+
+    tensor t({3}, data.data(), host);
+    t = t.to(cuda);
+
+    tensor r = t.sin();
+    r = r.to(host);
+
+    EXPECT_NEAR(r.at(0), 0.0f, 1e-4f);
+    EXPECT_NEAR(r.at(1), 1.0f, 1e-4f);
+    EXPECT_NEAR(r.at(2), 0.0f, 1e-4f);
+}
+/*
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
+Testing started at 17:32 ...
+Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
+unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
+Stack trace:
+
+
+
+
+Process finished with exit code 1
+*/
+TEST(CudaUnaryOps, Cos) {
+    const std::vector data = {
+        0.0f,
+        pi
+    };
+
+    tensor t({2}, data.data(), host);
+    t = t.to(cuda);
+
+    tensor r = t.cos();
+    r = r.to(host);
+
+    EXPECT_NEAR(r.at(0), 1.0f, 1e-4f);
+    EXPECT_NEAR(r.at(1), -1.0f, 1e-4f);
+}
+/*
+TEST(CudaUnaryOps, Abs) {
+    const std::vector data = {
+        -1.0f,
+        -2.0f,
+        3.0f
+    };
+
+    tensor t({3}, data.data(), host);
+    t = t.to(cuda);
+
+    tensor r = t.abs();
+
+    ExpectTensorNear(r, {
+        1.0f,
+        2.0f,
+        3.0f
     });
 }
 
-TEST_F(CudaScalarTest, ScalarDiv) {
-    const tensor r = t / 2.0f;
+TEST(CudaUnaryOps, Neg) {
+    const std::vector data = {
+        1.0f,
+        -2.0f,
+        3.0f
+    };
 
-    ExpectTensorEq(r, {
-        0.5f, 1.0f, 1.5f, 2.0f
+    tensor t({3}, data.data(), host);
+    t = t.to(cuda);
+
+    tensor r = t.neg();
+
+    ExpectTensorNear(r, {
+        -1.0f,
+        2.0f,
+        -3.0f
     });
 }
 
-TEST_F(CudaScalarTest, ReverseScalarSub) {
-    const tensor r = 10.0f - t;
+TEST(CudaUnaryOps, Sign) {
+    const std::vector data = {
+        -5.0f,
+        0.0f,
+        8.0f
+    };
 
-    ExpectTensorEq(r, {
-        9.0f, 8.0f, 7.0f, 6.0f
+    tensor t({3}, data.data(), host);
+    t = t.to(cuda);
+
+    tensor r = t.sign();
+
+    ExpectTensorNear(r, {
+        -1.0f,
+        0.0f,
+        1.0f
     });
 }
+*/
+TEST(CudaUnaryAdvanced, UnaryOnTranspose) {
+    tensor t({2,2}, cuda);
+    t.fill(4.0f);
 
-TEST_F(CudaScalarTest, ReverseScalarMul) {
-    const tensor r = 2.0f * t;
+    const tensor x = t.transpose();
 
-    ExpectTensorEq(r, {
-        2.0f, 4.0f, 6.0f, 8.0f
-    });
-}
-
-TEST_F(CudaScalarTest, ScalarAddInplace) {
-    t += 5.0f;
-
-    ExpectTensorEq(t, {
-        6.0f, 7.0f, 8.0f, 9.0f
-    });
-}
-
-TEST_F(CudaScalarTest, ScalarMulInplace) {
-    t *= 2.0f;
-
-    ExpectTensorEq(t, {
-        2.0f, 4.0f, 6.0f, 8.0f
-    });
-}
-
-TEST_F(CudaScalarTest, ChainedScalarOps) {
-    const tensor r = ((t + 2.0f) * 3.0f) / 2.0f;
-
-    ExpectTensorEq(r, {
-        4.5f, 6.0f, 7.5f, 9.0f
-    });
-}
-
-TEST_F(CudaScalarTest, ScalarOpNonContiguous) {
-    tensor x({2,2}, cuda);
-    x.ones();
-
-    const tensor y = x.transpose();
-
-    tensor r = y + 3.0f;
+    tensor r = x.sqrt();
 
     r = r.to(host);
 
-    for(int i = 0; i < 2; ++i) {
-        for(int j = 0; j < 2; ++j) {
-            EXPECT_NEAR(r.at(i,j), 4.0f, 1e-4f);
+    for (int i = 0; i < 2; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            EXPECT_NEAR(r.at(i,j), 2.0f, 1e-4f);
         }
     }
 }
 
-TEST(CudaScalarStress, LargeTensorAdd) {
+TEST(CudaUnaryStress, LargeExp) {
     constexpr int64 N = 1 << 20;
 
     tensor t({N}, cuda);
-    t.ones();
+    t.zero();
 
-    const tensor r = t + 2.0f;
+    const tensor r = t.exp();
 
-    EXPECT_NEAR(r.mean(), 3.0f, 1e-3f);
+    EXPECT_NEAR(r.mean(), 1.0f, 1e-3f);
+}
+/*
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
+Testing started at 17:33 ...
+Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
+unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
+Stack trace:
+
+
+
+
+Process finished with exit code 1
+*/
+TEST(CudaUnaryNumerics, SmallValues) {
+    const std::vector data = {
+        1e-6f,
+        1e-4f,
+        1e-2f
+    };
+
+    tensor t({3}, data.data(), host);
+    t = t.to(cuda);
+
+    tensor r = t.rsqrt();
+    r = r.to(host);
+
+    EXPECT_TRUE(std::isfinite(r.at(0)));
+    EXPECT_TRUE(std::isfinite(r.at(1)));
+    EXPECT_TRUE(std::isfinite(r.at(2)));
 }

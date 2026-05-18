@@ -53,7 +53,6 @@ TensorStorage::TensorStorage(const size_t _size, const f32 *data, const DeviceTy
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
         if (this->m_dev == DeviceType::kHOST) {
-            transform::copy_h2h(this->m_host_ptr, data, this->m_size);
             if (data != nullptr) {
                 std::memcpy(this->m_host_ptr, data, this->m_size * sizeof(f32));
             }
