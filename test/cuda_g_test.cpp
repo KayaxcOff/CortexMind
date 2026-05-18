@@ -80,3 +80,55 @@ TEST_F(CudaScalarTest, ReverseScalarMul) {
         2.0f, 4.0f, 6.0f, 8.0f
     });
 }
+
+TEST_F(CudaScalarTest, ScalarAddInplace) {
+    t += 5.0f;
+
+    ExpectTensorEq(t, {
+        6.0f, 7.0f, 8.0f, 9.0f
+    });
+}
+
+TEST_F(CudaScalarTest, ScalarMulInplace) {
+    t *= 2.0f;
+
+    ExpectTensorEq(t, {
+        2.0f, 4.0f, 6.0f, 8.0f
+    });
+}
+
+TEST_F(CudaScalarTest, ChainedScalarOps) {
+    const tensor r = ((t + 2.0f) * 3.0f) / 2.0f;
+
+    ExpectTensorEq(r, {
+        4.5f, 6.0f, 7.5f, 9.0f
+    });
+}
+
+TEST_F(CudaScalarTest, ScalarOpNonContiguous) {
+    tensor x({2,2}, cuda);
+    x.ones();
+
+    const tensor y = x.transpose();
+
+    tensor r = y + 3.0f;
+
+    r = r.to(host);
+
+    for(int i = 0; i < 2; ++i) {
+        for(int j = 0; j < 2; ++j) {
+            EXPECT_NEAR(r.at(i,j), 4.0f, 1e-4f);
+        }
+    }
+}
+
+TEST(CudaScalarStress, LargeTensorAdd) {
+    constexpr int64 N = 1 << 20;
+
+    tensor t({N}, cuda);
+    t.ones();
+
+    const tensor r = t + 2.0f;
+
+    EXPECT_NEAR(r.mean(), 3.0f, 1e-3f);
+}
