@@ -81,8 +81,35 @@ namespace cortex::_fw {
      */
     [[nodiscard]]
     BroadcastInfo make_broadcast_info(const std::vector<i64> &shape_a, const std::vector<i64> &stride_a, const std::vector<i64> &shape_b, const std::vector<i64> &stride_b, const std::vector<i64> &shape_z, const std::vector<i64> &stride_z);
+    /**
+     * @brief Computes the linear (flat) memory index from multidimensional indices.
+     *
+     * Converts a multidimensional index into a single linear offset in memory
+     * using the provided strides (row-major layout).
+     *
+     * @param strides Pre-computed stride vector for the tensor
+     * @param indices Multi-dimensional index (same size as tensor rank)
+     * @param offset  Base offset (usually 0, used for views/slices)
+     * @return Linear index in the underlying storage
+     *
+     * @note Assumes row-major memory layout.
+     * @note No bounds checking is performed for performance reasons.
+     */
     [[nodiscard]]
     i64 compute_linear_index(const std::vector<i64>& strides, const std::vector<i64>& indices, i64 offset);
+    /**
+     * @brief Checks whether a tensor is contiguous in memory.
+     *
+     * A tensor is contiguous if its strides match the default row-major strides
+     * computed from its shape (no gaps or non-standard layout).
+     *
+     * @param strides Current stride vector of the tensor
+     * @param shape   Shape of the tensor
+     * @return `true` if the tensor is contiguous, `false` otherwise
+     *
+     * @note Used to determine whether operations like `reshape`, `view`, or
+     *       direct pointer arithmetic can be safely performed.
+     */
     [[nodiscard]]
     bool is_contiguous(const std::vector<i64>& strides, const std::vector<i64>& shape);
 } //namespace cortex::_fw

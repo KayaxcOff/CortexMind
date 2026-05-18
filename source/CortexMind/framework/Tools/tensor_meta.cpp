@@ -72,7 +72,15 @@ BroadcastKind cortex::_fw::classify_broadcast(const std::vector<i64>& shape_x, c
         return BroadcastKind::kRow;
     }
 
+    if (rank_x == 2 && rank_y == 2 && shape_x[0] > 1 && shape_y[0] == 1 && shape_x[1] == shape_y[1]) {
+        return BroadcastKind::kRow;
+    }
+
     if (rank_x == 1 && shape_x[0] == shape_y.back()) {
+        return BroadcastKind::kCol;
+    }
+
+    if (rank_x == 2 && rank_y == 2 && shape_y[1] == 1 && shape_y[0] > 1 && shape_x[0] == shape_y[0]) {
         return BroadcastKind::kCol;
     }
 
@@ -110,7 +118,6 @@ i64 cortex::_fw::compute_linear_index(const std::vector<i64> &strides, const std
     return output;
 }
 
-// tensor_meta.cpp
 bool cortex::_fw::is_contiguous(const std::vector<i64>& strides, const std::vector<i64>& shape) {
     if (strides.size() != shape.size()) return false;
     const auto expected = compute_stride(shape);
