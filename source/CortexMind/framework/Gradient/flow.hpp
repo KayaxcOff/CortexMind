@@ -5,7 +5,7 @@
 #ifndef CORTEXMIND_FRAMEWORK_GRADIENT_FLOW_HPP
 #define CORTEXMIND_FRAMEWORK_GRADIENT_FLOW_HPP
 
-#include <CortexMind/framework/Gradient/saved_tensor.hpp>
+#include <CortexMind/framework/Gradient/pack.hpp>
 #include <CortexMind/framework/Tools/types.hpp>
 #include <memory>
 #include <vector>
@@ -55,8 +55,6 @@ namespace cortex::_fw::meta {
         [[nodiscard]]
         const std::string& name() const;
         std::vector<std::weak_ptr<GradientFlow>> next_functions;
-    protected:
-        std::vector<GradientPacked> saved_packs;
     private:
         i32 ID;
         std::string m_name;

@@ -19,12 +19,75 @@ add::~add() {
 }
 
 void add::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) {
+    if (this->tx->has_grad()) [[likely]] {
         this->tx->grad() += _grad;
-        this->tx->backward(this->tx->grad());
+        this->tx->backward(_grad);
     }
-    if (this->ty->has_grad()) {
+    if (this->ty->has_grad()) [[likely]] {
         this->ty->grad() += _grad;
-        this->ty->backward(this->ty->grad());
+        this->ty->backward(_grad);
+    }
+}
+
+sub::sub(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("SubBackward", 2) {
+    this->tx = new Tensor(_x);
+    this->ty = new Tensor(_y);
+}
+
+sub::~sub() {
+    delete this->tx;
+    delete this->ty;
+}
+
+void sub::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        this->tx->grad() += _grad;
+        this->tx->backward(_grad);
+    }
+    if (this->ty->has_grad()) [[likely]] {
+        this->ty->grad() -= _grad;
+        this->ty->backward(_grad);
+    }
+}
+
+mul::mul(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("MulBackward", 3) {
+    this->tx = new Tensor(_x);
+    this->ty = new Tensor(_y);
+}
+
+mul::~mul() {
+    delete this->tx;
+    delete this->ty;
+}
+
+void mul::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        this->tx->grad() += _grad * (*this->ty);
+        this->tx->backward(_grad);
+    }
+    if (this->ty->has_grad()) [[likely]] {
+        this->ty->grad() += _grad * (*this->tx);
+        this->ty->backward(_grad);
+    }
+}
+
+div::div(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("DivBackward", 4) {
+    this->tx = new Tensor(_x);
+    this->ty = new Tensor(_y);
+}
+
+div::~div() {
+    delete this->tx;
+    delete this->ty;
+}
+
+void div::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        this->tx->grad() += _grad / (*this->ty);
+        this->tx->backward(_grad);
+    }
+    if (this->ty->has_grad()) [[likely]] {
+        this->ty->grad() -= _grad * (*this->tx) / this->ty->pow();
+        this->ty->backward(_grad);
     }
 }

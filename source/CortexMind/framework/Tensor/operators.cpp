@@ -6,7 +6,6 @@
 #include <CortexMind/framework/Engine/IX/matrix.hpp>
 #include <CortexMind/framework/Engine/IX/scalar.hpp>
 #include <CortexMind/framework/Tools/err.hpp>
-#include <CortexMind/framework/Tools/tensor_meta.hpp>
 #include <functional>
 #include <ostream>
 #include <type_traits>
@@ -88,63 +87,15 @@ Tensor Tensor::operator+(const Tensor &other) const {
 }
 
 Tensor Tensor::operator-(const Tensor &other) const {
-    const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
-
-    Tensor output(out_shape, this->storage_->device(), this->m_requires_grad);
-
-    MatrixOp::sub(
-        this->storage_.get(),
-        this->m_shape,
-        this->m_strides,
-        other.storage_.get(),
-        other.m_shape,
-        other.m_strides,
-        output.storage_.get(),
-        output.m_shape,
-        output.m_strides
-    );
-
-    return output;
+    return this->subtract(other);
 }
 
 Tensor Tensor::operator*(const Tensor &other) const {
-    const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
-
-    Tensor output(out_shape, this->storage_->device(), this->m_requires_grad);
-
-    MatrixOp::mul(
-        this->storage_.get(),
-        this->m_shape,
-        this->m_strides,
-        other.storage_.get(),
-        other.m_shape,
-        other.m_strides,
-        output.storage_.get(),
-        output.m_shape,
-        output.m_strides
-    );
-
-    return output;
+    return this->multiply(other);
 }
 
 Tensor Tensor::operator/(const Tensor &other) const {
-    const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
-
-    Tensor output(out_shape, this->storage_->device(), this->m_requires_grad);
-
-    MatrixOp::div(
-        this->storage_.get(),
-        this->m_shape,
-        this->m_strides,
-        other.storage_.get(),
-        other.m_shape,
-        other.m_strides,
-        output.storage_.get(),
-        output.m_shape,
-        output.m_strides
-    );
-
-    return output;
+    return this->divide(other);
 }
 
 Tensor &Tensor::operator+=(const Tensor &other) {

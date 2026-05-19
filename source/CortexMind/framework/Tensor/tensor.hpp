@@ -6,7 +6,7 @@
 #define CORTEXMIND_FRAMEWORK_TENSOR_TENSOR_HPP
 
 #include <CortexMind/framework/Gradient/flow.hpp>
-#include <CortexMind/framework/Gradient/saved_tensor.hpp>
+#include <CortexMind/framework/Gradient/pack.hpp>
 #include <CortexMind/framework/Storage/stor.hpp>
 #include <CortexMind/framework/Tools/err.hpp>
 #include <CortexMind/framework/Tools/tensor_meta.hpp>

@@ -51,12 +51,14 @@ Tensor::Tensor(const std::vector<i64> &shape, const f32 *data, const DeviceType 
     }
 }
 
-Tensor::Tensor(const meta::GradientPacked &packed) : m_shape(packed.shape), m_offset(0), m_requires_grad(true) {
+Tensor::Tensor(const meta::GradientPacked &packed) : m_shape(packed.shape), m_offset(0), m_requires_grad(packed.has_gradient) {
     this->storage_ = packed.stor;
 
     this->m_strides = compute_stride(this->m_shape);
 
-    this->gradient_ = packed.gradient;
+    if (this->m_requires_grad) {
+        this->gradient_ = packed.gradient;
+    }
 }
 
 Tensor::Tensor(const Tensor &other) : m_shape(other.m_shape), m_offset(other.m_offset), m_requires_grad(other.m_requires_grad) {
@@ -508,10 +510,13 @@ Tensor Tensor::addition(const Tensor &other) const {
     );
 
     if (output.m_requires_grad) {
-        meta::GradientPacked x {this->storage_, this->m_shape, this->gradient_};
-        meta::GradientPacked y {other.storage_, other.m_shape, other.gradient_};
+        meta::GradientPacked x {this->storage_, this->gradient_, this->m_shape, this->m_requires_grad};
+        meta::GradientPacked y {other.storage_, other.gradient_, other.m_shape, other.m_requires_grad};
 
         output.flow_ = std::make_shared<meta::add>(x, y);
+
+        output.flow_->next_functions.push_back(this->flow_);
+        output.flow_->next_functions.push_back(other.flow_);
     }
 
     return output;
@@ -520,7 +525,7 @@ Tensor Tensor::addition(const Tensor &other) const {
 Tensor Tensor::subtract(const Tensor &other) const {
     const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
 
-    Tensor output(out_shape, this->storage_->device(), this->m_requires_grad);
+    Tensor output(out_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
 
     MatrixOp::sub(
         this->storage_.get(),
@@ -534,13 +539,23 @@ Tensor Tensor::subtract(const Tensor &other) const {
         output.m_strides
     );
 
+    if (output.m_requires_grad) {
+        meta::GradientPacked x {this->storage_, this->gradient_, this->m_shape, this->m_requires_grad};
+        meta::GradientPacked y {other.storage_, other.gradient_, other.m_shape, other.m_requires_grad};
+
+        output.flow_ = std::make_shared<meta::sub>(x, y);
+
+        output.flow_->next_functions.push_back(this->flow_);
+        output.flow_->next_functions.push_back(other.flow_);
+    }
+
     return output;
 }
 
 Tensor Tensor::multiply(const Tensor &other) const {
     const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
 
-    Tensor output(out_shape, this->storage_->device(), this->m_requires_grad);
+    Tensor output(out_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
 
     MatrixOp::mul(
         this->storage_.get(),
@@ -554,13 +569,23 @@ Tensor Tensor::multiply(const Tensor &other) const {
         output.m_strides
     );
 
+    if (output.m_requires_grad) {
+        meta::GradientPacked x {this->storage_, this->gradient_, this->m_shape, this->m_requires_grad};
+        meta::GradientPacked y {other.storage_, other.gradient_, other.m_shape, other.m_requires_grad};
+
+        output.flow_ = std::make_shared<meta::mul>(x, y);
+
+        output.flow_->next_functions.push_back(this->flow_);
+        output.flow_->next_functions.push_back(other.flow_);
+    }
+
     return output;
 }
 
 Tensor Tensor::divide(const Tensor &other) const {
     const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
 
-    Tensor output(out_shape, this->storage_->device(), this->m_requires_grad);
+    Tensor output(out_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
 
     MatrixOp::div(
         this->storage_.get(),
@@ -573,6 +598,16 @@ Tensor Tensor::divide(const Tensor &other) const {
         output.m_shape,
         output.m_strides
     );
+
+    if (output.m_requires_grad) {
+        meta::GradientPacked x {this->storage_, this->gradient_, this->m_shape, this->m_requires_grad};
+        meta::GradientPacked y {other.storage_, other.gradient_, other.m_shape, other.m_requires_grad};
+
+        output.flow_ = std::make_shared<meta::div>(x, y);
+
+        output.flow_->next_functions.push_back(this->flow_);
+        output.flow_->next_functions.push_back(other.flow_);
+    }
 
     return output;
 }
