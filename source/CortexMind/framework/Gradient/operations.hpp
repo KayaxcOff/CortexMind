@@ -180,43 +180,84 @@ namespace cortex::_fw::meta {
         Tensor* ty;   ///< Right input matrix (Y)
     };
 
+    /**
+     * @brief Gradient node for power operation (`PowBackward`).
+     *
+     * Computes gradients for `z = x ^ exp` during backward pass.
+     */
     struct pow : GradientFlow {
         pow(const GradientPacked& _x, f32 _exp);
         ~pow() override;
 
+        /**
+         * @brief Computes gradient for input.
+         *
+         * For `z = x^exp`, we have:
+         * - ∂L/∂x = ∂L/∂z * exp * x^(exp-1)
+         */
         void backward(const Tensor& _grad) override;
     private:
         Tensor* tx;
         f32 exponent;
     };
 
+    /**
+     * @brief Gradient node for square root operation (`SqrtBackward`).
+     */
     struct sqrt : GradientFlow {
         explicit sqrt(const GradientPacked& _x);
         ~sqrt() override;
 
+        /**
+         * @brief Computes gradient for input.
+         *
+         * For `z = sqrt(x)`, we have:
+         * - ∂L/∂x = ∂L/∂z / (2 * sqrt(x))
+         */
         void backward(const Tensor& _grad) override;
     private:
         Tensor* tx;
     };
 
+    /**
+     * @brief Gradient node for exponential operation (`ExpBackward`).
+     */
     struct exp : GradientFlow {
         explicit exp(const GradientPacked& _x);
         ~exp() override;
 
+        /**
+         * @brief Computes gradient for input.
+         *
+         * For `z = exp(x)`, we have:
+         * - ∂L/∂x = ∂L/∂z * exp(x)
+         */
         void backward(const Tensor& _grad) override;
     private:
         Tensor* tx;
     };
 
+    /**
+     * @brief Gradient node for natural logarithm operation (`LogBackward`).
+     */
     struct log : GradientFlow {
         explicit log(const GradientPacked& _x);
         ~log() override;
 
+        /**
+         * @brief Computes gradient for input.
+         *
+         * For `z = log(x)`, we have:
+         * - ∂L/∂x = ∂L/∂z / x
+         */
         void backward(const Tensor& _grad) override;
     private:
         Tensor* tx;
     };
 
+    /**
+     * @brief Gradient node for reciprocal square root operation (`RsqrtBackward`).
+     */
     struct rsqrt : GradientFlow {
         explicit rsqrt(const GradientPacked& _x);
         ~rsqrt() override;
@@ -226,6 +267,9 @@ namespace cortex::_fw::meta {
         Tensor* tx;
     };
 
+    /**
+     * @brief Gradient node for sine operation (`SinBackward`).
+     */
     struct sin : GradientFlow {
         explicit sin(const GradientPacked& _x);
         ~sin() override;
@@ -235,6 +279,9 @@ namespace cortex::_fw::meta {
         Tensor* tx;
     };
 
+    /**
+     * @brief Gradient node for cosine operation (`CosBackward`).
+     */
     struct cos : GradientFlow {
         explicit cos(const GradientPacked& _x);
         ~cos() override;
@@ -244,24 +291,45 @@ namespace cortex::_fw::meta {
         Tensor* tx;
     };
 
+    /**
+     * @brief Gradient node for absolute value operation (`AbsBackward`).
+     */
     struct abs : GradientFlow {
         explicit abs(const GradientPacked& _x);
         ~abs() override;
 
+        /**
+         * @brief Computes gradient for input.
+         *
+         * For `z = |x|`, we have:
+         * - ∂L/∂x = ∂L/∂z * sign(x)
+         */
         void backward(const Tensor& _grad) override;
     private:
         Tensor* tx;
     };
 
+    /**
+     * @brief Gradient node for negation operation (`NegBackward`).
+     */
     struct neg : GradientFlow {
         explicit neg(const GradientPacked& _x);
         ~neg() override;
 
+        /**
+         * @brief Computes gradient for input.
+         *
+         * For `z = -x`, we have:
+         * - ∂L/∂x = -∂L/∂z
+         */
         void backward(const Tensor& _grad) override;
     private:
         Tensor* tx;
     };
 
+    /**
+     * @brief Gradient node for scalar addition (`AddScalarBackward`).
+     */
     struct add_scalar : GradientFlow {
         add_scalar(const GradientPacked& _x, f32 _scalar);
         ~add_scalar() override;
@@ -271,6 +339,9 @@ namespace cortex::_fw::meta {
         f32 scalar;
     };
 
+    /**
+     * @brief Gradient node for scalar subtraction (`SubScalarBackward`).
+     */
     struct sub_scalar : GradientFlow {
         sub_scalar(const GradientPacked& _x, f32 _scalar);
         ~sub_scalar() override;
@@ -280,6 +351,9 @@ namespace cortex::_fw::meta {
         f32 scalar;
     };
 
+    /**
+     * @brief Gradient node for scalar multiplication (`MulScalarBackward`).
+     */
     struct mul_scalar : GradientFlow {
         mul_scalar(const GradientPacked& _x, f32 _scalar);
         ~mul_scalar() override;
@@ -289,6 +363,9 @@ namespace cortex::_fw::meta {
         f32 scalar;
     };
 
+    /**
+     * @brief Gradient node for scalar division (`DivScalarBackward`).
+     */
     struct div_scalar : GradientFlow {
         div_scalar(const GradientPacked& _x, f32 _scalar);
         ~div_scalar() override;

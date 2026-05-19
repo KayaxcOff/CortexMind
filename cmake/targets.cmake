@@ -14,6 +14,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Gradient/flow.cpp
         source/CortexMind/framework/Gradient/operations.cpp
         source/CortexMind/framework/Memory/mem.cpp
+        source/CortexMind/framework/Net/layer.cpp
         source/CortexMind/framework/Storage/operators.cpp
         source/CortexMind/framework/Storage/stor.cpp
         source/CortexMind/framework/Tensor/operators.cpp
