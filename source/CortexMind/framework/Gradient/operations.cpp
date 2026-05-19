@@ -101,11 +101,46 @@ sum::~sum() {
 }
 
 void sum::backward(const Tensor &_grad) {
+    /*
     if (this->tx->has_grad()) [[likely]] {
         Tensor ones(this->tx->shape(), this->tx->device());
         ones.ones();
 
         this->tx->grad() += _grad * ones;
+    }
+
+    this->propagate_backward(_grad);
+    */
+    if (this->tx->has_grad()) [[likely]] {
+        Tensor ones(this->tx->shape(), this->tx->device());
+        ones.ones();
+
+        const Tensor grad_expanded = _grad * ones;  // {1} * (M,N) = (M,N)
+
+        this->tx->grad() += grad_expanded;
+        this->propagate_backward(grad_expanded);  // ← Broadcast version geç!
+    } else {
+        this->propagate_backward(_grad);
+    }
+
+}
+
+matmul::matmul(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("MatMulBackward", 6) {
+    this->tx = new Tensor(_x);
+    this->ty = new Tensor(_y);
+}
+
+matmul::~matmul() {
+    delete this->tx;
+    delete this->ty;
+}
+
+void matmul::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        this->tx->grad() += _grad.matmul(this->ty->transpose());
+    }
+    if (this->ty->has_grad()) [[likely]] {
+        this->ty->grad() += this->tx->transpose().matmul(_grad);
     }
 
     this->propagate_backward(_grad);

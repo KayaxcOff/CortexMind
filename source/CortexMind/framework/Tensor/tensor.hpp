@@ -346,6 +346,7 @@ namespace cortex::_fw {
          *
          * @param dims Dimension permutation order.
          * @return Permuted tensor view.
+         * @warning Permuted tensor might be not contiguous and some math functions requires contiguous tensor
          */
         [[nodiscard]]
         Tensor permute(const std::vector<i64>& dims) const;

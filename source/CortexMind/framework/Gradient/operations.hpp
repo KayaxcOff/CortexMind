@@ -144,6 +144,41 @@ namespace cortex::_fw::meta {
     private:
         Tensor* tx;   ///< Input tensor
     };
+
+    /**
+     * @brief Gradient node for matrix multiplication operation (`MatMulBackward`).
+     *
+     * Computes gradients for `Z = X @ Y` during the backward pass.
+     *
+     * Mathematical rules used:
+     * - If `Z = X @ Y`, then:
+     *   - ∂L/∂X = ∂L/∂Z @ Y^T
+     *   - ∂L/∂Y = X^T @ ∂L/∂Z
+     */
+    struct matmul : GradientFlow {
+        /**
+         * @brief Constructs a matrix multiplication gradient node.
+         *
+         * @param _x GradientPacked for left matrix (X)
+         * @param _y GradientPacked for right matrix (Y)
+         */
+        matmul(const GradientPacked& _x, const GradientPacked& _y);
+        ~matmul() override;
+
+        /**
+         * @brief Computes gradients with respect to both input matrices.
+         *
+         * For `Z = X @ Y`:
+         * - Gradient w.r.t. X: `grad_Z @ Y^T`
+         * - Gradient w.r.t. Y: `X^T @ grad_Z`
+         *
+         * @param _grad Gradient of the output tensor (∂L/∂Z)
+         */
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;   ///< Left input matrix (X)
+        Tensor* ty;   ///< Right input matrix (Y)
+    };
 } //namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP

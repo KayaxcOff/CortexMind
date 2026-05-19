@@ -253,7 +253,10 @@ Tensor Tensor::to(const DeviceType &_device) const {
 }
 
 Tensor Tensor::matmul(const Tensor &other) const {
-    CXM_ASSERT(this->ndim() != 2 || other.ndim() != 2, "matmul requires 2D tensors");
+    CXM_ASSERT(this->ndim() != 2 || other.ndim() != 2,
+        "matmul requires 2D tensors, got " +
+        std::to_string(this->ndim()) + "D and " +
+        std::to_string(other.ndim()) + "D");
 
     CXM_ASSERT(this->m_shape[1] != other.m_shape[0],
         "matmul shape mismatch: inner dimensions must match, got " +
@@ -270,7 +273,7 @@ Tensor Tensor::matmul(const Tensor &other) const {
     const auto K = static_cast<size_t>(this->m_shape[1]);
     const auto N = static_cast<size_t>(other.m_shape[1]);
 
-    Tensor output({static_cast<i64>(M), static_cast<i64>(N)}, this->device(), this->m_requires_grad);
+    Tensor output({static_cast<i64>(M), static_cast<i64>(N)}, this->device(), this->m_requires_grad || other.m_requires_grad);
 
     MatrixOp::matmul(
         this->storage_.get(), other.storage_.get(),
@@ -279,12 +282,21 @@ Tensor Tensor::matmul(const Tensor &other) const {
         this->device()
     );
 
+    if (output.m_requires_grad) {
+        meta::GradientPacked x {this->storage_, this->gradient_, this->m_shape, this->m_requires_grad};
+        meta::GradientPacked y {other.storage_, other.gradient_, other.m_shape, other.m_requires_grad};
+
+        output.flow_ = std::make_shared<meta::matmul>(x, y);
+
+        output.flow_->save(this->flow_);
+        output.flow_->save(other.flow_);
+    }
+
     return output;
 }
 
 Tensor Tensor::transpose() const {
-    CXM_ASSERT(this->ndim() != 2, "transpose requires a 2D tensor");
-    return this->permute({1, 0});
+    return {{this->m_shape[1], this->m_shape[0]}, this->storage_, this->m_requires_grad};
 }
 
 Tensor Tensor::permute(const std::vector<i64> &dims) const {
@@ -630,7 +642,7 @@ Tensor Tensor::divide(const Tensor &other) const {
 Tensor Tensor::clone() const {
     Tensor output;
     output.m_shape         = this->m_shape;
-    output.m_strides       = this->m_strides;
+    output.m_strides       = compute_stride(this->m_shape);
     output.m_requires_grad = this->m_requires_grad;
     output.m_offset        = this->m_offset;
     output.storage_        = std::make_shared<TensorStorage>(this->storage_->clone());
