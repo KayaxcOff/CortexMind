@@ -286,12 +286,6 @@ namespace cortex::_fw {
          */
         void backward() const;
         /**
-         * @brief Starts backpropagation using a custom gradient tensor.
-         *
-         * @param _grad External gradient tensor.
-         */
-        void backward(const Tensor& _grad) const;
-        /**
          * @brief Copies external data into the tensor.
          *
          * @param _data Source data pointer.

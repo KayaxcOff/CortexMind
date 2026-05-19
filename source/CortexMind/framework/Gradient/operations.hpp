@@ -179,6 +179,88 @@ namespace cortex::_fw::meta {
         Tensor* tx;   ///< Left input matrix (X)
         Tensor* ty;   ///< Right input matrix (Y)
     };
+
+    struct pow : GradientFlow {
+        pow(const GradientPacked& _x, f32 _exp);
+        ~pow() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+        f32 exponent;
+    };
+
+    struct sqrt : GradientFlow {
+        explicit sqrt(const GradientPacked& _x);
+        ~sqrt() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+    };
+
+    struct exp : GradientFlow {
+        explicit exp(const GradientPacked& _x);
+        ~exp() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+    };
+
+    struct log : GradientFlow {
+        explicit log(const GradientPacked& _x);
+        ~log() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+    };
+
+    struct rsqrt : GradientFlow {
+        explicit rsqrt(const GradientPacked& _x);
+        ~rsqrt() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+    };
+
+    struct sin : GradientFlow {
+        explicit sin(const GradientPacked& _x);
+        ~sin() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+    };
+
+    struct cos : GradientFlow {
+        explicit cos(const GradientPacked& _x);
+        ~cos() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+    };
+
+    struct abs : GradientFlow {
+        explicit abs(const GradientPacked& _x);
+        ~abs() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+    };
+
+    struct neg : GradientFlow {
+        explicit neg(const GradientPacked& _x);
+        ~neg() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+    };
 } //namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP

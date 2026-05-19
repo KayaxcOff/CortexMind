@@ -8,6 +8,150 @@
 using namespace cortex;
 
 int main() {
+     std::cout << "=== abs, neg, sign Backward Test ===" << std::endl;
+
+     tensor x({2, 2}, host, true);
+     x.fill(2.0f);
+     x.get()[1] = -3.0f;  // Second element negative
+
+     std::cout << "Input x:\n" << x << std::endl;
+
+     auto y_abs = x.abs();
+     auto y_neg = x.neg();
+
+     std::cout << "\nabs(x):\n" << y_abs << std::endl;
+     std::cout << "neg(x):\n" << y_neg << std::endl;
+
+     // Test backward: L = sum(abs(x)) + sum(neg(x))
+     auto result = y_abs + y_neg;
+     result.sum().backward();
+
+     std::cout << "\nGradient of x (expected: abs gradient + neg gradient):" << std::endl;
+     std::cout << x.grad() << std::endl;
+
+     // Manual calculation:
+     // For x[0] = 2:
+     //   ∂abs/∂x = sign(2) = 1
+     //   ∂neg/∂x = -1
+     //   Total = 1 + (-1) = 0
+     // For x[1] = -3:
+     //   ∂abs/∂x = sign(-3) = -1
+     //   ∂neg/∂x = -1
+     //   Total = -1 + (-1) = -2
+
+     std::cout << "\nExpected gradient: [[0, 0], [-2, -2]] (approximately)" << std::endl;
+
+     return 0;
+}
+/*
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
+=== abs, neg, sign Backward Test ===
+Input x:
+[[2, -3],
+ [2, 2]]
+
+abs(x):
+[[2, 3],
+ [2, 2]]
+neg(x):
+[[-2, -3],
+ [-2, -2]]
+
+Gradient of x (expected: abs gradient + neg gradient):
+[[0, -2],
+ [0, 0]]
+
+Expected gradient: [[0, 0], [-2, -2]] (approximately)
+
+Process finished with exit code 0
+*/
+
+/*
+#include <CortexMind/cortexmind.hpp>
+#include <iostream>
+#include <cmath>
+
+using namespace cortex;
+
+int main() {
+    std::cout << "=== Unary Operations Backward Test ===" << std::endl;
+
+    tensor x({2, 2}, host, true);
+    x.fill(2.0f);
+
+    std::cout << "Input x = 2:\n" << x << std::endl;
+
+    auto y_sqrt = x.sqrt();
+    auto y_exp = x.exp();
+    auto y_log = x.log();
+    auto y_pow = x.pow(3.0f);
+    auto y_sin = x.sin();
+    auto y_cos = x.cos();
+
+    std::cout << "\nsqrt(2) = " << y_sqrt.get()[0] << " (expected: " << std::sqrt(2.0f) << ")" << std::endl;
+    std::cout << "exp(2) = " << y_exp.get()[0] << " (expected: " << std::exp(2.0f) << ")" << std::endl;
+    std::cout << "log(2) = " << y_log.get()[0] << " (expected: " << std::log(2.0f) << ")" << std::endl;
+    std::cout << "pow(2, 3) = " << y_pow.get()[0] << " (expected: 8)" << std::endl;
+    std::cout << "sin(2) = " << y_sin.get()[0] << " (expected: " << std::sin(2.0f) << ")" << std::endl;
+    std::cout << "cos(2) = " << y_cos.get()[0] << " (expected: " << std::cos(2.0f) << ")" << std::endl;
+
+    // Test backward
+    auto result = y_sqrt + y_exp + y_log + y_pow + y_sin + y_cos;
+    result.sum().backward();
+
+    std::cout << "\nGradient of x:" << std::endl;
+    std::cout << x.grad() << std::endl;
+
+    // Manual calculation for x = 2:
+    // ∂sqrt/∂x = 1/(2*sqrt(2)) ≈ 0.3536
+    // ∂exp/∂x = exp(2) ≈ 7.389
+    // ∂log/∂x = 1/2 = 0.5
+    // ∂pow/∂x = 3*2^2 = 12
+    // ∂sin/∂x = cos(2) ≈ -0.416
+    // ∂cos/∂x = -sin(2) ≈ -0.909
+    // Total ≈ 19.456
+
+    float32 expected_grad = 1.0f / (2.0f * std::sqrt(2.0f)) +
+                          std::exp(2.0f) +
+                          0.5f +
+                          3.0f * 2.0f * 2.0f +
+                          std::cos(2.0f) +
+                          (-std::sin(2.0f));
+
+    std::cout << "\nExpected gradient: " << expected_grad << std::endl;
+
+    return 0;
+}
+*/
+/*
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
+=== Unary Operations Backward Test ===
+Input x = 2:
+[[2, 2],
+ [2, 2]]
+
+sqrt(2) = 1.41421 (expected: 1.41421)
+exp(2) = 7.38906 (expected: 7.38906)
+log(2) = 0.693147 (expected: 0.693147)
+pow(2, 3) = 8 (expected: 8)
+sin(2) = 0.909297 (expected: 0.909297)
+cos(2) = -0.416147 (expected: -0.416147)
+
+Gradient of x:
+[[-0.909297, -0.909297],
+ [-0.909297, -0.909297]]
+
+Expected gradient: 18.9172
+
+Process finished with exit code 0
+*/
+/*
+#include <CortexMind/cortexmind.hpp>
+#include <iostream>
+
+using namespace cortex;
+
+int main() {
     const tensor x1({2, 2}, host, true);
     const tensor x2({2, 2}, host, true);
     const tensor x3({2, 2}, host, true);
@@ -33,7 +177,7 @@ int main() {
 
     return 0;
 }
-
+*/
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
 Tensor 1:
