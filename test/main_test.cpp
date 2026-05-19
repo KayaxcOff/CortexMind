@@ -8,40 +8,81 @@
 using namespace cortex;
 
 int main() {
-    std::cout << "=== Scalar Operations Backward Test ===" << std::endl;
+    std::cout << "=== Dense Layer Test ===" << std::endl;
 
-    tensor x({2, 2}, host, true);
-    x.fill(3.0f);
+    nn::Dense layer(3, 2, host);
 
-    std::cout << "Input x = 3:\n" << x << std::endl;
+    std::cout << "Layer: " << layer.name() << std::endl;
 
-    auto z1 = x + 2.0f;
-    auto z2 = z1 * 5.0f;
-    auto z3 = z2 - 1.0f;
-    auto z4 = z3 / 2.0f;
+    tensor input({2, 3}, host, true);
+    input.fill(1.0f);
 
-    std::cout << "\nz = ((x + 2) * 5 - 1) / 2 = " << z4.get()[0] << std::endl;
+    std::cout << "\nInput shape: (2, 3)" << std::endl;
+    std::cout << "Input:\n" << input << std::endl;
 
-    z4.sum().backward();
+    tensor output = layer.forward(input);
 
-    std::cout << "\nGradient of x:" << std::endl;
-    std::cout << x.grad() << std::endl;
+    std::cout << "\nWeight shape: (3, 2)" << std::endl;
+    std::cout << "Weight:\n" << layer.getParameters()[0].get() << std::endl;
+
+    std::cout << "\nBias shape: (1, 2)" << std::endl;
+    std::cout << "Bias:\n" << layer.getParameters()[1].get() << std::endl;
+
+    std::cout << "\nOutput shape: (2, 2)" << std::endl;
+    std::cout << "Output:\n" << output << std::endl;
+
+    tensor loss = output * output;
+    loss.sum().backward();
+
+    std::cout << "\nLoss (sum of output^2):\n" << loss << std::endl;
+
+    auto params = layer.getParameters();
+    auto grads = layer.getGradients();
+
+    std::cout << "\nWeight gradient:\n" << grads[0].get() << std::endl;
+    std::cout << "\nBias gradient:\n" << grads[1].get() << std::endl;
+
+    std::cout << "\nInput gradient:\n" << input.grad() << std::endl;
 
     return 0;
 }
 /*
-C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
-=== Scalar Operations Backward Test ===
-Input x = 3:
-[[3, 3],
- [3, 3]]
+=== Dense Layer Test ===
+Layer: Dense (3, 2)
 
-z = ((x + 2) * 5 - 1) / 2 = 12
+Input shape: (2, 3)
+Input:
+[[1, 1, 1],
+ [1, 1, 1]]
 
-Gradient of x:
-[[2.5, 2.5],
- [2.5, 2.5]]
+Weight shape: (3, 2)
+Weight:
+[[-0.787978, -0.416474],
+ [0.260395, -0.604018],
+ [-0.457107, 0.495057]]
 
-Process finished with exit code 0
+Bias shape: (1, 2)
+Bias:
+[[0, 0]]
 
+Output shape: (2, 2)
+Output:
+[[-0.98469, -0.525436],
+ [-0.98469, -0.525436]]
+
+Loss (sum of output^2):
+[[0.969615, 0.276083],
+ [0.969615, 0.276083]]
+
+Weight gradient:
+[[0, 0],
+ [0, 0],
+ [0, 0]]
+
+Bias gradient:
+[[2, 2]]
+
+Input gradient:
+[[0, 0, 0],
+ [0, 0, 0]]
 */
