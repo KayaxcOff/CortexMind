@@ -19,3 +19,15 @@ i32 GradientFlow::count() const {
 const std::string &GradientFlow::name() const {
     return this->m_name;
 }
+
+void GradientFlow::save(const std::weak_ptr<GradientFlow> &_flow) {
+    this->next_functions.push_back(_flow);
+}
+
+void GradientFlow::propagate_backward(const Tensor &_grad) const {
+    for (const auto& next_fn_weak : this->next_functions) {
+        if (const auto next_fn = next_fn_weak.lock()) {
+            next_fn->backward(_grad);
+        }
+    }
+}

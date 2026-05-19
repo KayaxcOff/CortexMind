@@ -54,10 +54,29 @@ namespace cortex::_fw::meta {
          */
         [[nodiscard]]
         const std::string& name() const;
-        std::vector<std::weak_ptr<GradientFlow>> next_functions;
+
+        /**
+         * @brief Saves a reference to the next function in the computational graph.
+         *
+         * Used to build the backward graph for gradient propagation.
+         *
+         * @param _flow Weak pointer to the next gradient flow node
+         */
+        void save(const std::weak_ptr<GradientFlow>& _flow);
+        /**
+         * @brief Propagates the gradient to all next functions in the graph.
+         *
+         * This method is typically called by derived classes at the end of
+         * their `backward()` implementation to continue the backward pass.
+         *
+         * @param _grad Gradient to be propagated to next nodes
+         */
+        void propagate_backward(const Tensor& _grad) const;
+    protected:
+        std::vector<std::weak_ptr<GradientFlow>> next_functions;  ///< Next functions in the computational graph (for backward pass)
     private:
-        i32 ID;
-        std::string m_name;
+        i32 ID;                    ///< Unique operation ID
+        std::string m_name;        ///< Operation name (e.g. "Add", "MatMul", "ReLU")
     };
 } //namespace cortex::_fw::meta
 

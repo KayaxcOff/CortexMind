@@ -15,11 +15,24 @@ namespace cortex::_fw {
 } //namespace cortex::_fw
 
 namespace cortex::_fw::meta {
+    /**
+     * @brief Packed representation of a tensor's state for gradient flow.
+     *
+     * Used internally by the autograd system to store and reconstruct tensor
+     * information needed during the backward pass.
+     */
     struct GradientPacked {
+        /** @brief Shared pointer to the underlying tensor storage. */
         std::shared_ptr<TensorStorage> stor;
+
+        /** @brief Gradient tensor (if requires_grad is true). */
         std::shared_ptr<Tensor> gradient;
+
+        /** @brief Shape of the tensor. */
         std::vector<i64> shape;
-        bool has_gradient;
+
+        /** @brief Whether this tensor requires gradient computation. */
+        bool has_gradient{false};
     };
 } //namespace cortex::_fw::meta
 

@@ -21,12 +21,12 @@ add::~add() {
 void add::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
         this->tx->grad() += _grad;
-        this->tx->backward(_grad);
     }
     if (this->ty->has_grad()) [[likely]] {
         this->ty->grad() += _grad;
-        this->ty->backward(_grad);
     }
+
+    this->propagate_backward(_grad);
 }
 
 sub::sub(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("SubBackward", 2) {
@@ -42,12 +42,12 @@ sub::~sub() {
 void sub::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
         this->tx->grad() += _grad;
-        this->tx->backward(_grad);
     }
     if (this->ty->has_grad()) [[likely]] {
         this->ty->grad() -= _grad;
-        this->ty->backward(_grad);
     }
+
+    this->propagate_backward(_grad);
 }
 
 mul::mul(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("MulBackward", 3) {
@@ -63,18 +63,12 @@ mul::~mul() {
 void mul::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
         this->tx->grad() += _grad * (*this->ty);
-        //this->tx->backward(_grad);
     }
     if (this->ty->has_grad()) [[likely]] {
         this->ty->grad() += _grad * (*this->tx);
-        //this->ty->backward(_grad);
     }
 
-     for (const auto& next_fn_weak : this->next_functions) {
-         if (const auto next_fn = next_fn_weak.lock()) {
-             next_fn->backward(_grad);
-         }
-    }
+     this->propagate_backward(_grad);
 }
 
 div::div(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("DivBackward", 4) {
@@ -90,12 +84,12 @@ div::~div() {
 void div::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
         this->tx->grad() += _grad / (*this->ty);
-        this->tx->backward(_grad);
     }
     if (this->ty->has_grad()) [[likely]] {
         this->ty->grad() -= _grad * (*this->tx) / ((*this->ty) * (*this->ty));
-        this->ty->backward(_grad);
     }
+
+    this->propagate_backward(_grad);
 }
 
 sum::sum(const GradientPacked &_x) : GradientFlow("SumBackward", 5) {
@@ -112,12 +106,7 @@ void sum::backward(const Tensor &_grad) {
         ones.ones();
 
         this->tx->grad() += _grad * ones;
-        //this->tx->backward(_grad);
     }
 
-     for (const auto& next_fn_weak : this->next_functions) {
-         if (const auto next_fn = next_fn_weak.lock()) {
-             next_fn->backward(_grad);
-         }
-    }
+    this->propagate_backward(_grad);
 }

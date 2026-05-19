@@ -433,7 +433,7 @@ Tensor Tensor::sum() const {
 
         output.flow_ = std::make_shared<meta::sum>(x);
 
-        output.flow_->next_functions.push_back(this->flow_);
+        output.flow_->save(this->flow_);
     }
 
     return output;
@@ -530,8 +530,8 @@ Tensor Tensor::addition(const Tensor &other) const {
 
         output.flow_ = std::make_shared<meta::add>(x, y);
 
-        output.flow_->next_functions.push_back(this->flow_);
-        output.flow_->next_functions.push_back(other.flow_);
+        output.flow_->save(this->flow_);
+        output.flow_->save(other.flow_);
     }
 
     return output;
@@ -560,8 +560,8 @@ Tensor Tensor::subtract(const Tensor &other) const {
 
         output.flow_ = std::make_shared<meta::sub>(x, y);
 
-        output.flow_->next_functions.push_back(this->flow_);
-        output.flow_->next_functions.push_back(other.flow_);
+        output.flow_->save(this->flow_);
+        output.flow_->save(other.flow_);
     }
 
     return output;
@@ -590,8 +590,8 @@ Tensor Tensor::multiply(const Tensor &other) const {
 
         output.flow_ = std::make_shared<meta::mul>(x, y);
 
-        output.flow_->next_functions.push_back(this->flow_);
-        output.flow_->next_functions.push_back(other.flow_);
+        output.flow_->save(this->flow_);
+        output.flow_->save(other.flow_);
     }
 
     return output;
@@ -620,8 +620,8 @@ Tensor Tensor::divide(const Tensor &other) const {
 
         output.flow_ = std::make_shared<meta::div>(x, y);
 
-        output.flow_->next_functions.push_back(this->flow_);
-        output.flow_->next_functions.push_back(other.flow_);
+        output.flow_->save(this->flow_);
+        output.flow_->save(other.flow_);
     }
 
     return output;
