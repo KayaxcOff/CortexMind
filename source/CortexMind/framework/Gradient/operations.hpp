@@ -261,6 +261,42 @@ namespace cortex::_fw::meta {
     private:
         Tensor* tx;
     };
+
+    struct add_scalar : GradientFlow {
+        add_scalar(const GradientPacked& _x, f32 _scalar);
+        ~add_scalar() override;
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+        f32 scalar;
+    };
+
+    struct sub_scalar : GradientFlow {
+        sub_scalar(const GradientPacked& _x, f32 _scalar);
+        ~sub_scalar() override;
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+        f32 scalar;
+    };
+
+    struct mul_scalar : GradientFlow {
+        mul_scalar(const GradientPacked& _x, f32 _scalar);
+        ~mul_scalar() override;
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+        f32 scalar;
+    };
+
+    struct div_scalar : GradientFlow {
+        div_scalar(const GradientPacked& _x, f32 _scalar);
+        ~div_scalar() override;
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+        f32 scalar;
+    };
 } //namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP

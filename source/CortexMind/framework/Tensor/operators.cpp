@@ -5,6 +5,7 @@
 #include "CortexMind/framework/Tensor/tensor.hpp"
 #include <CortexMind/framework/Engine/IX/matrix.hpp>
 #include <CortexMind/framework/Engine/IX/scalar.hpp>
+#include <CortexMind/framework/Gradient/operations.hpp>
 #include <CortexMind/framework/Tools/err.hpp>
 #include <functional>
 #include <ostream>
@@ -159,6 +160,16 @@ Tensor Tensor::operator+(const f32 value) const {
 
     ScalarOp::add(this->storage_.get(), value, output.storage_.get(), this->len());
 
+    if (output.m_requires_grad) {
+        output.gradient_ = this->gradient_;
+
+        meta::GradientPacked x {this->storage_, this->gradient_, this->m_shape, this->m_requires_grad};
+
+        output.flow_ = std::make_shared<meta::add_scalar>(x, value);
+
+        output.flow_->save(this->flow_);
+    }
+
     return output;
 }
 
@@ -166,6 +177,16 @@ Tensor Tensor::operator-(const f32 value) const {
     Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad);
 
     ScalarOp::sub(this->storage_.get(), value, output.storage_.get(), this->len());
+
+    if (output.m_requires_grad) {
+        output.gradient_ = this->gradient_;
+
+        meta::GradientPacked x {this->storage_, this->gradient_, this->m_shape, this->m_requires_grad};
+
+        output.flow_ = std::make_shared<meta::sub_scalar>(x, value);
+
+        output.flow_->save(this->flow_);
+    }
 
     return output;
 }
@@ -175,6 +196,16 @@ Tensor Tensor::operator*(const f32 value) const {
 
     ScalarOp::mul(this->storage_.get(), value, output.storage_.get(), this->len());
 
+    if (output.m_requires_grad) {
+        output.gradient_ = this->gradient_;
+
+        meta::GradientPacked x {this->storage_, this->gradient_, this->m_shape, this->m_requires_grad};
+
+        output.flow_ = std::make_shared<meta::mul_scalar>(x, value);
+
+        output.flow_->save(this->flow_);
+    }
+
     return output;
 }
 
@@ -182,6 +213,16 @@ Tensor Tensor::operator/(const f32 value) const {
     Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad);
 
     ScalarOp::div(this->storage_.get(), value, output.storage_.get(), this->len());
+
+    if (output.m_requires_grad) {
+        output.gradient_ = this->gradient_;
+
+        meta::GradientPacked x {this->storage_, this->gradient_, this->m_shape, this->m_requires_grad};
+
+        output.flow_ = std::make_shared<meta::div_scalar>(x, value);
+
+        output.flow_->save(this->flow_);
+    }
 
     return output;
 }

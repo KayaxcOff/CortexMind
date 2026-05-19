@@ -289,3 +289,63 @@ void neg::backward(const Tensor &_grad) {
 
     this->propagate_backward(_grad);
 }
+
+add_scalar::add_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("AddScalarBackward", 17), scalar(_scalar) {
+    this->tx = new Tensor(_x);
+}
+
+add_scalar::~add_scalar() {
+    delete this->tx;
+}
+
+void add_scalar::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        this->tx->grad() += _grad;
+    }
+    this->propagate_backward(_grad);
+}
+
+sub_scalar::sub_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("SubScalarBackward", 18), scalar(_scalar) {
+    this->tx = new Tensor(_x);
+}
+
+sub_scalar::~sub_scalar() {
+    delete this->tx;
+}
+
+void sub_scalar::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        this->tx->grad() += _grad;
+    }
+    this->propagate_backward(_grad);
+}
+
+mul_scalar::mul_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("MulScalarBackward", 19), scalar(_scalar) {
+    this->tx = new Tensor(_x);
+}
+
+mul_scalar::~mul_scalar() {
+    delete this->tx;
+}
+
+void mul_scalar::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        this->tx->grad() += _grad * this->scalar;
+    }
+    this->propagate_backward(_grad);
+}
+
+div_scalar::div_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("DivScalarBackward", 20), scalar(_scalar) {
+    this->tx = new Tensor(_x);
+}
+
+div_scalar::~div_scalar() {
+    delete this->tx;
+}
+
+void div_scalar::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        this->tx->grad() += _grad / this->scalar;
+    }
+    this->propagate_backward(_grad);
+}
