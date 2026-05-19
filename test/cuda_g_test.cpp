@@ -172,19 +172,7 @@ TEST_F(CudaBinaryTest, ColBroadcastAdd) {
     const std::vector<float32> expected = {11, 12, 13, 14, 25, 26, 27, 28};
     ExpectMatrix2DNear(result, expected);
 }
-/*
-C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
-Testing started at 20:59 ...
-Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
-[WARN]  [CortexMind\framework\Engine\IX\matrix.cpp | 140] General broadcast on CUDA not supported, falling back to HOST
-unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
-Stack trace:
 
-
-
-
-Process finished with exit code 1
-*/
 TEST_F(CudaBinaryTest, ColBroadcastMul) {
     const std::vector<float32> data_y = {2, 3};
     tensor y_host({2, 1}, data_y.data(), host);
@@ -197,19 +185,7 @@ TEST_F(CudaBinaryTest, ColBroadcastMul) {
     const std::vector<float32> expected = {2, 4, 6, 8, 15, 18, 21, 24};
     ExpectMatrix2DNear(result, expected);
 }
-/*
-C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
-Testing started at 20:59 ...
-Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
-[WARN]  [CortexMind\framework\Engine\IX\matrix.cpp | 140] General broadcast on CUDA not supported, falling back to HOST
-unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
-Stack trace:
 
-
-
-
-Process finished with exit code 1
-*/
 // ========================================================== //
 // Matrix Multiplication
 // ========================================================== //
@@ -389,19 +365,7 @@ TEST(CudaBroadcastAdvancedTest, Broadcast1DTo2D) {
         EXPECT_NEAR(result_host.get()[i], expected[i], 1e-4f);
     }
 }
-/*
-C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
-Testing started at 20:58 ...
-Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
-[WARN]  [CortexMind\framework\Engine\IX\matrix.cpp | 140] General broadcast on CUDA not supported, falling back to HOST
-unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
-Stack trace:
 
-
-
-
-Process finished with exit code 1
-*/
 TEST(CudaBroadcastAdvancedTest, Broadcast1DScalar) {
     const std::vector data_a = {3.0f};
     const std::vector<float32> data_b = {2, 4, 6, 8, 10, 12};
@@ -420,16 +384,3 @@ TEST(CudaBroadcastAdvancedTest, Broadcast1DScalar) {
         EXPECT_NEAR(result_host.get()[i], expected[i], 1e-4f);
     }
 }
-/*
-C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_CUDA_G_TEST.exe --gtest_color=no
-Testing started at 20:58 ...
-Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
-[WARN]  [CortexMind\framework\Engine\IX\matrix.cpp | 140] General broadcast on CUDA not supported, falling back to HOST
-unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
-Stack trace:
-
-
-
-
-Process finished with exit code 1
-*/

@@ -136,17 +136,29 @@ void MatrixOp::dispatch(
             break;
 
         case BroadcastKind::kGeneral: {
-            CXM_WARN(dev != DeviceType::kHOST,
-                "General broadcast on CUDA not supported, falling back to HOST");
-
             const BroadcastInfo info = make_broadcast_info(
-                shape_x, stride_x, shape_y, stride_y, shape_z, stride_z);
+        shape_x, stride_x, shape_y, stride_y, shape_z, stride_z);
+            const size_t total = compute_size(shape_z);
 
-            if      (op == '+') avx2::general_broadcast_add(x, y, z, info);
-            else if (op == '-') avx2::general_broadcast_sub(x, y, z, info);
-            else if (op == '*') avx2::general_broadcast_mul(x, y, z, info);
-            else                avx2::general_broadcast_div(x, y, z, info);
-            break;
+            #if CXM_IS_CUDA_AVAILABLE
+                        if (dev == DeviceType::kCUDA) {
+                            if      (op == '+') cuda::Broadcast::general_add(x, y, z, info, total);
+                            else if (op == '-') cuda::Broadcast::general_sub(x, y, z, info, total);
+                            else if (op == '*') cuda::Broadcast::general_mul(x, y, z, info, total);
+                            else                cuda::Broadcast::general_div(x, y, z, info, total);
+                        } else {
+                            if      (op == '+') avx2::general_broadcast_add(x, y, z, info);
+                            else if (op == '-') avx2::general_broadcast_sub(x, y, z, info);
+                            else if (op == '*') avx2::general_broadcast_mul(x, y, z, info);
+                            else                avx2::general_broadcast_div(x, y, z, info);
+                        }
+            #else //#if CXM_IS_CUDA_AVAILABLE
+                        if      (op == '+') avx2::general_broadcast_add(x, y, z, info);
+                        else if (op == '-') avx2::general_broadcast_sub(x, y, z, info);
+                        else if (op == '*') avx2::general_broadcast_mul(x, y, z, info);
+                        else                avx2::general_broadcast_div(x, y, z, info);
+            #endif //#if CXM_IS_CUDA_AVAILABLE #else
+                        break;
         }
     }
 }

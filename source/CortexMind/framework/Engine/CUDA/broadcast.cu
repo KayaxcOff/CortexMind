@@ -101,3 +101,27 @@ void Broadcast::col_mul(f32* Xx, const f32* Xy, const size_t M, const size_t N) 
 void Broadcast::col_div(f32* Xx, const f32* Xy, const size_t M, const size_t N) {
     kernels::col_broadcast_ip<<<col_grid(M, N), col_block()>>>(Xx, Xy, M, N, ops::Division{});
 }
+
+void Broadcast::general_add(const f32* Xx, const f32* Xy, f32* Xz,
+                              const BroadcastInfo& info, const size_t total) {
+    kernels::general_broadcast<<<grid1d(total), BLOCK_SIZE_1D>>>(
+        Xx, Xy, Xz, info, total, ops::Addition{});
+}
+
+void Broadcast::general_sub(const f32* Xx, const f32* Xy, f32* Xz,
+                              const BroadcastInfo& info, const size_t total) {
+    kernels::general_broadcast<<<grid1d(total), BLOCK_SIZE_1D>>>(
+        Xx, Xy, Xz, info, total, ops::Subtraction{});
+}
+
+void Broadcast::general_mul(const f32* Xx, const f32* Xy, f32* Xz,
+                              const BroadcastInfo& info, const size_t total) {
+    kernels::general_broadcast<<<grid1d(total), BLOCK_SIZE_1D>>>(
+        Xx, Xy, Xz, info, total, ops::Multiplication{});
+}
+
+void Broadcast::general_div(const f32* Xx, const f32* Xy, f32* Xz,
+                              const BroadcastInfo& info, const size_t total) {
+    kernels::general_broadcast<<<grid1d(total), BLOCK_SIZE_1D>>>(
+        Xx, Xy, Xz, info, total, ops::Division{});
+}

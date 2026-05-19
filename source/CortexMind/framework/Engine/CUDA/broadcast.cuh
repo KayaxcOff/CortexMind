@@ -5,6 +5,7 @@
 #ifndef CORTEXMIND_FRAMEWORK_ENGINE_CUDA_BROADCAST_CUH
 #define CORTEXMIND_FRAMEWORK_ENGINE_CUDA_BROADCAST_CUH
 
+#include <CortexMind/framework/Tools/broadcast_info.hpp>
 #include <CortexMind/framework/Tools/types.hpp>
 
 namespace cortex::_fw::cuda {
@@ -36,6 +37,11 @@ namespace cortex::_fw::cuda {
         static void col_sub(f32* Xx, const f32* __restrict__ Xy, size_t M, size_t N);
         static void col_mul(f32* Xx, const f32* __restrict__ Xy, size_t M, size_t N);
         static void col_div(f32* Xx, const f32* __restrict__ Xy, size_t M, size_t N);
+
+        static void general_add(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, const BroadcastInfo& info, size_t total);
+        static void general_sub(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, const BroadcastInfo& info, size_t total);
+        static void general_mul(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, const BroadcastInfo& info, size_t total);
+        static void general_div(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, const BroadcastInfo& info, size_t total);
     };
 } //namespace cortex::_fw::cuda
 
