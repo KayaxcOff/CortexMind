@@ -8,9 +8,11 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Engine/AVX2/wise.cpp
         source/CortexMind/framework/Engine/IX/element_wise.cpp
         source/CortexMind/framework/Engine/IX/matrix.cpp
+        source/CortexMind/framework/Engine/IX/random.cpp
         source/CortexMind/framework/Engine/IX/reduce.cpp
         source/CortexMind/framework/Engine/IX/scalar.cpp
         source/CortexMind/framework/Gradient/flow.cpp
+        source/CortexMind/framework/Gradient/operations.cpp
         source/CortexMind/framework/Memory/mem.cpp
         source/CortexMind/framework/Storage/operators.cpp
         source/CortexMind/framework/Storage/stor.cpp
@@ -20,8 +22,6 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/as_string.cpp
         source/CortexMind/framework/Tools/err.cpp
         source/CortexMind/framework/Tools/tensor_meta.cpp
-        ../source/CortexMind/framework/Engine/IX/random.cpp
-        ../source/CortexMind/framework/Gradient/operations.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
