@@ -1,0 +1,16 @@
+//
+// Created by muham on 19.05.2026.
+//
+
+#include "CortexMind/framework/Net/loss.hpp"
+#include <type_traits>
+
+using namespace cortex::_fw;
+
+LossBase::LossBase(std::string name) : m_name(std::move(name)) {}
+
+LossBase::~LossBase() = default;
+
+const std::string &LossBase::name() const {
+    return m_name;
+}
