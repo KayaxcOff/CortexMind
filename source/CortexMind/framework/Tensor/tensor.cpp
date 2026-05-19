@@ -57,6 +57,8 @@ Tensor::Tensor(const meta::GradientPacked &packed) : m_shape(packed.shape), m_of
     this->m_strides = compute_stride(this->m_shape);
 
     if (this->m_requires_grad) {
+        CXM_ASSERT(packed.gradient == nullptr, "Gradient of pack is null");
+
         this->gradient_ = packed.gradient;
     }
 }
@@ -211,6 +213,11 @@ void Tensor::backward(const Tensor &_grad) const {
         return;
     }
     this->flow_->backward(_grad);
+    // for (const auto& next_fn_weak : this->flow_->next_functions) {
+    //     if (const auto next_fn = next_fn_weak.lock()) {
+    //         next_fn->backward(_grad);
+    //     }
+    // }
 }
 
 void Tensor::SetData(const f32 *_data) {

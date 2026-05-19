@@ -63,11 +63,17 @@ mul::~mul() {
 void mul::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
         this->tx->grad() += _grad * (*this->ty);
-        this->tx->backward(_grad);
+        //this->tx->backward(_grad);
     }
     if (this->ty->has_grad()) [[likely]] {
         this->ty->grad() += _grad * (*this->tx);
-        this->ty->backward(_grad);
+        //this->ty->backward(_grad);
+    }
+
+     for (const auto& next_fn_weak : this->next_functions) {
+         if (const auto next_fn = next_fn_weak.lock()) {
+             next_fn->backward(_grad);
+         }
     }
 }
 
@@ -87,7 +93,7 @@ void div::backward(const Tensor &_grad) {
         this->tx->backward(_grad);
     }
     if (this->ty->has_grad()) [[likely]] {
-        this->ty->grad() -= _grad * (*this->tx) / this->ty->pow();
+        this->ty->grad() -= _grad * (*this->tx) / ((*this->ty) * (*this->ty));
         this->ty->backward(_grad);
     }
 }
@@ -106,6 +112,12 @@ void sum::backward(const Tensor &_grad) {
         ones.ones();
 
         this->tx->grad() += _grad * ones;
-        this->tx->backward(_grad);
+        //this->tx->backward(_grad);
+    }
+
+     for (const auto& next_fn_weak : this->next_functions) {
+         if (const auto next_fn = next_fn_weak.lock()) {
+             next_fn->backward(_grad);
+         }
     }
 }
