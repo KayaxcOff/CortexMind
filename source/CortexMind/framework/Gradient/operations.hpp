@@ -47,6 +47,15 @@ namespace cortex::_fw::meta {
         Tensor* tx;
         Tensor* ty;
     };
+
+    struct sum : GradientFlow {
+        explicit sum(const GradientPacked& _x);
+        ~sum() override;
+
+        void backward(const Tensor &_grad) override;
+    private:
+        Tensor* tx;
+    };
 } //namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP

@@ -91,3 +91,21 @@ void div::backward(const Tensor &_grad) {
         this->ty->backward(_grad);
     }
 }
+
+sum::sum(const GradientPacked &_x) : GradientFlow("SumBackward", 5) {
+    this->tx = new Tensor(_x);
+}
+
+sum::~sum() {
+    delete this->tx;
+}
+
+void sum::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        Tensor ones(this->tx->shape(), this->tx->device());
+        ones.ones();
+
+        this->tx->grad() += _grad * ones;
+        this->tx->backward(_grad);
+    }
+}

@@ -14,13 +14,13 @@ int main() {
     x1.uniform();
     x2.uniform();
 
-    const auto z = x1 + x2;
+    const auto z = x1 * x2;
 
     std::cout << "Tensor 1:\n" << x1 << std::endl;
     std::cout << "Tensor 2:\n" << x2 << std::endl;
     std::cout << "Result:\n" << z << std::endl;
 
-    z.backward();
+    z.sum().backward();
 
     std::cout << "Gradient 1:\n" << x1.grad() << std::endl;
     std::cout << "Gradient 2:\n" << x2.grad() << std::endl;

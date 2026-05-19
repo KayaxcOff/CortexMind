@@ -421,6 +421,14 @@ Tensor Tensor::sum() const {
 
     output.get()[0] = this->sum_all();
 
+    if (output.m_requires_grad) {
+        meta::GradientPacked x {this->storage_, this->gradient_, this->m_shape, this->m_requires_grad};
+
+        output.flow_ = std::make_shared<meta::sum>(x);
+
+        output.flow_->next_functions.push_back(this->flow_);
+    }
+
     return output;
 }
 
