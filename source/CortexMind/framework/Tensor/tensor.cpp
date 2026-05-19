@@ -8,6 +8,7 @@
 #include <CortexMind/framework/Engine/IX/matrix.hpp>
 #include <CortexMind/framework/Engine/IX/random.hpp>
 #include <CortexMind/framework/Engine/IX/reduce.hpp>
+#include <CortexMind/framework/Gradient/operations.hpp>
 #if CXM_IS_CUDA_AVAILABLE
     #include <CortexMind/framework/Memory/transform.cuh>
 #else //#if CXM_IS_CUDA_AVAILABLE
@@ -492,7 +493,7 @@ Tensor Tensor::unsqueeze(const i64 dim) const {
 Tensor Tensor::addition(const Tensor &other) const {
     const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
 
-    Tensor output(out_shape, this->storage_->device(), this->m_requires_grad);
+    Tensor output(out_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
 
     MatrixOp::add(
         this->storage_.get(),
@@ -505,6 +506,13 @@ Tensor Tensor::addition(const Tensor &other) const {
         output.m_shape,
         output.m_strides
     );
+
+    if (output.m_requires_grad) {
+        meta::GradientPacked x {this->storage_, this->m_shape, this->gradient_};
+        meta::GradientPacked y {other.storage_, other.m_shape, other.gradient_};
+
+        output.flow_ = std::make_shared<meta::add>(x, y);
+    }
 
     return output;
 }

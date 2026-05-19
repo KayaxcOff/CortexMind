@@ -84,23 +84,7 @@ namespace {
 } // unnamed namespace
 
 Tensor Tensor::operator+(const Tensor &other) const {
-    const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
-
-    Tensor output(out_shape, this->storage_->device(), this->m_requires_grad);
-
-    MatrixOp::add(
-        this->storage_.get(),
-        this->m_shape,
-        this->m_strides,
-        other.storage_.get(),
-        other.m_shape,
-        other.m_strides,
-        output.storage_.get(),
-        output.m_shape,
-        output.m_strides
-    );
-
-    return output;
+    return this->addition(other);
 }
 
 Tensor Tensor::operator-(const Tensor &other) const {

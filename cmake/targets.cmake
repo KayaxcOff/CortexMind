@@ -21,6 +21,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/err.cpp
         source/CortexMind/framework/Tools/tensor_meta.cpp
         ../source/CortexMind/framework/Engine/IX/random.cpp
+        ../source/CortexMind/framework/Gradient/operations.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
