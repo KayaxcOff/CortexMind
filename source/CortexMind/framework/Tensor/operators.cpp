@@ -161,7 +161,6 @@ Tensor Tensor::operator+(const f32 value) const {
     ScalarOp::add(this->storage_.get(), value, output.storage_.get(), this->len());
 
     if (output.m_requires_grad) {
-        output.gradient_ = this->gradient_;
 
         meta::GradientPacked x {this->storage_, this->gradient_, this->m_shape, this->m_requires_grad};
 
@@ -179,7 +178,6 @@ Tensor Tensor::operator-(const f32 value) const {
     ScalarOp::sub(this->storage_.get(), value, output.storage_.get(), this->len());
 
     if (output.m_requires_grad) {
-        output.gradient_ = this->gradient_;
 
         meta::GradientPacked x {this->storage_, this->gradient_, this->m_shape, this->m_requires_grad};
 
@@ -197,7 +195,6 @@ Tensor Tensor::operator*(const f32 value) const {
     ScalarOp::mul(this->storage_.get(), value, output.storage_.get(), this->len());
 
     if (output.m_requires_grad) {
-        output.gradient_ = this->gradient_;
 
         meta::GradientPacked x {this->storage_, this->gradient_, this->m_shape, this->m_requires_grad};
 
@@ -215,7 +212,6 @@ Tensor Tensor::operator/(const f32 value) const {
     ScalarOp::div(this->storage_.get(), value, output.storage_.get(), this->len());
 
     if (output.m_requires_grad) {
-        output.gradient_ = this->gradient_;
 
         meta::GradientPacked x {this->storage_, this->gradient_, this->m_shape, this->m_requires_grad};
 

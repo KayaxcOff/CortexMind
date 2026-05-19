@@ -329,10 +329,11 @@ mul_scalar::~mul_scalar() {
 }
 
 void mul_scalar::backward(const Tensor &_grad) {
+    const Tensor grad_input = _grad * this->scalar;
     if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += _grad * this->scalar;
+        this->tx->grad() += grad_input;
     }
-    this->propagate_backward(_grad);
+    this->propagate_backward(grad_input);
 }
 
 div_scalar::div_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("DivScalarBackward", 20), scalar(_scalar) {
@@ -344,8 +345,9 @@ div_scalar::~div_scalar() {
 }
 
 void div_scalar::backward(const Tensor &_grad) {
+    const Tensor grad_input = _grad / this->scalar;
     if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += _grad / this->scalar;
+        this->tx->grad() += grad_input;
     }
-    this->propagate_backward(_grad);
+    this->propagate_backward(grad_input);
 }
