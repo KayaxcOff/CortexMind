@@ -4,6 +4,7 @@
 
 #include "CortexMind/framework/Gradient/operations.hpp"
 #include <CortexMind/framework/Tensor/tensor.hpp>
+#include <iostream>
 
 using namespace cortex::_fw::meta;
 using namespace cortex::_fw;
@@ -11,21 +12,24 @@ using namespace cortex::_fw;
 add::add(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("AddBackward", 1) {
     this->tx = new Tensor(_x);
     this->ty = new Tensor(_y);
+    std::cout << this->name() << " initialized" << std::endl;
 }
 
 add::~add() {
     delete this->tx;
     delete this->ty;
+    std::cout << this->name() << " destroyed" << std::endl;
 }
 
 void add::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
         this->tx->grad() += _grad;
+        //this->tx->backward(_grad);
     }
     if (this->ty->has_grad()) [[likely]] {
         this->ty->grad() += _grad;
+        //this->ty->backward(_grad);
     }
-
     this->propagate_backward(_grad);
 }
 
@@ -53,22 +57,26 @@ void sub::backward(const Tensor &_grad) {
 mul::mul(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("MulBackward", 3) {
     this->tx = new Tensor(_x);
     this->ty = new Tensor(_y);
+    std::cout << this->name() << " initialized" << std::endl;
 }
 
 mul::~mul() {
     delete this->tx;
     delete this->ty;
+    std::cout << this->name() << " destroyed" << std::endl;
 }
 
 void mul::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
         this->tx->grad() += _grad * (*this->ty);
+        //this->tx->backward(_grad);
     }
     if (this->ty->has_grad()) [[likely]] {
         this->ty->grad() += _grad * (*this->tx);
+        //this->ty->backward(_grad);
     }
 
-     this->propagate_backward(_grad);
+    this->propagate_backward(_grad);
 }
 
 div::div(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("DivBackward", 4) {
@@ -94,34 +102,39 @@ void div::backward(const Tensor &_grad) {
 
 sum::sum(const GradientPacked &_x) : GradientFlow("SumBackward", 5) {
     this->tx = new Tensor(_x);
+    std::cout << this->name() << " initialized" << std::endl;
 }
 
 sum::~sum() {
     delete this->tx;
+    std::cout << this->name() << " destroyed" << std::endl;
 }
 
 void sum::backward(const Tensor &_grad) {
-    /*
+
+    // if (this->tx->has_grad()) [[likely]] {
+    //     Tensor ones(this->tx->shape(), this->tx->device());
+    //     ones.ones();
+    //
+    //     const auto grad_expanded = _grad * ones;
+    //
+    //     this->tx->grad() += grad_expanded;
+    //     this->tx->backward(this->tx->grad());
+    // }
+
+    //this->propagate_backward(_grad);
+
     if (this->tx->has_grad()) [[likely]] {
         Tensor ones(this->tx->shape(), this->tx->device());
-        ones.ones();
+         ones.ones();
 
-        this->tx->grad() += _grad * ones;
-    }
+         const Tensor grad_expanded = _grad * ones;  // {1} * (M,N) = (M,N)
 
-    this->propagate_backward(_grad);
-    */
-    if (this->tx->has_grad()) [[likely]] {
-        Tensor ones(this->tx->shape(), this->tx->device());
-        ones.ones();
-
-        const Tensor grad_expanded = _grad * ones;  // {1} * (M,N) = (M,N)
-
-        this->tx->grad() += grad_expanded;
-        this->propagate_backward(grad_expanded);  // ← Broadcast version geç!
-    } else {
-        this->propagate_backward(_grad);
-    }
+         this->tx->grad() += grad_expanded;
+         this->propagate_backward(grad_expanded);  // ← Broadcast version geç!
+     } else {
+         this->propagate_backward(_grad);
+     }
 
 }
 
@@ -138,11 +151,12 @@ matmul::~matmul() {
 void matmul::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
         this->tx->grad() += _grad.matmul(this->ty->transpose());
+        //this->tx->backward(this->tx->grad());
     }
     if (this->ty->has_grad()) [[likely]] {
         this->ty->grad() += this->tx->transpose().matmul(_grad);
+        //this->ty->backward(this->ty->grad());
     }
-
     this->propagate_backward(_grad);
 }
 

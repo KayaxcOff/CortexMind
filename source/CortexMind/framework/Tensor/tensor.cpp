@@ -205,7 +205,16 @@ void Tensor::backward() const {
         this->gradient_->ones();
     }
 
-    this->flow_->backward(*this->gradient_);
+    if (this->flow_) {
+        this->flow_->backward(*this->gradient_);
+    }
+}
+
+void Tensor::backward(const Tensor &_grad) const {
+    if (this->flow_ == nullptr) {
+        return;
+    }
+    this->flow_->backward(_grad);
 }
 
 void Tensor::SetData(const f32 *_data) {

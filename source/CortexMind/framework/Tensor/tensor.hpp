@@ -285,6 +285,7 @@ namespace cortex::_fw {
          * If the tensor is scalar, its gradient is initialized to 1.
          */
         void backward() const;
+        void backward(const Tensor& _grad) const;
         /**
          * @brief Copies external data into the tensor.
          *

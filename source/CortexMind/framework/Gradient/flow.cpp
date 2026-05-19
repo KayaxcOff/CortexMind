@@ -3,6 +3,7 @@
 //
 
 #include "CortexMind/framework/Gradient/flow.hpp"
+#include <CortexMind/framework/Tools/err.hpp>
 #include <type_traits>
 
 using namespace cortex::_fw::meta;
@@ -20,14 +21,16 @@ const std::string &GradientFlow::name() const {
     return this->m_name;
 }
 
-void GradientFlow::save(const std::weak_ptr<GradientFlow> &_flow) {
+void GradientFlow::save(const std::shared_ptr<GradientFlow> &_flow) {
     this->next_functions.push_back(_flow);
 }
 
 void GradientFlow::propagate_backward(const Tensor &_grad) const {
-    for (const auto& next_fn_weak : this->next_functions) {
-        if (const auto next_fn = next_fn_weak.lock()) {
-            next_fn->backward(_grad);
+    for (const auto &item : this->next_functions) {
+        if (item != nullptr) {
+            item->backward(_grad);
+        } else {
+            CXM_WARN(true, "Gradient Flow is null so graph can't build");
         }
     }
 }
