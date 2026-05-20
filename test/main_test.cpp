@@ -47,6 +47,8 @@ int main() {
     return 0;
 }
 /*
+With shared-ptr:
+
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
 === Dense Layer Test ===
 Layer: Dense (3, 2)
@@ -102,6 +104,115 @@ AddBackward destroyed
 [WARN]  [CortexMind\framework\Gradient\flow.cpp | 33] Gradient Flow is null so graph can't build
 [WARN]  [CortexMind\framework\Gradient\flow.cpp | 33] Gradient Flow is null so graph can't build
 [WARN]  [CortexMind\framework\Gradient\flow.cpp | 33] Gradient Flow is null so graph can't build
+
+Process finished with exit code 0
+
+
+with weak-ptr:
+
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
+[WARN]  [CortexMind\framework\Gradient\flow.cpp | 42] Flow is not lock
+[WARN]  [CortexMind\framework\Gradient\flow.cpp | 42] Flow is not lock
+[WARN]  [CortexMind\framework\Gradient\flow.cpp | 42] Flow is not lock
+[WARN]  [CortexMind\framework\Gradient\flow.cpp | 42] Flow is not lock
+=== Dense Layer Test ===
+Layer: Dense (3, 2)
+
+Input shape: (2, 3)
+Input:
+[[1, 1, 1],
+ [1, 1, 1]]
+AddBackward initialized
+
+Weight shape: (3, 2)
+Weight:
+[[0.299827, -0.952843],
+ [0.506121, 0.256404],
+ [-0.904297, -0.831778]]
+
+Bias shape: (1, 2)
+Bias:
+[[0, 0]]
+
+Output shape: (2, 2)
+Output:
+[[-0.0983483, -1.52822],
+ [-0.0983483, -1.52822]]
+MulBackward initialized
+SumBackward initialized
+MulBackward initialized
+MulBackward destroyed
+MulBackward initialized
+MulBackward destroyed
+SumBackward destroyed
+
+Loss (sum of output^2):
+[[0.00967238, 2.33545],
+ [0.00967238, 2.33545]]
+
+Weight gradient:
+[[0, 0],
+ [0, 0],
+ [0, 0]]
+
+Bias gradient:
+[[2, 2]]
+
+Input gradient:
+[[0, 0, 0],
+ [0, 0, 0]]
+MulBackward destroyed
+AddBackward destroyed
+
+Process finished with exit code 0
+
+
+with tx->backward();
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
+=== Dense Layer Test ===
+Layer: Dense (3, 2)
+
+Input shape: (2, 3)
+Input:
+[[1, 1, 1],
+ [1, 1, 1]]
+AddBackward initialized
+
+Weight shape: (3, 2)
+Weight:
+[[-0.895132, -0.828286],
+ [1.02367, -0.44019],
+ [-0.806046, 0.682301]]
+
+Bias shape: (1, 2)
+Bias:
+[[0, 0]]
+
+Output shape: (2, 2)
+Output:
+[[-0.677505, -0.586176],
+ [-0.677505, -0.586176]]
+MulBackward initialized
+SumBackward initialized
+SumBackward destroyed
+
+Loss (sum of output^2):
+[[0.459013, 0.343602],
+ [0.459013, 0.343602]]
+
+Weight gradient:
+[[0, 0],
+ [0, 0],
+ [0, 0]]
+
+Bias gradient:
+[[0, 0]]
+
+Input gradient:
+[[0, 0, 0],
+ [0, 0, 0]]
+MulBackward destroyed
+AddBackward destroyed
 
 Process finished with exit code 0
 

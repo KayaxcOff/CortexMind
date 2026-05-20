@@ -62,7 +62,7 @@ namespace cortex::_fw::meta {
          *
          * @param _flow Shared pointer to the next gradient flow node
          */
-        void save(const std::shared_ptr<GradientFlow>& _flow);
+        void save(const std::weak_ptr<GradientFlow>& _flow);
         /**
          * @brief Propagates the gradient to all next functions in the graph.
          *
@@ -73,7 +73,7 @@ namespace cortex::_fw::meta {
          */
         void propagate_backward(const Tensor& _grad) const;
     protected:
-        std::vector<std::shared_ptr<GradientFlow>> next_functions;  ///< Next functions in the computational graph (for backward pass)
+        std::vector<std::weak_ptr<GradientFlow>> next_functions;  ///< Next functions in the computational graph (for backward pass)
     private:
         i32 ID;                    ///< Unique operation ID
         std::string m_name;        ///< Operation name (e.g. "Add", "MatMul", "ReLU")
