@@ -437,7 +437,7 @@ namespace cortex::_fw {
         [[nodiscard]]
         Tensor sum() const;
         [[nodiscard]]
-        Tensor sum(const std::vector<i64>& dims) const;
+        Tensor sum(const std::vector<i64>& dims, bool keep = true) const;
         /**
          * @brief Negates all tensor elements.
          *

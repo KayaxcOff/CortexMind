@@ -19,13 +19,17 @@ add::~add() {
 }
 
 void add::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += _grad;
-        this->tx->backward(_grad);
+    if (this->tx->has_grad()) {
+        const auto dims = grad_reduce_dims(this->tx->shape(), _grad.shape());
+        const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
     }
-    if (this->ty->has_grad()) [[likely]] {
-        this->ty->grad() += _grad;
-        this->ty->backward(_grad);
+    if (this->ty->has_grad()) {
+        const auto dims = grad_reduce_dims(this->ty->shape(), _grad.shape());
+        const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
+        this->ty->grad() += grad_expanded;
+        this->ty->backward(grad_expanded);
     }
 }
 
@@ -40,13 +44,17 @@ sub::~sub() {
 }
 
 void sub::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += _grad;
-        this->tx->backward(_grad);
+    if (this->tx->has_grad()) {
+        const auto dims = grad_reduce_dims(this->tx->shape(), _grad.shape());
+        const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
     }
-    if (this->ty->has_grad()) [[likely]] {
-        this->ty->grad() -= _grad;
-        this->ty->backward(_grad);
+    if (this->ty->has_grad()) {
+        const auto dims = grad_reduce_dims(this->ty->shape(), _grad.shape());
+        const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
+        this->ty->grad() -= grad_expanded;
+        this->ty->backward(grad_expanded.neg());
     }
 }
 
@@ -61,13 +69,17 @@ mul::~mul() {
 }
 
 void mul::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
-        const Tensor grad_expanded = _grad * (*this->ty);
+    if (this->tx->has_grad()) {
+        const Tensor grad_full = _grad * (*this->ty);
+        const auto dims = grad_reduce_dims(this->tx->shape(), grad_full.shape());
+        const Tensor grad_expanded = dims.empty() ? grad_full : grad_full.sum(dims);
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
-    if (this->ty->has_grad()) [[likely]] {
-        const Tensor grad_expanded = _grad * (*this->tx);
+    if (this->ty->has_grad()) {
+        const Tensor grad_full = _grad * (*this->tx);
+        const auto dims = grad_reduce_dims(this->ty->shape(), grad_full.shape());
+        const Tensor grad_expanded = dims.empty() ? grad_full : grad_full.sum(dims);
         this->ty->grad() += grad_expanded;
         this->ty->backward(grad_expanded);
     }
@@ -84,14 +96,18 @@ div::~div() {
 }
 
 void div::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
-        const Tensor grad_expanded = _grad / (*this->ty);
+    if (this->tx->has_grad()) {
+        const Tensor grad_full = _grad / (*this->ty);
+        const auto dims = grad_reduce_dims(this->tx->shape(), grad_full.shape());
+        const Tensor grad_expanded = dims.empty() ? grad_full : grad_full.sum(dims);
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
-    if (this->ty->has_grad()) [[likely]] {
-        const Tensor grad_expanded = _grad * (*this->tx) / ((*this->ty) * (*this->ty));
-        this->ty->grad() -= grad_expanded;
+    if (this->ty->has_grad()) {
+        const Tensor grad_full = (_grad * (*this->tx)).neg() / ((*this->ty) * (*this->ty));
+        const auto dims = grad_reduce_dims(this->ty->shape(), grad_full.shape());
+        const Tensor grad_expanded = dims.empty() ? grad_full : grad_full.sum(dims);
+        this->ty->grad() += grad_expanded;
         this->ty->backward(grad_expanded);
     }
 }
@@ -214,7 +230,7 @@ rsqrt::~rsqrt() {
 
 void rsqrt::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        const Tensor grad_expanded = _grad * (-1.0f) / this->tx->pow(1.5f) * 2.0f;;
+        const Tensor grad_expanded = _grad * (-0.5f) / this->tx->pow(1.5f);
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }

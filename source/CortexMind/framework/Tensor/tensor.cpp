@@ -293,7 +293,23 @@ Tensor Tensor::matmul(const Tensor &other) const {
 }
 
 Tensor Tensor::transpose() const {
-    return {{this->m_shape[1], this->m_shape[0]}, this->storage_, this->m_requires_grad};
+    CXM_ASSERT(this->ndim() != 2, "transpose requires a 2D tensor");
+
+    const auto M = static_cast<size_t>(this->m_shape[0]);
+    const auto N = static_cast<size_t>(this->m_shape[1]);
+
+    Tensor output({static_cast<i64>(N), static_cast<i64>(M)}, this->device(), this->m_requires_grad);
+
+    const f32* src = this->get();
+    f32* dst = output.get();
+
+    for (size_t i = 0; i < M; ++i) {
+        for (size_t j = 0; j < N; ++j) {
+            dst[j * M + i] = src[i * N + j];
+        }
+    }
+
+    return output;
 }
 
 Tensor Tensor::permute(const std::vector<i64> &dims) const {
@@ -494,9 +510,8 @@ Tensor Tensor::sum() const {
     return output;
 }
 
-Tensor Tensor::sum(const std::vector<i64> &dims) const {
+Tensor Tensor::sum(const std::vector<i64> &dims, const bool keep) const {
     std::vector<i64> out_shape = this->m_shape;
-
     for (const i64 d : dims) {
         out_shape[static_cast<size_t>(d)] = 1;
     }
@@ -504,11 +519,14 @@ Tensor Tensor::sum(const std::vector<i64> &dims) const {
     Tensor output(out_shape, this->device(), this->m_requires_grad);
     output.zero();
 
-    const size_t total = this->len();
     const size_t ndim  = this->ndim();
+    const auto   out_strides = compute_stride(out_shape);
 
+    const size_t total = this->len();
     for (size_t i = 0; i < total; ++i) {
-        size_t oz = 0, idx = i;
+        size_t oz = 0;
+        size_t idx = i;
+
         for (i32 d = static_cast<i32>(ndim) - 1; d >= 0; --d) {
             const size_t coord = idx % static_cast<size_t>(this->m_shape[d]);
             idx /= static_cast<size_t>(this->m_shape[d]);
@@ -516,9 +534,20 @@ Tensor Tensor::sum(const std::vector<i64> &dims) const {
             const bool is_reduced = std::ranges::find(dims, static_cast<i64>(d)) != dims.end();
 
             const size_t out_coord = is_reduced ? 0 : coord;
-            oz += out_coord * static_cast<size_t>(compute_stride(out_shape)[static_cast<size_t>(d)]);
+            oz += out_coord * static_cast<size_t>(out_strides[static_cast<size_t>(d)]);
         }
+
         output.get()[oz] += this->get()[i];
+    }
+
+    if (!keep) {
+        std::vector<i64> squeezed;
+        for (size_t d = 0; d < out_shape.size(); ++d) {
+            if (std::ranges::find(dims, static_cast<i64>(d)) != dims.end()) {
+                squeezed.push_back(out_shape[d]);
+            }
+        }
+        return output.reshape(squeezed);
     }
 
     return output;
