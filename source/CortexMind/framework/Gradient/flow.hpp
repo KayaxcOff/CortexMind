@@ -7,8 +7,6 @@
 
 #include <CortexMind/framework/Gradient/pack.hpp>
 #include <CortexMind/framework/Tools/types.hpp>
-#include <memory>
-#include <vector>
 #include <string>
 
 namespace cortex::_fw {
