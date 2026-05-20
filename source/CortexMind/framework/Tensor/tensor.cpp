@@ -285,9 +285,6 @@ Tensor Tensor::matmul(const Tensor &other) const {
         meta::GradientPacked y {other.storage_, other.flow_, other.gradient_, other.m_shape, other.m_requires_grad};
 
         output.flow_ = std::make_shared<meta::matmul>(x, y);
-
-        output.flow_->save(this->flow_);
-        output.flow_->save(other.flow_);
     }
 
     return output;
@@ -351,8 +348,6 @@ Tensor Tensor::log() const {
         meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
 
         output.flow_ = std::make_shared<meta::log>(x);
-
-        output.flow_->save(this->flow_);
     }
 
     return output;
@@ -367,8 +362,6 @@ Tensor Tensor::exp() const {
         meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
 
         output.flow_ = std::make_shared<meta::exp>(x);
-
-        output.flow_->save(this->flow_);
     }
 
     return output;
@@ -383,8 +376,6 @@ Tensor Tensor::pow(const f32 exp) const {
         meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
 
         output.flow_ = std::make_shared<meta::pow>(x, exp);
-
-        output.flow_->save(this->flow_);
     }
 
     return output;
@@ -399,8 +390,6 @@ Tensor Tensor::sqrt() const {
         meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
 
         output.flow_ = std::make_shared<meta::sqrt>(x);
-
-        output.flow_->save(this->flow_);
     }
 
     return output;
@@ -415,8 +404,6 @@ Tensor Tensor::rsqrt() const {
         meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
 
         output.flow_ = std::make_shared<meta::rsqrt>(x);
-
-        output.flow_->save(this->flow_);
     }
 
     return output;
@@ -431,8 +418,6 @@ Tensor Tensor::sin() const {
         meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
 
         output.flow_ = std::make_shared<meta::sin>(x);
-
-        output.flow_->save(this->flow_);
     }
 
     return output;
@@ -447,8 +432,6 @@ Tensor Tensor::cos() const {
         meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
 
         output.flow_ = std::make_shared<meta::cos>(x);
-
-        output.flow_->save(this->flow_);
     }
 
     return output;
@@ -463,8 +446,6 @@ Tensor Tensor::abs() const {
         meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
 
         output.flow_ = std::make_shared<meta::abs>(x);
-
-        output.flow_->save(this->flow_);
     }
 
     return output;
@@ -506,8 +487,6 @@ Tensor Tensor::sum() const {
         meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
 
         output.flow_ = std::make_shared<meta::sum>(x);
-
-        output.flow_->save(this->flow_);
     }
 
     return output;
@@ -522,8 +501,6 @@ Tensor Tensor::neg() const {
         meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
 
         output.flow_ = std::make_shared<meta::neg>(x);
-
-        output.flow_->save(this->flow_);
     }
 
     return output;
@@ -611,9 +588,6 @@ Tensor Tensor::addition(const Tensor &other) const {
         meta::GradientPacked y {other.storage_, other.flow_, other.gradient_, other.m_shape, other.m_requires_grad};
 
         output.flow_ = std::make_shared<meta::add>(x, y);
-
-        output.flow_->save(this->flow_);
-        output.flow_->save(other.flow_);
     }
 
     return output;
@@ -641,9 +615,6 @@ Tensor Tensor::subtract(const Tensor &other) const {
         meta::GradientPacked y {other.storage_, other.flow_, other.gradient_, other.m_shape, other.m_requires_grad};
 
         output.flow_ = std::make_shared<meta::sub>(x, y);
-
-        output.flow_->save(this->flow_);
-        output.flow_->save(other.flow_);
     }
 
     return output;
@@ -671,9 +642,6 @@ Tensor Tensor::multiply(const Tensor &other) const {
         meta::GradientPacked y {other.storage_, other.flow_, other.gradient_, other.m_shape, other.m_requires_grad};
 
         output.flow_ = std::make_shared<meta::mul>(x, y);
-
-        output.flow_->save(this->flow_);
-        output.flow_->save(other.flow_);
     }
 
     return output;
@@ -701,9 +669,6 @@ Tensor Tensor::divide(const Tensor &other) const {
         meta::GradientPacked y {other.storage_, other.flow_, other.gradient_, other.m_shape, other.m_requires_grad};
 
         output.flow_ = std::make_shared<meta::div>(x, y);
-
-        output.flow_->save(this->flow_);
-        output.flow_->save(other.flow_);
     }
 
     return output;

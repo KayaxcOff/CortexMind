@@ -165,8 +165,6 @@ Tensor Tensor::operator+(const f32 value) const {
         meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
 
         output.flow_ = std::make_shared<meta::add_scalar>(x, value);
-
-        output.flow_->save(this->flow_);
     }
 
     return output;
@@ -182,8 +180,6 @@ Tensor Tensor::operator-(const f32 value) const {
         meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
 
         output.flow_ = std::make_shared<meta::sub_scalar>(x, value);
-
-        output.flow_->save(this->flow_);
     }
 
     return output;
@@ -199,8 +195,6 @@ Tensor Tensor::operator*(const f32 value) const {
         meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
 
         output.flow_ = std::make_shared<meta::mul_scalar>(x, value);
-
-        output.flow_->save(this->flow_);
     }
 
     return output;
@@ -216,8 +210,6 @@ Tensor Tensor::operator/(const f32 value) const {
         meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
 
         output.flow_ = std::make_shared<meta::div_scalar>(x, value);
-
-        output.flow_->save(this->flow_);
     }
 
     return output;

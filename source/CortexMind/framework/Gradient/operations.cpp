@@ -4,7 +4,6 @@
 
 #include "CortexMind/framework/Gradient/operations.hpp"
 #include <CortexMind/framework/Tensor/tensor.hpp>
-#include <iostream>
 
 using namespace cortex::_fw::meta;
 using namespace cortex::_fw;
@@ -12,13 +11,11 @@ using namespace cortex::_fw;
 add::add(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("AddBackward", 1) {
     this->tx = new Tensor(_x);
     this->ty = new Tensor(_y);
-    std::cout << this->name() << " initialized" << std::endl;
 }
 
 add::~add() {
     delete this->tx;
     delete this->ty;
-    std::cout << this->name() << " destroyed" << std::endl;
 }
 
 void add::backward(const Tensor &_grad) {
@@ -30,7 +27,6 @@ void add::backward(const Tensor &_grad) {
         this->ty->grad() += _grad;
         this->ty->backward(_grad);
     }
-    //this->propagate_backward(_grad);
 }
 
 sub::sub(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("SubBackward", 2) {
@@ -46,24 +42,22 @@ sub::~sub() {
 void sub::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
         this->tx->grad() += _grad;
+        this->tx->backward(_grad);
     }
     if (this->ty->has_grad()) [[likely]] {
         this->ty->grad() -= _grad;
+        this->ty->backward(_grad);
     }
-
-    this->propagate_backward(_grad);
 }
 
 mul::mul(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("MulBackward", 3) {
     this->tx = new Tensor(_x);
     this->ty = new Tensor(_y);
-    std::cout << this->name() << " initialized" << std::endl;
 }
 
 mul::~mul() {
     delete this->tx;
     delete this->ty;
-    std::cout << this->name() << " destroyed" << std::endl;
 }
 
 void mul::backward(const Tensor &_grad) {
@@ -93,52 +87,35 @@ div::~div() {
 
 void div::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += _grad / (*this->ty);
+        const Tensor grad_expanded = _grad / (*this->ty);
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
     }
     if (this->ty->has_grad()) [[likely]] {
-        this->ty->grad() -= _grad * (*this->tx) / ((*this->ty) * (*this->ty));
+        const Tensor grad_expanded = _grad * (*this->tx) / ((*this->ty) * (*this->ty));
+        this->ty->grad() -= grad_expanded;
+        this->ty->backward(grad_expanded);
     }
-
-    this->propagate_backward(_grad);
 }
 
 sum::sum(const GradientPacked &_x) : GradientFlow("SumBackward", 5) {
     this->tx = new Tensor(_x);
-    std::cout << this->name() << " initialized" << std::endl;
 }
 
 sum::~sum() {
     delete this->tx;
-    std::cout << this->name() << " destroyed" << std::endl;
 }
 
 void sum::backward(const Tensor &_grad) {
-
-    // if (this->tx->has_grad()) [[likely]] {
-    //     Tensor ones(this->tx->shape(), this->tx->device());
-    //     ones.ones();
-    //
-    //     const auto grad_expanded = _grad * ones;
-    //
-    //     this->tx->grad() += grad_expanded;
-    //     this->tx->backward(this->tx->grad());
-    // }
-
-    //this->propagate_backward(_grad);
-
     if (this->tx->has_grad()) [[likely]] {
         Tensor ones(this->tx->shape(), this->tx->device());
         ones.ones();
 
-        const Tensor grad_expanded = _grad * ones;  // {1} * (M,N) = (M,N)
+        const Tensor grad_expanded = _grad * ones;
 
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
-         //this->propagate_backward(grad_expanded);  // ← Broadcast version geç!
-    } else {
-         this->propagate_backward(_grad);
     }
-
 }
 
 matmul::matmul(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("MatMulBackward", 6) {
@@ -162,7 +139,6 @@ void matmul::backward(const Tensor &_grad) {
         this->ty->grad() += grad_expanded;
         this->ty->backward(grad_expanded);
     }
-    //this->propagate_backward(_grad);
 }
 
 pow::pow(const GradientPacked &_x, const f32 _exp) : GradientFlow("PowBackward", 7) {
@@ -176,10 +152,10 @@ pow::~pow() {
 
 void pow::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += _grad * this->tx->pow(this->exponent - 1.0f) * this->exponent;
+        const Tensor grad_expanded = _grad * this->tx->pow(this->exponent - 1.0f) * this->exponent;
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
     }
-
-    this->propagate_backward(_grad);
 }
 
 sqrt::sqrt(const GradientPacked &_x) : GradientFlow("SqrtBackward", 8) {
@@ -192,10 +168,10 @@ sqrt::~sqrt() {
 
 void sqrt::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += _grad / this->tx->sqrt() * 2.0f;
+        const Tensor grad_expanded = _grad / this->tx->sqrt() * 2.0f;
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
     }
-
-    this->propagate_backward(_grad);
 }
 
 exp::exp(const GradientPacked &_x) : GradientFlow("ExpBackward", 9) {
@@ -208,10 +184,10 @@ exp::~exp() {
 
 void exp::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += _grad * this->tx->exp();
+        const Tensor grad_expanded = _grad * this->tx->exp();
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
     }
-
-    this->propagate_backward(_grad);
 }
 
 log::log(const GradientPacked &_x) : GradientFlow("LogBackward", 10) {
@@ -224,10 +200,10 @@ log::~log() {
 
 void log::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += _grad / (*this->tx);
+        const Tensor grad_expanded = _grad / (*this->tx);
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
     }
-
-    this->propagate_backward(_grad);
 }
 
 rsqrt::rsqrt(const GradientPacked &_x) : GradientFlow("RsqrtBackward", 11) {
@@ -240,10 +216,10 @@ rsqrt::~rsqrt() {
 
 void rsqrt::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += _grad * (-1.0f) / this->tx->pow(1.5f) * 2.0f;
+        const Tensor grad_expanded = _grad * (-1.0f) / this->tx->pow(1.5f) * 2.0f;
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
     }
-
-    this->propagate_backward(_grad);
 }
 
 sin::sin(const GradientPacked &_x) : GradientFlow("SinBackward", 12) {
@@ -256,10 +232,10 @@ sin::~sin() {
 
 void sin::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += _grad * this->tx->cos();
+        const Tensor grad_expanded = _grad * this->tx->cos();
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
     }
-
-    this->propagate_backward(_grad);
 }
 
 cos::cos(const GradientPacked &_x) : GradientFlow("CosBackward", 13) {
@@ -272,10 +248,10 @@ cos::~cos() {
 
 void cos::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += _grad * this->tx->sin() * (-1.0f);
+        const Tensor grad_expanded = _grad * this->tx->sin() * (-1.0f);
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
     }
-
-    this->propagate_backward(_grad);
 }
 
 abs::abs(const GradientPacked &_x) : GradientFlow("AbsBackward", 14) {
@@ -288,10 +264,10 @@ abs::~abs() {
 
 void abs::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += _grad * this->tx->sign();
+        const Tensor grad_expanded = _grad * this->tx->sign();
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
     }
-
-    this->propagate_backward(_grad);
 }
 neg::neg(const GradientPacked &_x) : GradientFlow("NegBackward", 15) {
     this->tx = new Tensor(_x);
@@ -303,10 +279,10 @@ neg::~neg() {
 
 void neg::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += _grad * (-1.0f);
+        const Tensor grad_expanded = _grad * (-1.0f);
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
     }
-
-    this->propagate_backward(_grad);
 }
 
 add_scalar::add_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("AddScalarBackward", 17), scalar(_scalar) {
@@ -320,8 +296,8 @@ add_scalar::~add_scalar() {
 void add_scalar::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
         this->tx->grad() += _grad;
+        this->tx->backward(_grad);
     }
-    this->propagate_backward(_grad);
 }
 
 sub_scalar::sub_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("SubScalarBackward", 18), scalar(_scalar) {
@@ -335,8 +311,8 @@ sub_scalar::~sub_scalar() {
 void sub_scalar::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
         this->tx->grad() += _grad;
+        this->tx->backward(_grad);
     }
-    this->propagate_backward(_grad);
 }
 
 mul_scalar::mul_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("MulScalarBackward", 19), scalar(_scalar) {
@@ -348,11 +324,11 @@ mul_scalar::~mul_scalar() {
 }
 
 void mul_scalar::backward(const Tensor &_grad) {
-    const Tensor grad_input = _grad * this->scalar;
+    const Tensor grad_expanded = _grad * this->scalar;
     if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += grad_input;
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
     }
-    this->propagate_backward(grad_input);
 }
 
 div_scalar::div_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("DivScalarBackward", 20), scalar(_scalar) {
@@ -364,9 +340,9 @@ div_scalar::~div_scalar() {
 }
 
 void div_scalar::backward(const Tensor &_grad) {
-    const Tensor grad_input = _grad / this->scalar;
+    const Tensor grad_expanded = _grad / this->scalar;
     if (this->tx->has_grad()) [[likely]] {
-        this->tx->grad() += grad_input;
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
     }
-    this->propagate_backward(grad_input);
 }
