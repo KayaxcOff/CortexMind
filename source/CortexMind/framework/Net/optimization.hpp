@@ -40,7 +40,12 @@ namespace cortex::_fw {
          *
          * @param params List of tensors (usually model parameters) to optimize
          */
-        void set_params(const std::vector<ref<tensor>>& params);
+        void SetParams(const std::vector<ref<tensor>>& params);
+        /**
+         * @brief Change learning rate
+         * @param lr New learning rate
+         */
+        void SetLearningRate(float32 lr);
         /**
          * @brief Sets all parameter gradients to zero.
          *

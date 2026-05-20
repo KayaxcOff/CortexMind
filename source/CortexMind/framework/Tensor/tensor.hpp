@@ -285,6 +285,11 @@ namespace cortex::_fw {
          * If the tensor is scalar, its gradient is initialized to 1.
          */
         void backward() const;
+        /**
+         * @brief This function enables navigation to the next node in the gradient flow.
+         * @param _grad The gradient of the next node
+         * @warning This function should not be used to initiate auto-gradient generation; its purpose is to move to the next node.
+         */
         void backward(const Tensor& _grad) const;
         /**
          * @brief Copies external data into the tensor.
@@ -472,7 +477,7 @@ namespace cortex::_fw {
          * @return Result tensor.
          */
         [[nodiscard]]
-        Tensor addition(const Tensor& other) const;
+        Tensor add(const Tensor& other) const;
         /**
          * @brief Performs element-wise tensor subtraction.
          *
@@ -482,7 +487,7 @@ namespace cortex::_fw {
          * @return Result tensor.
          */
         [[nodiscard]]
-        Tensor subtract(const Tensor& other) const;
+        Tensor sub(const Tensor& other) const;
         /**
          * @brief Performs element-wise tensor multiplication.
          *
@@ -492,7 +497,7 @@ namespace cortex::_fw {
          * @return Result tensor.
          */
         [[nodiscard]]
-        Tensor multiply(const Tensor& other) const;
+        Tensor mul(const Tensor& other) const;
         /**
          * @brief Performs element-wise tensor division.
          *
@@ -502,7 +507,35 @@ namespace cortex::_fw {
          * @return Result tensor.
          */
         [[nodiscard]]
-        Tensor divide(const Tensor& other) const;
+        Tensor div(const Tensor& other) const;
+        /**
+         * @brief addition between tensor and scaler
+         * @param value scaler value
+         * @return Result tensor
+         */
+        [[nodiscard]]
+        Tensor add(f32 value) const;
+        /**
+         * @brief subtract between tensor and scaler
+         * @param value scaler value
+         * @return Result tensor
+         */
+        [[nodiscard]]
+        Tensor sub(f32 value) const;
+        /**
+         * @brief multiply between tensor and scaler
+         * @param value scaler value
+         * @return Result tensor
+         */
+        [[nodiscard]]
+        Tensor mul(f32 value) const;
+        /**
+         * @brief division between tensor and scaler
+         * @param value scaler value
+         * @return Result tensor
+         */
+        [[nodiscard]]
+        Tensor div(f32 value) const;
 
         /**
          * @brief Creates a deep copy of the tensor.
@@ -546,9 +579,6 @@ namespace cortex::_fw {
         Tensor& operator-=(f32 value);
         Tensor& operator*=(f32 value);
         Tensor& operator/=(f32 value);
-
-        bool operator==(const Tensor& other) const;
-        bool operator!=(const Tensor& other) const;
 
         Tensor& operator=(const Tensor& other);
         Tensor& operator=(Tensor&& other) noexcept;

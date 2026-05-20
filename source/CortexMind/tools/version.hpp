@@ -6,6 +6,9 @@
 #define CORTEXMIND_TOOLS_VERSION_HPP
 
 namespace cortex {
+    /**
+     * @brief Writes version of library to console
+     */
     void PrintVersion();
 } //namespace cortex
 

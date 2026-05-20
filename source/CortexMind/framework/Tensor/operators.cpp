@@ -84,19 +84,19 @@ namespace {
 } // unnamed namespace
 
 Tensor Tensor::operator+(const Tensor &other) const {
-    return this->addition(other);
+    return this->add(other);
 }
 
 Tensor Tensor::operator-(const Tensor &other) const {
-    return this->subtract(other);
+    return this->sub(other);
 }
 
 Tensor Tensor::operator*(const Tensor &other) const {
-    return this->multiply(other);
+    return this->mul(other);
 }
 
 Tensor Tensor::operator/(const Tensor &other) const {
-    return this->divide(other);
+    return this->div(other);
 }
 
 Tensor &Tensor::operator+=(const Tensor &other) {
@@ -156,63 +156,19 @@ Tensor &Tensor::operator/=(const Tensor &other) {
 }
 
 Tensor Tensor::operator+(const f32 value) const {
-    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad);
-
-    ScalarOp::add(this->storage_.get(), value, output.storage_.get(), this->len());
-
-    if (output.m_requires_grad) {
-
-        meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
-
-        output.flow_ = std::make_shared<meta::add_scalar>(x, value);
-    }
-
-    return output;
+    return this->add(value);
 }
 
 Tensor Tensor::operator-(const f32 value) const {
-    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad);
-
-    ScalarOp::sub(this->storage_.get(), value, output.storage_.get(), this->len());
-
-    if (output.m_requires_grad) {
-
-        meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
-
-        output.flow_ = std::make_shared<meta::sub_scalar>(x, value);
-    }
-
-    return output;
+    return this->sub(value);
 }
 
 Tensor Tensor::operator*(const f32 value) const {
-    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad);
-
-    ScalarOp::mul(this->storage_.get(), value, output.storage_.get(), this->len());
-
-    if (output.m_requires_grad) {
-
-        meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
-
-        output.flow_ = std::make_shared<meta::mul_scalar>(x, value);
-    }
-
-    return output;
+    return this->mul(value);
 }
 
 Tensor Tensor::operator/(const f32 value) const {
-    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad);
-
-    ScalarOp::div(this->storage_.get(), value, output.storage_.get(), this->len());
-
-    if (output.m_requires_grad) {
-
-        meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
-
-        output.flow_ = std::make_shared<meta::div_scalar>(x, value);
-    }
-
-    return output;
+    return this->div(value);
 }
 
 Tensor &Tensor::operator+=(const f32 value) {
@@ -233,17 +189,6 @@ Tensor &Tensor::operator*=(const f32 value) {
 Tensor &Tensor::operator/=(const f32 value) {
     ScalarOp::div(this->storage_.get(), value, this->len());
     return *this;
-}
-
-bool Tensor::operator==(const Tensor &other) const {
-    if (this->storage_.get() == other.storage_.get()) {
-        return true;
-    }
-    return false;
-}
-
-bool Tensor::operator!=(const Tensor &other) const {
-    return !(*this == other);
 }
 
 Tensor &Tensor::operator=(const Tensor &other) {

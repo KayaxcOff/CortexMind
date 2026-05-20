@@ -25,7 +25,9 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/as_string.cpp
         source/CortexMind/framework/Tools/err.cpp
         source/CortexMind/framework/Tools/tensor_meta.cpp
+        source/CortexMind/net/LossFunction/mse.cpp
         source/CortexMind/net/NeuralNetwork/dense.cpp
+        source/CortexMind/net/OptimizationFunction/sgd.cpp
         source/CortexMind/tools/version.cpp
 )
 

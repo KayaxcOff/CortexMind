@@ -8,6 +8,7 @@
 #include <CortexMind/framework/Engine/IX/matrix.hpp>
 #include <CortexMind/framework/Engine/IX/random.hpp>
 #include <CortexMind/framework/Engine/IX/reduce.hpp>
+#include <CortexMind/framework/Engine/IX/scalar.hpp>
 #include <CortexMind/framework/Gradient/operations.hpp>
 #if CXM_IS_CUDA_AVAILABLE
     #include <CortexMind/framework/Memory/transform.cuh>
@@ -597,7 +598,7 @@ Tensor Tensor::unsqueeze(const i64 dim) const {
     return output;
 }
 
-Tensor Tensor::addition(const Tensor &other) const {
+Tensor Tensor::add(const Tensor &other) const {
     const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
 
     Tensor output(out_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
@@ -624,7 +625,7 @@ Tensor Tensor::addition(const Tensor &other) const {
     return output;
 }
 
-Tensor Tensor::subtract(const Tensor &other) const {
+Tensor Tensor::sub(const Tensor &other) const {
     const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
 
     Tensor output(out_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
@@ -651,7 +652,7 @@ Tensor Tensor::subtract(const Tensor &other) const {
     return output;
 }
 
-Tensor Tensor::multiply(const Tensor &other) const {
+Tensor Tensor::mul(const Tensor &other) const {
     const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
 
     Tensor output(out_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
@@ -678,7 +679,7 @@ Tensor Tensor::multiply(const Tensor &other) const {
     return output;
 }
 
-Tensor Tensor::divide(const Tensor &other) const {
+Tensor Tensor::div(const Tensor &other) const {
     const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
 
     Tensor output(out_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
@@ -700,6 +701,66 @@ Tensor Tensor::divide(const Tensor &other) const {
         meta::GradientPacked y {other.storage_, other.flow_, other.gradient_, other.m_shape, other.m_requires_grad};
 
         output.flow_ = std::make_shared<meta::div>(x, y);
+    }
+
+    return output;
+}
+
+Tensor Tensor::add(f32 value) const {
+    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad);
+
+    ScalarOp::add(this->storage_.get(), value, output.storage_.get(), this->len());
+
+    if (output.m_requires_grad) {
+
+        meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
+
+        output.flow_ = std::make_shared<meta::add_scalar>(x, value);
+    }
+
+    return output;
+}
+
+Tensor Tensor::sub(f32 value) const {
+    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad);
+
+    ScalarOp::sub(this->storage_.get(), value, output.storage_.get(), this->len());
+
+    if (output.m_requires_grad) {
+
+        meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
+
+        output.flow_ = std::make_shared<meta::sub_scalar>(x, value);
+    }
+
+    return output;
+}
+
+Tensor Tensor::mul(f32 value) const {
+    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad);
+
+    ScalarOp::mul(this->storage_.get(), value, output.storage_.get(), this->len());
+
+    if (output.m_requires_grad) {
+
+        meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
+
+        output.flow_ = std::make_shared<meta::mul_scalar>(x, value);
+    }
+
+    return output;
+}
+
+Tensor Tensor::div(f32 value) const {
+    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad);
+
+    ScalarOp::div(this->storage_.get(), value, output.storage_.get(), this->len());
+
+    if (output.m_requires_grad) {
+
+        meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
+
+        output.flow_ = std::make_shared<meta::div_scalar>(x, value);
     }
 
     return output;
