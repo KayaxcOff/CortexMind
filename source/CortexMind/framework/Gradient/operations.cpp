@@ -71,8 +71,6 @@ void mul::backward(const Tensor &_grad) {
         this->ty->grad() += grad_expanded;
         this->ty->backward(grad_expanded);
     }
-
-    //this->propagate_backward(_grad);
 }
 
 div::div(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("DivBackward", 4) {
@@ -168,7 +166,7 @@ sqrt::~sqrt() {
 
 void sqrt::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        const Tensor grad_expanded = _grad / this->tx->sqrt() * 2.0f;
+        const Tensor grad_expanded = _grad * (0.5f / this->tx->sqrt());
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
@@ -216,7 +214,7 @@ rsqrt::~rsqrt() {
 
 void rsqrt::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        const Tensor grad_expanded = _grad * (-1.0f) / this->tx->pow(1.5f) * 2.0f;
+        const Tensor grad_expanded = _grad * (-1.0f) / this->tx->pow(1.5f) * 2.0f;;
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }

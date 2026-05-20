@@ -90,11 +90,11 @@ Tensor::Tensor(Tensor &&other) noexcept {
 
     if (this->m_requires_grad) {
         this->gradient_ = std::move(other.gradient_);
+        other.gradient_ = nullptr;
     }
 
     other.storage_ = nullptr;
     other.flow_ = nullptr;
-    other.gradient_ = nullptr;
 }
 
 Tensor::~Tensor() = default;

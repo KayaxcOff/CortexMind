@@ -222,12 +222,20 @@ Tensor &Tensor::operator=(Tensor &&other) noexcept {
 
     if (other.m_requires_grad) {
         this->gradient_ = std::move(other.gradient_);
+        other.gradient_ = nullptr;
     }
+
+    other.storage_ = nullptr;
+    other.flow_ = nullptr;
 
     return *this;
 }
 
 namespace cortex::_fw {
+
+    Tensor operator+(const f32 value, const Tensor &tensor) {
+        return tensor + value;
+    }
 
     Tensor operator-(const f32 value, const Tensor& tensor) {
         return tensor.neg() + value;
@@ -235,6 +243,10 @@ namespace cortex::_fw {
 
     Tensor operator*(const f32 value, const Tensor& tensor) {
         return tensor * value;
+    }
+
+    Tensor operator/(const f32 value, const Tensor& tensor) {
+        return value * tensor.pow(-1);
     }
 
     std::ostream& operator<<(std::ostream& os, const Tensor& tensor) {

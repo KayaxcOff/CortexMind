@@ -584,8 +584,10 @@ namespace cortex::_fw {
         Tensor& operator=(Tensor&& other) noexcept;
 
         friend std::ostream& operator<<(std::ostream& os, const Tensor& tensor);
+        friend Tensor operator+(f32 value, const Tensor& tensor2);
         friend Tensor operator-(f32 value, const Tensor& tensor);
         friend Tensor operator*(f32 value, const Tensor& tensor);
+        friend Tensor operator/(f32 value, const Tensor& tensor);
 
     private:
         std::shared_ptr<TensorStorage> storage_;
