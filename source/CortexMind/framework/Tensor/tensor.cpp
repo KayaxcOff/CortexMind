@@ -14,6 +14,7 @@
 #else //#if CXM_IS_CUDA_AVAILABLE
     #include <cstring>
 #endif //#if CXM_IS_CUDA_AVAILABLE #else
+#include <concepts>
 #include <string>
 #include <type_traits>
 
@@ -487,6 +488,36 @@ Tensor Tensor::sum() const {
         meta::GradientPacked x {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_requires_grad};
 
         output.flow_ = std::make_shared<meta::sum>(x);
+    }
+
+    return output;
+}
+
+Tensor Tensor::sum(const std::vector<i64> &dims) const {
+    std::vector<i64> out_shape = this->m_shape;
+
+    for (const i64 d : dims) {
+        out_shape[static_cast<size_t>(d)] = 1;
+    }
+
+    Tensor output(out_shape, this->device(), this->m_requires_grad);
+    output.zero();
+
+    const size_t total = this->len();
+    const size_t ndim  = this->ndim();
+
+    for (size_t i = 0; i < total; ++i) {
+        size_t oz = 0, idx = i;
+        for (i32 d = static_cast<i32>(ndim) - 1; d >= 0; --d) {
+            const size_t coord = idx % static_cast<size_t>(this->m_shape[d]);
+            idx /= static_cast<size_t>(this->m_shape[d]);
+
+            const bool is_reduced = std::ranges::find(dims, static_cast<i64>(d)) != dims.end();
+
+            const size_t out_coord = is_reduced ? 0 : coord;
+            oz += out_coord * static_cast<size_t>(compute_stride(out_shape)[static_cast<size_t>(d)]);
+        }
+        output.get()[oz] += this->get()[i];
     }
 
     return output;

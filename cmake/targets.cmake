@@ -26,6 +26,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/err.cpp
         source/CortexMind/framework/Tools/tensor_meta.cpp
         source/CortexMind/net/NeuralNetwork/dense.cpp
+        source/CortexMind/tools/version.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)

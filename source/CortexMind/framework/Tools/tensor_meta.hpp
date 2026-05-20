@@ -112,6 +112,8 @@ namespace cortex::_fw {
      */
     [[nodiscard]]
     bool is_contiguous(const std::vector<i64>& strides, const std::vector<i64>& shape);
+    [[nodiscard]]
+    std::vector<i64> grad_reduce_dims(const std::vector<i64>& input_shape, const std::vector<i64>& grad_shape);
 } //namespace cortex::_fw
 
 #endif //CORTEXMIND_FRAMEWORK_TOOLS_TENSOR_META_HPP

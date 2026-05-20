@@ -12,5 +12,6 @@
 #include <CortexMind/tools/println.hpp>
 #include <CortexMind/tools/types.hpp>
 #include <CortexMind/tools/values.hpp>
+#include <CortexMind/tools/version.hpp>
 
 #endif //CORTEXMIND_CORTEXMIND_HPP

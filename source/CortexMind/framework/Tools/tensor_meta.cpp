@@ -123,3 +123,21 @@ bool cortex::_fw::is_contiguous(const std::vector<i64>& strides, const std::vect
     const auto expected = compute_stride(shape);
     return strides == expected;
 }
+
+std::vector<i64> cortex::_fw::grad_reduce_dims(const std::vector<i64> &input_shape, const std::vector<i64> &grad_shape) {
+    std::vector<i64> output;
+    const size_t ndim = grad_shape.size();
+    const size_t offset = ndim - input_shape.size();
+
+    for (size_t d = 0; d < ndim; ++d) {
+        if (d < offset) {
+            output.push_back(static_cast<i64>(d));
+        } else {
+            const size_t id = d - offset;
+            if (input_shape[id] == 1 && grad_shape[d] > 1) {
+                output.push_back(static_cast<i64>(d));
+            }
+        }
+    }
+    return output;
+}
