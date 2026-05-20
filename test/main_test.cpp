@@ -216,4 +216,58 @@ AddBackward destroyed
 
 Process finished with exit code 0
 
+with flow in pack:
+
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
+=== Dense Layer Test ===
+Layer: Dense (3, 2)
+
+Input shape: (2, 3)
+Input:
+[[1, 1, 1],
+ [1, 1, 1]]
+AddBackward initialized
+
+Weight shape: (3, 2)
+Weight:
+[[-0.276995, -0.972112],
+ [0.634951, -0.322821],
+ [-0.0208924, -0.678697]]
+
+Bias shape: (1, 2)
+Bias:
+[[0, 0]]
+
+Output shape: (2, 2)
+Output:
+[[0.337064, -1.97363],
+ [0.337064, -1.97363]]
+MulBackward initialized
+SumBackward initialized
+MulBackward initialized
+MulBackward destroyed
+MulBackward initialized
+MulBackward destroyed
+SumBackward destroyed
+
+Loss (sum of output^2):
+[[0.113612, 3.89522],
+ [0.113612, 3.89522]]
+
+Weight gradient:
+[[1.34825, -7.89452],
+ [1.34825, -7.89452],
+ [1.34825, -7.89452]]
+
+Bias gradient:
+[[0.674127, -3.94726]]
+
+Input gradient:
+[[1.08753, -0.57286, 3.10703],
+ [1.08753, -0.57286, 3.10703]]
+MulBackward destroyed
+AddBackward destroyed
+
+Process finished with exit code 0
+
 */
