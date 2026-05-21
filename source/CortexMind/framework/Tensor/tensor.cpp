@@ -616,6 +616,7 @@ Tensor Tensor::unsqueeze(const i64 dim) const {
 
 Tensor Tensor::add(const Tensor &other) const {
     const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
+    const auto out_strides = compute_stride(out_shape);
 
     Tensor output(out_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
 
@@ -628,7 +629,7 @@ Tensor Tensor::add(const Tensor &other) const {
         other.m_strides,
         output.storage_.get(),
         output.m_shape,
-        output.m_strides
+        out_strides
     );
 
     if (output.m_requires_grad) {
@@ -641,6 +642,7 @@ Tensor Tensor::add(const Tensor &other) const {
 
 Tensor Tensor::sub(const Tensor &other) const {
     const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
+    const auto out_strides = compute_stride(out_shape);
 
     Tensor output(out_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
 
@@ -653,7 +655,7 @@ Tensor Tensor::sub(const Tensor &other) const {
         other.m_strides,
         output.storage_.get(),
         output.m_shape,
-        output.m_strides
+        out_strides
     );
 
     if (output.m_requires_grad) {
@@ -666,6 +668,7 @@ Tensor Tensor::sub(const Tensor &other) const {
 
 Tensor Tensor::mul(const Tensor &other) const {
     const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
+    const auto out_strides = compute_stride(out_shape);
 
     Tensor output(out_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
 
@@ -678,7 +681,7 @@ Tensor Tensor::mul(const Tensor &other) const {
         other.m_strides,
         output.storage_.get(),
         output.m_shape,
-        output.m_strides
+        out_strides
     );
 
     if (output.m_requires_grad) {
@@ -691,6 +694,7 @@ Tensor Tensor::mul(const Tensor &other) const {
 
 Tensor Tensor::div(const Tensor &other) const {
     const auto out_shape   = broadcast_shape(this->m_shape, other.m_shape);
+    const auto out_strides = compute_stride(out_shape);
 
     Tensor output(out_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
 
@@ -703,7 +707,7 @@ Tensor Tensor::div(const Tensor &other) const {
         other.m_strides,
         output.storage_.get(),
         output.m_shape,
-        output.m_strides
+        out_strides
     );
 
     if (output.m_requires_grad) {

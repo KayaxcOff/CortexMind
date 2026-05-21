@@ -3,6 +3,7 @@
 //
 
 #include "CortexMind/framework/Net/optimization.hpp"
+#include <CortexMind/framework/Tools/tensor_debug.hpp>
 
 using namespace cortex::_fw;
 using namespace cortex;

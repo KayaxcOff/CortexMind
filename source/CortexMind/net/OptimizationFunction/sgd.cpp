@@ -13,20 +13,7 @@ StochasticGradient::StochasticGradient(const float32 _lr) : OptimizationBase("SG
 StochasticGradient::~StochasticGradient() = default;
 
 void StochasticGradient::update() {
-    /*
     for (const auto& item : this->parameters()) {
         item.get() -= this->lr() * item.get().grad();
-    }
-    */
-    for (auto i : this->parameters()) {
-        auto& grad = i.get().grad();
-
-        float max_norm = 100.0f;
-        float current_norm = grad.norm2();
-        if (current_norm > max_norm) {
-            grad *= (max_norm / current_norm);
-        }
-
-        i.get() -= this->lr() * grad;
     }
 }

@@ -57,6 +57,7 @@ std::vector<i64> cortex::_fw::broadcast_shape(const std::vector<i64> &shape_x, c
 }
 
 BroadcastKind cortex::_fw::classify_broadcast(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y) {
+    /*
     if (!is_broadcastable(shape_x, shape_y)) {
         return BroadcastKind::kNone;
     }
@@ -81,6 +82,42 @@ BroadcastKind cortex::_fw::classify_broadcast(const std::vector<i64>& shape_x, c
     }
 
     if (rank_x == 2 && rank_y == 2 && shape_y[1] == 1 && shape_y[0] > 1 && shape_x[0] == shape_y[0]) {
+        return BroadcastKind::kCol;
+    }
+
+    return BroadcastKind::kGeneral;
+    */
+    if (!is_broadcastable(shape_x, shape_y)) {
+        return BroadcastKind::kNone;
+    }
+    if (shape_x == shape_y) {
+        return BroadcastKind::kNone;
+    }
+
+    const size_t rank_x = shape_x.size();
+    const size_t rank_y = shape_y.size();
+
+    // Scalar: tek eleman
+    if (rank_x == 1 && shape_x[0] == 1) {
+        return BroadcastKind::kGeneral;
+    }
+    if (rank_y == 1 && shape_y[0] == 1) {
+        return BroadcastKind::kGeneral;
+    }
+
+    // Row: Y(N) → X(M,N)
+    if (rank_y == 1 && shape_y[0] == shape_x.back()) {
+        return BroadcastKind::kRow;
+    }
+    if (rank_y == 1 && shape_y[0] == 1) {
+        return BroadcastKind::kGeneral;
+    }
+
+    // Col: Y(M,1) → X(M,N)
+    if (rank_x == 2 && rank_y == 2 && shape_y[1] == 1 && shape_x[0] == shape_y[0]) {
+        return BroadcastKind::kCol;
+    }
+    if (rank_x == 1 && shape_x[0] == shape_y[0] && shape_y.back() != shape_x[0]) {
         return BroadcastKind::kCol;
     }
 
