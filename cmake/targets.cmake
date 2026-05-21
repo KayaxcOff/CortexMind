@@ -31,6 +31,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/tensor_meta.cpp
         source/CortexMind/net/LossFunction/mse.cpp
         source/CortexMind/net/NeuralNetwork/dense.cpp
+        source/CortexMind/net/NeuralNetwork/flatten.cpp
         source/CortexMind/net/NeuralNetwork/relu.cpp
         source/CortexMind/net/OptimizationFunction/sgd.cpp
         source/CortexMind/tools/tensor_meta.cpp

@@ -56,7 +56,7 @@ namespace cortex::_fw {
          * @brief Returns the list of parameters being optimized.
          */
         [[nodiscard]]
-        const std::vector<ref<tensor>>& parameters();
+        const std::vector<ref<tensor>>& getParameters();
         /**
          * @brief Returns the current learning rate.
          */
@@ -67,9 +67,10 @@ namespace cortex::_fw {
          */
         [[nodiscard]]
         const std::string& name();
-    private:
+    protected:
         std::vector<ref<tensor>> m_params;
         float32 m_lr;
+    private:
         std::string m_name;
         bool is_initialized;
     };

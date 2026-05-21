@@ -8,6 +8,7 @@
 // ----- net -----
 #include <CortexMind/net/LossFunction/mse.hpp>
 #include <CortexMind/net/NeuralNetwork/dense.hpp>
+#include <CortexMind/net/NeuralNetwork/flatten.hpp>
 #include <CortexMind/net/NeuralNetwork/relu.hpp>
 #include <CortexMind/net/OptimizationFunction/sgd.hpp>
 

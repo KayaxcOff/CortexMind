@@ -29,7 +29,7 @@ void OptimizationBase::zero_grad() const {
     }
 }
 
-const std::vector<ref<tensor> > &OptimizationBase::parameters() {
+const std::vector<ref<tensor>> &OptimizationBase::getParameters() {
     CXM_ASSERT(this->is_initialized == false, "Parameters isn't initialized");
     return this->m_params;
 }

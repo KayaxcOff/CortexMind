@@ -13,7 +13,7 @@ StochasticGradient::StochasticGradient(const float32 _lr) : OptimizationBase("SG
 StochasticGradient::~StochasticGradient() = default;
 
 void StochasticGradient::update() {
-    for (const auto& item : this->parameters()) {
-        item.get() -= this->lr() * item.get().grad();
+    for (const auto& item : this->m_params) {
+        item.get() -= this->m_lr * item.get().grad();
     }
 }
