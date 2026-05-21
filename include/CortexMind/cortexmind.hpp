@@ -8,6 +8,7 @@
 // ----- net -----
 #include <CortexMind/net/LossFunction/mae.hpp>
 #include <CortexMind/net/LossFunction/mse.hpp>
+#include <CortexMind/net/NeuralNetwork/convolution_2d.hpp>
 #include <CortexMind/net/NeuralNetwork/dense.hpp>
 #include <CortexMind/net/NeuralNetwork/flatten.hpp>
 #include <CortexMind/net/NeuralNetwork/relu.hpp>
