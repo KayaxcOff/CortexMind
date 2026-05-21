@@ -375,10 +375,33 @@ namespace cortex::_fw::meta {
         f32 scalar;
     };
 
+    /**
+     * @brief Gradient node for ReLU activation function (`ReLUBackward`).
+     *
+     * Computes gradients for `Z = ReLU(X)` during the backward pass.
+     *
+     * Mathematical rule:
+     * - If `Z = max(0, X)`, then:
+     *   - ∂L/∂X = ∂L/∂Z  if X > 0
+     *   - ∂L/∂X = 0      if X ≤ 0
+     */
     struct relu : GradientFlow {
+        /**
+         * @brief Constructs a ReLU gradient node.
+         *
+         * @param _x Input tensor packed data (the tensor to which ReLU was applied)
+         */
         explicit relu(const GradientPacked& _x);
         ~relu() override;
 
+        /**
+         * @brief Computes gradient with respect to the input of ReLU.
+         *
+         * Applies the ReLU derivative (which is a binary mask: 1 if input > 0, else 0)
+         * and multiplies it with the incoming gradient.
+         *
+         * @param _grad Gradient of the output tensor (∂L/∂Z)
+         */
         void backward(const Tensor& _grad) override;
     private:
         Tensor* tx;

@@ -100,10 +100,57 @@ namespace cortex::_fw::avx2 {
          * @param N  Number of elements
          */
         static void sign(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
-
+        /**
+         * @brief Element-wise greater than comparison (`Z = X > Y`).
+         *
+         * Performs element-wise comparison and stores result as float:
+         * - 1.0f if X[i] > Y[i]
+         * - 0.0f otherwise
+         *
+         * @param Xx First input array
+         * @param Xy Second input array
+         * @param Xz Output array
+         * @param N  Number of elements
+         */
         static void greater(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Element-wise less than comparison (`Z = X < Y`).
+         *
+         * Performs element-wise comparison and stores result as float:
+         * - 1.0f if X[i] < Y[i]
+         * - 0.0f otherwise
+         *
+         * @param Xx First input array
+         * @param Xy Second input array
+         * @param Xz Output array
+         * @param N  Number of elements
+         */
         static void less(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Element-wise greater than or equal comparison (`Z = X >= Y`).
+         *
+         * Performs element-wise comparison and stores result as float:
+         * - 1.0f if X[i] >= Y[i]
+         * - 0.0f otherwise
+         *
+         * @param Xx First input array
+         * @param Xy Second input array
+         * @param Xz Output array
+         * @param N  Number of elements
+         */
         static void greater_eq(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Element-wise less than or equal comparison (`Z = X <= Y`).
+         *
+         * Performs element-wise comparison and stores result as float:
+         * - 1.0f if X[i] <= Y[i]
+         * - 0.0f otherwise
+         *
+         * @param Xx First input array
+         * @param Xy Second input array
+         * @param Xz Output array
+         * @param N  Number of elements
+         */
         static void less_eq(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t N);
     };
 } //namespace cortex::_fw::avx2

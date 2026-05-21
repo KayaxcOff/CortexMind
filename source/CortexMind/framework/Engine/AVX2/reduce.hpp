@@ -113,6 +113,13 @@ namespace cortex::_fw::avx2 {
          */
         [[nodiscard]]
         static f32 dot(const f32* __restrict Xx, const f32* __restrict Xy, size_t N);
+        /**
+         * @brief Check are items of pointer equal
+         * @param Xx First input
+         * @param Xy Second input
+         * @param N Number of element
+         * @return If equal, true, if it isn't, false
+         */
         [[nodiscard]]
         static bool equal(const f32* Xx, const f32* Xy, size_t N);
     };

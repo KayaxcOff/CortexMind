@@ -288,6 +288,11 @@ namespace cortex::_fw::ops {
         f32 beta;
     };
 
+    /**
+     * @brief Functor that returns a constant value regardless of input.
+     *
+     * Used for broadcasting scalar values in generic kernels.
+     */
     struct Constant {
         explicit __host__ __device__ Constant(const f32 val) : value(val) {}
         __device__ __forceinline__ f32 operator()(const f32) const {
@@ -297,30 +302,55 @@ namespace cortex::_fw::ops {
         f32 value;
     };
 
+    /**
+     * @brief Functor for element-wise greater comparison (x > y).
+     *
+     * Returns 1.0f if condition is true, 0.0f otherwise.
+     */
     struct Greater {
         __device__ __forceinline__ f32 operator()(const f32 Xx, const f32 Xy) const {
             return Xx > Xy ? 1.0f : 0.0f;
         }
     };
 
+    /**
+     * @brief Functor for element-wise less comparison (x < y).
+     *
+     * Returns 1.0f if condition is true, 0.0f otherwise.
+     */
     struct Less {
         __device__ __forceinline__ f32 operator()(const f32 Xx, const f32 Xy) const {
             return Xx < Xy ? 1.0f : 0.0f;
         }
     };
 
+    /**
+     * @brief Functor for element-wise greater or equal comparison (x >= y).
+     *
+     * Returns 1.0f if condition is true, 0.0f otherwise.
+     */
     struct GreaterEqual {
         __device__ __forceinline__ f32 operator()(const f32 Xx, const f32 Xy) const {
             return Xx >= Xy ? 1.0f : 0.0f;
         }
     };
 
+    /**
+     * @brief Functor for element-wise less or equal comparison (x <= y).
+     *
+     * Returns 1.0f if condition is true, 0.0f otherwise.
+     */
     struct LessEqual {
         __device__ __forceinline__ f32 operator()(const f32 Xx, const f32 Xy) const {
             return Xx < Xy ? 1.0f : 0.0f;
         }
     };
 
+    /**
+     * @brief Functor for element-wise equality comparison (x == y).
+     *
+     * Returns boolean result unlike other comparison functors.
+     */
     struct Equal {
         __device__ __forceinline__ bool operator()(const f32 Xx, const f32 Xy) const {
             return Xx == Xy;
