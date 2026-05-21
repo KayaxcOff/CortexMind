@@ -125,3 +125,51 @@ void wise::sign(const f32 *Xx, f32 *Xz, const size_t N) {
         Xz[i] = static_cast<f32>((0.0f < val) - (val < 0.0f));
     }
 }
+
+void wise::greater(const f32* Xx, const f32* Xy, f32* Xz, const size_t N) {
+    size_t i = 0;
+    const vec8f one = set1(1.0f);
+    for (; i + 8 <= N; i += 8) {
+        const vec8f mask = cmp::gt(loadu(Xx + i), loadu(Xy + i));
+        storeu(Xz + i, _mm256_and_ps(mask, one));
+    }
+    for (; i < N; ++i) {
+        Xz[i] = Xx[i] > Xy[i] ? 1.0f : 0.0f;
+    }
+}
+
+void wise::less(const f32* Xx, const f32* Xy, f32* Xz, const size_t N) {
+    size_t i = 0;
+    const vec8f one = set1(1.0f);
+    for (; i + 8 <= N; i += 8) {
+        const vec8f mask = cmp::lt(loadu(Xx + i), loadu(Xy + i));
+        storeu(Xz + i, _mm256_and_ps(mask, one));
+    }
+    for (; i < N; ++i) {
+        Xz[i] = Xx[i] < Xy[i] ? 1.0f : 0.0f;
+    }
+}
+
+void wise::greater_eq(const f32* Xx, const f32* Xy, f32* Xz, const size_t N) {
+    size_t i = 0;
+    const vec8f one = set1(1.0f);
+    for (; i + 8 <= N; i += 8) {
+        const vec8f mask = cmp::ge(loadu(Xx + i), loadu(Xy + i));
+        storeu(Xz + i, _mm256_and_ps(mask, one));
+    }
+    for (; i < N; ++i) {
+        Xz[i] = Xx[i] >= Xy[i] ? 1.0f : 0.0f;
+    }
+}
+
+void wise::less_eq(const f32* Xx, const f32* Xy, f32* Xz, const size_t N) {
+    size_t i = 0;
+    const vec8f one = set1(1.0f);
+    for (; i + 8 <= N; i += 8) {
+        const vec8f mask = cmp::le(loadu(Xx + i), loadu(Xy + i));
+        storeu(Xz + i, _mm256_and_ps(mask, one));
+    }
+    for (; i < N; ++i) {
+        Xz[i] = Xx[i] <= Xy[i] ? 1.0f : 0.0f;
+    }
+}

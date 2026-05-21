@@ -120,3 +120,21 @@ f32 reduce::dot(const f32* Xx, const f32* Xy, const size_t N) {
     }
     return output;
 }
+
+bool reduce::equal(const f32 *Xx, const f32 *Xy, const size_t N) {
+    size_t i = 0;
+    //const vec8f eps = set1(1e-6f);
+    vec8f acc = zero();
+
+    for (; i + 8 <= N; i += 8) {
+        const vec8f diff = avx2::abs(sub(loadu(Xx + i), loadu(Xy + i)));
+        acc = avx2::max(acc, diff);
+    }
+
+    f32 max_diff = horizontal::max(acc);
+    for (; i < N; ++i) {
+        max_diff = std::max(max_diff, std::abs(Xx[i] - Xy[i]));
+    }
+
+    return max_diff < 1e-6f;
+}

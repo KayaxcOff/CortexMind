@@ -3,6 +3,7 @@
 //
 
 #include "CortexMind/framework/Tensor/tensor.hpp"
+#include <CortexMind/framework/Engine/IX/compare.hpp>
 #include <CortexMind/framework/Engine/IX/matrix.hpp>
 #include <CortexMind/framework/Engine/IX/scalar.hpp>
 #include <CortexMind/framework/Gradient/operations.hpp>
@@ -229,6 +230,46 @@ Tensor &Tensor::operator=(Tensor &&other) noexcept {
     other.flow_ = nullptr;
 
     return *this;
+}
+
+bool Tensor::operator==(const Tensor &other) const {
+    return CompareTo::equal(this->storage_.get(), other.storage_.get(), this->len());
+}
+
+bool Tensor::operator!=(const Tensor &other) const {
+    return !this->operator==(other);
+}
+
+Tensor Tensor::operator>(const Tensor &other) const {
+    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
+
+    CompareTo::greater(this->storage_.get(), other.storage_.get(), output.storage_.get(), this->len());
+
+    return output;
+}
+
+Tensor Tensor::operator<(const Tensor &other) const {
+    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
+
+    CompareTo::less(this->storage_.get(), other.storage_.get(), output.storage_.get(), this->len());
+
+    return output;
+}
+
+Tensor Tensor::operator>=(const Tensor &other) const {
+    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
+
+    CompareTo::greater_eq(this->storage_.get(), other.storage_.get(), output.storage_.get(), this->len());
+
+    return output;
+}
+
+Tensor Tensor::operator<=(const Tensor &other) const {
+    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
+
+    CompareTo::less_eq(this->storage_.get(), other.storage_.get(), output.storage_.get(), this->len());
+
+    return output;
 }
 
 namespace cortex::_fw {

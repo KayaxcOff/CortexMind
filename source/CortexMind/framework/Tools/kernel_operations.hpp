@@ -296,6 +296,36 @@ namespace cortex::_fw::ops {
     private:
         f32 value;
     };
+
+    struct Greater {
+        __device__ __forceinline__ f32 operator()(const f32 Xx, const f32 Xy) const {
+            return Xx > Xy ? 1.0f : 0.0f;
+        }
+    };
+
+    struct Less {
+        __device__ __forceinline__ f32 operator()(const f32 Xx, const f32 Xy) const {
+            return Xx < Xy ? 1.0f : 0.0f;
+        }
+    };
+
+    struct GreaterEqual {
+        __device__ __forceinline__ f32 operator()(const f32 Xx, const f32 Xy) const {
+            return Xx >= Xy ? 1.0f : 0.0f;
+        }
+    };
+
+    struct LessEqual {
+        __device__ __forceinline__ f32 operator()(const f32 Xx, const f32 Xy) const {
+            return Xx < Xy ? 1.0f : 0.0f;
+        }
+    };
+
+    struct Equal {
+        __device__ __forceinline__ bool operator()(const f32 Xx, const f32 Xy) const {
+            return Xx == Xy;
+        }
+    };
 } //namespace cortex::_fw::ops
 
 #endif //CORTEXMIND_FRAMEWORK_TOOLS_KERNEL_OPERATIONS_HPP

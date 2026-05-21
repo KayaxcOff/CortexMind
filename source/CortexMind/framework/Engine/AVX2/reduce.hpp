@@ -113,6 +113,8 @@ namespace cortex::_fw::avx2 {
          */
         [[nodiscard]]
         static f32 dot(const f32* __restrict Xx, const f32* __restrict Xy, size_t N);
+        [[nodiscard]]
+        static bool equal(const f32* Xx, const f32* Xy, size_t N);
     };
 } //namespace cortex::_fw::avx2
 

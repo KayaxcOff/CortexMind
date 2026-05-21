@@ -30,12 +30,14 @@ add_library(CortexMind STATIC
         source/CortexMind/net/OptimizationFunction/sgd.cpp
         source/CortexMind/tools/tensor_meta.cpp
         source/CortexMind/tools/version.cpp
+        ../source/CortexMind/framework/Engine/IX/compare.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
     target_sources(CortexMind PRIVATE
             source/CortexMind/framework/Engine/CUDA/activation.cu
             source/CortexMind/framework/Engine/CUDA/broadcast.cu
+            source/CortexMind/framework/Engine/CUDA/compare.cu
             source/CortexMind/framework/Engine/CUDA/element_wise.cu
             source/CortexMind/framework/Engine/CUDA/matrix.cu
             source/CortexMind/framework/Engine/CUDA/reduce.cu
