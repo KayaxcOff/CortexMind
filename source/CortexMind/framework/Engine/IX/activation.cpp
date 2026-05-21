@@ -44,3 +44,35 @@ void Activation::tanh(const f32 *Xx, f32 *Xz, size_t N, sys::DeviceType device) 
         avx2::Activation::tanh(Xx, Xz, N);
     #endif //#if CXM_IS_CUDA_AVAILABLE
 }
+
+void Activation::sigmoid(const f32 *Xx, f32 *Xz, size_t N, sys::DeviceType device) {
+    CXM_ASSERT(Xx == nullptr, "Input pointer is null");
+    CXM_ASSERT(Xz == nullptr, "Input pointer is null");
+    CXM_ASSERT(N <= 0, "Number element of tensor must be non-zero");
+
+    #if CXM_IS_CUDA_AVAILABLE
+        if (device == DeviceType::kHOST) {
+            avx2::Activation::sigmoid(Xx, Xz, N);
+        } else {
+            cuda::Activation::sigmoid(Xx, Xz, N);
+        }
+    #else //#if CXM_IS_CUDA_AVAILABLE
+        avx2::Activation::sigmoid(Xx, Xz, N);
+    #endif //#if CXM_IS_CUDA_AVAILABLE
+}
+
+void Activation::sigmoid_fast(const f32 *Xx, f32 *Xz, size_t N, sys::DeviceType device) {
+    CXM_ASSERT(Xx == nullptr, "Input pointer is null");
+    CXM_ASSERT(Xz == nullptr, "Input pointer is null");
+    CXM_ASSERT(N <= 0, "Number element of tensor must be non-zero");
+
+    #if CXM_IS_CUDA_AVAILABLE
+        if (device == DeviceType::kHOST) {
+            avx2::Activation::sigmoid_fast(Xx, Xz, N);
+        } else {
+            cuda::Activation::sigmoid_fast(Xx, Xz, N);
+        }
+    #else //#if CXM_IS_CUDA_AVAILABLE
+        avx2::Activation::sigmoid_fast(Xx, Xz, N);
+    #endif //#if CXM_IS_CUDA_AVAILABLE
+}

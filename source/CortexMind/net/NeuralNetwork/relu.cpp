@@ -19,7 +19,9 @@ tensor ReLU::forward(const tensor &input) {
 
     ix::Activation::relu(input.get(), output.get(), input.len(), input.device());
 
-    output.SetFlow(std::make_shared<meta::relu>(input.pack()));
+    if (output.has_grad()) {
+        output.SetFlow(std::make_shared<meta::relu>(input.pack()));
+    }
 
     return output;
 }

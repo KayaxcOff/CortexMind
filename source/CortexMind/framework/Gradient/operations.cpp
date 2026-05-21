@@ -390,6 +390,7 @@ tanh::tanh(const GradientPacked &_x, const GradientPacked& _y) : GradientFlow("T
 
 tanh::~tanh() {
     delete this->tx;
+    delete this->output;
 }
 
 void tanh::backward(const Tensor &_grad) {
@@ -399,6 +400,30 @@ void tanh::backward(const Tensor &_grad) {
 
         const Tensor grad_coeff = ones - this->output->pow();
         const Tensor grad_expanded = _grad * grad_coeff;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+sigmoid::sigmoid(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("SigmoidBackward", 23) {
+    this->tx = new Tensor(_x);
+    this->output = new Tensor(_y);
+}
+
+sigmoid::~sigmoid() {
+    delete this->tx;
+    delete this->output;
+}
+
+void sigmoid::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        Tensor ones(this->output->shape(), this->output->device());
+        ones.ones();
+
+        Tensor one_minus_output = ones - (*this->output);
+        Tensor grad_coeff = (*this->output) * one_minus_output;
+        Tensor grad_expanded = _grad * grad_coeff;
 
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);

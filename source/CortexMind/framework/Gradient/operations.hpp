@@ -407,10 +407,62 @@ namespace cortex::_fw::meta {
         Tensor* tx;
     };
 
+    /**
+     * @brief Gradient node for Tanh activation function (`TanhBackward`).
+     *
+     * Computes gradients for `Z = tanh(X)` during the backward pass.
+     *
+     * Mathematical rule:
+     * - ∂L/∂X = ∂L/∂Z * (1 - tanh²(X)) = ∂L/∂Z * (1 - Z²)
+     */
     struct tanh : GradientFlow {
+        /**
+         * @brief Constructs a Tanh gradient node.
+         *
+         * @param _x     Input tensor packed data (before tanh)
+         * @param _y     Output tensor packed data (after tanh)
+         */
         explicit tanh(const GradientPacked& _x, const GradientPacked& _y);
         ~tanh() override;
 
+        /**
+         * @brief Computes gradient with respect to the input of tanh.
+         *
+         * Uses the derivative: `1 - output²`
+         *
+         * @param _grad Gradient of the output tensor (∂L/∂Z)
+         */
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+        Tensor* output;
+    };
+
+    /**
+     * @brief Gradient node for Sigmoid activation function (`SigmoidBackward`).
+     *
+     * Computes gradients for `Z = sigmoid(X)` during the backward pass.
+     *
+     * Mathematical rule:
+     * - ∂L/∂X = ∂L/∂Z * Z * (1 - Z)
+     */
+    struct sigmoid : GradientFlow {
+        /**
+         * @brief Constructs a Sigmoid gradient node.
+         *
+         * @param _x     Input tensor packed data (before sigmoid)
+         * @param _y     Output tensor packed data (after sigmoid)
+         */
+        explicit sigmoid(const GradientPacked& _x, const GradientPacked& _y);
+        ~sigmoid() override;
+
+        /**
+         * @brief Computes gradient with respect to the input of sigmoid.
+         *
+         * Uses the derivative: `output * (1 - output)`
+         *
+         * @param _grad Gradient of the output tensor (∂L/∂Z)
+         */
         void backward(const Tensor& _grad) override;
     private:
         Tensor* tx;

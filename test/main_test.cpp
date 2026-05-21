@@ -5,11 +5,12 @@
 #include <CortexMind/cortexmind.hpp>
 #include <iomanip>
 #include <iostream>
+#include <vector>
 
 using namespace cortex;
-/*
+
 int main() {
-    std::cout << "=== XOR Training ===" << std::endl;
+    std::cout << "=== MAE vs MSE Comparison ===" << std::endl;
 
     const std::vector x_data = {
         0.0f, 0.0f,
@@ -23,107 +24,183 @@ int main() {
     tensor Y({4, 1}, y_data.data(), host);
 
     nn::Dense hidden(2, 4, host);
-    nn::ReLU relu;
+    nn::Tanh tanh1;
     nn::Dense output_layer(4, 1, host);
+    nn::SigmoidFast sigmoid;
 
+    loss::MeanAbsolute mae;
     loss::MeanSquared mse;
     opt::StochasticGradient sgd(0.01f);
 
-    auto params = hidden.getParameters();
-    auto out_params = output_layer.getParameters();
-    params.insert(params.end(), out_params.begin(), out_params.end());
-    sgd.SetParams(params);
+    // ===== MAE Training =====
+    std::cout << "\n--- MAE Training ---" << std::endl;
 
-    constexpr int epochs = 1000;
+    auto params_mae = hidden.getParameters();
+    auto out_params_mae = output_layer.getParameters();
+    params_mae.insert(params_mae.end(), out_params_mae.begin(), out_params_mae.end());
+    sgd.SetParams(params_mae);
+
+    constexpr int epochs = 10000;
     for (int epoch = 0; epoch < epochs; ++epoch) {
         tensor h  = hidden.forward(X);
-        tensor h2 = relu.forward(h);
+        tensor h2 = tanh1.forward(h);
         tensor out = output_layer.forward(h2);
-        tensor l = mse.forward(out, Y);
+        tensor y_pred = sigmoid.forward(out);
+        tensor l = mae.forward(y_pred, Y);
 
         sgd.zero_grad();
         l.backward();
         sgd.update();
 
-        if (epoch % 100 == 0) {
+        if (epoch % 200 == 0) {
             std::cout << "Epoch " << std::setw(4) << epoch
-                     << " | Loss: " << l.get()[0] << std::endl;
+                     << " | Loss: " << std::fixed << std::setprecision(6)
+                     << l.get()[0] << std::endl;
         }
     }
 
-    std::cout << "\n=== Predictions ===" << std::endl;
+    std::cout << "\nMAE Predictions:" << std::endl;
     tensor h   = hidden.forward(X);
-    tensor h2  = relu.forward(h);
-    tensor pred = output_layer.forward(h2);
+    tensor h2  = tanh1.forward(h);
+    tensor out = output_layer.forward(h2);
+    tensor pred_mae = sigmoid.forward(out);
 
-    const std::vector expected = {0.0f, 1.0f, 1.0f, 0.0f};
     for (int i = 0; i < 4; ++i) {
-        std::cout << "Input: [" << x_data[i*2] << ", " << x_data[i*2+1] << "]"
-                  << " | Pred: " << std::fixed << std::setprecision(4)
-                  << pred.get()[i]
-                  << " | Expected: " << expected[i] << std::endl;
+        std::cout << "  [" << x_data[i*2] << ", " << x_data[i*2+1] << "]"
+                  << " -> " << std::fixed << std::setprecision(4) << pred_mae.get()[i]
+                  << " (expected: " << y_data[i] << ")" << std::endl;
     }
 
     return 0;
 }
-*/
 /*
+with MSE:
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
-=== XOR Training ===
-Epoch    0 | Loss: 0.64706
-Epoch  100 | Loss: 0.247152
-Epoch  200 | Loss: 0.215043
-Epoch  300 | Loss: 0.190462
-Epoch  400 | Loss: 0.168852
-Epoch  500 | Loss: 0.148541
-Epoch  600 | Loss: 0.12994
-Epoch  700 | Loss: 0.11239
-Epoch  800 | Loss: 0.0961702
-Epoch  900 | Loss: 0.0815512
+=== MAE vs MSE Comparison ===
 
-=== Predictions ===
-Input: [0, 0] | Pred: 0.3512 | Expected: 0.0000
-Input: [0.0000, 1.0000] | Pred: 0.7237 | Expected: 1.0000
-Input: [1.0000, 0.0000] | Pred: 0.7965 | Expected: 1.0000
-Input: [1.0000, 1.0000] | Pred: 0.1728 | Expected: 0.0000
+--- MAE Training ---
+Epoch    0 | Loss: 0.277569
+Epoch  200 | Loss: 0.266558
+Epoch  400 | Loss: 0.258858
+Epoch  600 | Loss: 0.253019
+Epoch  800 | Loss: 0.248385
+Epoch 1000 | Loss: 0.244557
+Epoch 1200 | Loss: 0.241245
+Epoch 1400 | Loss: 0.238222
+Epoch 1600 | Loss: 0.235318
+Epoch 1800 | Loss: 0.232408
+Epoch 2000 | Loss: 0.229398
+Epoch 2200 | Loss: 0.226218
+Epoch 2400 | Loss: 0.222817
+Epoch 2600 | Loss: 0.219155
+Epoch 2800 | Loss: 0.215204
+Epoch 3000 | Loss: 0.210941
+Epoch 3200 | Loss: 0.206350
+Epoch 3400 | Loss: 0.201420
+Epoch 3600 | Loss: 0.196144
+Epoch 3800 | Loss: 0.190521
+Epoch 4000 | Loss: 0.184553
+Epoch 4200 | Loss: 0.178252
+Epoch 4400 | Loss: 0.171638
+Epoch 4600 | Loss: 0.164740
+Epoch 4800 | Loss: 0.157601
+Epoch 5000 | Loss: 0.150274
+Epoch 5200 | Loss: 0.142821
+Epoch 5400 | Loss: 0.135313
+Epoch 5600 | Loss: 0.127825
+Epoch 5800 | Loss: 0.120430
+Epoch 6000 | Loss: 0.113200
+Epoch 6200 | Loss: 0.106197
+Epoch 6400 | Loss: 0.099473
+Epoch 6600 | Loss: 0.093070
+Epoch 6800 | Loss: 0.087014
+Epoch 7000 | Loss: 0.081325
+Epoch 7200 | Loss: 0.076007
+Epoch 7400 | Loss: 0.071059
+Epoch 7600 | Loss: 0.066473
+Epoch 7800 | Loss: 0.062233
+Epoch 8000 | Loss: 0.058321
+Epoch 8200 | Loss: 0.054719
+Epoch 8400 | Loss: 0.051404
+Epoch 8600 | Loss: 0.048356
+Epoch 8800 | Loss: 0.045552
+Epoch 9000 | Loss: 0.042973
+Epoch 9200 | Loss: 0.040600
+Epoch 9400 | Loss: 0.038415
+Epoch 9600 | Loss: 0.036400
+Epoch 9800 | Loss: 0.034540
+
+MAE Predictions:
+  [0.000000, 0.000000] -> 0.1695 (expected: 0.0000)
+  [0.0000, 1.0000] -> 0.7970 (expected: 1.0000)
+  [1.0000, 0.0000] -> 0.8171 (expected: 1.0000)
+  [1.0000, 1.0000] -> 0.1670 (expected: 0.0000)
 
 Process finished with exit code 0
 */
+
 /*
-int main() {
-    const tensor x({3, 4, 5});
-    x.uniform();
-
-    nn::Flatten flatten;
-
-    std::cout << "Before Flatten:\n" << x << std::endl;
-    std::cout << "After Flatten:\n" << flatten.forward(x) << std::endl;
-
-    return 0;
-}
-*/
-/*
+with MAE:
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
-Before Flatten:
-[[[0.604562, 0.547813, 0.155267, 0.0253699, 0.158871],
-  [0.718733, 0.0744213, 0.085619, 0.0460752, 0.00410658],
-  [0.705178, 0.415138, 0.20905, 0.789734, 0.569061],
-  [0.588765, 0.941404, 0.198698, 0.302112, 0.177009]],
- [[0.455091, 0.853672, 0.847177, 0.218747, 0.548446],
-  [0.42135, 0.446353, 0.174903, 0.243396, 0.399728],
-  [0.813903, 0.282096, 0.898836, 0.50906, 0.568226],
-  [0.994414, 0.169631, 0.885777, 0.791445, 0.363771]],
- [[0.235086, 0.766914, 0.61629, 0.415676, 0.787867],
-  [0.450171, 0.711964, 0.0906217, 0.938298, 0.18488],
-  [0.837717, 0.607492, 0.583456, 0.0444533, 0.678444],
-  [0.808512, 0.953992, 0.0267473, 0.368951, 0.949087]]]
-After Flatten:
-[[0.604562, 0.547813, 0.155267, 0.0253699, 0.158871, 0.718733, 0.0744213, 0.085619, 0.0460752, 0.00410658, 0.705178, 0.4
-15138, 0.20905, 0.789734, 0.569061, 0.588765, 0.941404, 0.198698, 0.302112, 0.177009],
- [0.455091, 0.853672, 0.847177, 0.218747, 0.548446, 0.42135, 0.446353, 0.174903, 0.243396, 0.399728, 0.813903, 0.282096,
- 0.898836, 0.50906, 0.568226, 0.994414, 0.169631, 0.885777, 0.791445, 0.363771],
- [0.235086, 0.766914, 0.61629, 0.415676, 0.787867, 0.450171, 0.711964, 0.0906217, 0.938298, 0.18488, 0.837717, 0.607492,
- 0.583456, 0.0444533, 0.678444, 0.808512, 0.953992, 0.0267473, 0.368951, 0.949087]]
+=== MAE vs MSE Comparison ===
+
+--- MAE Training ---
+Epoch    0 | Loss: 0.502730
+Epoch  200 | Loss: 0.492480
+Epoch  400 | Loss: 0.490835
+Epoch  600 | Loss: 0.492258
+Epoch  800 | Loss: 0.493666
+Epoch 1000 | Loss: 0.494742
+Epoch 1200 | Loss: 0.495546
+Epoch 1400 | Loss: 0.496156
+Epoch 1600 | Loss: 0.496631
+Epoch 1800 | Loss: 0.497008
+Epoch 2000 | Loss: 0.497314
+Epoch 2200 | Loss: 0.497566
+Epoch 2400 | Loss: 0.497777
+Epoch 2600 | Loss: 0.497956
+Epoch 2800 | Loss: 0.498110
+Epoch 3000 | Loss: 0.498243
+Epoch 3200 | Loss: 0.498360
+Epoch 3400 | Loss: 0.498462
+Epoch 3600 | Loss: 0.498553
+Epoch 3800 | Loss: 0.498635
+Epoch 4000 | Loss: 0.498708
+Epoch 4200 | Loss: 0.498774
+Epoch 4400 | Loss: 0.498834
+Epoch 4600 | Loss: 0.498888
+Epoch 4800 | Loss: 0.498938
+Epoch 5000 | Loss: 0.498984
+Epoch 5200 | Loss: 0.499026
+Epoch 5400 | Loss: 0.499065
+Epoch 5600 | Loss: 0.499101
+Epoch 5800 | Loss: 0.499134
+Epoch 6000 | Loss: 0.499165
+Epoch 6200 | Loss: 0.499194
+Epoch 6400 | Loss: 0.499222
+Epoch 6600 | Loss: 0.499247
+Epoch 6800 | Loss: 0.499271
+Epoch 7000 | Loss: 0.499294
+Epoch 7200 | Loss: 0.499315
+Epoch 7400 | Loss: 0.499335
+Epoch 7600 | Loss: 0.499354
+Epoch 7800 | Loss: 0.499372
+Epoch 8000 | Loss: 0.499389
+Epoch 8200 | Loss: 0.499405
+Epoch 8400 | Loss: 0.499420
+Epoch 8600 | Loss: 0.499435
+Epoch 8800 | Loss: 0.499449
+Epoch 9000 | Loss: 0.499462
+Epoch 9200 | Loss: 0.499475
+Epoch 9400 | Loss: 0.499487
+Epoch 9600 | Loss: 0.499499
+Epoch 9800 | Loss: 0.499510
+
+MAE Predictions:
+[0.000000, 0.000000] -> 0.9952 (expected: 0.0000)
+[0.0000, 1.0000] -> 0.9981 (expected: 1.0000)
+[1.0000, 0.0000] -> 0.9976 (expected: 1.0000)
+[1.0000, 1.0000] -> 0.9986 (expected: 0.0000)
 
 Process finished with exit code 0
 */

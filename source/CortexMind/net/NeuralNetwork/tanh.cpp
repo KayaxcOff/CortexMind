@@ -19,7 +19,9 @@ tensor Tanh::forward(const tensor &input) {
 
     ix::Activation::tanh(input.get(), output.get(), input.len(), input.device());
 
-    output.SetFlow(std::make_shared<meta::tanh>(input.pack(), output.pack()));
+    if (output.has_grad()) {
+        output.SetFlow(std::make_shared<meta::tanh>(input.pack(), output.pack()));
+    }
 
     return output;
 }
