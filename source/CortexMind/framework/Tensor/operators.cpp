@@ -241,7 +241,7 @@ bool Tensor::operator!=(const Tensor &other) const {
 }
 
 Tensor Tensor::operator>(const Tensor &other) const {
-    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
+    Tensor output(this->m_shape, this->storage_->device());
 
     CompareTo::greater(this->storage_.get(), other.storage_.get(), output.storage_.get(), this->len());
 
@@ -249,7 +249,7 @@ Tensor Tensor::operator>(const Tensor &other) const {
 }
 
 Tensor Tensor::operator<(const Tensor &other) const {
-    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
+    Tensor output(this->m_shape, this->storage_->device());
 
     CompareTo::less(this->storage_.get(), other.storage_.get(), output.storage_.get(), this->len());
 
@@ -257,7 +257,7 @@ Tensor Tensor::operator<(const Tensor &other) const {
 }
 
 Tensor Tensor::operator>=(const Tensor &other) const {
-    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
+    Tensor output(this->m_shape, this->storage_->device());
 
     CompareTo::greater_eq(this->storage_.get(), other.storage_.get(), output.storage_.get(), this->len());
 
@@ -265,7 +265,7 @@ Tensor Tensor::operator>=(const Tensor &other) const {
 }
 
 Tensor Tensor::operator<=(const Tensor &other) const {
-    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad || other.m_requires_grad);
+    Tensor output(this->m_shape, this->storage_->device());
 
     CompareTo::less_eq(this->storage_.get(), other.storage_.get(), output.storage_.get(), this->len());
 

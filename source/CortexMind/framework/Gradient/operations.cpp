@@ -3,6 +3,7 @@
 //
 
 #include "CortexMind/framework/Gradient/operations.hpp"
+#include <CortexMind/framework/Engine/IX/compare.hpp>
 #include <CortexMind/framework/Tensor/tensor.hpp>
 
 using namespace cortex::_fw::meta;
@@ -356,6 +357,28 @@ div_scalar::~div_scalar() {
 void div_scalar::backward(const Tensor &_grad) {
     const Tensor grad_expanded = _grad / this->scalar;
     if (this->tx->has_grad()) [[likely]] {
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+relu::relu(const GradientPacked &_x) : GradientFlow("ReLUBackward", 21) {
+    this->tx = new Tensor(_x);
+}
+
+relu::~relu() {
+    delete this->tx;
+}
+
+void relu::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        Tensor mask(this->tx->shape(), this->tx->device(), false);
+        Tensor zeros(this->tx->shape(), this->tx->device(), false);
+        zeros.zero();
+
+        mask = (*this->tx) > zeros;
+
+        const Tensor grad_expanded = _grad * mask;
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }

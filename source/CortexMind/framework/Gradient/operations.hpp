@@ -374,6 +374,15 @@ namespace cortex::_fw::meta {
         Tensor* tx;
         f32 scalar;
     };
+
+    struct relu : GradientFlow {
+        explicit relu(const GradientPacked& _x);
+        ~relu() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+    };
 } //namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP

@@ -560,6 +560,15 @@ namespace cortex::_fw {
         [[nodiscard]]
         const Tensor& grad() const;
 
+        /**
+         * @brief It returns the tensor information
+         * required for automatic gradient calculation
+         * in a packaged format.
+         * @return a Gradient Pack
+         */
+        [[nodiscard]]
+        meta::GradientPacked pack() const;
+
         Tensor operator+(const Tensor& other) const;
         Tensor operator-(const Tensor& other) const;
         Tensor operator*(const Tensor& other) const;
@@ -596,7 +605,6 @@ namespace cortex::_fw {
         friend Tensor operator-(f32 value, const Tensor& tensor);
         friend Tensor operator*(f32 value, const Tensor& tensor);
         friend Tensor operator/(f32 value, const Tensor& tensor);
-
     private:
         std::shared_ptr<TensorStorage> storage_;
         std::shared_ptr<Tensor> gradient_;

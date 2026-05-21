@@ -6,6 +6,8 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Engine/AVX2/reduce.cpp
         source/CortexMind/framework/Engine/AVX2/scalar.cpp
         source/CortexMind/framework/Engine/AVX2/wise.cpp
+        source/CortexMind/framework/Engine/IX/activation.cpp
+        source/CortexMind/framework/Engine/IX/compare.cpp
         source/CortexMind/framework/Engine/IX/element_wise.cpp
         source/CortexMind/framework/Engine/IX/matrix.cpp
         source/CortexMind/framework/Engine/IX/random.cpp
@@ -27,10 +29,10 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/tensor_meta.cpp
         source/CortexMind/net/LossFunction/mse.cpp
         source/CortexMind/net/NeuralNetwork/dense.cpp
+        source/CortexMind/net/NeuralNetwork/relu.cpp
         source/CortexMind/net/OptimizationFunction/sgd.cpp
         source/CortexMind/tools/tensor_meta.cpp
         source/CortexMind/tools/version.cpp
-        ../source/CortexMind/framework/Engine/IX/compare.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
