@@ -33,6 +33,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/NeuralNetwork/dense.cpp
         source/CortexMind/net/NeuralNetwork/flatten.cpp
         source/CortexMind/net/NeuralNetwork/relu.cpp
+        source/CortexMind/net/NeuralNetwork/tanh.cpp
         source/CortexMind/net/OptimizationFunction/sgd.cpp
         source/CortexMind/tools/tensor_meta.cpp
         source/CortexMind/tools/version.cpp

@@ -17,6 +17,7 @@ namespace cortex::_fw::ix {
      */
     struct Activation {
         static void relu(const f32* __restrict Xx, f32* __restrict Xz, size_t N, sys::DeviceType device);
+        static void tanh(const f32* __restrict Xx, f32* __restrict Xz, size_t N, sys::DeviceType device);
     };
 } //namespace cortex::_fw::ix
 

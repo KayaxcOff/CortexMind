@@ -382,3 +382,25 @@ void relu::backward(const Tensor &_grad) {
         this->tx->backward(grad_expanded);
     }
 }
+
+tanh::tanh(const GradientPacked &_x, const GradientPacked& _y) : GradientFlow("TanhBackward", 22) {
+    this->tx = new Tensor(_x);
+    this->output = new Tensor(_y);
+}
+
+tanh::~tanh() {
+    delete this->tx;
+}
+
+void tanh::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        Tensor ones(this->output->shape(), this->output->device());
+        ones.ones();
+
+        const Tensor grad_coeff = ones - this->output->pow();
+        const Tensor grad_expanded = _grad * grad_coeff;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}

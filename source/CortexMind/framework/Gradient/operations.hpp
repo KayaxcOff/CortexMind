@@ -406,6 +406,16 @@ namespace cortex::_fw::meta {
     private:
         Tensor* tx;
     };
+
+    struct tanh : GradientFlow {
+        explicit tanh(const GradientPacked& _x, const GradientPacked& _y);
+        ~tanh() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+        Tensor* output;
+    };
 } //namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP
