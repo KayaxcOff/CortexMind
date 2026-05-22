@@ -40,6 +40,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/NeuralNetwork/sigmoid_fast.cpp
         source/CortexMind/net/NeuralNetwork/tanh.cpp
         source/CortexMind/net/OptimizationFunction/sgd.cpp
+        source/CortexMind/tools/math.cpp
         source/CortexMind/tools/tensor_meta.cpp
         source/CortexMind/tools/version.cpp
 )

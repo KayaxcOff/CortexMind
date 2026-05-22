@@ -19,6 +19,7 @@
 #include <CortexMind/net/OptimizationFunction/sgd.hpp>
 
 // ----- tools -----
+#include <CortexMind/tools/math.hpp>
 #include <CortexMind/tools/println.hpp>
 #include <CortexMind/tools/tensor_meta.hpp>
 #include <CortexMind/tools/types.hpp>
