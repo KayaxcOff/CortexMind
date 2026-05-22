@@ -43,6 +43,7 @@ add_library(CortexMind STATIC
         source/CortexMind/tools/math.cpp
         source/CortexMind/tools/tensor_meta.cpp
         source/CortexMind/tools/version.cpp
+        source/CortexMind/utility/cast.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)

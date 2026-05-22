@@ -26,4 +26,7 @@
 #include <CortexMind/tools/values.hpp>
 #include <CortexMind/tools/version.hpp>
 
+// ------ utility -----
+#include <CortexMind/utility/cast.hpp>
+
 #endif //CORTEXMIND_CORTEXMIND_HPP
