@@ -27,6 +27,7 @@ namespace cortex::nn {
         int64 STRIDE_WIDTH, STRIDE_HEIGHT;
         int64 PADDING_WIDTH, PADDING_HEIGHT;
 
+        [[nodiscard]]
         tensor im2col();
     };
 } //namespace cortex::nn
