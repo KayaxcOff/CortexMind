@@ -16,6 +16,7 @@
 #include <CortexMind/net/NeuralNetwork/flatten.hpp>
 #include <CortexMind/net/NeuralNetwork/gelu.hpp>
 #include <CortexMind/net/NeuralNetwork/input.hpp>
+#include <CortexMind/net/NeuralNetwork/leaky_relu.hpp>
 #include <CortexMind/net/NeuralNetwork/relu.hpp>
 #include <CortexMind/net/NeuralNetwork/sigmoid.hpp>
 #include <CortexMind/net/NeuralNetwork/sigmoid_fast.hpp>

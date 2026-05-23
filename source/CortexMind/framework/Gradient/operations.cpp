@@ -461,3 +461,29 @@ void gelu::backward(const Tensor &_grad) {
         this->tx->backward(grad_expanded);
     }
 }
+
+leaky_relu::leaky_relu(const GradientPacked &_x, const f32 alpha) : GradientFlow("LeakyReLUBackward", 25) {
+    this->tx = new Tensor(_x);
+    this->alpha = alpha;
+}
+
+leaky_relu::~leaky_relu() {
+    delete this->tx;
+}
+
+void leaky_relu::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+
+        Tensor zeros(this->tx->shape(), this->tx->device());
+        zeros.zero();
+
+        Tensor mask = (*this->tx) > zeros;
+
+        Tensor grad_coeff = mask * 1.0f + (1.0f - mask) * this->alpha;
+
+        Tensor grad_expanded = _grad * grad_coeff;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}

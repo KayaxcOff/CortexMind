@@ -13,7 +13,7 @@ using namespace cortex;
 /*
 
 int main() {
-    CircleDataset df(1000, 0.1f);
+    ds::CircleDataset df(1000, 0.1f);
 
     tensor X({df.N, 2}, df.X.data(), host);
     tensor Y({df.N, 1}, df.Y.data(), host);
@@ -77,7 +77,7 @@ Epoch 99800 | Loss: 0.044714
 
 Process finished with exit code 0
 */
-
+/*
 int main() {
     ds::CircleDataset df(1000, 0.1f);
 
@@ -130,6 +130,7 @@ int main() {
 
     return 0;
 }
+*/
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
 Epoch    0 | Loss: 0.241964
@@ -188,4 +189,67 @@ Epoch 9800 | Loss: 0.031327
   [-0.0, 0.0] -> 0.9993 (expected: 1.0000)
 
 Process finished with exit code 0
+*/
+
+int main() {
+    ds::CircleDataset df(100, 0.1f);
+
+    tensor X({df.N, 2}, df.X.data(), host);
+    tensor Y({df.N, 1}, df.Y.data(), host);
+
+    nn::Dense hidden(2, 16, host);
+    nn::LeakyReLU leaky_relu(0.01f);
+    nn::Dense output_layer(16, 1, host);
+    nn::Sigmoid sigmoid;
+
+    loss::MeanSquared mse;
+    opt::StochasticGradient sgd(0.5f);
+
+    auto params = hidden.getParameters();
+    auto out_params = output_layer.getParameters();
+    params.insert(params.end(), out_params.begin(), out_params.end());
+    sgd.SetParams(params);
+
+    constexpr int epochs = 100000;
+    for (int epoch = 0; epoch < epochs; ++epoch) {
+        tensor h  = hidden.forward(X);
+        tensor h2 = leaky_relu.forward(h);
+        tensor out = output_layer.forward(h2);
+        tensor y_pred = sigmoid.forward(out);
+        tensor l = mse.forward(y_pred, Y);
+
+        sgd.zero_grad();
+        l.backward();
+        sgd.update();
+
+        if (epoch % 200 == 0) {
+            std::cout << "Epoch " << std::setw(4) << epoch
+                     << " | Loss: " << std::fixed << std::setprecision(6)
+                     << l.get()[0] << std::endl;
+        }
+    }
+
+    tensor h   = hidden.forward(X);
+    tensor h2  = leaky_relu.forward(h);
+    tensor out = output_layer.forward(h2);
+    tensor pred = sigmoid.forward(out);
+
+    for (int i = 0; i < 4; ++i) {
+        std::cout << "  [" << std::fixed << std::setprecision(1)
+                  << df.X[i*2] << ", " << df.X[i*2+1] << "]"
+                  << " -> " << std::fixed << std::setprecision(4) << pred.get()[i]
+                  << " (expected: " << df.Y[i] << ")" << std::endl;
+    }
+
+    return 0;
+}
+
+/*
+Epoch    0 | Loss: 0.216305
+... (too many line)
+Epoch 99800 | Loss: 0.005576
+[-0.8, -0.2] -> 0.0000 (expected: 0.0000)
+[-0.8, -0.2] -> 0.0000 (expected: 0.0000)
+[-0.2, -0.0] -> 0.9998 (expected: 1.0000)
+[-0.8, 0.1] -> 0.0000 (expected: 0.0000)
 */

@@ -37,6 +37,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/NeuralNetwork/flatten.cpp
         source/CortexMind/net/NeuralNetwork/gelu.cpp
         source/CortexMind/net/NeuralNetwork/input.cpp
+        source/CortexMind/net/NeuralNetwork/leaky_relu.cpp
         source/CortexMind/net/NeuralNetwork/relu.cpp
         source/CortexMind/net/NeuralNetwork/sigmoid.cpp
         source/CortexMind/net/NeuralNetwork/sigmoid_fast.cpp

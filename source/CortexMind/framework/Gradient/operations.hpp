@@ -508,6 +508,41 @@ namespace cortex::_fw::meta {
         Tensor* tx;
         Tensor* cached_output;
     };
+
+    /**
+     * @brief Gradient node for Leaky ReLU activation function (`LeakyReLUBackward`).
+     *
+     * Computes gradients for `Z = LeakyReLU(X)` during the backward pass.
+     *
+     * Mathematical rule:
+     *
+     *     LeakyReLU'(x) = 1          if x > 0
+     *                   = alpha      if x ≤ 0
+     */
+    struct leaky_relu : GradientFlow {
+        /**
+         * @brief Constructs a LeakyReLU gradient node.
+         *
+         * @param _x    Input tensor packed data (before LeakyReLU)
+         * @param alpha Negative slope coefficient used in the forward pass
+         */
+        explicit leaky_relu(const GradientPacked& _x, f32 alpha);
+        ~leaky_relu() override;
+
+        /**
+         * @brief Computes gradient with respect to the input of LeakyReLU.
+         *
+         * Applies the piecewise derivative:
+         * - 1.0 where input > 0
+         * - alpha where input ≤ 0
+         *
+         * @param _grad Gradient of the output tensor (∂L/∂Z)
+         */
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+        f32 alpha;
+    };
 } //namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP
