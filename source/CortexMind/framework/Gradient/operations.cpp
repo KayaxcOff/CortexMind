@@ -385,20 +385,20 @@ void relu::backward(const Tensor &_grad) {
 
 tanh::tanh(const GradientPacked &_x, const GradientPacked& _y) : GradientFlow("TanhBackward", 22) {
     this->tx = new Tensor(_x);
-    this->output = new Tensor(_y);
+    this->cached_output = new Tensor(_y);
 }
 
 tanh::~tanh() {
     delete this->tx;
-    delete this->output;
+    delete this->cached_output;
 }
 
 void tanh::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        Tensor ones(this->output->shape(), this->output->device());
+        Tensor ones(this->cached_output->shape(), this->cached_output->device());
         ones.ones();
 
-        const Tensor grad_coeff = ones - this->output->pow();
+        const Tensor grad_coeff = ones - this->cached_output->pow();
         const Tensor grad_expanded = _grad * grad_coeff;
 
         this->tx->grad() += grad_expanded;
@@ -408,21 +408,21 @@ void tanh::backward(const Tensor &_grad) {
 
 sigmoid::sigmoid(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("SigmoidBackward", 23) {
     this->tx = new Tensor(_x);
-    this->output = new Tensor(_y);
+    this->cached_output = new Tensor(_y);
 }
 
 sigmoid::~sigmoid() {
     delete this->tx;
-    delete this->output;
+    delete this->cached_output;
 }
 
 void sigmoid::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        Tensor ones(this->output->shape(), this->output->device());
+        Tensor ones(this->cached_output->shape(), this->cached_output->device());
         ones.ones();
 
-        Tensor one_minus_output = ones - (*this->output);
-        Tensor grad_coeff = (*this->output) * one_minus_output;
+        Tensor one_minus_output = ones - (*this->cached_output);
+        Tensor grad_coeff = (*this->cached_output) * one_minus_output;
         Tensor grad_expanded = _grad * grad_coeff;
 
         this->tx->grad() += grad_expanded;
@@ -430,111 +430,34 @@ void sigmoid::backward(const Tensor &_grad) {
     }
 }
 
-conv2d::conv2d(const GradientPacked &_input, const GradientPacked &_kernel, const GradientPacked &_bias, const Tensor &_col, i64 iH, i64 iW, i64 kH, i64 kW, i64 sH, i64 sW, i64 pH, i64 pW) : GradientFlow("Conv2DBackward", 24) {
-    this->t_kernel = new Tensor(_kernel);
-    this->t_input = new Tensor(_input);
-    this->t_bias = new Tensor(_bias);
-    this->t_col = new Tensor(_col);
-
-    this->iH_ = iH;
-    this->iW_ = iW;
-
-    this->kH_ = kH;
-    this->kW_ = kW;
-
-    this->sH_ = sH;
-    this->sW_ = sW;
-
-    this->pH_ = pH;
-    this->pW_ = pW;
+gelu::gelu(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("GeluBackward", 24) {
+    this->tx = new Tensor(_x);
+    this->cached_output = new Tensor(_y);
 }
 
-conv2d::~conv2d() {
-    delete this->t_kernel;
-    delete this->t_input;
-    delete this->t_bias;
-    delete this->t_col;
+gelu::~gelu() {
+    delete this->tx;
+    delete this->cached_output;
 }
 
-void conv2d::backward(const Tensor& _grad) {
-    // _grad shape: (N, oC, oH, oW)
-    const i64 N  = _grad.shape()[0];
-    const i64 oC = _grad.shape()[1];
-    const i64 oH = _grad.shape()[2];
-    const i64 oW = _grad.shape()[3];
+void gelu::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        constexpr f32 SQRT_2_OVER_PI = 0.7978845608f;
+        constexpr f32 COEFF = 0.044715f;
 
-    const i64 C  = this->t_input->shape()[1];
+        Tensor x = *this->tx;
+        Tensor cdf = *this->cached_output;
 
-    // grad_flat: (oC, N*oH*oW) — matmul için düzenle
-    const Tensor grad_flat = _grad.permute({1,0,2,3})
-                                  .clone()
-                                  .reshape({oC, N*oH*oW});
+        Tensor x_sq = x * x;
+        Tensor pdf = (-0.5f * x_sq).exp() * 0.3989422804f;
 
-    // ∂L/∂W = grad_flat @ col^T
-    // (oC, N*oH*oW) @ (N*oH*oW, C*kH*kW) = (oC, C*kH*kW)
-    if (this->t_kernel->has_grad()) {
-        const Tensor dW_flat = grad_flat.matmul(
-            this->t_col->transpose());
-        // (oC, C*kH*kW) → (oC, C, kH, kW)
-        const Tensor dW = dW_flat.reshape(this->t_kernel->shape());
-        this->t_kernel->grad() += dW;
-        this->t_kernel->backward(dW);
-    }
+        Tensor d_cdf_dx = pdf * SQRT_2_OVER_PI * (1.0f + 3.0f * COEFF * x_sq);
 
-    // ∂L/∂bias = sum over (N, oH, oW)
-    // grad_flat: (oC, N*oH*oW) → sum over axis=1 → (oC)
-    if (this->t_bias->has_grad()) {
-        const Tensor db = grad_flat.sum({1}, false);
-        this->t_bias->grad() += db;
-        this->t_bias->backward(db);
-    }
+        Tensor grad_coeff = cdf + x * d_cdf_dx;
 
-    // ∂L/∂input — col2im
-    // weight_flat: (oC, C*kH*kW)
-    // weight_flat^T @ grad_flat = (C*kH*kW, N*oH*oW) = col_grad
-    if (this->t_input->has_grad()) {
-        const Tensor weight_flat = this->t_kernel->reshape({oC, -1});
-        const Tensor col_grad = weight_flat.transpose().matmul(grad_flat);
+        Tensor grad_expanded = _grad * grad_coeff;
 
-        // col2im: (C*kH*kW, N*oH*oW) → (N, C, iH, iW)
-        Tensor input_grad(this->t_input->shape(),
-                          this->t_input->device(), false);
-        input_grad.zero();
-
-        col2im_cpu(col_grad.get(), input_grad.get(),
-                   N, C, iH_, iW_,
-                   kH_, kW_,
-                   sH_, sW_,
-                   pH_, pW_,
-                   oH, oW);
-
-        this->t_input->grad() += input_grad;
-        this->t_input->backward(input_grad);
-    }
-}
-
-void conv2d::col2im_cpu(const f32 *col, f32 *input_grad, i64 N, i64 C, i64 H, i64 W, i64 kH, i64 kW, i64 sH, i64 sW, i64 pH, i64 pW, i64 oH, i64 oW) {
-    for (i64 c = 0; c < C; ++c) {
-        for (i64 kh = 0; kh < kH; ++kh) {
-            for (i64 kw = 0; kw < kW; ++kw) {
-                const i64 row = c * kH * kW + kh * kW + kw;
-
-                for (i64 n = 0; n < N; ++n) {
-                    for (i64 oh = 0; oh < oH; ++oh) {
-                        for (i64 ow = 0; ow < oW; ++ow) {
-                            const i64 col_idx = n * oH * oW + oh * oW + ow;
-
-                            const i64 ih = oh * sH - pH + kh;
-                            const i64 iw = ow * sW - pW + kw;
-
-                            if (ih >= 0 && ih < H && iw >= 0 && iw < W) {
-                                input_grad[n*(C*H*W) + c*(H*W) + ih*W + iw]
-                                    += col[row * (N*oH*oW) + col_idx];
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
     }
 }

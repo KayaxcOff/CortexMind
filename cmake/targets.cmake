@@ -34,6 +34,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/NeuralNetwork/convolution_2d.cpp
         source/CortexMind/net/NeuralNetwork/dense.cpp
         source/CortexMind/net/NeuralNetwork/flatten.cpp
+        source/CortexMind/net/NeuralNetwork/gelu.cpp
         source/CortexMind/net/NeuralNetwork/input.cpp
         source/CortexMind/net/NeuralNetwork/relu.cpp
         source/CortexMind/net/NeuralNetwork/sigmoid.cpp

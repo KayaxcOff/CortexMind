@@ -10,7 +10,7 @@
 #include <vector>
 
 using namespace cortex;
-
+/*
 struct CircleDataset {
     std::vector<float> X;
     std::vector<float> Y;
@@ -97,6 +97,7 @@ int main() {
 
     return 0;
 }
+*/
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
 Epoch    0 | Loss: 0.300326
@@ -109,3 +110,19 @@ Epoch 99800 | Loss: 0.044714
 
 Process finished with exit code 0
 */
+
+int main() {
+    nn::GeLU gelu;
+    tensor x({2, 3}, host, true);
+    x.uniform();
+
+    const tensor y = gelu.forward(x);
+
+    std::cout << "GeLU output range: " << y.min() << " to " << y.max() << std::endl;
+
+    y.backward();
+
+    std::cout << "x.grad exists: " << (x.grad().len() > 0) << std::endl;
+
+    return 0;
+}

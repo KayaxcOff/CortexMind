@@ -19,7 +19,7 @@ tensor Sigmoid::forward(const tensor &input) {
 
     ix::Activation::sigmoid(input.get(), output.get(), input.len(), input.device());
 
-    if (output.has_grad()) {
+    if (output.has_grad()) [[likely]] {
         output.SetFlow(std::make_shared<meta::sigmoid>(input.pack(), output.pack()));
     }
 

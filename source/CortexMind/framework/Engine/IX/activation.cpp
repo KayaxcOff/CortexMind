@@ -29,7 +29,7 @@ void Activation::relu(const f32 *Xx, f32 *Xz, const size_t N, const DeviceType d
     #endif //#if CXM_IS_CUDA_AVAILABLE
 }
 
-void Activation::tanh(const f32 *Xx, f32 *Xz, size_t N, sys::DeviceType device) {
+void Activation::tanh(const f32 *Xx, f32 *Xz, const size_t N, const DeviceType device) {
     CXM_ASSERT(Xx == nullptr, "Input pointer is null");
     CXM_ASSERT(Xz == nullptr, "Input pointer is null");
     CXM_ASSERT(N <= 0, "Number element of tensor must be non-zero");
@@ -45,7 +45,7 @@ void Activation::tanh(const f32 *Xx, f32 *Xz, size_t N, sys::DeviceType device) 
     #endif //#if CXM_IS_CUDA_AVAILABLE
 }
 
-void Activation::sigmoid(const f32 *Xx, f32 *Xz, size_t N, sys::DeviceType device) {
+void Activation::sigmoid(const f32 *Xx, f32 *Xz, const size_t N, const DeviceType device) {
     CXM_ASSERT(Xx == nullptr, "Input pointer is null");
     CXM_ASSERT(Xz == nullptr, "Input pointer is null");
     CXM_ASSERT(N <= 0, "Number element of tensor must be non-zero");
@@ -61,7 +61,7 @@ void Activation::sigmoid(const f32 *Xx, f32 *Xz, size_t N, sys::DeviceType devic
     #endif //#if CXM_IS_CUDA_AVAILABLE
 }
 
-void Activation::sigmoid_fast(const f32 *Xx, f32 *Xz, size_t N, sys::DeviceType device) {
+void Activation::sigmoid_fast(const f32 *Xx, f32 *Xz, const size_t N, const DeviceType device) {
     CXM_ASSERT(Xx == nullptr, "Input pointer is null");
     CXM_ASSERT(Xz == nullptr, "Input pointer is null");
     CXM_ASSERT(N <= 0, "Number element of tensor must be non-zero");
@@ -74,5 +74,21 @@ void Activation::sigmoid_fast(const f32 *Xx, f32 *Xz, size_t N, sys::DeviceType 
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
         avx2::Activation::sigmoid_fast(Xx, Xz, N);
+    #endif //#if CXM_IS_CUDA_AVAILABLE
+}
+
+void Activation::gelu(const f32 *Xx, f32 *Xz, const size_t N, const DeviceType device) {
+    CXM_ASSERT(Xx == nullptr, "Input pointer is null");
+    CXM_ASSERT(Xz == nullptr, "Input pointer is null");
+    CXM_ASSERT(N <= 0, "Number element of tensor must be non-zero");
+
+    #if CXM_IS_CUDA_AVAILABLE
+        if (device == DeviceType::kHOST) {
+            avx2::Activation::gelu(Xx, Xz, N);
+        } else {
+            cuda::Activation::gelu(Xx, Xz, N);
+        }
+    #else //#if CXM_IS_CUDA_AVAILABLE
+        avx2::Activation::gelu(Xx, Xz, N);
     #endif //#if CXM_IS_CUDA_AVAILABLE
 }

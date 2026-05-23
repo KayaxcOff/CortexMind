@@ -435,7 +435,7 @@ namespace cortex::_fw::meta {
         void backward(const Tensor& _grad) override;
     private:
         Tensor* tx;
-        Tensor* output;
+        Tensor* cached_output;
     };
 
     /**
@@ -466,40 +466,17 @@ namespace cortex::_fw::meta {
         void backward(const Tensor& _grad) override;
     private:
         Tensor* tx;
-        Tensor* output;
+        Tensor* cached_output;
     };
 
-    struct conv2d : GradientFlow {
-        conv2d(const GradientPacked& _input,
-               const GradientPacked& _kernel,
-               const GradientPacked& _bias,
-               const Tensor&         _col,
-               i64 iH, i64 iW,
-               i64 kH, i64 kW,
-               i64 sH, i64 sW,
-               i64 pH, i64 pW);
-        ~conv2d() override;
+    struct gelu : GradientFlow {
+        explicit gelu(const GradientPacked& _x, const GradientPacked& _y);
+        ~gelu() override;
 
         void backward(const Tensor& _grad) override;
     private:
-        Tensor* t_input;
-        Tensor* t_kernel;
-        Tensor* t_bias;
-        Tensor* t_col;
-
-        i64 iH_, iW_;
-        i64 kH_, kW_;
-        i64 sH_, sW_;
-        i64 pH_, pW_;
-
-        static void col2im_cpu(
-            const f32* col,
-            f32*       input_grad,
-            i64 N,  i64 C,  i64 H,  i64 W,
-            i64 kH, i64 kW,
-            i64 sH, i64 sW,
-            i64 pH, i64 pW,
-            i64 oH, i64 oW);
+        Tensor* tx;
+        Tensor* cached_output;
     };
 } //namespace cortex::_fw::meta
 
