@@ -487,3 +487,29 @@ void leaky_relu::backward(const Tensor &_grad) {
         this->tx->backward(grad_expanded);
     }
 }
+
+gelu_exact::gelu_exact(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("GeluExactBackward", 26) {
+    this->tx = new Tensor(_x);
+    this->cached_output = new Tensor(_y);
+}
+
+gelu_exact::~gelu_exact() {
+    delete this->tx;
+    delete this->cached_output;
+}
+
+void gelu_exact::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        constexpr f32 INV_SQRT_2PI = 0.39894228f;
+
+        Tensor x_sq = this->tx->pow();
+        Tensor pdf = (-0.5f * x_sq).exp() * INV_SQRT_2PI;
+
+        Tensor grad_coeff = (*this->cached_output) + (*this->tx) * pdf;
+
+        Tensor grad_expanded = _grad * grad_coeff;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}

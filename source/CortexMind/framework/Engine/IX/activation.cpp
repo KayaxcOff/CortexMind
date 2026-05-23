@@ -93,6 +93,22 @@ void Activation::gelu(const f32 *Xx, f32 *Xz, const size_t N, const DeviceType d
     #endif //#if CXM_IS_CUDA_AVAILABLE
 }
 
+void Activation::gelu_exact(const f32 *Xx, f32 *Xz, size_t N, sys::DeviceType device) {
+    CXM_ASSERT(Xx == nullptr, "Input pointer is null");
+    CXM_ASSERT(Xz == nullptr, "Input pointer is null");
+    CXM_ASSERT(N <= 0, "Number element of tensor must be non-zero");
+
+    #if CXM_IS_CUDA_AVAILABLE
+        if (device == DeviceType::kHOST) {
+            avx2::Activation::gelu_exact(Xx, Xz, N);
+        } else {
+            cuda::Activation::gelu_exact(Xx, Xz, N);
+        }
+    #else //#if CXM_IS_CUDA_AVAILABLE
+        avx2::Activation::gelu_exact(Xx, Xz, N);
+    #endif //#if CXM_IS_CUDA_AVAILABLE
+}
+
 void Activation::leaky_relu(const f32 *Xx, f32 *Xz, const size_t N, const DeviceType device, const f32 alpha) {
     CXM_ASSERT(Xx == nullptr, "Input pointer is null");
     CXM_ASSERT(Xz == nullptr, "Input pointer is null");

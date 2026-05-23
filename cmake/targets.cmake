@@ -36,6 +36,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/NeuralNetwork/dense.cpp
         source/CortexMind/net/NeuralNetwork/flatten.cpp
         source/CortexMind/net/NeuralNetwork/gelu.cpp
+        source/CortexMind/net/NeuralNetwork/gelu_exact.cpp
         source/CortexMind/net/NeuralNetwork/input.cpp
         source/CortexMind/net/NeuralNetwork/leaky_relu.cpp
         source/CortexMind/net/NeuralNetwork/relu.cpp

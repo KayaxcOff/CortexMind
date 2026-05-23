@@ -543,6 +543,48 @@ namespace cortex::_fw::meta {
         Tensor* tx;
         f32 alpha;
     };
+
+    /**
+     * @brief Gradient node for exact GELU activation function (`GELUExactBackward`).
+     *
+     * Computes gradients for `Z = GELU_exact(X)` during the backward pass.
+     *
+     * This uses the exact formulation with the error function:
+     *
+     *     GELU(x) = 0.5 * x * (1 + erf(x / √2))
+     *
+     * Derivative:
+     *
+     *     GELU'(x) = Φ(x) + x * φ(x)
+     *
+     * where:
+     * - Φ(x) = CDF of standard normal = cached_output
+     * - φ(x) = PDF of standard normal
+     */
+    struct gelu_exact : GradientFlow {
+        /**
+         * @brief Constructs a GELUExact gradient node.
+         *
+         * @param _x Input tensor packed data (before GELU)
+         * @param _y Output tensor packed data (after GELU) - cached for derivative
+         */
+        explicit gelu_exact(const GradientPacked& _x, const GradientPacked& _y);
+        ~gelu_exact() override;
+
+        /**
+         * @brief Computes gradient with respect to the input of exact GELU.
+         *
+         * Uses the analytical derivative:
+         *
+         *     dGELU/dx = CDF(x) + x * PDF(x)
+         *
+         * @param _grad Gradient of the output tensor (∂L/∂Z)
+         */
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+        Tensor* cached_output;
+    };
 } //namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP

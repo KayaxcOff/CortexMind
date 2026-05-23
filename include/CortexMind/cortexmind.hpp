@@ -15,6 +15,7 @@
 #include <CortexMind/net/NeuralNetwork/dense.hpp>
 #include <CortexMind/net/NeuralNetwork/flatten.hpp>
 #include <CortexMind/net/NeuralNetwork/gelu.hpp>
+#include <CortexMind/net/NeuralNetwork/gelu_exact.hpp>
 #include <CortexMind/net/NeuralNetwork/input.hpp>
 #include <CortexMind/net/NeuralNetwork/leaky_relu.hpp>
 #include <CortexMind/net/NeuralNetwork/relu.hpp>
