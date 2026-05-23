@@ -65,25 +65,6 @@ namespace cortex::nn {
         int64 KERNEL_WIDTH, KERNEL_HEIGHT;
         int64 STRIDE_WIDTH, STRIDE_HEIGHT;
         int64 PADDING_WIDTH, PADDING_HEIGHT;
-
-        /**
-         * @brief Performs im2col transformation (image to column).
-         *
-         * Converts the input image into a matrix suitable for matrix multiplication.
-         * This is an internal helper used in the forward pass.
-         *
-         * @return Column matrix for GEMM operation
-         */
-        [[nodiscard]]
-        tensor im2col(const tensor& input) const;
-        /**
-         * @brief Computes output height and width for convolution.
-         *
-         * Formula:
-         *     out = (in + 2*padding - kernel) / stride + 1
-         */
-        [[nodiscard]]
-        std::pair<int64, int64> compute_output_size(int64 input_height, int64 input_width) const;
     };
 } //namespace cortex::nn
 
