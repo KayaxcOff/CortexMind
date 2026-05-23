@@ -48,12 +48,12 @@ struct CircleDataset {
 int main() {
     CircleDataset df(1000, 0.1f);
 
-    tensor X({4, 2}, df.X.data(), host);
-    tensor Y({4, 1}, df.Y.data(), host);
+    tensor X({df.N, 2}, df.X.data(), host);
+    tensor Y({df.N, 1}, df.Y.data(), host);
 
-    nn::Dense hidden(2, 4, host);
+    nn::Dense hidden(2, 16, host);
     nn::Tanh tanh;
-    nn::Dense output_layer(4, 1, host);
+    nn::Dense output_layer(16, 1, host);
     nn::Sigmoid sigmoid;
 
     loss::MeanSquared mse;
@@ -64,7 +64,7 @@ int main() {
     params.insert(params.end(), out_params.begin(), out_params.end());
     sgd.SetParams(params);
 
-    constexpr int epochs = 10000;
+    constexpr int epochs = 100000;
     for (int epoch = 0; epoch < epochs; ++epoch) {
         tensor h  = hidden.forward(X);
         tensor h2 = tanh.forward(h);
@@ -99,60 +99,13 @@ int main() {
 }
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
-Epoch    0 | Loss: 0.182190
-Epoch  200 | Loss: 0.122991
-Epoch  400 | Loss: 0.080459
-Epoch  600 | Loss: 0.052098
-Epoch  800 | Loss: 0.034207
-Epoch 1000 | Loss: 0.023192
-Epoch 1200 | Loss: 0.016457
-Epoch 1400 | Loss: 0.012228
-Epoch 1600 | Loss: 0.009460
-Epoch 1800 | Loss: 0.007567
-Epoch 2000 | Loss: 0.006221
-Epoch 2200 | Loss: 0.005229
-Epoch 2400 | Loss: 0.004476
-Epoch 2600 | Loss: 0.003890
-Epoch 2800 | Loss: 0.003424
-Epoch 3000 | Loss: 0.003047
-Epoch 3200 | Loss: 0.002737
-Epoch 3400 | Loss: 0.002477
-Epoch 3600 | Loss: 0.002258
-Epoch 3800 | Loss: 0.002071
-Epoch 4000 | Loss: 0.001910
-Epoch 4200 | Loss: 0.001770
-Epoch 4400 | Loss: 0.001647
-Epoch 4600 | Loss: 0.001538
-Epoch 4800 | Loss: 0.001442
-Epoch 5000 | Loss: 0.001356
-Epoch 5200 | Loss: 0.001279
-Epoch 5400 | Loss: 0.001209
-Epoch 5600 | Loss: 0.001146
-Epoch 5800 | Loss: 0.001088
-Epoch 6000 | Loss: 0.001036
-Epoch 6200 | Loss: 0.000988
-Epoch 6400 | Loss: 0.000944
-Epoch 6600 | Loss: 0.000903
-Epoch 6800 | Loss: 0.000866
-Epoch 7000 | Loss: 0.000831
-Epoch 7200 | Loss: 0.000798
-Epoch 7400 | Loss: 0.000768
-Epoch 7600 | Loss: 0.000740
-Epoch 7800 | Loss: 0.000714
-Epoch 8000 | Loss: 0.000689
-Epoch 8200 | Loss: 0.000666
-Epoch 8400 | Loss: 0.000644
-Epoch 8600 | Loss: 0.000624
-Epoch 8800 | Loss: 0.000605
-Epoch 9000 | Loss: 0.000586
-Epoch 9200 | Loss: 0.000569
-Epoch 9400 | Loss: 0.000553
-Epoch 9600 | Loss: 0.000537
-Epoch 9800 | Loss: 0.000523
-  [-0.6, -1.2] -> 0.0001 (expected: 0.0000)
-  [-0.6, 0.3] -> 0.0126 (expected: 0.0000)
-  [-0.1, -0.1] -> 0.9678 (expected: 1.0000)
-  [-0.3, -0.3] -> 0.0289 (expected: 0.0000)
+Epoch    0 | Loss: 0.300326
+... (Too many line(like between 400-500), so I didn't want to add them)
+Epoch 99800 | Loss: 0.044714
+  [0.8, -0.6] -> 0.0297 (expected: 0.0000)
+  [-0.5, -0.9] -> 0.0077 (expected: 0.0000)
+  [1.0, -0.1] -> 0.0036 (expected: 0.0000)
+  [0.9, 0.3] -> 0.0002 (expected: 0.0000)
 
 Process finished with exit code 0
 */
