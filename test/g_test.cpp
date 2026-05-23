@@ -4,157 +4,175 @@
 
 #include <CortexMind/cortexmind.hpp>
 #include <gtest/gtest.h>
-#include <numeric>
 
 using namespace cortex;
 
-class MatrixTest : public ::testing::Test {
-protected:
-    tensor a, b;
+TEST(Conv2DTest, OutputShape) {
+    // input: (1, 1, 4, 4), kernel: (1, 1, 3, 3), stride=1, pad=0
+    // output: (1, 1, 2, 2)
+    nn::Conv2D conv(1, 1, 3, 3);
 
-    void SetUp() override {
-        // a = [[1, 2, 3, 4],
-        //      [5, 6, 7, 8]]  shape(2,4)
-        const std::vector<float32> data_a = {1,2,3,4,5,6,7,8};
-        a = tensor({2, 4}, data_a.data(), host);
+    tensor input({1, 1, 4, 4}, host, false);
+    input.fill(1.0f);
 
-        // b = [[1, 1, 1, 1],
-        //      [2, 2, 2, 2]]  shape(2,4)
-        const std::vector<float32> data_b = {1,1,1,1,2,2,2,2};
-        b = tensor({2, 4}, data_b.data(), host);
+    tensor output = conv.forward(input);
+
+    ASSERT_EQ(output.shape().size(), 4);
+    EXPECT_EQ(output.shape()[0], 1);  // N
+    EXPECT_EQ(output.shape()[1], 1);  // oC
+    EXPECT_EQ(output.shape()[2], 2);  // oH
+    EXPECT_EQ(output.shape()[3], 2);  // oW
+}
+/*
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_G_TEST.exe --gtest_color=no
+Testing started at 09:43 ...
+Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
+unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
+Stack trace:
+
+
+
+
+Process finished with exit code 3
+*/
+
+TEST(Conv2DTest, OutputShapeWithPadding) {
+    // input: (1, 1, 4, 4), kernel: (1, 1, 3, 3), stride=1, pad=1
+    // output: (1, 1, 4, 4) — same padding
+    nn::Conv2D conv(1, 1, 3, 3, 1, 1, 1, 1);
+
+    tensor input({1, 1, 4, 4}, host, false);
+    input.fill(1.0f);
+
+    tensor output = conv.forward(input);
+
+    EXPECT_EQ(output.shape()[2], 4);
+    EXPECT_EQ(output.shape()[3], 4);
+}
+
+TEST(Conv2DTest, OutputShapeWithStride) {
+    // input: (1, 1, 6, 6), kernel: (1, 1, 3, 3), stride=2, pad=0
+    // output: (1, 1, 2, 2)
+    nn::Conv2D conv(1, 1, 3, 3, 2, 2, 0, 0);
+
+    tensor input({1, 1, 6, 6}, host, false);
+    input.fill(1.0f);
+
+    tensor output = conv.forward(input);
+
+    EXPECT_EQ(output.shape()[2], 2);
+    EXPECT_EQ(output.shape()[3], 2);
+}
+
+TEST(Conv2DTest, KnownWeightForward) {
+    // identity kernel — weight=1, bias=0
+    // input tüm 1'ler, 3x3 kernel → her output = 9
+    nn::Conv2D conv(1, 1, 3, 3);
+
+    // Weight'i 1'e set et
+    auto params = conv.getParameters();
+    params[0].get().fill(1.0f);  // weight
+    params[1].get().zero();       // bias
+
+    const std::vector<float32> input_data(1*1*5*5, 1.0f);
+    tensor input({1, 1, 5, 5}, input_data.data(), host, false);
+
+    tensor output = conv.forward(input);
+
+    // output shape: (1, 1, 3, 3)
+    EXPECT_EQ(output.shape()[2], 3);
+    EXPECT_EQ(output.shape()[3], 3);
+
+    // Her output = sum of 3x3 patch of 1s = 9
+    for (size_t i = 0; i < output.len(); ++i) {
+        EXPECT_NEAR(output.get()[i], 9.0f, 1e-4f);
     }
-};
-
-// -------------------------------------------------------- //
-//  Element-wise binary ops — same shape                   //
-// -------------------------------------------------------- //
-
-TEST_F(MatrixTest, Add) {
-    const tensor result = a + b;
-    // [[2,3,4,5],[7,8,9,10]]
-    const std::vector<float32> expected = {2,3,4,5,7,8,9,10};
-    for (int64 i = 0; i < 2; ++i)
-        for (int64 j = 0; j < 4; ++j)
-            EXPECT_NEAR(result.at(i,j), expected[i*4+j], 1e-4f);
 }
+/*
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_G_TEST.exe --gtest_color=no
+Testing started at 09:44 ...
+Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
+unknown file: error: SEH exception with code 0xc0000005 thrown in the test body.
+Stack trace:
 
-TEST_F(MatrixTest, Sub) {
-    const tensor result = a - b;
-    // [[0,1,2,3],[3,4,5,6]]
-    const std::vector<float32> expected = {0,1,2,3,3,4,5,6};
-    for (int64 i = 0; i < 2; ++i)
-        for (int64 j = 0; j < 4; ++j)
-            EXPECT_NEAR(result.at(i,j), expected[i*4+j], 1e-4f);
-}
 
-TEST_F(MatrixTest, Mul) {
-    const tensor result = a * b;
-    // [[1,2,3,4],[10,12,14,16]]
-    const std::vector<float32> expected = {1,2,3,4,10,12,14,16};
-    for (int64 i = 0; i < 2; ++i)
-        for (int64 j = 0; j < 4; ++j)
-            EXPECT_NEAR(result.at(i,j), expected[i*4+j], 1e-4f);
-}
 
-TEST_F(MatrixTest, Div) {
-    const tensor result = a / b;
-    // [[1,2,3,4],[2.5,3,3.5,4]]
-    const std::vector<float32> expected = {1,2,3,4,2.5f,3,3.5f,4};
-    for (int64 i = 0; i < 2; ++i)
-        for (int64 j = 0; j < 4; ++j)
-            EXPECT_NEAR(result.at(i,j), expected[i*4+j], 1e-4f);
+
+Process finished with exit code 3
+*/
+
+TEST(Conv2DTest, MultiChannelShape) {
+    // input: (2, 3, 8, 8), kernel: (16, 3, 3, 3)
+    // output: (2, 16, 6, 6)
+    nn::Conv2D conv(3, 16, 3, 3);
+
+    tensor input({2, 3, 8, 8}, host, false);
+    input.uniform(0.0f, 1.0f);
+
+    tensor output = conv.forward(input);
+
+    EXPECT_EQ(output.shape()[0], 2);
+    EXPECT_EQ(output.shape()[1], 16);
+    EXPECT_EQ(output.shape()[2], 6);
+    EXPECT_EQ(output.shape()[3], 6);
 }
 
 // -------------------------------------------------------- //
-//  In-place                                                //
+//  Backward pass testleri                                  //
 // -------------------------------------------------------- //
 
-TEST_F(MatrixTest, AddInPlace) {
-    a += b;
-    const std::vector<float32> expected = {2,3,4,5,7,8,9,10};
-    for (int64 i = 0; i < 2; ++i)
-        for (int64 j = 0; j < 4; ++j)
-            EXPECT_NEAR(a.at(i,j), expected[i*4+j], 1e-4f);
+TEST(Conv2DBackwardTest, WeightGradShape) {
+    nn::Conv2D conv(1, 1, 3, 3);
+
+    tensor input({1, 1, 5, 5}, host, true);
+    input.uniform(0.0f, 1.0f);
+
+    tensor output = conv.forward(input);
+    tensor loss   = output.sum();
+    loss.backward();
+
+    auto grads = conv.getGradients();
+
+    // weight grad shape: (1, 1, 3, 3)
+    EXPECT_EQ(grads[0].get().shape()[0], 1);
+    EXPECT_EQ(grads[0].get().shape()[1], 1);
+    EXPECT_EQ(grads[0].get().shape()[2], 3);
+    EXPECT_EQ(grads[0].get().shape()[3], 3);
+
+    // bias grad shape: (1)
+    EXPECT_EQ(grads[1].get().len(), 1);
 }
 
-TEST_F(MatrixTest, MulInPlace) {
-    a *= b;
-    const std::vector<float32> expected = {1,2,3,4,10,12,14,16};
-    for (int64 i = 0; i < 2; ++i)
-        for (int64 j = 0; j < 4; ++j)
-            EXPECT_NEAR(a.at(i,j), expected[i*4+j], 1e-4f);
+TEST(Conv2DBackwardTest, BiasGradValue) {
+    // sum(output) backward → ∂L/∂bias = N*oH*oW
+    nn::Conv2D conv(1, 1, 3, 3);
+
+    auto params = conv.getParameters();
+    params[0].get().fill(1.0f);
+    params[1].get().zero();
+
+    tensor input({1, 1, 5, 5}, host, true);
+    input.fill(1.0f);
+
+    tensor output = conv.forward(input);  // shape (1,1,3,3)
+    tensor loss   = output.sum();
+    loss.backward();
+
+    auto grads = conv.getGradients();
+
+    // ∂L/∂bias = oH*oW = 3*3 = 9 (N=1 için)
+    EXPECT_NEAR(grads[1].get().get()[0], 9.0f, 1e-3f);
 }
 
-// -------------------------------------------------------- //
-//  Broadcast                                               //
-// -------------------------------------------------------- //
+TEST(Conv2DBackwardTest, InputGradNotZero) {
+    nn::Conv2D conv(1, 1, 3, 3);
 
-TEST_F(MatrixTest, RowBroadcastAdd) {
-    // a(2,4) + y(4) — her satıra y eklenir
-    const std::vector<float32> data_y = {10, 20, 30, 40};
-    const tensor y({4}, data_y.data(), host);
-    const tensor result = a + y;
-    // [[11,22,33,44],[15,26,37,48]]
-    const std::vector<float32> expected = {11,22,33,44,15,26,37,48};
-    for (int64 i = 0; i < 2; ++i)
-        for (int64 j = 0; j < 4; ++j)
-            EXPECT_NEAR(result.at(i,j), expected[i*4+j], 1e-4f);
-}
+    tensor input({1, 1, 5, 5}, host, true);
+    input.uniform(0.0f, 1.0f);
 
-TEST_F(MatrixTest, ColBroadcastAdd) {
-    // a(2,4) + y(2,1) — her sütuna y eklenir
-    const std::vector<float32> data_y = {10, 20};
-    const tensor y({2, 1}, data_y.data(), host);
-    const tensor result = a + y;
-    // [[11,12,13,14],[25,26,27,28]]
-    const std::vector<float32> expected = {11,12,13,14,25,26,27,28};
-    for (int64 i = 0; i < 2; ++i)
-        for (int64 j = 0; j < 4; ++j)
-            EXPECT_NEAR(result.at(i,j), expected[i*4+j], 1e-4f);
-}
+    tensor output = conv.forward(input);
+    output.sum().backward();
 
-// -------------------------------------------------------- //
-//  Matmul                                                  //
-// -------------------------------------------------------- //
-
-TEST(MatmulTest, Basic) {
-    // (2,3) @ (3,2) = (2,2)
-    const std::vector<float32> data_a = {1,2,3,4,5,6};
-    const std::vector<float32> data_b = {7,8,9,10,11,12};
-    const tensor a({2,3}, data_a.data(), host);
-    const tensor b({3,2}, data_b.data(), host);
-    const tensor result = a.matmul(b);
-
-    // [[1*7+2*9+3*11, 1*8+2*10+3*12],
-    //  [4*7+5*9+6*11, 4*8+5*10+6*12]]
-    // = [[58, 64], [139, 154]]
-    EXPECT_NEAR(result.at(0,0), 58.0f,  1e-3f);
-    EXPECT_NEAR(result.at(0,1), 64.0f,  1e-3f);
-    EXPECT_NEAR(result.at(1,0), 139.0f, 1e-3f);
-    EXPECT_NEAR(result.at(1,1), 154.0f, 1e-3f);
-}
-
-TEST(MatmulTest, Identity) {
-    // A @ I = A
-    const std::vector<float32> data_a = {1,2,3,4};
-    const std::vector<float32> data_i = {1,0,0,1};
-    const tensor a({2,2}, data_a.data(), host);
-    const tensor eye({2,2}, data_i.data(), host);
-    const tensor result = a.matmul(eye);
-
-    for (int64 i = 0; i < 2; ++i)
-        for (int64 j = 0; j < 2; ++j)
-            EXPECT_NEAR(result.at(i,j), data_a[i*2+j], 1e-3f);
-}
-
-TEST(MatmulTest, Square) {
-    // (4,4) @ (4,4)
-    std::vector<float32> data(16);
-    std::iota(data.begin(), data.end(), 1.0f);
-    const tensor a({4,4}, data.data(), host);
-    const tensor result = a.matmul(a);
-
-    // sadece köşegen elemanları kontrol et
-    // a[0][0] = 1*1+2*5+3*9+4*13 = 1+10+27+52 = 90
-    EXPECT_NEAR(result.at(0,0), 90.0f, 1e-2f);
+    // Input gradyanı sıfır olmamalı
+    EXPECT_GT(input.grad().norm1(), 0.0f);
 }

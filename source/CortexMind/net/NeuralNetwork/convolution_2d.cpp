@@ -11,6 +11,45 @@ using namespace cortex::_fw;
 using namespace cortex::nn;
 using namespace cortex;
 
+namespace {
+    void im2col_cpu(
+    const f32* input,         // (N, C, H, W)
+    f32*       output,        // (C*kH*kW, N*oH*oW)
+    i64 N,  i64 C,  i64 H,  i64 W,
+    i64 kH, i64 kW,
+    i64 sH, i64 sW,
+    i64 pH, i64 pW,
+    i64 oH, i64 oW)
+    {
+        // output layout: satır = (c, kh, kw), sütun = (n, oh, ow)
+        for (i64 c = 0; c < C; ++c) {
+            for (i64 kh = 0; kh < kH; ++kh) {
+                for (i64 kw = 0; kw < kW; ++kw) {
+                    const i64 row = c * kH * kW + kh * kW + kw;
+
+                    for (i64 n = 0; n < N; ++n) {
+                        for (i64 oh = 0; oh < oH; ++oh) {
+                            for (i64 ow = 0; ow < oW; ++ow) {
+                                const i64 col = n * oH * oW + oh * oW + ow;
+
+                                const i64 ih = oh * sH - pH + kh;
+                                const i64 iw = ow * sW - pW + kw;
+
+                                if (ih >= 0 && ih < H && iw >= 0 && iw < W) {
+                                    output[row * (N*oH*oW) + col] =
+                                        input[n*(C*H*W) + c*(H*W) + ih*W + iw];
+                                } else {
+                                    output[row * (N*oH*oW) + col] = 0.0f;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+} //unnamed namespace
+
 Conv2D::Conv2D(int64 in_channels, int64 out_channels, int64 kH, int64 kW, const int64 sH, const int64 sW, const int64 pH, const int64 pW, const sys::DeviceType device) : LayerBase("Conv2D(" + std::to_string(out_channels) + ")"), KERNEL_WIDTH(kW), KERNEL_HEIGHT(kH) , STRIDE_WIDTH(sW), STRIDE_HEIGHT(sH) , PADDING_WIDTH(pW), PADDING_HEIGHT(pH) {
     this->weight = Tensor({out_channels, in_channels, kH, kW}, device, true);
     this->bias   = Tensor({out_channels}, device, true);
@@ -23,28 +62,39 @@ Conv2D::Conv2D(int64 in_channels, int64 out_channels, int64 kH, int64 kW, const 
 Conv2D::~Conv2D() = default;
 
 tensor Conv2D::forward(const tensor &input) {
-    CXM_ASSERT(input.ndim() != 4, "Conv2D expects 4D input (batch, channels, height, width)");
+    CXM_ASSERT(input.ndim() != 4,
+        "Conv2D expects 4D input (N,C,H,W)");
+    CXM_ASSERT(input.shape()[1] != this->weight.shape()[1],
+        "Input channels mismatch");
 
-    const int64 batch_size   = input.shape()[0];
-    const int64 in_channels  = input.shape()[1];
-    const int64 in_height    = input.shape()[2];
-    const int64 in_width     = input.shape()[3];
+    const i64 N  = input.shape()[0];
+    const i64 H  = input.shape()[2];
+    const i64 W  = input.shape()[3];
+    const i64 oC = this->weight.shape()[0];
 
-    CXM_ASSERT(in_channels != this->weight.shape()[1], "Input channels mismatch with Conv2D weight");
+    auto [oH, oW] = compute_output_size(H, W);
 
-    auto [out_height, out_width] = compute_output_size(in_height, in_width);
-
+    // im2col: (C*kH*kW, N*oH*oW)
     const Tensor col = this->im2col(input);
 
-    const Tensor weight_flat = this->weight.reshape({this->weight.shape()[0], -1});
+    // weight_flat: (oC, C*kH*kW)
+    const Tensor weight_flat = this->weight.reshape({oC, -1});
 
+    // matmul: (oC, C*kH*kW) @ (C*kH*kW, N*oH*oW) = (oC, N*oH*oW)
     Tensor output = weight_flat.matmul(col);
 
-    output = output + this->bias.unsqueeze(1);
+    // bias broadcast: (oC, 1) + (oC, N*oH*oW) → row broadcast
+    output = output + this->bias.reshape({oC, 1});
 
-    output = output.reshape({batch_size, this->weight.shape()[0], out_height, out_width});
+    // reshape: (oC, N*oH*oW) → (N, oC, oH, oW)
+    // önce (N, oC, oH, oW) için permute gerekiyor
+    // matmul çıktısı (oC, N*oH*oW) — bunu (N, oC, oH, oW)'e çevirmek
+    // reshape({oC, N, oH, oW}) → permute({1,0,2,3}) → (N, oC, oH, oW)
+    output = output.reshape({oC, N, oH, oW}).permute({1, 0, 2, 3});
 
-    return output;
+    // contiguous kopyası gerekiyor — permute non-contiguous
+    // şimdilik clone ile çözelim
+    return output.clone();
 }
 
 std::vector<ref<tensor>> Conv2D::getParameters() {
@@ -56,18 +106,32 @@ std::vector<ref<tensor>> Conv2D::getGradients() {
 }
 
 tensor Conv2D::im2col(const tensor& input) const {
-    CXM_ASSERT(input.ndim() != 4, "im2col expects 4D tensor");
+    const i64 N = input.shape()[0];
+    const i64 C = input.shape()[1];
+    const i64 H = input.shape()[2];
+    const i64 W = input.shape()[3];
 
-    const auto [batch, channels, height, width] = std::tuple{
-        input.shape()[0], input.shape()[1], input.shape()[2], input.shape()[3]
-    };
+    const i64 oH = (H + 2 * this->PADDING_HEIGHT - this->KERNEL_HEIGHT) / this->STRIDE_HEIGHT + 1;
+    const i64 oW = (W + 2 * this->PADDING_WIDTH  - this->KERNEL_WIDTH)  / this->STRIDE_WIDTH  + 1;
 
-    const int64 out_h = (height + 2 * this->PADDING_HEIGHT - this->KERNEL_HEIGHT) / this->STRIDE_HEIGHT + 1;
-    const int64 out_w = (width  + 2 * this->PADDING_WIDTH  - this->KERNEL_WIDTH)  / this->STRIDE_WIDTH  + 1;
+    const i64 rows = C * this->KERNEL_HEIGHT * this->KERNEL_WIDTH;
+    const i64 cols = N * oH * oW;
 
-    const int64 kernel_elements = this->KERNEL_HEIGHT * this->KERNEL_WIDTH * channels;
+    Tensor output({rows, cols}, input.device(), false);
 
-    Tensor output({kernel_elements, batch * out_h * out_w}, input.device());
+    #if CXM_IS_CUDA_AVAILABLE
+        if (input.device() == sys::DeviceType::kCUDA) {
+            // CUDA kernel — sonra eklenecek
+            CXM_ASSERT(true, "im2col CUDA not implemented yet");
+        }
+    #endif //#if CXM_IS_CUDA_AVAILABLE
+
+    im2col_cpu(input.get(), output.get(),
+               N, C, H, W,
+               this->KERNEL_HEIGHT, this->KERNEL_WIDTH,
+               this->STRIDE_HEIGHT, this->STRIDE_WIDTH,
+               this->PADDING_HEIGHT, this->PADDING_WIDTH,
+               oH, oW);
 
     return output;
 }
