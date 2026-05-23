@@ -23,6 +23,8 @@ namespace cortex::_fw::ix {
         static void gelu(const f32* __restrict Xx, f32* __restrict Xz, size_t N, sys::DeviceType device);
         static void gelu_exact(const f32* __restrict Xx, f32* __restrict Xz, size_t N, sys::DeviceType device);
         static void leaky_relu(const f32* __restrict Xx, f32* __restrict Xz, size_t N, sys::DeviceType device, f32 alpha = 0.1);
+        static void silu(const f32* __restrict Xx, f32* __restrict Xz, size_t N, sys::DeviceType device);
+        static void silu_fast(const f32* __restrict Xx, f32* __restrict Xz, size_t N, sys::DeviceType device);
     };
 } //namespace cortex::_fw::ix
 
