@@ -469,10 +469,40 @@ namespace cortex::_fw::meta {
         Tensor* cached_output;
     };
 
+    /**
+     * @brief Gradient node for GELU activation function (`GELUBackward`).
+     *
+     * Computes gradients for `Z = GELU(X)` during the backward pass.
+     *
+     * Mathematical derivative used:
+     *
+     *     GELU'(x) = Φ(x) + x * φ(x)
+     *
+     * where:
+     * - Φ(x) is the cumulative distribution function (CDF) of the standard normal
+     * - φ(x) is the probability density function (PDF) of the standard normal
+     *
+     * This implementation uses the common approximation for numerical stability.
+     */
     struct gelu : GradientFlow {
+        /**
+         * @brief Constructs a GELU gradient node.
+         *
+         * @param _x Input tensor packed data (before GELU)
+         * @param _y Output tensor packed data (after GELU) - cached for derivative
+         */
         explicit gelu(const GradientPacked& _x, const GradientPacked& _y);
         ~gelu() override;
 
+        /**
+         * @brief Computes gradient with respect to the input of GELU.
+         *
+         * Uses the analytical derivative:
+         *
+         *     dGELU/dx = CDF(x) + x * PDF(x) * √(2/π) * (1 + 3 * 0.044715 * x²)
+         *
+         * @param _grad Gradient of the output tensor (∂L/∂Z)
+         */
         void backward(const Tensor& _grad) override;
     private:
         Tensor* tx;

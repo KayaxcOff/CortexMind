@@ -5,6 +5,9 @@
 #ifndef CORTEXMIND_CORTEXMIND_HPP
 #define CORTEXMIND_CORTEXMIND_HPP
 
+// ----- dataset -----
+#include <CortexMind/dataset/circle.hpp>
+
 // ----- net -----
 #include <CortexMind/net/LossFunction/mae.hpp>
 #include <CortexMind/net/LossFunction/mse.hpp>
