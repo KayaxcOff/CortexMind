@@ -114,7 +114,7 @@ TEST(Conv2DBackwardTest, BiasGradValue) {
     input.fill(1.0f);
 
     tensor output = conv.forward(input);  // shape (1,1,3,3)
-    tensor loss   = output.sum();
+    tensor loss = output.sum();
     loss.backward();
 
     auto grads = conv.getGradients();

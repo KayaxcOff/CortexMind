@@ -33,6 +33,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/tensor_meta.cpp
         source/CortexMind/net/LossFunction/mae.cpp
         source/CortexMind/net/LossFunction/mse.cpp
+        source/CortexMind/net/Model/model.cpp
         source/CortexMind/net/NeuralNetwork/convolution_2d.cpp
         source/CortexMind/net/NeuralNetwork/dense.cpp
         source/CortexMind/net/NeuralNetwork/flatten.cpp
