@@ -8,8 +8,10 @@
 #include <CortexMind/framework/Net/layer.hpp>
 #include <CortexMind/framework/Net/loss.hpp>
 #include <CortexMind/framework/Net/optimization.hpp>
+#include <concepts>
 #include <memory>
 #include <vector>
+#include <type_traits>
 
 namespace cortex::net {
     class Model {
@@ -17,16 +19,19 @@ namespace cortex::net {
         Model();
         ~Model();
 
-        template<typename T, typename... Args>
+        template<typename T, typename... Args> requires std::derived_from<T, _fw::LayerBase>
         void add(Args&&... args) {
             static_assert(std::is_base_of_v<_fw::LayerBase, T>, "T must derive from LayerBase");
             this->layers_.push_back(std::make_unique<T>(std::forward<Args>(args)...));
         }
 
-        template<typename LossT, typename OptT, typename... LossArgs, typename... OptimArgs>
-        void compile(LossArgs&&... loss, OptimArgs&&... optim) {
-            this->loss_fn_ = std::make_unique<LossT>(std::forward<LossArgs>(loss)...);
-            this->optimization_fn_ = std::make_unique<OptT>(std::forward<OptimArgs>(optim)...);
+        template<typename LossT, typename OptT>
+        void compile(LossT loss, OptT optim) {
+            static_assert(std::is_base_of_v<_fw::LossBase, LossT>);
+            static_assert(std::is_base_of_v<_fw::OptimizationBase, OptT>);
+
+            this->loss_fn_ = std::make_unique<LossT>(std::move(loss));
+            this->optimization_fn_ = std::make_unique<OptT>(std::move(optim));
             this->flag = true;
         }
 

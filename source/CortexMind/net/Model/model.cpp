@@ -14,7 +14,8 @@ Model::Model() : flag(false) {}
 Model::~Model() = default;
 
 void Model::fit(const tensor &Xx, const tensor &Xy, int32 epochs, int32 batch) const {
-    CXM_ASSERT(this->flag == false, "Model isn't compile");
+    CXM_ASSERT(!this->flag, "Model isn't compile");
+    CXM_ASSERT(!this->trainable(), "Model can't trainable");
 }
 
 void Model::summary() const {
@@ -45,14 +46,14 @@ void Model::toEval() const {
 }
 
 tensor Model::predict(const tensor &x) const {
-    tensor output;
+    tensor output = x;
     for (const auto& item : this->layers_) {
-        output = item->forward(x);
+        output = item->forward(output);
     }
     return output;
 }
 
-std::vector<_fw::ref<tensor> > Model::parameters() const {
+std::vector<_fw::ref<tensor>> Model::parameters() const {
     std::vector<_fw::ref<tensor>> output;
     for (const auto & item : this->layers_) {
         for (size_t i = 0; i < item->getParameters().size(); ++i) {
@@ -62,7 +63,7 @@ std::vector<_fw::ref<tensor> > Model::parameters() const {
     return output;
 }
 
-std::vector<_fw::ref<tensor> > Model::gradients() const {
+std::vector<_fw::ref<tensor>> Model::gradients() const {
     std::vector<_fw::ref<tensor>> output;
     for (const auto & item : this->layers_) {
         for (size_t i = 0; i < item->getGradients().size(); ++i) {
