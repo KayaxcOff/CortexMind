@@ -9,6 +9,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Engine/AVX2/wise.cpp
         source/CortexMind/framework/Engine/IX/activation.cpp
         source/CortexMind/framework/Engine/IX/compare.cpp
+        source/CortexMind/framework/Engine/IX/convolution.cpp
         source/CortexMind/framework/Engine/IX/element_wise.cpp
         source/CortexMind/framework/Engine/IX/matrix.cpp
         source/CortexMind/framework/Engine/IX/random.cpp

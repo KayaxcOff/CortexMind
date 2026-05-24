@@ -3,6 +3,7 @@
 //
 
 #include "CortexMind/framework/Gradient/operations.hpp"
+#include <CortexMind/framework/Engine/IX/convolution.hpp>
 #include <CortexMind/framework/Tensor/tensor.hpp>
 
 using namespace cortex::_fw::meta;
@@ -538,6 +539,53 @@ void silu::backward(const Tensor &_grad) {
         grad_coeff = (*this->cached_output) * grad_coeff;
 
         Tensor grad_expanded = _grad * grad_coeff;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+conv2d::conv2d(const GradientPacked &_x, const i64 iH, const i64 iW, const i64 kH, const i64 kW, const i64 sH, const i64 sW, const i64 pH, const i64 pW, const i64 oH, const i64 oW) : GradientFlow("Conv2D", 28) {
+    this->tx = new Tensor(_x);
+
+    this->iH = iH;
+    this->iW = iW;
+
+    this->kH = kH;
+    this->kW = kW;
+
+    this->sH = sH;
+    this->sW = sW;
+
+    this->pH = pH;
+    this->pW = pW;
+
+    this->oH = oH;
+    this->oW = oW;
+}
+
+conv2d::~conv2d() {
+    delete this->tx;
+}
+
+void conv2d::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        const i64 N = this->tx->shape()[0];
+        const i64 C = this->tx->shape()[1];
+
+        Tensor grad_expanded(this->tx->shape(), this->tx->device(), false);
+
+        ix::Convolution::fold(
+            _grad.get(),
+            grad_expanded.get(),
+            N, C,
+            this->iH, this->iW,
+            this->kH, this->kW,
+            this->sH, this->sW,
+            this->pH, this->pW,
+            this->oH, this->oW,
+            this->tx->device()
+        );
 
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);

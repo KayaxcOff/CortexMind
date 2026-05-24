@@ -341,12 +341,33 @@ Tensor Tensor::permute(const std::vector<i64> &dims) const {
     output.flow_ = this->flow_;
 
     return output;
+
 }
 
 Tensor Tensor::reshape(const std::vector<i64> &_new_shape) const {
     CXM_ASSERT(!this->contiguous(), "reshape requires a contiguous tensor");
 
-    Tensor output(_new_shape, this->storage_, this->m_requires_grad);
+    std::vector<i64> new_shape = _new_shape;
+    i64 inferred_idx = -1;
+    i64 known_product = 1;
+
+    for (size_t i = 0; i < new_shape.size(); ++i) {
+        if (new_shape[i] == -1) {
+            CXM_ASSERT(inferred_idx != -1, "Only one -1 allowed in reshape");
+            inferred_idx = static_cast<i64>(i);
+        } else {
+            known_product *= new_shape[i];
+        }
+    }
+
+    if (inferred_idx != -1) {
+        new_shape[static_cast<size_t>(inferred_idx)] = static_cast<i64>(this->len()) / known_product;
+    }
+
+    CXM_ASSERT(compute_size(new_shape) != this->len(),
+        "reshape: size mismatch");
+
+    Tensor output(new_shape, this->storage_, this->m_requires_grad);
     output.m_offset = this->m_offset;
     if (this->m_requires_grad) {
         output.gradient_ = this->gradient_;

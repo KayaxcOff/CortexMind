@@ -65,6 +65,12 @@ namespace cortex::nn {
         int64 KERNEL_WIDTH, KERNEL_HEIGHT;
         int64 STRIDE_WIDTH, STRIDE_HEIGHT;
         int64 PADDING_WIDTH, PADDING_HEIGHT;
+
+        [[nodiscard]]
+        std::pair<int64, int64> compute_output_size(int64 input_height, int64 input_width) const;
+
+        [[nodiscard]]
+        tensor im2col(const tensor& input) const;
     };
 } //namespace cortex::nn
 

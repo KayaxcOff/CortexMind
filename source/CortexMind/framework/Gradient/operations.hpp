@@ -620,6 +620,16 @@ namespace cortex::_fw::meta {
         Tensor* tx;
         Tensor* cached_output;
     };
+
+    struct conv2d : GradientFlow {
+        explicit conv2d(const GradientPacked& _x, i64 iH, i64 iW, i64 kH, i64 kW, i64 sH, i64 sW, i64 pH, i64 pW, i64 oH, i64 oW);
+        ~conv2d() override;
+
+        void backward(const Tensor &_grad) override;
+    private:
+        Tensor* tx;
+        i64 iH, iW, kH, kW, sH, sW, pH, pW, oH, oW;
+    };
 } //namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP
