@@ -253,7 +253,7 @@ Epoch 99800 | Loss: 0.005576
 [-0.2, -0.0] -> 0.9998 (expected: 1.0000)
 [-0.8, 0.1] -> 0.0000 (expected: 0.0000)
 */
-
+/*
 int main() {
     ds::CircleDataset df(100, 0.1f);
 
@@ -306,6 +306,7 @@ int main() {
 
     return 0;
 }
+*/
 /*
 Epoch     0 | Loss: 0.242213
 (Too many line.)
@@ -314,4 +315,92 @@ Epoch 99800 | Loss: 0.001111
   [0.2, -0.1] -> 1.0000 (expected: 1.0000)
   [-0.6, 0.9] -> 0.0000 (expected: 0.0000)
   [-1.0, -0.5] -> 0.0000 (expected: 0.0000)
+*/
+
+int main() {
+    ds::CircleDataset df(100, 0.1f);
+
+    tensor X({df.N, 2}, df.X.data(), host);
+    tensor Y({df.N, 1}, df.Y.data(), host);
+
+    nn::Dense hidden(2, 16, host);
+    nn::SiLU silu;  // ← Test
+    nn::Dense output_layer(16, 1, host);
+    nn::Sigmoid sigmoid;
+
+    loss::MeanSquared mse;
+    opt::StochasticGradient sgd(0.5f);
+
+    auto params = hidden.getParameters();
+    auto out_params = output_layer.getParameters();
+    params.insert(params.end(), out_params.begin(), out_params.end());
+    sgd.SetParams(params);
+
+    constexpr int epochs = 100000;
+    for (int epoch = 0; epoch < epochs; ++epoch) {
+        tensor h  = hidden.forward(X);
+        tensor h2 = silu.forward(h);  // ← SiLU
+        tensor out = output_layer.forward(h2);
+        tensor y_pred = sigmoid.forward(out);
+        tensor l = mse.forward(y_pred, Y);
+
+        sgd.zero_grad();
+        l.backward();
+        sgd.update();
+
+        if (epoch % 200 == 0) {
+            std::cout << "Epoch " << std::setw(5) << epoch
+                     << " | Loss: " << std::fixed << std::setprecision(6)
+                     << l.get()[0] << std::endl;
+        }
+    }
+
+    tensor h   = hidden.forward(X);
+    tensor h2  = silu.forward(h);
+    tensor out = output_layer.forward(h2);
+    tensor pred = sigmoid.forward(out);
+
+    for (int i = 0; i < 4; ++i) {
+        std::cout << "  [" << std::fixed << std::setprecision(1)
+                  << df.X[i*2] << ", " << df.X[i*2+1] << "]"
+                  << " -> " << std::fixed << std::setprecision(4) << pred.get()[i]
+                  << " (expected: " << df.Y[i] << ")" << std::endl;
+    }
+
+    return 0;
+}
+/*
+Epoch     0 | Loss: 0.253057
+Epoch   200 | Loss: 0.146658
+Epoch   400 | Loss: 0.134579
+Epoch   600 | Loss: 0.112326
+Epoch 20600 | Loss: 0.013433
+Epoch 20800 | Loss: 0.154732
+Epoch 21000 | Loss: 0.189982
+Epoch 21200 | Loss: 0.189993
+Epoch 21400 | Loss: 0.189996
+Epoch 21600 | Loss: 0.189997
+Epoch 21800 | Loss: 0.189998
+Epoch 22000 | Loss: 0.189998
+Epoch 22200 | Loss: 0.189999
+Epoch 22400 | Loss: 0.189999
+Epoch 22600 | Loss: 0.189999
+Epoch 22800 | Loss: 0.189999
+Epoch 23000 | Loss: 0.189999
+Epoch 23200 | Loss: 0.189999
+Epoch 23400 | Loss: 0.189999
+Epoch 23600 | Loss: 0.189999
+Epoch 23800 | Loss: 0.190000
+Epoch 24000 | Loss: 0.190000
+Epoch 24200 | Loss: 0.190000
+Epoch 24400 | Loss: 0.190000
+Epoch 99000 | Loss: 0.190000
+Epoch 99200 | Loss: 0.190000
+Epoch 99400 | Loss: 0.190000
+Epoch 99600 | Loss: 0.190000
+Epoch 99800 | Loss: 0.190000
+[0.7, -0.3] -> 0.0000 (expected: 0.0000)
+[0.4, 0.5] -> 0.0000 (expected: 0.0000)
+[0.1, -0.9] -> 0.0000 (expected: 0.0000)
+[-0.2, 0.3] -> 0.0000 (expected: 1.0000)
 */

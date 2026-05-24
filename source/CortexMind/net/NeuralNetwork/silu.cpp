@@ -4,6 +4,7 @@
 
 #include "CortexMind/net/NeuralNetwork/silu.hpp"
 #include <CortexMind/framework/Engine/IX/activation.hpp>
+#include <CortexMind/framework/Gradient/operations.hpp>
 
 using namespace cortex::_fw;
 using namespace cortex::nn;
@@ -17,6 +18,10 @@ tensor SiLU::forward(const tensor &input) {
     tensor output(input.shape(), input.device(), input.has_grad());
 
     ix::Activation::silu(input.get(), output.get(), input.len(), input.device());
+
+    if (output.has_grad()) [[likely]] {
+        output.SetFlow(std::make_shared<meta::silu>(input.pack(), output.pack()));
+    }
 
     return output;
 }

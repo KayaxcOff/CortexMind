@@ -21,6 +21,8 @@
 #include <CortexMind/net/NeuralNetwork/relu.hpp>
 #include <CortexMind/net/NeuralNetwork/sigmoid.hpp>
 #include <CortexMind/net/NeuralNetwork/sigmoid_fast.hpp>
+#include <CortexMind/net/NeuralNetwork/silu.hpp>
+#include <CortexMind/net/NeuralNetwork/silu_fast.hpp>
 #include <CortexMind/net/NeuralNetwork/tanh.hpp>
 #include <CortexMind/net/OptimizationFunction/sgd.hpp>
 

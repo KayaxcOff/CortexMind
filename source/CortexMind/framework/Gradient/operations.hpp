@@ -585,6 +585,41 @@ namespace cortex::_fw::meta {
         Tensor* tx;
         Tensor* cached_output;
     };
+
+    /**
+     * @brief Gradient node for SiLU (Sigmoid Linear Unit) activation function (`SiLUBackward`).
+     *
+     * Computes gradients for `Z = SiLU(X) = X * sigmoid(X)` during the backward pass.
+     *
+     * Mathematical derivative:
+     *
+     *     SiLU'(x) = sigmoid(x) + x * sigmoid(x) * (1 - sigmoid(x))
+     *              = sigmoid(x) * (1 + x * (1 - sigmoid(x)))
+     */
+    struct silu : GradientFlow {
+        /**
+         * @brief Constructs a SiLU gradient node.
+         *
+         * @param _x Input tensor packed data (before SiLU)
+         * @param _y Output tensor packed data (after SiLU) - cached for derivative
+         */
+        explicit silu(const GradientPacked& _x, const GradientPacked& _y);
+        ~silu() override;
+
+        /**
+         * @brief Computes gradient with respect to the input of SiLU.
+         *
+         * Uses the analytical derivative:
+         *
+         *     dSiLU/dx = sigmoid(x) * (1 + x * (1 - sigmoid(x)))
+         *
+         * @param _grad Gradient of the output tensor (∂L/∂Z)
+         */
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+        Tensor* cached_output;
+    };
 } //namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP

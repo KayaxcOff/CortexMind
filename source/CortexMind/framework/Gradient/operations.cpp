@@ -513,3 +513,33 @@ void gelu_exact::backward(const Tensor &_grad) {
         this->tx->backward(grad_expanded);
     }
 }
+
+silu::silu(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("SiluBackward", 27) {
+    this->tx = new Tensor(_x);
+    this->cached_output = new Tensor(_y);
+}
+
+silu::~silu() {
+    delete this->tx;
+    delete this->cached_output;
+}
+
+void silu::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        Tensor ones(this->tx->shape(), this->tx->device());
+        ones.ones();
+
+        Tensor one_minus_sigmoid = ones - (*this->cached_output);
+
+        Tensor x_times_term = (*this->tx) * one_minus_sigmoid;
+
+        Tensor grad_coeff = ones + x_times_term;
+
+        grad_coeff = (*this->cached_output) * grad_coeff;
+
+        Tensor grad_expanded = _grad * grad_coeff;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
