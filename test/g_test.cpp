@@ -104,8 +104,8 @@ TEST(Conv2DBackwardTest, WeightGradShape) {
 }
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_G_TEST.exe --gtest_color=no
-Testing started at 09:36 ...
-[ERROR] [CortexMind\framework\Engine\IX\matrix.cpp | 244] Shapes are not broadcastable
+Testing started at 10:20 ...
+[ERROR] [CortexMind\framework\Tensor\tensor.cpp | 259] matmul requires 2D tensors, got 4D and 2D
 Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
 Process finished with exit code 1
 */
@@ -130,9 +130,9 @@ TEST(Conv2DBackwardTest, BiasGradValue) {
 }
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_G_TEST.exe --gtest_color=no
-Testing started at 09:37 ...
+Testing started at 10:20 ...
 Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
-[ERROR] [CortexMind\framework\Engine\IX\matrix.cpp | 244] Shapes are not broadcastable
+[ERROR] [CortexMind\framework\Tensor\tensor.cpp | 259] matmul requires 2D tensors, got 4D and 2D
 Process finished with exit code 1
 */
 
@@ -149,8 +149,8 @@ TEST(Conv2DBackwardTest, InputGradNotZero) {
 }
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_G_TEST.exe --gtest_color=no
-Testing started at 09:37 ...
+Testing started at 10:21 ...
+[ERROR] [CortexMind\framework\Tensor\tensor.cpp | 259] matmul requires 2D tensors, got 4D and 2D
 Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
-[ERROR] [CortexMind\framework\Engine\IX\matrix.cpp | 244] Shapes are not broadcastable
 Process finished with exit code 1
 */

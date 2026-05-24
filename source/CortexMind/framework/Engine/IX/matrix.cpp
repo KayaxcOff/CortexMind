@@ -241,9 +241,12 @@ void MatrixOp::add(
 {
     CXM_ASSERT(!Xx->isValid() || !Xy->isValid(), "Storage is null");
     CXM_ASSERT(Xx->isEmpty() || Xy->isEmpty(),   "Storage is empty");
-    CXM_ASSERT(!is_broadcastable(shape_x, shape_y), "Shapes are not broadcastable");
+    //CXM_ASSERT(!is_broadcastable(shape_x, shape_y), "Shapes are not broadcastable");
+    //const auto shape_z  = broadcast_shape(shape_x, shape_y);
 
     const auto shape_z  = broadcast_shape(shape_x, shape_y);
+    CXM_ASSERT(shape_z == shape_x, "In-place operation: broadcasted shape must equal input shape");
+
     const auto stride_z = compute_stride(shape_z);
 
     dispatch(Xx->data(), Xy->data(), Xx->data(),
@@ -257,9 +260,12 @@ void MatrixOp::sub(
 {
     CXM_ASSERT(!Xx->isValid() || !Xy->isValid(), "Storage is null");
     CXM_ASSERT(Xx->isEmpty() || Xy->isEmpty(),   "Storage is empty");
-    CXM_ASSERT(!is_broadcastable(shape_x, shape_y), "Shapes are not broadcastable");
+    //CXM_ASSERT(!is_broadcastable(shape_x, shape_y), "Shapes are not broadcastable");
+    //const auto shape_z  = broadcast_shape(shape_x, shape_y);
 
     const auto shape_z  = broadcast_shape(shape_x, shape_y);
+    CXM_ASSERT(shape_z == shape_x, "In-place operation: broadcasted shape must equal input shape");
+
     const auto stride_z = compute_stride(shape_z);
 
     dispatch(Xx->data(), Xy->data(), Xx->data(),
@@ -273,9 +279,12 @@ void MatrixOp::mul(
 {
     CXM_ASSERT(!Xx->isValid() || !Xy->isValid(), "Storage is null");
     CXM_ASSERT(Xx->isEmpty() || Xy->isEmpty(),   "Storage is empty");
-    CXM_ASSERT(!is_broadcastable(shape_x, shape_y), "Shapes are not broadcastable");
+    //CXM_ASSERT(!is_broadcastable(shape_x, shape_y), "Shapes are not broadcastable");
+    //const auto shape_z  = broadcast_shape(shape_x, shape_y);
 
     const auto shape_z  = broadcast_shape(shape_x, shape_y);
+    CXM_ASSERT(shape_z == shape_x, "In-place operation: broadcasted shape must equal input shape");
+
     const auto stride_z = compute_stride(shape_z);
 
     dispatch(Xx->data(), Xy->data(), Xx->data(),
@@ -289,9 +298,12 @@ void MatrixOp::div(
 {
     CXM_ASSERT(!Xx->isValid() || !Xy->isValid(), "Storage is null");
     CXM_ASSERT(Xx->isEmpty() || Xy->isEmpty(),   "Storage is empty");
-    CXM_ASSERT(!is_broadcastable(shape_x, shape_y), "Shapes are not broadcastable");
+    //CXM_ASSERT(!is_broadcastable(shape_x, shape_y), "Shapes are not broadcastable");
+    //const auto shape_z  = broadcast_shape(shape_x, shape_y);
 
     const auto shape_z  = broadcast_shape(shape_x, shape_y);
+    CXM_ASSERT(shape_z == shape_x, "In-place operation: broadcasted shape must equal input shape");
+
     const auto stride_z = compute_stride(shape_z);
 
     dispatch(Xx->data(), Xy->data(), Xx->data(),

@@ -47,13 +47,14 @@ tensor Conv2D::forward(const tensor& input) {
 
     const Tensor weight_flat = this->weight.reshape({oC, -1});
 
-    Tensor out = weight_flat.matmul(col);
+    Tensor output = weight_flat.matmul(col);
 
-    out = out + this->bias.reshape({oC, 1});
+    output = output + this->bias.reshape({oC, 1});
 
-    out = out.reshape({oC, N, oH, oW}).permute({1,0,2,3}).clone();
+    output = output.reshape({oC, N, oH, oW});
+    output = output.permute({1,0,2,3});
 
-    return out;
+    return output;
 }
 
 std::vector<ref<tensor>> Conv2D::getParameters() {
