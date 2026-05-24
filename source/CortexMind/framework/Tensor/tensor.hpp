@@ -545,6 +545,9 @@ namespace cortex::_fw {
         [[nodiscard]]
         Tensor clone() const;
 
+        [[nodiscard]]
+        Tensor detach() const;
+
         /**
          * @brief Returns the gradient tensor.
          *

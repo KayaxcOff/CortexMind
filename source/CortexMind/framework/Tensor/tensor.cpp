@@ -338,7 +338,9 @@ Tensor Tensor::permute(const std::vector<i64> &dims) const {
         output.gradient_ = this->gradient_;
     }
 
-    output.flow_ = this->flow_;
+    if (output.m_requires_grad) {
+        output.flow_ = std::make_shared<meta::permute>(this->pack(), dims);
+    }
 
     return output;
 
@@ -372,7 +374,11 @@ Tensor Tensor::reshape(const std::vector<i64> &_new_shape) const {
     if (this->m_requires_grad) {
         output.gradient_ = this->gradient_;
     }
-    output.flow_ = this->flow_;
+
+    if (output.m_requires_grad) {
+        output.flow_ = std::make_shared<meta::reshape>(this->pack(), this->m_shape);
+    }
+
     return output;
 }
 
@@ -804,6 +810,12 @@ Tensor Tensor::clone() const {
         output.gradient_ = std::make_shared<Tensor>(this->gradient_->clone());
     }
 
+    return output;
+}
+
+Tensor Tensor::detach() const {
+    Tensor output(this->m_shape, this->storage_, false);
+    output.m_offset = this->m_offset;
     return output;
 }
 

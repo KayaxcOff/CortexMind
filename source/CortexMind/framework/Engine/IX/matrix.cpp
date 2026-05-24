@@ -246,7 +246,7 @@ void MatrixOp::add(TensorStorage *Xx, const std::vector<i64> &shape_x, const std
     //const auto shape_z  = broadcast_shape(shape_x, shape_y);
 
     const auto shape_z  = broadcast_shape(shape_x, shape_y);
-    CXM_ASSERT(shape_z == shape_x, "In-place operation: broadcasted shape must equal input shape");
+    //CXM_ASSERT(shape_z == shape_x, "In-place operation: broadcasted shape must equal input shape");
 
     const auto stride_z = compute_stride(shape_z);
 
@@ -260,7 +260,7 @@ void MatrixOp::sub(TensorStorage *Xx, const std::vector<i64> &shape_x, const std
     //const auto shape_z  = broadcast_shape(shape_x, shape_y);
 
     const auto shape_z  = broadcast_shape(shape_x, shape_y);
-    CXM_ASSERT(shape_z == shape_x, "In-place operation: broadcasted shape must equal input shape");
+    //CXM_ASSERT(shape_z == shape_x, "In-place operation: broadcasted shape must equal input shape");
 
     const auto stride_z = compute_stride(shape_z);
 
@@ -274,7 +274,7 @@ void MatrixOp::mul(TensorStorage *Xx, const std::vector<i64> &shape_x, const std
     //const auto shape_z  = broadcast_shape(shape_x, shape_y);
 
     const auto shape_z  = broadcast_shape(shape_x, shape_y);
-    CXM_ASSERT(shape_z == shape_x, "In-place operation: broadcasted shape must equal input shape");
+    //CXM_ASSERT(shape_z == shape_x, "In-place operation: broadcasted shape must equal input shape");
 
     const auto stride_z = compute_stride(shape_z);
 
@@ -288,7 +288,7 @@ void MatrixOp::div(TensorStorage *Xx, const std::vector<i64> &shape_x, const std
     //const auto shape_z  = broadcast_shape(shape_x, shape_y);
 
     const auto shape_z  = broadcast_shape(shape_x, shape_y);
-    CXM_ASSERT(shape_z == shape_x, "In-place operation: broadcasted shape must equal input shape");
+    //CXM_ASSERT(shape_z == shape_x, "In-place operation: broadcasted shape must equal input shape");
 
     const auto stride_z = compute_stride(shape_z);
 

@@ -591,3 +591,39 @@ void conv2d::backward(const Tensor &_grad) {
         this->tx->backward(grad_expanded);
     }
 }
+
+reshape::reshape(const GradientPacked &_x, const std::vector<i64> &shape) : GradientFlow("Reshape", 27) {
+    this->tx = new Tensor(_x);
+    this->shape = shape;
+}
+
+reshape::~reshape() {
+    delete this->tx;
+}
+
+void reshape::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        const Tensor grad_expanded = _grad.reshape(this->shape);
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+permute::permute(const GradientPacked &_x, const std::vector<i64> &axis) : GradientFlow("Permute", 28) {
+    this->tx = new Tensor(_x);
+    this->axis = axis;
+}
+
+permute::~permute() {
+    delete this->tx;
+}
+
+void permute::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        const Tensor grad_expanded = _grad.permute(this->axis);
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}

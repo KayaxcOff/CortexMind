@@ -102,13 +102,6 @@ TEST(Conv2DBackwardTest, WeightGradShape) {
 
     EXPECT_EQ(grads[1].get().len(), 1);
 }
-/*
-C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_G_TEST.exe --gtest_color=no
-Testing started at 10:20 ...
-[ERROR] [CortexMind\framework\Tensor\tensor.cpp | 259] matmul requires 2D tensors, got 4D and 2D
-Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
-Process finished with exit code 1
-*/
 
 TEST(Conv2DBackwardTest, BiasGradValue) {
     nn::Conv2D conv(1, 1, 3, 3);
@@ -130,9 +123,15 @@ TEST(Conv2DBackwardTest, BiasGradValue) {
 }
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_G_TEST.exe --gtest_color=no
-Testing started at 10:20 ...
+Testing started at 15:21 ...
 Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
-[ERROR] [CortexMind\framework\Tensor\tensor.cpp | 259] matmul requires 2D tensors, got 4D and 2D
+C:\software\Cpp\projects\CortexMind\test\g_test.cpp(135): error: The difference between grads[1].get().get()[0] and 9.0f is 9, which exceeds 1e-3f, where
+grads[1].get().get()[0] evaluates to 18,
+9.0f evaluates to 9, and
+1e-3f evaluates to 0.0010000000474974513.
+
+
+
 Process finished with exit code 1
 */
 
@@ -147,10 +146,3 @@ TEST(Conv2DBackwardTest, InputGradNotZero) {
 
     EXPECT_GT(input.grad().norm1(), 0.0f);
 }
-/*
-C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_G_TEST.exe --gtest_color=no
-Testing started at 10:21 ...
-[ERROR] [CortexMind\framework\Tensor\tensor.cpp | 259] matmul requires 2D tensors, got 4D and 2D
-Running main() from C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\_deps\googletest-src\googletest\src\gtest_main.cc
-Process finished with exit code 1
-*/

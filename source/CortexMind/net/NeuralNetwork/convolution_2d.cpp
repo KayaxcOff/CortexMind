@@ -43,17 +43,17 @@ tensor Conv2D::forward(const tensor& input) {
 
     auto [oH, oW] = compute_output_size(H, W);
 
-    const Tensor col = this->im2col(input);
+    Tensor col = this->im2col(input);
 
     const Tensor weight_flat = this->weight.reshape({oC, -1});
-
+    // col.grad() = col.grad().reshape(..);
     Tensor output = weight_flat.matmul(col);
 
     output = output + this->bias.reshape({oC, 1});
 
     output = output.reshape({oC, N, oH, oW});
     output = output.permute({1,0,2,3});
-
+    //output.grad() = output.grad().reshape({oC, N * oH * oW});
     return output;
 }
 

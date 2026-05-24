@@ -630,6 +630,26 @@ namespace cortex::_fw::meta {
         Tensor* tx;
         i64 iH, iW, kH, kW, sH, sW, pH, pW, oH, oW;
     };
+
+    struct reshape : GradientFlow {
+        explicit reshape(const GradientPacked& _x, const std::vector<i64>& shape);
+        ~reshape() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        std::vector<i64> shape;
+        Tensor* tx;
+    };
+
+    struct permute : GradientFlow {
+        explicit permute(const GradientPacked& _x, const std::vector<i64>& axis);
+        ~permute() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        std::vector<i64> axis;
+        Tensor* tx;
+    };
 } //namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP
