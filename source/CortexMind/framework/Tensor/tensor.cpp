@@ -220,6 +220,17 @@ void Tensor::backward(const Tensor &_grad) const {
     this->flow_->backward(_grad);
 }
 
+void Tensor::require_grad() {
+    CXM_WARN(this->m_requires_grad, "Gradient is already required");
+
+    this->m_requires_grad = true;
+
+    if (this->gradient_ == nullptr) {
+        this->gradient_ = std::make_shared<Tensor>(this->m_shape, this->storage_->device());
+        this->gradient_->zero();
+    }
+}
+
 void Tensor::SetData(const f32 *_data) {
     #if CXM_IS_CUDA_AVAILABLE
         if (this->storage_->device() == DeviceType::kHOST) {
@@ -566,6 +577,23 @@ Tensor Tensor::sum(const std::vector<i64> &dims, const bool keep) const {
     }
 
     return output;
+}
+
+Tensor Tensor::mean(const std::vector<i64> &dims, const bool keep) const {
+    const Tensor s = this->sum(dims, keep);
+
+    i64 count = 1;
+    for (const i64 item : dims) {
+        count *= this->m_shape[static_cast<size_t>(item)];
+    }
+
+    return s / static_cast<f32>(count);
+}
+
+Tensor Tensor::variance(const std::vector<i64> &dims, const bool keep) const {
+    const Tensor mu  = this->mean(dims, true);
+    const Tensor diff = *this - mu;
+    return diff.pow(2.0f).mean(dims, keep);
 }
 
 Tensor Tensor::neg() const {

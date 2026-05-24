@@ -317,6 +317,16 @@ namespace cortex::_fw {
         void SetFlow(const std::shared_ptr<meta::GradientFlow>& _flow);
 
         /**
+         * @brief Enables automatic gradient tracking for the tensor.
+         *
+         * If gradient storage is not exist, it is reinitialized
+         * with a zero-filled tensor matching the current shape and device.
+         *
+         * @warning Emits a warning if gradient tracking is already enabled.
+         */
+        void require_grad();
+
+        /**
          * @brief Transfers the tensor to another device.
          *
          * @param _device Target device.
@@ -436,8 +446,39 @@ namespace cortex::_fw {
          */
         [[nodiscard]]
         Tensor sum() const;
+        /**
+         * @brief Computes the sum of tensor elements along specified dimensions.
+         *
+         * Reduces the tensor over the given dimensions.
+         *
+         * @param dims Dimensions to reduce.
+         * @param keep If true, reduced dimensions are retained with size 1.
+         * @return Reduced tensor containing summed values.
+         */
         [[nodiscard]]
         Tensor sum(const std::vector<i64>& dims, bool keep = true) const;
+        /**
+         * @brief Computes the arithmetic mean along specified dimensions.
+         *
+         * Reduces the tensor over the given dimensions.
+         *
+         * @param dims Dimensions to reduce.
+         * @param keep If true, reduced dimensions are retained with size 1.
+         * @return Reduced tensor containing mean values.
+         */
+        [[nodiscard]]
+        Tensor mean(const std::vector<i64>& dims, bool keep = true) const;
+        /**
+         * @brief Computes the variance along specified dimensions.
+         *
+         * Reduces the tensor over the given dimensions.
+         *
+         * @param dims Dimensions to reduce.
+         * @param keep If true, reduced dimensions are retained with size 1.
+         * @return Reduced tensor containing variance values.
+         */
+        [[nodiscard]]
+        Tensor variance(const std::vector<i64>& dims, bool keep = true) const;
         /**
          * @brief Negates all tensor elements.
          *
@@ -545,6 +586,14 @@ namespace cortex::_fw {
         [[nodiscard]]
         Tensor clone() const;
 
+        /**
+         * @brief Creates a tensor detached from the computation graph.
+         *
+         * The returned tensor shares the same underlying data
+         * but does not participate in automatic differentiation.
+         *
+         * @return Detached tensor.
+         */
         [[nodiscard]]
         Tensor detach() const;
 
