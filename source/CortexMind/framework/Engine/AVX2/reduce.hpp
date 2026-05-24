@@ -122,6 +122,80 @@ namespace cortex::_fw::avx2 {
          */
         [[nodiscard]]
         static bool equal(const f32* Xx, const f32* Xy, size_t N);
+
+        // Boyut destekli reduce fonksiyonları (Dimension-aware reduce operations)
+        /**
+         * @brief Boyutlar boyunca ortalama hesapla (dimension-wise mean).
+         *
+         * @param x Giriş array'i.
+         * @param output Çıkış array'i.
+         * @param shape Tensor şekli.
+         * @param strides Tensor stride'ları.
+         * @param reduce_dims Küçültülecek boyutlar.
+         * @param ndim Toplam boyut sayısı.
+         * @param num_reduce_dims Küçültülecek boyut sayısı.
+         */
+        static void mean_dim(
+            const f32* __restrict x,
+            f32* __restrict output,
+            const i64* shape,
+            const i64* strides,
+            const i64* reduce_dims,
+            size_t ndim,
+            size_t num_reduce_dims
+        );
+
+        /**
+         * @brief Boyutlar boyunca varyans hesapla (dimension-wise variance).
+         */
+        static void var_dim(
+            const f32* __restrict x,
+            f32* __restrict output,
+            const i64* shape,
+            const i64* strides,
+            const i64* reduce_dims,
+            size_t ndim,
+            size_t num_reduce_dims
+        );
+
+        /**
+         * @brief Boyutlar boyunca standart sapma hesapla (dimension-wise standard deviation).
+         */
+        static void std_dim(
+            const f32* __restrict x,
+            f32* __restrict output,
+            const i64* shape,
+            const i64* strides,
+            const i64* reduce_dims,
+            size_t ndim,
+            size_t num_reduce_dims
+        );
+
+        /**
+         * @brief Boyutlar boyunca minimum değer bul (dimension-wise minimum).
+         */
+        static void min_dim(
+            const f32* __restrict x,
+            f32* __restrict output,
+            const i64* shape,
+            const i64* strides,
+            const i64* reduce_dims,
+            size_t ndim,
+            size_t num_reduce_dims
+        );
+
+        /**
+         * @brief Boyutlar boyunca maksimum değer bul (dimension-wise maximum).
+         */
+        static void max_dim(
+            const f32* __restrict x,
+            f32* __restrict output,
+            const i64* shape,
+            const i64* strides,
+            const i64* reduce_dims,
+            size_t ndim,
+            size_t num_reduce_dims
+        );
     };
 } //namespace cortex::_fw::avx2
 

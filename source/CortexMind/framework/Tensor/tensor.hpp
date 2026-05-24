@@ -258,6 +258,57 @@ namespace cortex::_fw {
         [[nodiscard]]
         f32 norm2() const;
 
+        // Boyut destekli reduce fonksiyonları (dimension-aware reduce operations)
+        /**
+         * @brief Belirtilen boyutlar boyunca ortalama hesapla.
+         *
+         * @param dims Ortalaması alınacak boyutlar.
+         * @param keep_dims true ise boyutları 1 ile tut, false ise sil.
+         * @return Boyut destekli ortalama tensor'u.
+         */
+        [[nodiscard]]
+        Tensor mean(const std::vector<i64>& dims, bool keep_dims = true) const;
+
+        /**
+         * @brief Belirtilen boyutlar boyunca varyans hesapla.
+         *
+         * @param dims Varyansı alınacak boyutlar.
+         * @param keep_dims true ise boyutları 1 ile tut, false ise sil.
+         * @return Boyut destekli varyans tensor'u.
+         */
+        [[nodiscard]]
+        Tensor variance(const std::vector<i64>& dims, bool keep_dims = true) const;
+
+        /**
+         * @brief Belirtilen boyutlar boyunca standart sapma hesapla.
+         *
+         * @param dims Standart sapması alınacak boyutlar.
+         * @param keep_dims true ise boyutları 1 ile tut, false ise sil.
+         * @return Boyut destekli standart sapma tensor'u.
+         */
+        [[nodiscard]]
+        Tensor stdv(const std::vector<i64>& dims, bool keep_dims = true) const;
+
+        /**
+         * @brief Belirtilen boyutlar boyunca maksimum değer bul.
+         *
+         * @param dims Maksimumunu alınacak boyutlar.
+         * @param keep_dims true ise boyutları 1 ile tut, false ise sil.
+         * @return Boyut destekli maksimum tensor'u.
+         */
+        [[nodiscard]]
+        Tensor max(const std::vector<i64>& dims, bool keep_dims = true) const;
+
+        /**
+         * @brief Belirtilen boyutlar boyunca minimum değer bul.
+         *
+         * @param dims Minimumunu alınacak boyutlar.
+         * @param keep_dims true ise boyutları 1 ile tut, false ise sil.
+         * @return Boyut destekli minimum tensor'u.
+         */
+        [[nodiscard]]
+        Tensor min(const std::vector<i64>& dims, bool keep_dims = true) const;
+
         /**
          * @brief Fills the tensor with a constant value.
          *

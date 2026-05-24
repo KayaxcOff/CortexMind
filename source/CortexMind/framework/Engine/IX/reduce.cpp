@@ -234,4 +234,240 @@ f32 reduce::dot(const TensorStorage *Xx, const TensorStorage *Xy, const size_t N
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
 
     return output;
+ }
+
+void reduce::mean_dim(
+    const TensorStorage* __restrict x,
+    TensorStorage* __restrict output,
+    const std::vector<i64>& shape,
+    const std::vector<i64>& strides,
+    const std::vector<i64>& reduce_dims
+) {
+    CXM_ASSERT(!x->isValid(), "Input Storage is null");
+    CXM_ASSERT(!output->isValid(), "Output Storage is null");
+
+    const auto dev = x->device();
+
+    #if CXM_IS_CUDA_AVAILABLE
+       if (dev == DeviceType::kHOST) {
+           avx2::reduce::mean_dim(
+               x->data(),
+               output->data(),
+               shape.data(),
+               strides.data(),
+               reduce_dims.data(),
+               shape.size(),
+               reduce_dims.size()
+           );
+       } else {
+           op.mean_dim(
+               x->data(),
+               output->data(),
+               shape.data(),
+               strides.data(),
+               reduce_dims.data(),
+               shape.size(),
+               reduce_dims.size()
+           );
+       }
+    #else //#if CXM_IS_CUDA_AVAILABLE
+       avx2::reduce::mean_dim(
+           x->data(),
+           output->data(),
+           shape.data(),
+           strides.data(),
+           reduce_dims.data(),
+           shape.size(),
+           reduce_dims.size()
+       );
+    #endif //#if CXM_IS_CUDA_AVAILABLE #else
+}
+
+void reduce::var_dim(
+    const TensorStorage* __restrict x,
+    TensorStorage* __restrict output,
+    const std::vector<i64>& shape,
+    const std::vector<i64>& strides,
+    const std::vector<i64>& reduce_dims
+) {
+    CXM_ASSERT(!x->isValid(), "Input Storage is null");
+    CXM_ASSERT(!output->isValid(), "Output Storage is null");
+
+    const auto dev = x->device();
+
+    #if CXM_IS_CUDA_AVAILABLE
+       if (dev == DeviceType::kHOST) {
+           avx2::reduce::var_dim(
+               x->data(),
+               output->data(),
+               shape.data(),
+               strides.data(),
+               reduce_dims.data(),
+               shape.size(),
+               reduce_dims.size()
+           );
+       } else {
+           op.var_dim(
+               x->data(),
+               output->data(),
+               shape.data(),
+               strides.data(),
+               reduce_dims.data(),
+               shape.size(),
+               reduce_dims.size()
+           );
+       }
+    #else //#if CXM_IS_CUDA_AVAILABLE
+       avx2::reduce::var_dim(
+           x->data(),
+           output->data(),
+           shape.data(),
+           strides.data(),
+           reduce_dims.data(),
+           shape.size(),
+           reduce_dims.size()
+       );
+    #endif //#if CXM_IS_CUDA_AVAILABLE #else
+}
+
+void reduce::stdv_dim(
+    const TensorStorage* __restrict x,
+    TensorStorage* __restrict output,
+    const std::vector<i64>& shape,
+    const std::vector<i64>& strides,
+    const std::vector<i64>& reduce_dims
+) {
+    CXM_ASSERT(!x->isValid(), "Input Storage is null");
+    CXM_ASSERT(!output->isValid(), "Output Storage is null");
+
+    const auto dev = x->device();
+
+    #if CXM_IS_CUDA_AVAILABLE
+       if (dev == DeviceType::kHOST) {
+           avx2::reduce::std_dim(
+               x->data(),
+               output->data(),
+               shape.data(),
+               strides.data(),
+               reduce_dims.data(),
+               shape.size(),
+               reduce_dims.size()
+           );
+       } else {
+           op.stdv_dim(
+               x->data(),
+               output->data(),
+               shape.data(),
+               strides.data(),
+               reduce_dims.data(),
+               shape.size(),
+               reduce_dims.size()
+           );
+       }
+    #else //#if CXM_IS_CUDA_AVAILABLE
+       avx2::reduce::std_dim(
+           x->data(),
+           output->data(),
+           shape.data(),
+           strides.data(),
+           reduce_dims.data(),
+           shape.size(),
+           reduce_dims.size()
+       );
+    #endif //#if CXM_IS_CUDA_AVAILABLE #else
+}
+
+void reduce::min_dim(
+    const TensorStorage* __restrict x,
+    TensorStorage* __restrict output,
+    const std::vector<i64>& shape,
+    const std::vector<i64>& strides,
+    const std::vector<i64>& reduce_dims
+) {
+    CXM_ASSERT(!x->isValid(), "Input Storage is null");
+    CXM_ASSERT(!output->isValid(), "Output Storage is null");
+
+    const auto dev = x->device();
+
+    #if CXM_IS_CUDA_AVAILABLE
+       if (dev == DeviceType::kHOST) {
+           avx2::reduce::min_dim(
+               x->data(),
+               output->data(),
+               shape.data(),
+               strides.data(),
+               reduce_dims.data(),
+               shape.size(),
+               reduce_dims.size()
+           );
+       } else {
+           op.min_dim(
+               x->data(),
+               output->data(),
+               shape.data(),
+               strides.data(),
+               reduce_dims.data(),
+               shape.size(),
+               reduce_dims.size()
+           );
+       }
+    #else //#if CXM_IS_CUDA_AVAILABLE
+       avx2::reduce::min_dim(
+           x->data(),
+           output->data(),
+           shape.data(),
+           strides.data(),
+           reduce_dims.data(),
+           shape.size(),
+           reduce_dims.size()
+       );
+    #endif //#if CXM_IS_CUDA_AVAILABLE #else
+}
+
+void reduce::max_dim(
+    const TensorStorage* __restrict x,
+    TensorStorage* __restrict output,
+    const std::vector<i64>& shape,
+    const std::vector<i64>& strides,
+    const std::vector<i64>& reduce_dims
+) {
+    CXM_ASSERT(!x->isValid(), "Input Storage is null");
+    CXM_ASSERT(!output->isValid(), "Output Storage is null");
+
+    const auto dev = x->device();
+
+    #if CXM_IS_CUDA_AVAILABLE
+       if (dev == DeviceType::kHOST) {
+           avx2::reduce::max_dim(
+               x->data(),
+               output->data(),
+               shape.data(),
+               strides.data(),
+               reduce_dims.data(),
+               shape.size(),
+               reduce_dims.size()
+           );
+       } else {
+           op.max_dim(
+               x->data(),
+               output->data(),
+               shape.data(),
+               strides.data(),
+               reduce_dims.data(),
+               shape.size(),
+               reduce_dims.size()
+           );
+       }
+    #else //#if CXM_IS_CUDA_AVAILABLE
+       avx2::reduce::max_dim(
+           x->data(),
+           output->data(),
+           shape.data(),
+           strides.data(),
+           reduce_dims.data(),
+           shape.size(),
+           reduce_dims.size()
+       );
+    #endif //#if CXM_IS_CUDA_AVAILABLE #else
+}
 }

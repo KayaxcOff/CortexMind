@@ -68,6 +68,62 @@ namespace cortex::_fw::ix {
          */
         [[nodiscard]]
         static f32 dot(const TensorStorage* __restrict Xx, const TensorStorage* __restrict Xy, size_t N);
+
+        // Boyut destekli reduce fonksiyonları
+        /**
+         * @brief Boyutlar boyunca ortalama hesapla.
+         */
+        static void mean_dim(
+            const TensorStorage* __restrict x,
+            TensorStorage* __restrict output,
+            const std::vector<i64>& shape,
+            const std::vector<i64>& strides,
+            const std::vector<i64>& reduce_dims
+        );
+
+        /**
+         * @brief Boyutlar boyunca varyans hesapla.
+         */
+        static void var_dim(
+            const TensorStorage* __restrict x,
+            TensorStorage* __restrict output,
+            const std::vector<i64>& shape,
+            const std::vector<i64>& strides,
+            const std::vector<i64>& reduce_dims
+        );
+
+        /**
+         * @brief Boyutlar boyunca standart sapma hesapla.
+         */
+        static void stdv_dim(
+            const TensorStorage* __restrict x,
+            TensorStorage* __restrict output,
+            const std::vector<i64>& shape,
+            const std::vector<i64>& strides,
+            const std::vector<i64>& reduce_dims
+        );
+
+        /**
+         * @brief Boyutlar boyunca minimum değer bul.
+         */
+        static void min_dim(
+            const TensorStorage* __restrict x,
+            TensorStorage* __restrict output,
+            const std::vector<i64>& shape,
+            const std::vector<i64>& strides,
+            const std::vector<i64>& reduce_dims
+        );
+
+        /**
+         * @brief Boyutlar boyunca maksimum değer bul.
+         */
+        static void max_dim(
+            const TensorStorage* __restrict x,
+            TensorStorage* __restrict output,
+            const std::vector<i64>& shape,
+            const std::vector<i64>& strides,
+            const std::vector<i64>& reduce_dims
+        );
     };
 } //namespace cortex::_fw::ix
 

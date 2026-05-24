@@ -138,3 +138,338 @@ bool reduce::equal(const f32 *Xx, const f32 *Xy, const size_t N) {
 
     return max_diff < 1e-6f;
 }
+
+/**
+ * @brief Verilen boyutlar boyunca toplam hesapla
+ * Yardımcı fonksiyon: Tensor'un belirli boyutları boyunca toplam yapar
+ */
+static void sum_dim_internal(
+    const f32* __restrict x,
+    f32* __restrict output,
+    const i64* shape,
+    const i64* strides,
+    const i64* reduce_dims,
+    size_t ndim,
+    size_t num_reduce_dims,
+    size_t total_elements
+) {
+    // Tüm elemanlara ulaş
+    for (size_t idx = 0; idx < total_elements; ++idx) {
+        // Doğrusal indeksi çok boyutlu koordinatlara dönüştür
+        size_t oz = 0;
+        size_t temp_idx = idx;
+
+        for (i32 d = static_cast<i32>(ndim) - 1; d >= 0; --d) {
+            const size_t coord = temp_idx % static_cast<size_t>(shape[d]);
+            temp_idx /= static_cast<size_t>(shape[d]);
+
+            // Bu boyut küçültülüyor mu?
+            bool is_reduced = false;
+            for (size_t r = 0; r < num_reduce_dims; ++r) {
+                if (reduce_dims[r] == d) {
+                    is_reduced = true;
+                    break;
+                }
+            }
+
+            const size_t out_coord = is_reduced ? 0 : coord;
+            oz += out_coord * static_cast<size_t>(strides[d]);
+        }
+
+        output[oz] += x[idx];
+    }
+}
+
+void reduce::mean_dim(
+    const f32* __restrict x,
+    f32* __restrict output,
+    const i64* shape,
+    const i64* strides,
+    const i64* reduce_dims,
+    size_t ndim,
+    size_t num_reduce_dims
+) {
+    // Toplam sayısını hesapla
+    size_t total_elements = 1;
+    for (size_t d = 0; d < ndim; ++d) {
+        total_elements *= static_cast<size_t>(shape[d]);
+    }
+
+    // Çıkışı sıfırla
+    for (size_t d = 0; d < ndim; ++d) {
+        size_t out_size = 1;
+        for (size_t dd = 0; dd < ndim; ++dd) {
+            bool is_reduced = false;
+            for (size_t r = 0; r < num_reduce_dims; ++r) {
+                if (reduce_dims[r] == static_cast<i64>(dd)) {
+                    is_reduced = true;
+                    break;
+                }
+            }
+            if (!is_reduced) {
+                out_size *= static_cast<size_t>(shape[dd]);
+            }
+        }
+        if (d == 0) {
+            for (size_t i = 0; i < out_size; ++i) {
+                output[i] = 0.0f;
+            }
+        }
+    }
+
+    // Toplamı hesapla
+    sum_dim_internal(x, output, shape, strides, reduce_dims, ndim, num_reduce_dims, total_elements);
+
+    // Küçültülen boyutların çarpımını hesapla (normalize için)
+    size_t reduce_count = 1;
+    for (size_t r = 0; r < num_reduce_dims; ++r) {
+        reduce_count *= static_cast<size_t>(shape[reduce_dims[r]]);
+    }
+
+    // Normalizasyon: Sonuçları küçültülen eleman sayısına böl
+    size_t out_size = 1;
+    for (size_t d = 0; d < ndim; ++d) {
+        bool is_reduced = false;
+        for (size_t r = 0; r < num_reduce_dims; ++r) {
+            if (reduce_dims[r] == static_cast<i64>(d)) {
+                is_reduced = true;
+                break;
+            }
+        }
+        if (!is_reduced) {
+            out_size *= static_cast<size_t>(shape[d]);
+        }
+    }
+
+    const f32 divisor = static_cast<f32>(reduce_count);
+    for (size_t i = 0; i < out_size; ++i) {
+        output[i] /= divisor;
+    }
+}
+
+void reduce::var_dim(
+    const f32* __restrict x,
+    f32* __restrict output,
+    const i64* shape,
+    const i64* strides,
+    const i64* reduce_dims,
+    size_t ndim,
+    size_t num_reduce_dims
+) {
+    // Önce ortalamayı hesapla
+    size_t out_size = 1;
+    for (size_t d = 0; d < ndim; ++d) {
+        bool is_reduced = false;
+        for (size_t r = 0; r < num_reduce_dims; ++r) {
+            if (reduce_dims[r] == static_cast<i64>(d)) {
+                is_reduced = true;
+                break;
+            }
+        }
+        if (!is_reduced) {
+            out_size *= static_cast<size_t>(shape[d]);
+        }
+    }
+
+    std::vector<f32> mean_values(out_size);
+    for (size_t i = 0; i < out_size; ++i) {
+        mean_values[i] = 0.0f;
+    }
+
+    // Ortalamayı hesapla
+    mean_dim(x, mean_values.data(), shape, strides, reduce_dims, ndim, num_reduce_dims);
+
+    // Varyans hesapla: (x - mean)^2
+    size_t total_elements = 1;
+    for (size_t d = 0; d < ndim; ++d) {
+        total_elements *= static_cast<size_t>(shape[d]);
+    }
+
+    for (size_t i = 0; i < out_size; ++i) {
+        output[i] = 0.0f;
+    }
+
+    // Varyansı hesapla: ∑((x - mean)^2) / count
+    for (size_t idx = 0; idx < total_elements; ++idx) {
+        size_t oz = 0;
+        size_t temp_idx = idx;
+
+        for (i32 d = static_cast<i32>(ndim) - 1; d >= 0; --d) {
+            const size_t coord = temp_idx % static_cast<size_t>(shape[d]);
+            temp_idx /= static_cast<size_t>(shape[d]);
+
+            bool is_reduced = false;
+            for (size_t r = 0; r < num_reduce_dims; ++r) {
+                if (reduce_dims[r] == d) {
+                    is_reduced = true;
+                    break;
+                }
+            }
+
+            const size_t out_coord = is_reduced ? 0 : coord;
+            oz += out_coord * static_cast<size_t>(strides[d]);
+        }
+
+        const f32 diff = x[idx] - mean_values[oz];
+        output[oz] += diff * diff;
+    }
+
+    // Normalizasyon
+    size_t reduce_count = 1;
+    for (size_t r = 0; r < num_reduce_dims; ++r) {
+        reduce_count *= static_cast<size_t>(shape[reduce_dims[r]]);
+    }
+
+    const f32 divisor = static_cast<f32>(reduce_count);
+    for (size_t i = 0; i < out_size; ++i) {
+        output[i] /= divisor;
+    }
+}
+
+void reduce::std_dim(
+    const f32* __restrict x,
+    f32* __restrict output,
+    const i64* shape,
+    const i64* strides,
+    const i64* reduce_dims,
+    size_t ndim,
+    size_t num_reduce_dims
+) {
+    size_t out_size = 1;
+    for (size_t d = 0; d < ndim; ++d) {
+        bool is_reduced = false;
+        for (size_t r = 0; r < num_reduce_dims; ++r) {
+            if (reduce_dims[r] == static_cast<i64>(d)) {
+                is_reduced = true;
+                break;
+            }
+        }
+        if (!is_reduced) {
+            out_size *= static_cast<size_t>(shape[d]);
+        }
+    }
+
+    // Varyansı hesapla
+    var_dim(x, output, shape, strides, reduce_dims, ndim, num_reduce_dims);
+
+    // Karekök al
+    for (size_t i = 0; i < out_size; ++i) {
+        output[i] = std::sqrt(output[i]);
+    }
+}
+
+void reduce::min_dim(
+    const f32* __restrict x,
+    f32* __restrict output,
+    const i64* shape,
+    const i64* strides,
+    const i64* reduce_dims,
+    size_t ndim,
+    size_t num_reduce_dims
+) {
+    size_t out_size = 1;
+    for (size_t d = 0; d < ndim; ++d) {
+        bool is_reduced = false;
+        for (size_t r = 0; r < num_reduce_dims; ++r) {
+            if (reduce_dims[r] == static_cast<i64>(d)) {
+                is_reduced = true;
+                break;
+            }
+        }
+        if (!is_reduced) {
+            out_size *= static_cast<size_t>(shape[d]);
+        }
+    }
+
+    // Çıkışı max değere başlat
+    for (size_t i = 0; i < out_size; ++i) {
+        output[i] = std::numeric_limits<f32>::max();
+    }
+
+    size_t total_elements = 1;
+    for (size_t d = 0; d < ndim; ++d) {
+        total_elements *= static_cast<size_t>(shape[d]);
+    }
+
+    // Minimum değeri bul
+    for (size_t idx = 0; idx < total_elements; ++idx) {
+        size_t oz = 0;
+        size_t temp_idx = idx;
+
+        for (i32 d = static_cast<i32>(ndim) - 1; d >= 0; --d) {
+            const size_t coord = temp_idx % static_cast<size_t>(shape[d]);
+            temp_idx /= static_cast<size_t>(shape[d]);
+
+            bool is_reduced = false;
+            for (size_t r = 0; r < num_reduce_dims; ++r) {
+                if (reduce_dims[r] == d) {
+                    is_reduced = true;
+                    break;
+                }
+            }
+
+            const size_t out_coord = is_reduced ? 0 : coord;
+            oz += out_coord * static_cast<size_t>(strides[d]);
+        }
+
+        output[oz] = std::min(output[oz], x[idx]);
+    }
+}
+
+void reduce::max_dim(
+    const f32* __restrict x,
+    f32* __restrict output,
+    const i64* shape,
+    const i64* strides,
+    const i64* reduce_dims,
+    size_t ndim,
+    size_t num_reduce_dims
+) {
+    size_t out_size = 1;
+    for (size_t d = 0; d < ndim; ++d) {
+        bool is_reduced = false;
+        for (size_t r = 0; r < num_reduce_dims; ++r) {
+            if (reduce_dims[r] == static_cast<i64>(d)) {
+                is_reduced = true;
+                break;
+            }
+        }
+        if (!is_reduced) {
+            out_size *= static_cast<size_t>(shape[d]);
+        }
+    }
+
+    // Çıkışı min değere başlat
+    for (size_t i = 0; i < out_size; ++i) {
+        output[i] = std::numeric_limits<f32>::lowest();
+    }
+
+    size_t total_elements = 1;
+    for (size_t d = 0; d < ndim; ++d) {
+        total_elements *= static_cast<size_t>(shape[d]);
+    }
+
+    // Maksimum değeri bul
+    for (size_t idx = 0; idx < total_elements; ++idx) {
+        size_t oz = 0;
+        size_t temp_idx = idx;
+
+        for (i32 d = static_cast<i32>(ndim) - 1; d >= 0; --d) {
+            const size_t coord = temp_idx % static_cast<size_t>(shape[d]);
+            temp_idx /= static_cast<size_t>(shape[d]);
+
+            bool is_reduced = false;
+            for (size_t r = 0; r < num_reduce_dims; ++r) {
+                if (reduce_dims[r] == d) {
+                    is_reduced = true;
+                    break;
+                }
+            }
+
+            const size_t out_coord = is_reduced ? 0 : coord;
+            oz += out_coord * static_cast<size_t>(strides[d]);
+        }
+
+        output[oz] = std::max(output[oz], x[idx]);
+    }
+}

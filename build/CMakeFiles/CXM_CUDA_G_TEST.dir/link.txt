@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/CXM_CUDA_G_TEST.dir/link.d CMakeFiles/CXM_CUDA_G_TEST.dir/test/cuda_g_test.cpp.o -o CXM_CUDA_G_TEST  libCortexMind.a lib/libgtest.a lib/libgtest_main.a -lCUDA::cudart lib/libgtest.a

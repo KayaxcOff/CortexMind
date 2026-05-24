@@ -1,13 +1,19 @@
-set(CXM_ALL_TARGETS
-        CortexMind
-        CXM_MAIN_TEST
-        CXM_G_TEST
-        CXM_CUDA_G_TEST
-)
-
 if(CXM_CUDA_AVAILABLE)
+    set(CXM_ALL_TARGETS
+            CortexMind
+            CXM_MAIN_TEST
+            CXM_G_TEST
+            CXM_CUDA_G_TEST
+    )
+    
     target_compile_options(CortexMind PRIVATE
             $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>
+    )
+else()
+    set(CXM_ALL_TARGETS
+            CortexMind
+            CXM_MAIN_TEST
+            CXM_G_TEST
     )
 endif()
 

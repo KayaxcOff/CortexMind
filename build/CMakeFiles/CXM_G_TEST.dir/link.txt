@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/CXM_G_TEST.dir/link.d CMakeFiles/CXM_G_TEST.dir/test/g_test.cpp.o -o CXM_G_TEST  libCortexMind.a lib/libgtest.a lib/libgtest_main.a lib/libgtest.a

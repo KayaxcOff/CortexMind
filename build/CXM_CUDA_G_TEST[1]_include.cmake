@@ -1,0 +1,5 @@
+if(EXISTS "/tmp/workspace/KayaxcOff/CortexMind/build/CXM_CUDA_G_TEST[1]_tests.cmake")
+  include("/tmp/workspace/KayaxcOff/CortexMind/build/CXM_CUDA_G_TEST[1]_tests.cmake")
+else()
+  add_test(CXM_CUDA_G_TEST_NOT_BUILT CXM_CUDA_G_TEST_NOT_BUILT)
+endif()

@@ -92,6 +92,72 @@ namespace cortex::_fw::cuda {
          */
         [[nodiscard]]
         f32 dot(const f32* __restrict Xx, const f32* __restrict Xy, size_t N) const;
+
+        // Boyut destekli reduce fonksiyonları
+        /**
+         * @brief Boyutlar boyunca ortalama hesapla (CUDA).
+         */
+        void mean_dim(
+            const f32* __restrict x,
+            f32* __restrict output,
+            const i64* shape,
+            const i64* strides,
+            const i64* reduce_dims,
+            size_t ndim,
+            size_t num_reduce_dims
+        );
+
+        /**
+         * @brief Boyutlar boyunca varyans hesapla (CUDA).
+         */
+        void var_dim(
+            const f32* __restrict x,
+            f32* __restrict output,
+            const i64* shape,
+            const i64* strides,
+            const i64* reduce_dims,
+            size_t ndim,
+            size_t num_reduce_dims
+        );
+
+        /**
+         * @brief Boyutlar boyunca standart sapma hesapla (CUDA).
+         */
+        void stdv_dim(
+            const f32* __restrict x,
+            f32* __restrict output,
+            const i64* shape,
+            const i64* strides,
+            const i64* reduce_dims,
+            size_t ndim,
+            size_t num_reduce_dims
+        );
+
+        /**
+         * @brief Boyutlar boyunca minimum değer bul (CUDA).
+         */
+        void min_dim(
+            const f32* __restrict x,
+            f32* __restrict output,
+            const i64* shape,
+            const i64* strides,
+            const i64* reduce_dims,
+            size_t ndim,
+            size_t num_reduce_dims
+        );
+
+        /**
+         * @brief Boyutlar boyunca maksimum değer bul (CUDA).
+         */
+        void max_dim(
+            const f32* __restrict x,
+            f32* __restrict output,
+            const i64* shape,
+            const i64* strides,
+            const i64* reduce_dims,
+            size_t ndim,
+            size_t num_reduce_dims
+        );
     private:
         f32* host_output{nullptr};   ///< Pinned + mapped host memory
         f32* cuda_output{nullptr};   ///< Device pointer (mapped)

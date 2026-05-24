@@ -842,3 +842,159 @@ Tensor::Tensor(const std::vector<i64> &shape, const std::vector<i64> &stride, co
         this->gradient_->zero();
     }
 }
+
+// Boyut destekli reduce işlemleri
+Tensor Tensor::mean(const std::vector<i64>& dims, bool keep_dims) const {
+    // Çıkış şeklini hesapla
+    std::vector<i64> out_shape = this->m_shape;
+    for (const i64 d : dims) {
+        out_shape[static_cast<size_t>(d)] = 1;
+    }
+
+    Tensor output(out_shape, this->device(), this->m_requires_grad);
+
+    // IX dispatcher'ı çağır
+    ix::reduce::mean_dim(
+        this->storage_.get(),
+        output.storage_.get(),
+        this->m_shape,
+        this->m_strides,
+        dims
+    );
+
+    if (!keep_dims) {
+        std::vector<i64> squeezed;
+        for (size_t d = 0; d < out_shape.size(); ++d) {
+            if (std::ranges::find(dims, static_cast<i64>(d)) == dims.end()) {
+                squeezed.push_back(out_shape[d]);
+            }
+        }
+        return output.reshape(squeezed);
+    }
+
+    return output;
+}
+
+Tensor Tensor::variance(const std::vector<i64>& dims, bool keep_dims) const {
+    // Çıkış şeklini hesapla
+    std::vector<i64> out_shape = this->m_shape;
+    for (const i64 d : dims) {
+        out_shape[static_cast<size_t>(d)] = 1;
+    }
+
+    Tensor output(out_shape, this->device(), this->m_requires_grad);
+
+    // IX dispatcher'ı çağır
+    ix::reduce::var_dim(
+        this->storage_.get(),
+        output.storage_.get(),
+        this->m_shape,
+        this->m_strides,
+        dims
+    );
+
+    if (!keep_dims) {
+        std::vector<i64> squeezed;
+        for (size_t d = 0; d < out_shape.size(); ++d) {
+            if (std::ranges::find(dims, static_cast<i64>(d)) == dims.end()) {
+                squeezed.push_back(out_shape[d]);
+            }
+        }
+        return output.reshape(squeezed);
+    }
+
+    return output;
+}
+
+Tensor Tensor::stdv(const std::vector<i64>& dims, bool keep_dims) const {
+    // Çıkış şeklini hesapla
+    std::vector<i64> out_shape = this->m_shape;
+    for (const i64 d : dims) {
+        out_shape[static_cast<size_t>(d)] = 1;
+    }
+
+    Tensor output(out_shape, this->device(), this->m_requires_grad);
+
+    // IX dispatcher'ı çağır
+    ix::reduce::stdv_dim(
+        this->storage_.get(),
+        output.storage_.get(),
+        this->m_shape,
+        this->m_strides,
+        dims
+    );
+
+    if (!keep_dims) {
+        std::vector<i64> squeezed;
+        for (size_t d = 0; d < out_shape.size(); ++d) {
+            if (std::ranges::find(dims, static_cast<i64>(d)) == dims.end()) {
+                squeezed.push_back(out_shape[d]);
+            }
+        }
+        return output.reshape(squeezed);
+    }
+
+    return output;
+}
+
+Tensor Tensor::max(const std::vector<i64>& dims, bool keep_dims) const {
+    // Çıkış şeklini hesapla
+    std::vector<i64> out_shape = this->m_shape;
+    for (const i64 d : dims) {
+        out_shape[static_cast<size_t>(d)] = 1;
+    }
+
+    Tensor output(out_shape, this->device(), this->m_requires_grad);
+
+    // IX dispatcher'ı çağır
+    ix::reduce::max_dim(
+        this->storage_.get(),
+        output.storage_.get(),
+        this->m_shape,
+        this->m_strides,
+        dims
+    );
+
+    if (!keep_dims) {
+        std::vector<i64> squeezed;
+        for (size_t d = 0; d < out_shape.size(); ++d) {
+            if (std::ranges::find(dims, static_cast<i64>(d)) == dims.end()) {
+                squeezed.push_back(out_shape[d]);
+            }
+        }
+        return output.reshape(squeezed);
+    }
+
+    return output;
+}
+
+Tensor Tensor::min(const std::vector<i64>& dims, bool keep_dims) const {
+    // Çıkış şeklini hesapla
+    std::vector<i64> out_shape = this->m_shape;
+    for (const i64 d : dims) {
+        out_shape[static_cast<size_t>(d)] = 1;
+    }
+
+    Tensor output(out_shape, this->device(), this->m_requires_grad);
+
+    // IX dispatcher'ı çağır
+    ix::reduce::min_dim(
+        this->storage_.get(),
+        output.storage_.get(),
+        this->m_shape,
+        this->m_strides,
+        dims
+    );
+
+    if (!keep_dims) {
+        std::vector<i64> squeezed;
+        for (size_t d = 0; d < out_shape.size(); ++d) {
+            if (std::ranges::find(dims, static_cast<i64>(d)) == dims.end()) {
+                squeezed.push_back(out_shape[d]);
+            }
+        }
+        return output.reshape(squeezed);
+    }
+
+    return output;
+}
