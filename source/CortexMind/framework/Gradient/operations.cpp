@@ -9,7 +9,7 @@
 using namespace cortex::_fw::meta;
 using namespace cortex::_fw;
 
-add::add(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("AddBackward", 1) {
+add::add(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("Add") {
     this->tx = new Tensor(_x);
     this->ty = new Tensor(_y);
 }
@@ -34,7 +34,7 @@ void add::backward(const Tensor &_grad) {
     }
 }
 
-sub::sub(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("SubBackward", 2) {
+sub::sub(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("Sub") {
     this->tx = new Tensor(_x);
     this->ty = new Tensor(_y);
 }
@@ -59,7 +59,7 @@ void sub::backward(const Tensor &_grad) {
     }
 }
 
-mul::mul(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("MulBackward", 3) {
+mul::mul(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("Mul") {
     this->tx = new Tensor(_x);
     this->ty = new Tensor(_y);
 }
@@ -86,7 +86,7 @@ void mul::backward(const Tensor &_grad) {
     }
 }
 
-div::div(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("DivBackward", 4) {
+div::div(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("Div") {
     this->tx = new Tensor(_x);
     this->ty = new Tensor(_y);
 }
@@ -113,7 +113,7 @@ void div::backward(const Tensor &_grad) {
     }
 }
 
-sum::sum(const GradientPacked &_x) : GradientFlow("SumBackward", 5) {
+sum::sum(const GradientPacked &_x) : GradientFlow("Sum") {
     this->tx = new Tensor(_x);
 }
 
@@ -133,7 +133,7 @@ void sum::backward(const Tensor &_grad) {
     }
 }
 
-matmul::matmul(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("MatMulBackward", 6) {
+matmul::matmul(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("MatMul") {
     this->tx = new Tensor(_x);
     this->ty = new Tensor(_y);
 }
@@ -156,7 +156,7 @@ void matmul::backward(const Tensor &_grad) {
     }
 }
 
-pow::pow(const GradientPacked &_x, const f32 _exp) : GradientFlow("PowBackward", 7) {
+pow::pow(const GradientPacked &_x, const f32 _exp) : GradientFlow("Pow") {
     this->tx = new Tensor(_x);
     this->exponent = _exp;
 }
@@ -173,7 +173,7 @@ void pow::backward(const Tensor &_grad) {
     }
 }
 
-sqrt::sqrt(const GradientPacked &_x) : GradientFlow("SqrtBackward", 8) {
+sqrt::sqrt(const GradientPacked &_x) : GradientFlow("Sqrt") {
     this->tx = new Tensor(_x);
 }
 
@@ -189,7 +189,7 @@ void sqrt::backward(const Tensor &_grad) {
     }
 }
 
-exp::exp(const GradientPacked &_x) : GradientFlow("ExpBackward", 9) {
+exp::exp(const GradientPacked &_x) : GradientFlow("Exp") {
     this->tx = new Tensor(_x);
 }
 
@@ -205,7 +205,7 @@ void exp::backward(const Tensor &_grad) {
     }
 }
 
-log::log(const GradientPacked &_x) : GradientFlow("LogBackward", 10) {
+log::log(const GradientPacked &_x) : GradientFlow("Log") {
     this->tx = new Tensor(_x);
 }
 
@@ -221,7 +221,7 @@ void log::backward(const Tensor &_grad) {
     }
 }
 
-rsqrt::rsqrt(const GradientPacked &_x) : GradientFlow("RsqrtBackward", 11) {
+rsqrt::rsqrt(const GradientPacked &_x) : GradientFlow("Rsqrt") {
     this->tx = new Tensor(_x);
 }
 
@@ -237,7 +237,7 @@ void rsqrt::backward(const Tensor &_grad) {
     }
 }
 
-sin::sin(const GradientPacked &_x) : GradientFlow("SinBackward", 12) {
+sin::sin(const GradientPacked &_x) : GradientFlow("Sin") {
     this->tx = new Tensor(_x);
 }
 
@@ -253,7 +253,7 @@ void sin::backward(const Tensor &_grad) {
     }
 }
 
-cos::cos(const GradientPacked &_x) : GradientFlow("CosBackward", 13) {
+cos::cos(const GradientPacked &_x) : GradientFlow("Cos") {
     this->tx = new Tensor(_x);
 }
 
@@ -269,7 +269,7 @@ void cos::backward(const Tensor &_grad) {
     }
 }
 
-abs::abs(const GradientPacked &_x) : GradientFlow("AbsBackward", 14) {
+abs::abs(const GradientPacked &_x) : GradientFlow("Abs") {
     this->tx = new Tensor(_x);
 }
 
@@ -284,7 +284,7 @@ void abs::backward(const Tensor &_grad) {
         this->tx->backward(grad_expanded);
     }
 }
-neg::neg(const GradientPacked &_x) : GradientFlow("NegBackward", 15) {
+neg::neg(const GradientPacked &_x) : GradientFlow("Neg") {
     this->tx = new Tensor(_x);
 }
 
@@ -300,7 +300,7 @@ void neg::backward(const Tensor &_grad) {
     }
 }
 
-add_scalar::add_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("AddScalarBackward", 17), scalar(_scalar) {
+add_scalar::add_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("AddScalar"), scalar(_scalar) {
     this->tx = new Tensor(_x);
 }
 
@@ -315,7 +315,7 @@ void add_scalar::backward(const Tensor &_grad) {
     }
 }
 
-sub_scalar::sub_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("SubScalarBackward", 18), scalar(_scalar) {
+sub_scalar::sub_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("SubScalar"), scalar(_scalar) {
     this->tx = new Tensor(_x);
 }
 
@@ -330,7 +330,7 @@ void sub_scalar::backward(const Tensor &_grad) {
     }
 }
 
-mul_scalar::mul_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("MulScalarBackward", 19), scalar(_scalar) {
+mul_scalar::mul_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("MulScalar"), scalar(_scalar) {
     this->tx = new Tensor(_x);
 }
 
@@ -346,7 +346,7 @@ void mul_scalar::backward(const Tensor &_grad) {
     }
 }
 
-div_scalar::div_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("DivScalarBackward", 20), scalar(_scalar) {
+div_scalar::div_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("DivScalar"), scalar(_scalar) {
     this->tx = new Tensor(_x);
 }
 
@@ -362,7 +362,7 @@ void div_scalar::backward(const Tensor &_grad) {
     }
 }
 
-relu::relu(const GradientPacked &_x) : GradientFlow("ReLUBackward", 21) {
+relu::relu(const GradientPacked &_x) : GradientFlow("ReLU") {
     this->tx = new Tensor(_x);
 }
 
@@ -384,7 +384,7 @@ void relu::backward(const Tensor &_grad) {
     }
 }
 
-tanh::tanh(const GradientPacked &_x, const GradientPacked& _y) : GradientFlow("TanhBackward", 22) {
+tanh::tanh(const GradientPacked &_x, const GradientPacked& _y) : GradientFlow("Tanh") {
     this->tx = new Tensor(_x);
     this->cached_output = new Tensor(_y);
 }
@@ -407,7 +407,7 @@ void tanh::backward(const Tensor &_grad) {
     }
 }
 
-sigmoid::sigmoid(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("SigmoidBackward", 23) {
+sigmoid::sigmoid(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("Sigmoid") {
     this->tx = new Tensor(_x);
     this->cached_output = new Tensor(_y);
 }
@@ -431,7 +431,7 @@ void sigmoid::backward(const Tensor &_grad) {
     }
 }
 
-gelu::gelu(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("GeluBackward", 24) {
+gelu::gelu(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("GeLU") {
     this->tx = new Tensor(_x);
     this->cached_output = new Tensor(_y);
 }
@@ -463,7 +463,7 @@ void gelu::backward(const Tensor &_grad) {
     }
 }
 
-leaky_relu::leaky_relu(const GradientPacked &_x, const f32 alpha) : GradientFlow("LeakyReLUBackward", 25) {
+leaky_relu::leaky_relu(const GradientPacked &_x, const f32 alpha) : GradientFlow("LeakyReLU") {
     this->tx = new Tensor(_x);
     this->alpha = alpha;
 }
@@ -489,7 +489,7 @@ void leaky_relu::backward(const Tensor &_grad) {
     }
 }
 
-gelu_exact::gelu_exact(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("GeluExactBackward", 26) {
+gelu_exact::gelu_exact(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("GeLUExact") {
     this->tx = new Tensor(_x);
     this->cached_output = new Tensor(_y);
 }
@@ -515,7 +515,7 @@ void gelu_exact::backward(const Tensor &_grad) {
     }
 }
 
-silu::silu(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("SiluBackward", 27) {
+silu::silu(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("SiLU") {
     this->tx = new Tensor(_x);
     this->cached_output = new Tensor(_y);
 }
@@ -545,7 +545,7 @@ void silu::backward(const Tensor &_grad) {
     }
 }
 
-conv2d::conv2d(const GradientPacked &_x, const i64 iH, const i64 iW, const i64 kH, const i64 kW, const i64 sH, const i64 sW, const i64 pH, const i64 pW, const i64 oH, const i64 oW) : GradientFlow("Conv2D", 28) {
+conv2d::conv2d(const GradientPacked &_x, const i64 iH, const i64 iW, const i64 kH, const i64 kW, const i64 sH, const i64 sW, const i64 pH, const i64 pW, const i64 oH, const i64 oW) : GradientFlow("Conv2D") {
     this->tx = new Tensor(_x);
 
     this->iH = iH;
@@ -592,7 +592,7 @@ void conv2d::backward(const Tensor &_grad) {
     }
 }
 
-reshape::reshape(const GradientPacked &_x, const std::vector<i64> &shape) : GradientFlow("Reshape", 27) {
+reshape::reshape(const GradientPacked &_x, const std::vector<i64> &shape) : GradientFlow("Reshape") {
     this->tx = new Tensor(_x);
     this->shape = shape;
 }
@@ -610,7 +610,7 @@ void reshape::backward(const Tensor &_grad) {
     }
 }
 
-permute::permute(const GradientPacked &_x, const std::vector<i64> &axis) : GradientFlow("Permute", 28) {
+permute::permute(const GradientPacked &_x, const std::vector<i64> &axis) : GradientFlow("Permute") {
     this->tx = new Tensor(_x);
     this->axis = axis;
 }
