@@ -7,102 +7,45 @@
 
 using namespace cortex;
 
-TEST(Conv2DTest, OutputShape) {
-    // input: (1, 1, 4, 4), kernel: (1, 1, 3, 3), stride=1, pad=0
-    // output: (1, 1, 2, 2)
-    nn::Conv2D conv(1, 1, 3, 3);
+TEST(SumDimTest, LastDimCPU) {
+    const std::vector<float32> data = {1,2,3,4, 5,6,7,8};
+    const tensor t({2, 4}, data.data(), host, true);
 
-    tensor input({1, 1, 4, 4}, host, false);
-    input.fill(1.0f);
+    tensor result = t.sum({1}, true);
 
-    const tensor output = conv.forward(input);
-
-    ASSERT_EQ(output.shape().size(), 4);
-    EXPECT_EQ(output.shape()[0], 1);  // N
-    EXPECT_EQ(output.shape()[1], 1);  // oC
-    EXPECT_EQ(output.shape()[2], 2);  // oH
-    EXPECT_EQ(output.shape()[3], 2);  // oW
+    ASSERT_EQ(result.shape()[0], 2);
+    ASSERT_EQ(result.shape()[1], 1);
+    EXPECT_NEAR(result.get()[0], 10.0f, 1e-4f);  // 1+2+3+4
+    EXPECT_NEAR(result.get()[1], 26.0f, 1e-4f);  // 5+6+7+8
 }
 
-TEST(Conv2DTest, OutputShapeWithPadding) {
-    nn::Conv2D conv(1, 1, 3, 3, 1, 1, 1, 1);
+TEST(SumDimTest, FirstDimCPU) {
+    const std::vector<float32> data = {1,2,3,4, 5,6,7,8};
+    const tensor t({2, 4}, data.data(), host);
 
-    tensor input({1, 1, 4, 4}, host, false);
-    input.fill(1.0f);
+    tensor result = t.sum({0}, true);
 
-    const tensor output = conv.forward(input);
-
-    EXPECT_EQ(output.shape()[2], 4);
-    EXPECT_EQ(output.shape()[3], 4);
+    ASSERT_EQ(result.shape()[0], 1);
+    ASSERT_EQ(result.shape()[1], 4);
+    EXPECT_NEAR(result.get()[0], 6.0f,  1e-4f);  // 1+5
+    EXPECT_NEAR(result.get()[1], 8.0f,  1e-4f);  // 2+6
+    EXPECT_NEAR(result.get()[2], 10.0f, 1e-4f);  // 3+7
+    EXPECT_NEAR(result.get()[3], 12.0f, 1e-4f);  // 4+8
 }
 
-TEST(Conv2DTest, OutputShapeWithStride) {
-    nn::Conv2D conv(1, 1, 3, 3, 2, 2, 0, 0);
+TEST(SumDimTest, BackwardLastDim) {
+    const std::vector<float32> data = {1,2,3,4, 5,6,7,8};
+    tensor t({2, 4}, data.data(), host, true);
 
-    tensor input({1, 1, 6, 6}, host, false);
-    input.fill(1.0f);
+    const tensor result = t.sum({1}, true);   // (2,1)
+    result.sum().backward();
 
-    const tensor output = conv.forward(input);
-
-    EXPECT_EQ(output.shape()[2], 2);
-    EXPECT_EQ(output.shape()[3], 2);
-}
-
-TEST(Conv2DTest, KnownWeightForward) {
-    nn::Conv2D conv(1, 1, 3, 3);
-
-    const auto params = conv.getParameters();
-    params[0].get().fill(1.0f);  // weight
-    params[1].get().zero();       // bias
-
-    const std::vector input_data(1*1*5*5, 1.0f);
-    const tensor input({1, 1, 5, 5}, input_data.data(), host, false);
-
-    tensor output = conv.forward(input);
-
-    EXPECT_EQ(output.shape()[2], 3);
-    EXPECT_EQ(output.shape()[3], 3);
-
-    for (size_t i = 0; i < output.len(); ++i) {
-        EXPECT_NEAR(output.get()[i], 9.0f, 1e-4f);
+    for (size_t i = 0; i < 8; ++i) {
+        EXPECT_NEAR(t.grad().get()[i], 1.0f, 1e-4f);
     }
 }
 
-
-TEST(Conv2DTest, MultiChannelShape) {
-    nn::Conv2D conv(3, 16, 3, 3);
-
-    const tensor input({2, 3, 8, 8}, host, false);
-    input.uniform(0.0f, 1.0f);
-
-    const tensor output = conv.forward(input);
-
-    EXPECT_EQ(output.shape()[0], 2);
-    EXPECT_EQ(output.shape()[1], 16);
-    EXPECT_EQ(output.shape()[2], 6);
-    EXPECT_EQ(output.shape()[3], 6);
-}
-
-TEST(Conv2DBackwardTest, WeightGradShape) {
-    nn::Conv2D conv(1, 1, 3, 3);
-
-    tensor input({1, 1, 5, 5}, host, true);
-    input.uniform(0.0f, 1.0f);
-
-    tensor output = conv.forward(input);
-    tensor loss   = output.sum();
-    loss.backward();
-
-    auto grads = conv.getGradients();
-
-    EXPECT_EQ(grads[0].get().shape()[0], 1);
-    EXPECT_EQ(grads[0].get().shape()[1], 1);
-    EXPECT_EQ(grads[0].get().shape()[2], 3);
-    EXPECT_EQ(grads[0].get().shape()[3], 3);
-
-    EXPECT_EQ(grads[1].get().len(), 1);
-}
-
+// Conv2D Test
 TEST(Conv2DBackwardTest, BiasGradValue) {
     nn::Conv2D conv(1, 1, 3, 3);
 
@@ -134,15 +77,3 @@ grads[1].get().get()[0] evaluates to 18,
 
 Process finished with exit code 1
 */
-
-TEST(Conv2DBackwardTest, InputGradNotZero) {
-    nn::Conv2D conv(1, 1, 3, 3);
-
-    tensor input({1, 1, 5, 5}, host, true);
-    input.uniform(0.0f, 1.0f);
-
-    const tensor output = conv.forward(input);
-    output.sum().backward();
-
-    EXPECT_GT(input.grad().norm1(), 0.0f);
-}

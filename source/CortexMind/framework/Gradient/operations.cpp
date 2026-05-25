@@ -5,6 +5,7 @@
 #include "CortexMind/framework/Gradient/operations.hpp"
 #include <CortexMind/framework/Engine/IX/convolution.hpp>
 #include <CortexMind/framework/Tensor/tensor.hpp>
+#include <algorithm>
 
 using namespace cortex::_fw::meta;
 using namespace cortex::_fw;
@@ -625,5 +626,38 @@ void permute::backward(const Tensor &_grad) {
 
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
+    }
+}
+
+sum_dim::sum_dim(const GradientPacked &_x, const std::vector<i64> &dims, const bool keep) : GradientFlow("SumDim") {
+    this->tx = new Tensor(_x);
+    this->dims = dims;
+    this->keep = keep;
+}
+
+sum_dim::~sum_dim() {
+    delete this->tx;
+}
+
+void sum_dim::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        if (this->tx->has_grad()) {
+            Tensor grad_expanded = _grad;
+
+            if (!this->keep) {
+                std::vector<i64> sorted_dims = this->dims;
+                std::ranges::sort(sorted_dims);
+                for (const i64 d : sorted_dims) {
+                    grad_expanded = grad_expanded.unsqueeze(d);
+                }
+            }
+
+            Tensor ones(this->tx->shape(), this->tx->device(), false);
+            ones.ones();
+
+            grad_expanded *= ones;
+            this->tx->grad() += grad_expanded;
+            this->tx->backward(grad_expanded);
+        }
     }
 }

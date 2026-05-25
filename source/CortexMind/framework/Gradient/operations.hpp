@@ -650,6 +650,17 @@ namespace cortex::_fw::meta {
         std::vector<i64> axis;
         Tensor* tx;
     };
+
+    struct sum_dim : GradientFlow {
+        sum_dim(const GradientPacked& _x, const std::vector<i64>& dims,bool keep);
+        ~sum_dim() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+        std::vector<i64> dims;
+        bool keep;
+    };
 } //namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP

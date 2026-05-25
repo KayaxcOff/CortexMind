@@ -9,6 +9,7 @@
 #if CXM_IS_CUDA_AVAILABLE
     #include <CortexMind/framework/Engine/CUDA/reduce.cuh>
 #endif //#if CXM_IS_CUDA_AVAILABLE
+#include <vector>
 
 namespace cortex::_fw::ix {
     /**
@@ -68,6 +69,8 @@ namespace cortex::_fw::ix {
          */
         [[nodiscard]]
         static f32 dot(const TensorStorage* __restrict Xx, const TensorStorage* __restrict Xy, size_t N);
+
+        static void sum(const TensorStorage* __restrict Xx, TensorStorage* __restrict Xz, const std::vector<i64>& shape, const std::vector<i64>& dims, const std::vector<i64>& out_shape);
     };
 } //namespace cortex::_fw::ix
 

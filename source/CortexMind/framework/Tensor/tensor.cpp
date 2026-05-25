@@ -18,6 +18,7 @@
 #include <concepts>
 #include <string>
 #include <type_traits>
+#include <xutility>
 
 using namespace cortex::_fw::ix;
 using namespace cortex::_fw::sys;
@@ -543,51 +544,38 @@ Tensor Tensor::sum(const std::vector<i64> &dims, const bool keep) const {
     }
 
     Tensor output(out_shape, this->device(), this->m_requires_grad);
-    output.zero();
 
-    const size_t ndim  = this->ndim();
-    const auto   out_strides = compute_stride(out_shape);
-
-    const size_t total = this->len();
-    for (size_t i = 0; i < total; ++i) {
-        size_t oz = 0;
-        size_t idx = i;
-
-        for (i32 d = static_cast<i32>(ndim) - 1; d >= 0; --d) {
-            const size_t coord = idx % static_cast<size_t>(this->m_shape[d]);
-            idx /= static_cast<size_t>(this->m_shape[d]);
-
-            const bool is_reduced = std::ranges::find(dims, static_cast<i64>(d)) != dims.end();
-
-            const size_t out_coord = is_reduced ? 0 : coord;
-            oz += out_coord * static_cast<size_t>(out_strides[static_cast<size_t>(d)]);
-        }
-
-        output.get()[oz] += this->get()[i];
-    }
+    reduce::sum(this->storage_.get(), output.storage_.get(), this->m_shape, dims, out_shape);
 
     if (!keep) {
         std::vector<i64> squeezed;
         for (size_t d = 0; d < out_shape.size(); ++d) {
-            if (std::ranges::find(dims, static_cast<i64>(d)) != dims.end()) {
+            const bool is_reduced = std::ranges::find(dims, static_cast<i64>(d)) != dims.end();
+            if (!is_reduced) {
                 squeezed.push_back(out_shape[d]);
             }
         }
-        return output.reshape(squeezed);
+        if (!squeezed.empty()) {
+            output = output.reshape(squeezed);
+        }
+    }
+
+    if (output.m_requires_grad) {
+        output.flow_ = std::make_shared<meta::sum_dim>(this->pack(), dims, keep);
     }
 
     return output;
 }
 
 Tensor Tensor::mean(const std::vector<i64> &dims, const bool keep) const {
-    const Tensor s = this->sum(dims, keep);
+    const Tensor output = this->sum(dims, keep);
 
     i64 count = 1;
     for (const i64 item : dims) {
         count *= this->m_shape[static_cast<size_t>(item)];
     }
 
-    return s / static_cast<f32>(count);
+    return output / static_cast<f32>(count);
 }
 
 Tensor Tensor::variance(const std::vector<i64> &dims, const bool keep) const {
