@@ -17,14 +17,14 @@ BatchNormalization::BatchNormalization(const std::vector<int64>& axes, const int
 
     this->axes = axes;
 
-    this->gamma = Tensor({num_features}, device, true);
-    this->beta = Tensor({num_features}, device, true);
+    this->gamma = Tensor({1, num_features}, device, true);
+    this->beta = Tensor({1, num_features}, device, true);
 
     this->gamma.ones();
     this->beta.zero();
 
-    this->running_mean = Tensor({num_features}, device, false);
-    this->running_var = Tensor({num_features}, device, false);
+    this->running_mean = Tensor({1, num_features}, device, false);
+    this->running_var = Tensor({1, num_features}, device, false);
 
     this->running_mean.zero();
     this->running_var.ones();
@@ -38,8 +38,8 @@ tensor BatchNormalization::forward(const tensor &input) {
     tensor output;
 
     if (this->flag()) {
-        tensor mean = input.mean(this->axes);
-        tensor var = input.variance(this->axes);
+        tensor mean = input.mean(this->axes, true);
+        tensor var = input.variance(this->axes, true);
 
         tensor x_normalized = (input - mean) * (var + this->epsilon).rsqrt();
 

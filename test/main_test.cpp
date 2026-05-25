@@ -118,7 +118,7 @@ Epoch  9800 | Loss: 0.000275
 
 Process finished with exit code 0
 */
-
+/*
 int main() {
     ds::Spiral df(100, 0.1);
 
@@ -166,6 +166,7 @@ int main() {
 
     return 0;
 }
+*/
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
 Epoch     0 | Loss: 0.247976
@@ -224,4 +225,65 @@ Epoch  9800 | Loss: 0.207225
   [-0.1, 0.2] -> 0.2023 (expected: 0.0000)
 
 Process finished with exit code 0
+*/
+
+int main() {
+    ds::TwoMoons df(100, 0.1);
+
+    tensor X({df.N, 2}, df.X.data(), host);
+    tensor Y({df.N, 1}, df.Y.data(), host);
+
+    nn::Dense hidden(2, 16, host);
+    nn::BatchNormalization bn({0}, 16, 0.1f, 1e-5f, host);  // ← Add
+    nn::GeLUExact gelu_exact;
+    nn::Dense output_layer(16, 1, host);
+    nn::Sigmoid sigmoid;
+
+    loss::MeanSquared mse;
+    opt::StochasticGradient sgd(0.5f);
+
+    auto params2 = hidden.getParameters();
+    auto bn_params = bn.getParameters();
+    auto out_params2 = output_layer.getParameters();
+
+    auto params = hidden.getParameters();
+    auto out_params = output_layer.getParameters();
+    params.insert(params.end(), bn_params.begin(), bn_params.end());
+    params.insert(params.end(), out_params.begin(), out_params.end());
+    sgd.SetParams(params);
+
+    constexpr int epochs = 10000;
+    for (int epoch = 0; epoch < epochs; ++epoch) {
+        tensor h  = hidden.forward(X);
+        tensor h2 = bn.forward(h);          // ← BatchNorm
+        tensor h3 = gelu_exact.forward(h2);
+        tensor out = output_layer.forward(h3);
+        tensor y_pred = sigmoid.forward(out);
+        tensor l = mse.forward(y_pred, Y);
+
+        sgd.zero_grad();
+        l.backward();
+        sgd.update();
+
+        if (epoch % 200 == 0) {
+            std::cout << "Epoch " << std::setw(5) << epoch << " | Loss: " << std::fixed << std::setprecision(6) << l.get()[0] << std::endl;
+        }
+    }
+
+    bn.EvalMode();
+
+    tensor h  = hidden.forward(X);
+    tensor h2 = bn.forward(h);          // ← BatchNorm
+    tensor h3 = gelu_exact.forward(h2);
+    tensor out = output_layer.forward(h3);
+    tensor pred = sigmoid.forward(out);
+
+    for (int i = 0; i < 4; ++i) {
+        std::cout << "  [" << std::fixed << std::setprecision(1) << df.X[i*2] << ", " << df.X[i*2+1] << "]" << " -> " << std::fixed << std::setprecision(4) << pred.get()[i] << " (expected: " << df.Y[i] << ")" << std::endl;
+    }
+
+    return 0;
+}
+/*
+[ERROR] [CortexMind\framework\Tensor\tensor.cpp | 276] matmul shape mismatch: inner dimensions must match, got 100 and 1
 */
