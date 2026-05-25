@@ -5,6 +5,7 @@
 #include "CortexMind/net/NeuralNetwork/tanh.hpp"
 #include <CortexMind/framework/Engine/IX/activation.hpp>
 #include <CortexMind/framework/Gradient/operations.hpp>
+#include <memory>
 
 using namespace cortex::_fw;
 using namespace cortex::nn;

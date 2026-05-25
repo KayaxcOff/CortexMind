@@ -7,6 +7,8 @@
 #include <CortexMind/framework/Gradient/operations.hpp>
 #include <cmath>
 #include <iostream>
+#include <memory>
+#include <string>
 
 using namespace cortex::_fw;
 using namespace cortex::nn;

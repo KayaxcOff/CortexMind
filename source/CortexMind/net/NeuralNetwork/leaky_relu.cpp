@@ -6,6 +6,7 @@
 #include <CortexMind/framework/Engine/IX/activation.hpp>
 #include <CortexMind/framework/Gradient/operations.hpp>
 #include <string>
+#include <memory>
 
 using namespace cortex::_fw;
 using namespace cortex::nn;
