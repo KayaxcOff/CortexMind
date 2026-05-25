@@ -1,5 +1,7 @@
 add_library(CortexMind STATIC
-        source/CortexMind/dataset/dataset.cpp
+        source/CortexMind/dataset/circle.cpp
+        source/CortexMind/dataset/spiral.cpp
+        source/CortexMind/dataset/two_moons.cpp
         source/CortexMind/framework/Engine/AVX2/activation.cpp
         source/CortexMind/framework/Engine/AVX2/broadcast.cpp
         source/CortexMind/framework/Engine/AVX2/matrix.cpp

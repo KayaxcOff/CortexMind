@@ -7,6 +7,8 @@
 
 // ----- dataset -----
 #include <CortexMind/dataset/circle.hpp>
+#include <CortexMind/dataset/spiral.hpp>
+#include <CortexMind/dataset/two_moons.hpp>
 
 // ----- net -----
 #include <CortexMind/net/LossFunction/mae.hpp>
