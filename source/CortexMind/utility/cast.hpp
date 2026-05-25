@@ -37,7 +37,7 @@ namespace cortex::utils {
          * @return Tensor of shape `{1}` filled with the configured value
          */
         [[nodiscard]]
-        tensor as_tensor() const;
+        tensor cast() const;
     private:
         float32 m_value;
         _fw::sys::DeviceType m_dev;

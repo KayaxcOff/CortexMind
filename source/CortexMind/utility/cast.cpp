@@ -15,7 +15,7 @@ void TensorFactory::Set(const float32 value) {
     this->m_value = value;
 }
 
-tensor TensorFactory::as_tensor() const {
+tensor TensorFactory::cast() const {
     tensor output({1}, this->m_dev, this->m_grad_flag);
     output.fill(this->m_value);
     return output;
