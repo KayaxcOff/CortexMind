@@ -285,5 +285,21 @@ int main() {
     return 0;
 }
 /*
-[ERROR] [CortexMind\framework\Tensor\tensor.cpp | 276] matmul shape mismatch: inner dimensions must match, got 100 and 1
+It took so long, like more than 30 minute
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
+Epoch     0 | Loss: 0.245013
+Epoch   200 | Loss: 0.051378
+Epoch   400 | Loss: 0.032729
+Epoch   600 | Loss: 0.020316
+Epoch   800 | Loss: 0.015957
+Epoch  1000 | Loss: 0.013435
+Epoch  1200 | Loss: 0.012094
+Epoch  1400 | Loss: 0.011718
+Epoch  1600 | Loss: 0.013569
+Epoch  1800 | Loss: 0.010954
+Epoch  2000 | Loss: 0.022091
+Epoch  2200 | Loss: 0.023972
+
+Process finished with exit code -1073741510 (0xC000013A: interrupted by Ctrl+C)
+
 */

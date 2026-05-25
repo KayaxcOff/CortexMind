@@ -655,7 +655,7 @@ void sum_dim::backward(const Tensor &_grad) {
             Tensor ones(this->tx->shape(), this->tx->device(), false);
             ones.ones();
 
-            grad_expanded *= ones;
+            grad_expanded = grad_expanded * ones;
             this->tx->grad() += grad_expanded;
             this->tx->backward(grad_expanded);
         }
