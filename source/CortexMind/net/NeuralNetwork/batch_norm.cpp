@@ -39,19 +39,19 @@ tensor BatchNormalization::forward(const tensor &input) {
 
     if (this->flag()) {
         tensor mean = input.mean(this->axes, true);
-        tensor var = input.variance(this->axes, true);
 
-        tensor x_normalized = (input - mean) * (var + this->epsilon).rsqrt();
+        const tensor diff = input - mean;
+        tensor var = (diff * diff).mean(this->axes, true);
 
-        output = this->gamma * x_normalized + this->beta;
+        tensor x_norm = diff * (var + this->epsilon).rsqrt();
+        output = this->gamma * x_norm + this->beta;
 
         this->running_mean = (1.0f - this->momentum) * this->running_mean + this->momentum * mean;
-
         this->running_var = (1.0f - this->momentum) * this->running_var + this->momentum * var;
 
     } else {
-        tensor x_normalized = (input - this->running_mean) * (this->running_var + this->epsilon).rsqrt();
-        output = this->gamma * x_normalized + this->beta;
+        tensor x_norm = (input - this->running_mean) * (this->running_var + this->epsilon).rsqrt();
+        output = this->gamma * x_norm + this->beta;
     }
 
     return output;
