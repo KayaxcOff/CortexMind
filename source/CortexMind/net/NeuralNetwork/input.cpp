@@ -8,7 +8,9 @@ using namespace cortex::_fw;
 using namespace cortex::nn;
 using namespace cortex;
 
-Input::Input(const std::vector<int64> &_shape) : LayerBase("Input"), shape(_shape) {}
+Input::Input(const std::vector<int64> &_shape) : LayerBase("Input") {
+    this->shape = _shape;
+}
 
 Input::~Input() = default;
 

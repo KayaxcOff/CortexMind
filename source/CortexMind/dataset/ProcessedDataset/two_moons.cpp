@@ -2,13 +2,14 @@
 // Created by muham on 25.05.2026.
 //
 
-#include "CortexMind/dataset/two_moons.hpp"
+#include "CortexMind/dataset/ProcessedDataset/two_moons.hpp"
+#include <cmath>
 #include <numbers>
 #include <random>
 
 using namespace cortex::ds;
 
-TwoMoonsDataset::TwoMoonsDataset(const int32 n, float32 noise) : N(n) {
+TwoMoons::TwoMoons(const int32 n, const float32 noise) : N(n) {
     std::random_device rd;
     std::mt19937 gen(rd());
 

@@ -2,13 +2,13 @@
 // Created by muham on 23.05.2026.
 //
 
-#include "CortexMind/dataset/circle.hpp"
+#include "CortexMind/dataset/ProcessedDataset/circle.hpp"
 #include <cmath>
 #include <random>
 
 using namespace cortex::ds;
 
-CircleDataset::CircleDataset(const int32 n, const float32 noise) : N(n) {
+Circle::Circle(const int32 n, const float32 noise) : N(n) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution dist(-1.0f, 1.0f);
@@ -25,7 +25,6 @@ CircleDataset::CircleDataset(const int32 n, const float32 noise) : N(n) {
 
         float32 label = (r < 0.5f) ? 1.0f : 0.0f;
 
-        // noise
         x += gauss(gen);
         y += gauss(gen);
 

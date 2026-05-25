@@ -6,9 +6,9 @@
 #define CORTEXMIND_CORTEXMIND_HPP
 
 // ----- dataset -----
-#include <CortexMind/dataset/circle.hpp>
-#include <CortexMind/dataset/spiral.hpp>
-#include <CortexMind/dataset/two_moons.hpp>
+#include <CortexMind/dataset/ProcessedDataset/circle.hpp>
+#include <CortexMind/dataset/ProcessedDataset/spiral.hpp>
+#include <CortexMind/dataset/ProcessedDataset/two_moons.hpp>
 
 // ----- net -----
 #include <CortexMind/net/LossFunction/mae.hpp>

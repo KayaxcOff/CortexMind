@@ -12,7 +12,7 @@
 using namespace cortex;
 /*
 int main() {
-    ds::TwoMoonsDataset df(100, 0.1);
+    ds::TwoMoons df(100, 0.1);
 
     tensor X({df.N, 2}, df.X.data(), host);
     tensor Y({df.N, 1}, df.Y.data(), host);
@@ -120,7 +120,7 @@ Process finished with exit code 0
 */
 
 int main() {
-    ds::SpiralDataset df(100, 0.1);
+    ds::Spiral df(100, 0.1);
 
     tensor X({df.N, 2}, df.X.data(), host);
     tensor Y({df.N, 1}, df.Y.data(), host);

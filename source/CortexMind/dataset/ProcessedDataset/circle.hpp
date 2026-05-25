@@ -2,8 +2,8 @@
 // Created by muham on 23.05.2026.
 //
 
-#ifndef CORTEXMIND_DATASET_CIRCLE_HPP
-#define CORTEXMIND_DATASET_CIRCLE_HPP
+#ifndef CORTEXMIND_DATASET_PROCESSED_DATASET_CIRCLE_HPP
+#define CORTEXMIND_DATASET_PROCESSED_DATASET_CIRCLE_HPP
 
 #include <CortexMind/tools/types.hpp>
 #include <vector>
@@ -18,7 +18,7 @@ namespace cortex::ds {
      *
      * Gaussian noise can be added to make the problem more challenging.
      */
-    struct CircleDataset {
+    struct Circle {
         std::vector<float32> X;   ///< Flattened input features: [x0, y0, x1, y1, ...]
         std::vector<float32> Y;   ///< Labels: 0 or 1
 
@@ -30,8 +30,8 @@ namespace cortex::ds {
          * @param n     Number of samples to generate
          * @param noise Standard deviation of Gaussian noise added to points (default: 0.1)
          */
-        explicit CircleDataset(int32 n, float32 noise = 0.1f);
+        explicit Circle(int32 n, float32 noise = 0.1f);
     };
 } //namespace cortex::ds
 
-#endif //CORTEXMIND_DATASET_CIRCLE_HPP
+#endif //CORTEXMIND_DATASET_PROCESSED_DATASET_CIRCLE_HPP

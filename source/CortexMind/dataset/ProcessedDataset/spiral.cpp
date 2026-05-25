@@ -2,13 +2,14 @@
 // Created by muham on 25.05.2026.
 //
 
-#include "CortexMind/dataset/spiral.hpp"
+#include "CortexMind/dataset/ProcessedDataset/spiral.hpp"
+#include <cmath>
 #include <numbers>
 #include <random>
 
 using namespace cortex::ds;
 
-SpiralDataset::SpiralDataset(const int32 n, const float32 noise) : N(n) {
+Spiral::Spiral(const int32 n, const float32 noise) : N(n) {
     std::random_device rd;
     std::mt19937 gen(rd());
 
