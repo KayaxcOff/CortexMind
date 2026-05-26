@@ -18,6 +18,7 @@
 #include <CortexMind/net/NeuralNetwork/batch_norm.hpp>
 #include <CortexMind/net/NeuralNetwork/convolution_2d.hpp>
 #include <CortexMind/net/NeuralNetwork/dense.hpp>
+#include <CortexMind/net/NeuralNetwork/dropout.hpp>
 #include <CortexMind/net/NeuralNetwork/flatten.hpp>
 #include <CortexMind/net/NeuralNetwork/gelu.hpp>
 #include <CortexMind/net/NeuralNetwork/gelu_exact.hpp>

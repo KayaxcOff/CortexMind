@@ -40,6 +40,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/NeuralNetwork/batch_norm.cpp
         source/CortexMind/net/NeuralNetwork/convolution_2d.cpp
         source/CortexMind/net/NeuralNetwork/dense.cpp
+        source/CortexMind/net/NeuralNetwork/dropout.cpp
         source/CortexMind/net/NeuralNetwork/flatten.cpp
         source/CortexMind/net/NeuralNetwork/gelu.cpp
         source/CortexMind/net/NeuralNetwork/gelu_exact.cpp
