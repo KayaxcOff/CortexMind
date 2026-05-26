@@ -5,11 +5,11 @@
 #include "CortexMind/net/Model/model.hpp"
 #include <algorithm>
 #include <iomanip>
+#include <ios>
 #include <iostream>
 
 using namespace cortex::net;
 using namespace cortex;
-
 
 Model::Model(std::string name) : m_flag(false), m_name(std::move(name)) {}
 
@@ -18,9 +18,9 @@ Model::~Model() = default;
 void Model::fit(const tensor &Xx, const tensor &Xy, int32 epochs, int32 batch) const {
     CXM_ASSERT(!this->m_flag, "Model isn't compiled");
 
-    this->optimization_fn_->SetParams(this->parameters());
+    this->optim_fn_->SetParams(this->parameters());
 
-    const auto N        = static_cast<int64>(Xx.shape()[0]);
+    const auto N = static_cast<int64>(Xx.shape()[0]);
     const int64 n_batch  = (N + batch - 1) / batch;
 
     for (int32 epoch = 0; epoch < epochs; ++epoch) {
@@ -28,7 +28,7 @@ void Model::fit(const tensor &Xx, const tensor &Xy, int32 epochs, int32 batch) c
 
         for (int64 b = 0; b < n_batch; ++b) {
             const int64 start = b * batch;
-            const int64 end   = std::min(start + batch, N);
+            const int64 end = std::min(start + batch, N);
 
             const tensor Xb = Xx.slice(0, start, end);
             const tensor Yb = Xy.slice(0, start, end);
@@ -38,9 +38,9 @@ void Model::fit(const tensor &Xx, const tensor &Xy, int32 epochs, int32 batch) c
             const tensor loss = this->loss_fn_->forward(pred, Yb);
             epoch_loss += loss.get()[0];
 
-            this->optimization_fn_->zero_grad();
+            this->optim_fn_->zero_grad();
             loss.backward();
-            this->optimization_fn_->update();
+            this->optim_fn_->update();
         }
 
         if (epoch % 100 == 0) {
@@ -62,46 +62,33 @@ tensor Model::predict(const tensor &x) const {
 }
 
 void Model::summary() const {
-    using std::cout;
-    using std::left;
-    using std::setw;
 
     constexpr int W1 = 30;
     constexpr int W2 = 15;
 
-    cout << "\n==================================================\n";
-    cout << "Model: " <<(this->m_name.empty() ? this->m_name : "") << '\n';
-    cout << "==================================================\n";
+    std::cout << "\n==================================================\n";
+    std::cout << "Model: " <<(this->m_name.empty() ? this->m_name : "") << '\n';
+    std::cout << "==================================================\n";
 
-    cout << left
-         << setw(W1) << "Layer"
-         << setw(W2) << "Trainable"
-         << '\n';
+    std::cout << std::left << std::setw(W1) << "Layer" << std::setw(W2) << "Trainable" << '\n';
 
-    cout << "--------------------------------------------------\n";
+    std::cout << "--------------------------------------------------\n";
 
-    for (const auto& layer : this->layers_) {
-        cout << left
-             << setw(W1) << layer->name()
-             << setw(W2) << (layer->flag() ? "Yes" : "No")
-             << '\n';
+    for (const auto& item : this->layers_) {
+        std::cout << std::left << std::setw(W1) << item->name() << std::setw(W2) << (item->flag() ? "Yes" : "No") << '\n';
     }
 
-    cout << "==================================================\n";
+    std::cout << "==================================================\n";
 
-    cout << "Loss Function : "
-         << (this->loss_fn_ ? this->loss_fn_->name() : "None")
-         << '\n';
+    std::cout << "Is compiled   : " << (this->m_flag ? "Yes" : "No") << '\n';
 
-    cout << "Optimizer     : "
-         << (this->optimization_fn_ ? this->optimization_fn_->name() : "None")
-         << '\n';
+    std::cout << "Loss Function : " << (this->loss_fn_ ? this->loss_fn_->name() : "None") << '\n';
 
-    cout << "Total Params  : "
-         << this->compute_element()
-         << '\n';
+    std::cout << "Optimizer     : "<< (this->optim_fn_ ? this->optim_fn_->name() : "None") << '\n';
 
-    cout << "==================================================\n";
+    std::cout << "Total Params  : " << this->compute_element() << '\n';
+
+    std::cout << "==================================================\n";
 }
 
 void Model::train() const {

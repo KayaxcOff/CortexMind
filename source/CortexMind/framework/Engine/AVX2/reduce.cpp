@@ -15,6 +15,8 @@
 using namespace cortex::_fw::avx2;
 using namespace cortex::_fw;
 
+static constexpr size_t COL_TILE = 256;
+
 f32 reduce::sum(const f32 *x, const size_t N) {
 
     size_t i = 0;
@@ -137,4 +139,44 @@ bool reduce::equal(const f32 *Xx, const f32 *Xy, const size_t N) {
     }
 
     return max_diff < 1e-6f;
+}
+
+void reduce::sum_last_dim(const f32 *src, f32 *dst, const size_t rows, const size_t cols) {
+    for (size_t r = 0; r < rows; ++r) {
+        dst[r] = sum(src + r * cols, cols);
+    }
+}
+
+void reduce::sum_first_dim(const f32 *src, f32 *dst, const size_t rows, const size_t cols) {
+    size_t col = 0;
+
+    for (; col + COL_TILE <= cols; col += COL_TILE) {
+        f32* out = dst + col;
+
+        for (size_t r = 0; r < rows; ++r) {
+            const f32* row = src + r * cols + col;
+            size_t i = 0;
+            for (; i + 8 <= COL_TILE; i += 8) {
+                storeu(out + i, add(loadu(out + i), loadu(row + i)));
+            }
+            for (; i < COL_TILE; ++i) {
+                out[i] += row[i];
+            }
+        }
+    }
+
+    const size_t tail = cols - col;
+    if (tail == 0) return;
+
+    for (size_t r = 0; r < rows; ++r) {
+        const f32* row = src + r * cols + col;
+        f32*       out = dst + col;
+        size_t i = 0;
+        for (; i + 8 <= tail; i += 8) {
+            storeu(out + i, add(loadu(out + i), loadu(row + i)));
+        }
+        for (; i < tail; ++i) {
+            out[i] += row[i];
+        }
+    }
 }

@@ -597,6 +597,9 @@ namespace cortex::_fw {
         [[nodiscard]]
         Tensor detach() const;
 
+        [[nodiscard]]
+        Tensor clamp(f32 min, f32 max) const;
+
         /**
          * @brief Returns the gradient tensor.
          *

@@ -239,54 +239,103 @@ f32 reduce::dot(const TensorStorage *Xx, const TensorStorage *Xy, const size_t N
 
 void reduce::sum(const TensorStorage *Xx, TensorStorage *Xz, const std::vector<i64> &shape, const std::vector<i64> &dims, const std::vector<i64> &out_shape) {
     CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
-    CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
-
+    CXM_ASSERT(Xx->isEmpty(),  "Input Storage is empty");
     CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
-    CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
+    CXM_ASSERT(Xz->isEmpty(),  "Output Storage is empty");
+    CXM_ASSERT(Xx->device() != Xz->device(), "Device mismatch");
 
-    CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-
-    const DeviceType device = Xx->device();
-
-    const size_t total_out = compute_size(out_shape);
-    const size_t ndim = shape.size();
+    const DeviceType device  = Xx->device();
+    const size_t     ndim    = shape.size();
+    const size_t     total_in  = compute_size(shape);
+    const size_t     total_out = compute_size(out_shape);
 
     std::memset(Xz->data(), 0, total_out * sizeof(f32));
 
-    const bool last_dim_only = (dims.size() == 1 && dims[0] == static_cast<i64>(ndim - 1));
-
-    if (last_dim_only && device == DeviceType::kHOST) {
-        const auto row_len = static_cast<size_t>(shape.back());
-        const size_t rows    = compute_size(shape) / row_len;
-        for (size_t r = 0; r < rows; ++r) {
-            Xz->data()[r] = avx2::reduce::sum(Xx->data() + r * row_len, row_len);
-        }
-        return;
-    }
+    const bool last_dim_only  = (dims.size() == 1 && dims[0] == static_cast<i64>(ndim - 1));
+    const bool first_dim_only = (dims.size() == 1 && dims[0] == 0);
 
     #if CXM_IS_CUDA_AVAILABLE
         if (device == DeviceType::kCUDA) {
-            CXM_ASSERT(true, "sum_dim CUDA not implemented yet");
+            if (last_dim_only) {
+                const auto cols = static_cast<size_t>(shape.back());
+                const size_t rows = total_in / cols;
+                cuda::ReduceOp::sum_last_dim(Xx->data(), Xz->data(), rows, cols);
+            } else if (first_dim_only) {
+                const auto rows = static_cast<size_t>(shape[0]);
+                const size_t cols = total_in / rows;
+                cuda::ReduceOp::sum_first_dim(Xx->data(), Xz->data(), rows, cols);
+            } else {
+                CXM_ASSERT(true, "sum_dim CUDA: mixed dims not implemented");
+            }
+            return;
+        } else if (device == DeviceType::kHOST) {
+
+            if (last_dim_only) {
+                const auto cols = static_cast<size_t>(shape.back());
+                const size_t rows = total_in / cols;
+                avx2::reduce::sum_last_dim(Xx->data(), Xz->data(), rows, cols);
+                return;
+            }
+
+            if (first_dim_only) {
+                const auto rows = static_cast<size_t>(shape[0]);
+                const size_t cols = total_in / rows;
+                avx2::reduce::sum_first_dim(Xx->data(), Xz->data(), rows, cols);
+                return;
+            }
+
+            const auto out_strides = compute_stride(out_shape);
+            std::vector is_reduced(ndim, false);
+            for (const i64 d : dims) is_reduced[static_cast<size_t>(d)] = true;
+
+            for (size_t i = 0; i < total_in; ++i) {
+                size_t oz  = 0;
+                size_t idx = i;
+                for (i32 d = static_cast<i32>(ndim) - 1; d >= 0; --d) {
+                    const auto ud = static_cast<size_t>(d);
+                    const size_t coord = idx % static_cast<size_t>(shape[ud]);
+                    idx /= static_cast<size_t>(shape[ud]);
+                    if (!is_reduced[ud]) {
+                        oz += coord * static_cast<size_t>(out_strides[ud]);
+                    }
+                }
+                Xz->data()[oz] += Xx->data()[i];
+            }
         }
-    #endif //#if CXM_IS_CUDA_AVAILABLE
+    #else //#if CXM_IS_CUDA_AVAILABLE
 
-    const auto out_strides = compute_stride(out_shape);
-    const size_t total_in  = compute_size(shape);
-
-    for (size_t i = 0; i < total_in; ++i) {
-        size_t oz = 0;
-        size_t idx = i;
-
-        for (i32 d = static_cast<i32>(ndim) - 1; d >= 0; --d) {
-            const size_t coord = idx % static_cast<size_t>(shape[d]);
-            idx /= static_cast<size_t>(shape[d]);
-
-            const bool is_reduced = std::ranges::find(dims, static_cast<i64>(d)) != dims.end();
-
-            const size_t out_coord = is_reduced ? 0 : coord;
-            oz += out_coord * static_cast<size_t>(out_strides[static_cast<size_t>(d)]);
+        if (last_dim_only) {
+            const auto cols = static_cast<size_t>(shape.back());
+            const size_t rows = total_in / cols;
+            avx2::reduce::sum_last_dim(Xx->data(), Xz->data(), rows, cols);
+            return;
         }
 
-        Xz->data()[oz] += Xx->data()[i];
-    }
+        if (first_dim_only) {
+            const auto rows = static_cast<size_t>(shape[0]);
+            const size_t cols = total_in / rows;
+            avx2::reduce::sum_first_dim(Xx->data(), Xz->data(), rows, cols);
+            return;
+        }
+
+        const auto out_strides = compute_stride(out_shape);
+        std::vector<bool> is_reduced(ndim, false);
+        for (const i64 d : dims) is_reduced[static_cast<size_t>(d)] = true;
+
+        for (size_t i = 0; i < total_in; ++i) {
+            size_t oz  = 0;
+            size_t idx = i;
+            for (i32 d = static_cast<i32>(ndim) - 1; d >= 0; --d) {
+                const auto ud = static_cast<size_t>(d);
+                const size_t coord = idx % static_cast<size_t>(shape[ud]);
+                idx /= static_cast<size_t>(shape[ud]);
+                if (!is_reduced[ud]) {
+                    oz += coord * static_cast<size_t>(out_strides[ud]);
+                }
+            }
+            Xz->data()[oz] += Xx->data()[i];
+        }
+    #endif //#if CXM_IS_CUDA_AVAILABLE #else
+
+
 }

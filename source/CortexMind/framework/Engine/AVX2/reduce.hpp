@@ -122,6 +122,9 @@ namespace cortex::_fw::avx2 {
          */
         [[nodiscard]]
         static bool equal(const f32* Xx, const f32* Xy, size_t N);
+
+        static void sum_last_dim(const f32* __restrict src, f32* __restrict dst, size_t rows, size_t cols);
+        static void sum_first_dim(const f32* __restrict src, f32* __restrict dst, size_t rows, size_t cols);
     };
 } //namespace cortex::_fw::avx2
 

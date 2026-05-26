@@ -297,3 +297,31 @@ void ElementWise::neg(const TensorStorage *Xx, TensorStorage *Xz, const size_t N
         avx2::wise::neg(Xx->data(), Xz->data(), N);
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
 }
+
+void ElementWise::clamp(const TensorStorage *Xx, const f32 min_val, const f32 max_val, TensorStorage *Xz, const size_t N) {
+    CXM_ASSERT(!Xx->isValid(), "Input Storage is null");
+    CXM_ASSERT(Xx->isEmpty(), "Input Storage is empty");
+
+    CXM_ASSERT(!Xz->isValid(), "Output Storage is null");
+    CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
+
+    CXM_ASSERT(N <= 0, "Number element of tensor must be higher than zero");
+
+    CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
+
+    auto dev = DeviceType::kHOST;
+
+    if (Xx->device() == Xz->device()) {
+        dev = Xx->device();
+    }
+
+    #if CXM_IS_CUDA_AVAILABLE
+        if (dev == DeviceType::kHOST) {
+            avx2::wise::clamp(Xx->data(), min_val, max_val, Xz->data(), N);
+        } else {
+            cuda::ElementWise::clamp(Xx->data(), min_val, max_val, Xz->data(), N);
+        }
+    #else //#if CXM_IS_CUDA_AVAILABLE
+        avx2::wise::clamp(Xx->data(), min_val, max_val, Xz->data(), N);
+    #endif //#if CXM_IS_CUDA_AVAILABLE #else
+}

@@ -152,6 +152,8 @@ namespace cortex::_fw::avx2 {
          * @param N  Number of elements
          */
         static void less_eq(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t N);
+
+        static void clamp(const f32* Xx, f32 min_val, f32 max_val, f32* Xz, size_t N);
     };
 } //namespace cortex::_fw::avx2
 

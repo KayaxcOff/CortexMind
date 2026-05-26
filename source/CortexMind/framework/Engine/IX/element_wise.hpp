@@ -60,6 +60,8 @@ namespace cortex::_fw::ix {
          * @brief Element-wise sign function: `Z[i] = sign(X[i])` (-1, 0, or 1)
          */
         static void sign(const TensorStorage* __restrict Xx, TensorStorage* __restrict Xz, size_t N);
+
+        static void clamp(const TensorStorage* __restrict Xx, f32 min_val, f32 max_val, TensorStorage* __restrict Xz, size_t N);
     };
 } //namespace cortex::_fw::ix
 

@@ -122,6 +122,67 @@ namespace cortex::_fw::cuda::kernels {
             }
         }
     }
+
+    __global__ void ReduceSumFirstDim(const f32* __restrict__ Xx, f32* __restrict__ Xz, const size_t rows, const size_t cols) {
+        extern __shared__ f32 sdata[];
+
+        const size_t col = blockIdx.x;
+        const size_t tid = threadIdx.x;
+
+        if (col >= cols) return;
+
+        f32 local = 0.0f;
+        for (size_t r = tid; r < rows; r += blockDim.x) {
+            local += Xx[r * cols + col];
+        }
+
+        // Warp reduce
+        local = warp_reduce_sum(local);
+
+        if (tid % WARP_SIZE == 0) {
+            sdata[tid / WARP_SIZE] = local;
+        }
+        SynchronizeThreads();
+
+        const size_t warp_count = blockDim.x / WARP_SIZE;
+        if (tid < warp_count) {
+            f32 val = sdata[tid];
+            val = warp_reduce_sum(val);
+            if (tid == 0) {
+                Xz[col] = val;
+            }
+        }
+    }
+
+    __global__ void ReduceSumLastDim(const f32* __restrict__ Xx, f32* __restrict__ Xz, const size_t rows, const size_t cols) {
+        extern __shared__ f32 sdata[];
+
+        const size_t row = blockIdx.x;
+        const size_t tid = threadIdx.x;
+
+        if (row >= rows) return;
+
+        f32 local = 0.0f;
+        for (size_t c = tid; c < cols; c += blockDim.x) {
+            local += Xx[row * cols + c];
+        }
+
+        local = warp_reduce_sum(local);
+
+        if (tid % WARP_SIZE == 0) {
+            sdata[tid / WARP_SIZE] = local;
+        }
+        SynchronizeThreads();
+
+        const size_t warp_count = blockDim.x / WARP_SIZE;
+        if (tid < warp_count) {
+            f32 val = sdata[tid];
+            val = warp_reduce_sum(val);
+            if (tid == 0) {
+                Xz[row] = val;
+            }
+        }
+    }
 } //namespace cortex::_fw::cuda::kernels
 
 #endif //CORTEXMIND_FRAMEWORK_ENGINE_CUDA_KERNELS_REDUCE_CUH

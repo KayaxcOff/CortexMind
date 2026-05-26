@@ -661,3 +661,28 @@ void sum_dim::backward(const Tensor &_grad) {
         }
     }
 }
+
+clamp::clamp(const GradientPacked &_x, const f32 min_val, const f32 max_val) : GradientFlow("Clamp") {
+    this->tx = new Tensor(_x);
+    this->min_val = min_val;
+    this->max_val = max_val;
+}
+
+clamp::~clamp() {
+    delete this->tx;
+}
+
+void clamp::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        Tensor lo(this->tx->shape(), this->tx->device(), false);
+        Tensor hi(this->tx->shape(), this->tx->device(), false);
+        lo.fill(this->min_val);
+        hi.fill(this->max_val);
+
+        const Tensor mask = (*this->tx > lo) * (*this->tx < hi);
+
+        const Tensor grad_expanded = _grad * mask;
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}

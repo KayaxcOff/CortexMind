@@ -5,6 +5,7 @@
 #include "CortexMind/framework/Engine/AVX2/wise.hpp"
 #include <CortexMind/framework/Engine/AVX2/cmp.hpp>
 #include <CortexMind/framework/Engine/AVX2/functions.hpp>
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 
@@ -171,5 +172,18 @@ void wise::less_eq(const f32* Xx, const f32* Xy, f32* Xz, const size_t N) {
     }
     for (; i < N; ++i) {
         Xz[i] = Xx[i] <= Xy[i] ? 1.0f : 0.0f;
+    }
+}
+
+void wise::clamp(const f32 *Xx, const f32 min_val, const f32 max_val, f32 *Xz, const size_t N) {
+    size_t i = 0;
+    const vec8f vmin = set1(min_val);
+    const vec8f vmax = set1(max_val);
+    for (; i + 8 <= N; i += 8) {
+        const vec8f x = loadu(Xx + i);
+        storeu(Xz + i, min(max(x, vmin), vmax));
+    }
+    for (; i < N; ++i) {
+        Xz[i] = std::max(min_val, std::min(Xx[i], max_val));
     }
 }

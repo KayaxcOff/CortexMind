@@ -46,8 +46,8 @@ tensor BatchNormalization::forward(const tensor &input) {
         tensor x_norm = diff * (var + this->epsilon).rsqrt();
         output = this->gamma * x_norm + this->beta;
 
-        this->running_mean = (1.0f - this->momentum) * this->running_mean + this->momentum * mean;
-        this->running_var = (1.0f - this->momentum) * this->running_var + this->momentum * var;
+        this->running_mean = (1.0f - this->momentum) * this->running_mean + this->momentum * mean.detach();
+        this->running_var  = (1.0f - this->momentum) * this->running_var + this->momentum * var.detach();
 
     } else {
         tensor x_norm = (input - this->running_mean) * (this->running_var + this->epsilon).rsqrt();

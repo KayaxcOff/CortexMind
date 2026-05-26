@@ -6,7 +6,6 @@
 #include <CortexMind/framework/Engine/IX/compare.hpp>
 #include <CortexMind/framework/Engine/IX/matrix.hpp>
 #include <CortexMind/framework/Engine/IX/scalar.hpp>
-#include <CortexMind/framework/Gradient/operations.hpp>
 #include <CortexMind/framework/Tools/err.hpp>
 #include <functional>
 #include <ostream>

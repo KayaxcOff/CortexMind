@@ -92,6 +92,9 @@ namespace cortex::_fw::cuda {
          */
         [[nodiscard]]
         f32 dot(const f32* __restrict Xx, const f32* __restrict Xy, size_t N) const;
+
+        static void sum_last_dim(const f32* __restrict Xx, f32* __restrict Xz, size_t rows, size_t cols);
+        static void sum_first_dim(const f32* __restrict Xx, f32* __restrict Xz, size_t rows, size_t cols);
     private:
         f32* host_output{nullptr};   ///< Pinned + mapped host memory
         f32* cuda_output{nullptr};   ///< Device pointer (mapped)

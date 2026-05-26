@@ -356,6 +356,22 @@ namespace cortex::_fw::ops {
             return Xx == Xy;
         }
     };
+
+    /**
+     * @brief Functor for clamp operation: min(max(x, min_val), max_val)
+     */
+    struct Clamp {
+        explicit __host__ __device__ Clamp(const f32 min_val, const f32 max_val)
+            : min_val(min_val), max_val(max_val) {}
+
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return fminf(fmaxf(x, this->min_val), this->max_val);
+        }
+
+    private:
+        f32 min_val;
+        f32 max_val;
+    };
 } //namespace cortex::_fw::ops
 
 #endif //CORTEXMIND_FRAMEWORK_TOOLS_KERNEL_OPERATIONS_HPP

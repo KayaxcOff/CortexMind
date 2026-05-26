@@ -40,7 +40,6 @@ namespace cortex::net {
          */
         template<typename T, typename... Args> requires std::derived_from<T, _fw::LayerBase>
         void add(Args&&... args) {
-            static_assert(std::is_base_of_v<_fw::LayerBase, T>, "T must derive from LayerBase");
             this->layers_.push_back(std::make_unique<T>(std::forward<Args>(args)...));
         }
 
@@ -63,7 +62,7 @@ namespace cortex::net {
             }
 
             this->loss_fn_ = std::make_unique<LossT>();
-            this->optimization_fn_ = std::make_unique<OptT>(std::forward<Args>(args)...);
+            this->optim_fn_ = std::make_unique<OptT>(std::forward<Args>(args)...);
             this->m_flag = true;
         }
 
@@ -115,7 +114,7 @@ namespace cortex::net {
     private:
         std::vector<std::unique_ptr<_fw::LayerBase>> layers_;
         std::unique_ptr<_fw::LossBase> loss_fn_;
-        std::unique_ptr<_fw::OptimizationBase> optimization_fn_;
+        std::unique_ptr<_fw::OptimizationBase> optim_fn_;
         bool m_flag;
 
         std::string m_name;

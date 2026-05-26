@@ -16,5 +16,9 @@ BinaryCrossEntropy::BinaryCrossEntropy(const float32 eps) : LossBase("BCE(" + st
 BinaryCrossEntropy::~BinaryCrossEntropy() = default;
 
 tensor BinaryCrossEntropy::forward(const tensor &predict, const tensor &target) {
-    return predict;
+    const tensor p = predict.clamp(this->eps, 1.0f - this->eps);
+
+    const tensor loss = (target * p.log() + (1.0f - target) * (1.0f - p).log()).neg();
+
+    return loss.sum() / static_cast<float32>(loss.len());
 }

@@ -94,3 +94,13 @@ f32 ReduceOp::dot(const f32* Xx, const f32* Xy, const size_t N) const {
     DeviceSynchronize();
     return *this->host_output;
 }
+
+void ReduceOp::sum_last_dim(const f32* Xx, f32* Xz, const size_t rows, const size_t cols) {
+    const size_t shared_mem = (BLOCK_SIZE_1D / WARP_SIZE) * sizeof(f32);
+    kernels::ReduceSumLastDim<<<dim3(cols), BLOCK_SIZE_1D, shared_mem>>>(Xx, Xz, rows, cols);
+}
+
+void ReduceOp::sum_first_dim(const f32* Xx, f32* Xz, const size_t rows, const size_t cols) {
+    const size_t shared_mem = (BLOCK_SIZE_1D / WARP_SIZE) * sizeof(f32);
+    kernels::ReduceSumLastDim<<<dim3(rows), BLOCK_SIZE_1D, shared_mem>>>(Xx, Xz, rows, cols);
+}

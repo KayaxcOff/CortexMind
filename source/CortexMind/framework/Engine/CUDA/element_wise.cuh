@@ -93,6 +93,8 @@ namespace cortex::_fw::cuda {
         static void sign(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
 
         static void neg(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+
+        static void clamp(const f32* __restrict Xx, const f32 min_val, const f32 max_val, f32* __restrict Xz, const size_t N);
     };
 } //namespace cortex::_fw::cuda
 

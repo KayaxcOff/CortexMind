@@ -11,6 +11,7 @@
 #include <CortexMind/dataset/ProcessedDataset/two_moons.hpp>
 
 // ----- net -----
+#include <CortexMind/net/LossFunction/bce.hpp>
 #include <CortexMind/net/LossFunction/mae.hpp>
 #include <CortexMind/net/LossFunction/mse.hpp>
 #include <CortexMind/net/Model/model.hpp>

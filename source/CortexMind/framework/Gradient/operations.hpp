@@ -661,6 +661,17 @@ namespace cortex::_fw::meta {
         std::vector<i64> dims;
         bool keep;
     };
+
+    struct clamp  : GradientFlow {
+        explicit clamp(const GradientPacked& _x, f32 min_val, f32 max_val);
+        ~clamp() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+        f32 min_val;
+        f32 max_val;
+    };
 } //namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP

@@ -835,6 +835,18 @@ Tensor Tensor::detach() const {
     return output;
 }
 
+Tensor Tensor::clamp(const f32 min, const f32 max) const {
+    Tensor output(this->m_shape, this->storage_->device(), this->m_requires_grad);
+
+    ElementWise::clamp(this->storage_.get(), min, max, output.storage_.get(), this->len());
+
+    if (output.m_requires_grad) {
+        output.flow_ = std::make_shared<meta::clamp>(this->pack(), min, max);
+    }
+
+    return output;
+}
+
 Tensor &Tensor::grad() {
     CXM_ASSERT(!this->m_requires_grad, "Tensor::grad() requires grad");
     return *this->gradient_;
