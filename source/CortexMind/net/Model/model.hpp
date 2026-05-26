@@ -69,12 +69,12 @@ namespace cortex::net {
         /**
          * @brief Trains the model using the specified data.
          *
-         * @param Xx     Input features
-         * @param Xy     Target labels
-         * @param epochs Number of training epochs
-         * @param batch  Batch size
+         * @param Xx        Input features
+         * @param Xy        Target labels
+         * @param epochs    Number of training epochs
+         * @param epochIdx  Every inc epoch to console
          */
-        void fit(const tensor& Xx, const tensor& Xy, int32 epochs, int32 batch) const;
+        void fit(const tensor& Xx, const tensor& Xy, int32 epochs, int32 epochIdx = 1) const;
         /**
          * @brief Prints a summary of the model architecture.
          */
