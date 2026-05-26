@@ -41,7 +41,7 @@ namespace cortex::opt {
     private:
         float32 beta;
         std::vector<tensor> velocities;
-        bool initialized;
+        bool flag;
 
         /**
          * @brief Initializes velocity buffers for all parameters.

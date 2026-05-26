@@ -51,8 +51,9 @@ add_library(CortexMind STATIC
         source/CortexMind/net/NeuralNetwork/sigmoid_fast.cpp
         source/CortexMind/net/NeuralNetwork/silu.cpp
         source/CortexMind/net/NeuralNetwork/silu_fast.cpp
-        source/CortexMind/net/OptimizationFunction/momentum.cpp
         source/CortexMind/net/NeuralNetwork/tanh.cpp
+        source/CortexMind/net/OptimizationFunction/adam.cpp
+        source/CortexMind/net/OptimizationFunction/momentum.cpp
         source/CortexMind/net/OptimizationFunction/sgd.cpp
         source/CortexMind/tools/math.cpp
         source/CortexMind/tools/tensor_meta.cpp

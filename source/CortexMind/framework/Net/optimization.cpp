@@ -8,21 +8,20 @@
 using namespace cortex::_fw;
 using namespace cortex;
 
-OptimizationBase::OptimizationBase(std::string name, const float32 _lr) : m_lr(_lr), m_name(std::move(name)), is_initialized(false) {}
+OptimizationBase::OptimizationBase(std::string name, const float32 _lr) : m_lr(_lr), m_name(std::move(name)) {}
 
 OptimizationBase::~OptimizationBase() = default;
-
-void OptimizationBase::SetParams(const std::vector<ref<tensor> > &params) {
-    this->m_params = params;
-    this->is_initialized = true;
-}
 
 void OptimizationBase::SetLearningRate(const float32 lr) {
     this->m_lr = lr;
 }
 
+void OptimizationBase::SetParams(const std::vector<ref<tensor> > &params) {
+    this->m_params = params;
+}
+
 void OptimizationBase::zero_grad() const {
-    if (this->is_initialized) [[likely]] {
+    if (!this->m_params.empty()) [[likely]] {
         for (auto item : this->m_params) {
             item.get().grad().zero();
         }
@@ -30,7 +29,7 @@ void OptimizationBase::zero_grad() const {
 }
 
 const std::vector<ref<tensor>> &OptimizationBase::getParameters() {
-    CXM_ASSERT(this->is_initialized == false, "Parameters isn't initialized");
+    CXM_ASSERT(this->m_params.empty() == true, "Parameters isn't initialized");
     return this->m_params;
 }
 

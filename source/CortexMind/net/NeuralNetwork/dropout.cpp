@@ -28,7 +28,6 @@ tensor Dropout::forward(const tensor &input) {
                              .neg()
                              .sign();
 
-
     const float32 scale = 1.0f / (1.0f - this->rate);
 
     return input * mask * scale;

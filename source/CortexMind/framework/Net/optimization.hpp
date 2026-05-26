@@ -72,7 +72,6 @@ namespace cortex::_fw {
         float32 m_lr;
     private:
         std::string m_name;
-        bool is_initialized;
     };
 } //namespace cortex::_fw
 

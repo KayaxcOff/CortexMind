@@ -10,7 +10,7 @@ using namespace cortex::opt;
 
 Momentum::Momentum(const float32 lr, const float32 beta) : OptimizationBase("Momentum(" + std::to_string(lr) + ")", lr) {
     this->beta = beta;
-    this->initialized = false;
+    this->flag = flag;
 
     CXM_ASSERT(lr <= 0.0f, "Learning rate must be positive");
     CXM_ASSERT(beta < 0.0f || beta >= 1.0f, "Momentum beta must be in [0, 1)");
@@ -19,7 +19,7 @@ Momentum::Momentum(const float32 lr, const float32 beta) : OptimizationBase("Mom
 Momentum::~Momentum() = default;
 
 void Momentum::update() {
-    if (!this->initialized) {
+    if (!this->flag) {
         this->Init();
     }
 
@@ -45,5 +45,5 @@ void Momentum::Init() {
         v.zero();
         this->velocities.push_back(v);
     }
-    this->initialized = true;
+    this->flag = true;
 }
