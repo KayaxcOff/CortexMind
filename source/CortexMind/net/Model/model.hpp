@@ -8,6 +8,7 @@
 #include <CortexMind/framework/Net/layer.hpp>
 #include <CortexMind/framework/Net/loss.hpp>
 #include <CortexMind/framework/Net/optimization.hpp>
+#include <CortexMind/utility/DataFrame/frame.hpp>
 #include <concepts>
 #include <memory>
 #include <vector>

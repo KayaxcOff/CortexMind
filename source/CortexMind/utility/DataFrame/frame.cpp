@@ -116,21 +116,22 @@ std::pair<tensor, tensor> DataFrame::split() {
 
     int64 x_cols = this->m_col - 1;
 
-    tensor _x({x_cols, this->m_row}, host);
-    tensor _y({1, this->m_row}, host);
+    tensor _x({this->m_row, x_cols}, host);
+    tensor _y({this->m_row, 1}, host);
 
     _y.SetData(this->series[this->target].data().data());
 
     std::vector<float> x_data;
     x_data.reserve(x_cols * this->m_row);
 
-    for (const auto& name : this->names) {
-        if (name == this->target) {
-            continue;
-        }
+    for (size_t i = 0; i < static_cast<size_t>(this->m_row); ++i) {
+        for (const auto& item : this->names) {
+            if (item == this->target) {
+                continue;
+            }
 
-        const auto& col_vector = this->series[name].data();
-        x_data.insert(x_data.end(), col_vector.begin(), col_vector.end());
+            x_data.push_back(this->series[item].data()[i]);
+        }
     }
 
     _x.SetData(x_data.data());
