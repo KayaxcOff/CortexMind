@@ -1,9 +1,9 @@
 //
-// Created by muham on 22.05.2026.
+// Created by muham on 27.05.2026.
 //
 
-#ifndef CORTEXMIND_UTILITY_CAST_HPP
-#define CORTEXMIND_UTILITY_CAST_HPP
+#ifndef CORTEXMIND_UTILITY_CAST_FACTORY_HPP
+#define CORTEXMIND_UTILITY_CAST_FACTORY_HPP
 
 #include <CortexMind/tools/types.hpp>
 
@@ -45,4 +45,4 @@ namespace cortex::utils {
     };
 } //namespace cortex::utils
 
-#endif //CORTEXMIND_UTILITY_CAST_HPP
+#endif //CORTEXMIND_UTILITY_CAST_FACTORY_HPP

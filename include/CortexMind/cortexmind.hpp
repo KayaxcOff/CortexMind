@@ -35,6 +35,7 @@
 #include <CortexMind/net/OptimizationFunction/sgd.hpp>
 
 // ----- tools -----
+#include <CortexMind/tools/load.hpp>
 #include <CortexMind/tools/math.hpp>
 #include <CortexMind/tools/println.hpp>
 #include <CortexMind/tools/tensor_meta.hpp>
@@ -43,6 +44,7 @@
 #include <CortexMind/tools/version.hpp>
 
 // ------ utility -----
-#include <CortexMind/utility/cast.hpp>
+#include <CortexMind/utility/Cast/factory.hpp>
+#include <CortexMind/utility/DataFrame/frame.hpp>
 
 #endif //CORTEXMIND_CORTEXMIND_HPP

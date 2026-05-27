@@ -31,6 +31,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/as_string.cpp
         source/CortexMind/framework/Tools/err.cpp
         source/CortexMind/framework/Tools/logger.cpp
+        source/CortexMind/framework/Tools/series.cpp
         source/CortexMind/framework/Tools/tensor_debug.cpp
         source/CortexMind/framework/Tools/tensor_meta.cpp
         source/CortexMind/net/LossFunction/bce.cpp
@@ -55,13 +56,12 @@ add_library(CortexMind STATIC
         source/CortexMind/net/OptimizationFunction/adam.cpp
         source/CortexMind/net/OptimizationFunction/momentum.cpp
         source/CortexMind/net/OptimizationFunction/sgd.cpp
+        source/CortexMind/tools/load.cpp
         source/CortexMind/tools/math.cpp
         source/CortexMind/tools/tensor_meta.cpp
         source/CortexMind/tools/version.cpp
-        source/CortexMind/utility/DataFrame/column.cpp
+        source/CortexMind/utility/Cast/factory.cpp
         source/CortexMind/utility/DataFrame/frame.cpp
-        source/CortexMind/utility/DataFrame/operators.cpp
-        source/CortexMind/utility/cast.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)

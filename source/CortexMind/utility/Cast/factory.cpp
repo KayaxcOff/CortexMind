@@ -1,8 +1,8 @@
 //
-// Created by muham on 22.05.2026.
+// Created by muham on 27.05.2026.
 //
 
-#include "CortexMind/utility/cast.hpp"
+#include "CortexMind/utility/Cast/factory.hpp"
 #include <limits>
 
 using namespace cortex::_fw::sys;

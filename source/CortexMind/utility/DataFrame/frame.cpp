@@ -3,76 +3,36 @@
 //
 
 #include "CortexMind/utility/DataFrame/frame.hpp"
-#include <algorithm>
-#include <cmath>
-#include <iostream>
+#include <CortexMind/tools/values.hpp>
 #include <fstream>
-#include <sstream>
-#include <random>
 #include <ranges>
-#include <xutility>
+#include <sstream>
 
+using namespace cortex::_fw;
 using namespace cortex::utils;
-using namespace cortex::_fw::sys;
 using namespace cortex;
 
-DataFrame::DataFrame(const std::string &path) {
-    this->parseCsv(path);
+DataFrame::DataFrame(const std::string& path) : m_col(0), m_row(0) {
+    this->load_csv(path);
 }
-
-DataFrame::DataFrame() = default;
 
 DataFrame::~DataFrame() = default;
 
-size_t DataFrame::rows() const {
-    return this->m_rows;
+void DataFrame::Set(const std::string &target) {
+    CXM_ASSERT(!this->idx.contains(target), "Column not found: " + target);
+    this->target_name = target;
 }
 
-size_t DataFrame::cols() const {
-    return this->m_columns.size();
+void DataFrame::drop(const std::string& name) {
+    this->idx.erase(name);
+    std::erase(this->m_order, name);
+    --this->m_col;
 }
 
-bool DataFrame::hasCol(const std::string &col) const {
-    return this->m_data.contains(col);
-}
-
-const std::vector<std::string>& DataFrame::columnNames() const {
-    return this->m_columns;
-}
-
-void DataFrame::head(size_t n) const {
-    n = std::min(n, this->m_rows);
-
-    for (const auto& item : this->m_columns) {
-        std::cout << item << "\t";
-    }
-
-    std::cout << "\n";
-
-    for (size_t i = 0; i < n; i++) {
-        for (const auto& item : this->m_columns) {
-            std::cout << this->m_data.at(item)[i] << "\t";
-        }
-        std::cout << "\n";
-    }
-}
-
-void DataFrame::info() const {
-    std::cout << "Rows: " << rows() << "\n";
-    std::cout << "Cols: " << cols() << "\n";
-
-    for (const auto& item : m_columns) {
-        std::cout << item
-                  << " -> "
-                  << m_data.at(item).size()
-                  << "\n";
-    }
-}
-
-bool DataFrame::isNan() const {
-    for (const auto &item: this->m_data | std::views::values) {
-        for (const float32 it : item) {
-            if (std::isnan(it)) {
+bool DataFrame::is_nan() {
+    for (const auto &vals: this->idx | std::views::values) {
+        for (const float32 v : vals) {
+            if (std::isnan(v)) {
                 return true;
             }
         }
@@ -80,211 +40,86 @@ bool DataFrame::isNan() const {
     return false;
 }
 
-void DataFrame::normalize(const std::string &col) {
-    auto& vec = m_data[col];
-
-    const float32 minVal = *std::ranges::min_element(vec);
-    const float32 maxVal = *std::ranges::max_element(vec);
-
-    const float32 range = maxVal - minVal;
-
-    if (range == 0.0f) {
-        return;
-    }
-
-    for (auto& v : vec) {
-        v = (v - minVal) / range;
-    }
+int64 DataFrame::row() const {
+    return this->m_row;
 }
 
-void DataFrame::normalize() {
-    for (const auto& item : this->m_columns) {
-        this->normalize(item);
-    }
+int64 DataFrame::col() const {
+    return this->m_col;
 }
 
-void DataFrame::scale(const float32 value) {
-    for (auto &vec: this->m_data | std::views::values) {
-        for (auto& v : vec) {
-            v *= value;
-        }
+void DataFrame::load_csv(const std::string &path) {
+    std::ifstream file(path);
+    CXM_ASSERT(!file.is_open(), "Cannot open file: " + path);
+
+    std::string line;
+
+    std::getline(file, line);
+    std::stringstream ss(line);
+    std::string col;
+    while (std::getline(ss, col, ',')) {
+        std::erase(col, '\r');
+        this->m_order.push_back(col);
+        this->idx[col] = {};
     }
-}
+    this->m_col = static_cast<int64>(this->m_order.size());
 
-void DataFrame::dropNan() {
-    std::vector<size_t> validRows;
-
-    for (size_t i = 0; i < this->m_rows; i++) {
-        bool valid = true;
-
-        for (const auto& col : this->m_columns) {
-            if (std::isnan(this->m_data[col][i])) {
-                valid = false;
-                break;
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+        std::stringstream row_ss(line);
+        std::string val;
+        size_t c = 0;
+        while (std::getline(row_ss, val, ',')) {
+            std::erase(val, '\r');
+            if (c < this->m_order.size()) {
+                try {
+                    this->idx[this->m_order[c]].push_back(std::stof(val));
+                } catch (...) {
+                    this->idx[this->m_order[c]].push_back(std::numeric_limits<float32>::quiet_NaN());
+                }
             }
+            ++c;
         }
-
-        if (valid) {
-            validRows.push_back(i);
-        }
+        ++this->m_row;
     }
-
-    for (auto &vec: this->m_data | std::views::values) {
-        std::vector<float32> cleaned;
-
-        for (const size_t idx : validRows) {
-            cleaned.push_back(vec[idx]);
-        }
-
-        vec = std::move(cleaned);
-    }
-
-    this->m_rows = validRows.size();
 }
 
-void DataFrame::oneHot(const std::string &col) {
-
+Series DataFrame::operator[](const std::string& name) {
+    CXM_ASSERT(!this->idx.contains(name),
+        "Column not found: " + name);
+    return Series(this->idx[name]);
 }
 
-std::pair<tensor, tensor> DataFrame::toTensor(const std::string& target, const DeviceType dev) const {
+std::pair<tensor, tensor> DataFrame::toTensor() {
+    CXM_ASSERT(this->target_name.empty(), "Target not set, call Set() first");
 
-    std::vector<float32> xData;
-    std::vector<float32> yData;
+    std::vector<float32> X_data, Y_data;
+    const auto N = static_cast<size_t>(this->m_row);
 
-    const size_t featureCount = this->cols() - 1;
-
-    for (size_t i = 0; i < this->m_rows; i++) {
-
-        for (const auto& item : this->m_columns) {
-            if (item == target) {
-                continue;
-            }
-
-            xData.push_back(this->m_data.at(item)[i]);
+    for (size_t r = 0; r < N; ++r) {
+        for (const auto& col : this->m_order) {
+            if (col == this->target_name) continue;
+            X_data.push_back(this->idx[col][r]);
         }
-
-        yData.push_back(this->m_data.at(target)[i]);
+        Y_data.push_back(this->idx[this->target_name][r]);
     }
 
-    tensor X(
-        {static_cast<int64>(this->m_rows), static_cast<int64>(featureCount)},
-        xData.data(),
-        dev
-    );
-
-    tensor Y(
-        {static_cast<int64>(this->m_rows), 1},
-        yData.data(),
-        dev
-    );
+    const int64 n_features = this->m_col - 1;
+    tensor X({static_cast<int64>(N), n_features}, X_data.data(), host);
+    tensor Y({static_cast<int64>(N), 1},Y_data.data(), host);
 
     return {X, Y};
 }
 
-std::tuple<tensor, tensor, tensor, tensor> DataFrame::split(const std::string &target, float32 ratio, DeviceType dev) const {
-    auto [X, Y] = toTensor(target, dev);
+std::pair<tensor, tensor> DataFrame::split(const float32 raite) {
+    const int64 split_idx = this->m_row * static_cast<int64>(raite);
 
-    size_t trainSize = this->m_rows * ratio;
-    size_t testSize  = this->m_rows - trainSize;
+    auto [X, Y] = this->toTensor();
 
-    size_t featureCount = cols() - 1;
+    tensor X_train = X.slice(0, 0, split_idx);
+    tensor X_test  = X.slice(0, split_idx, this->m_row);
+    tensor Y_train = Y.slice(0, 0, split_idx);
+    tensor Y_test  = Y.slice(0, split_idx, this->m_row);
 
-    std::vector<float32> xTrain;
-    std::vector<float32> yTrain;
-    std::vector<float32> xTest;
-    std::vector<float32> yTest;
-
-    for (size_t i = 0; i < this->m_rows; i++) {
-
-        bool train = i < trainSize;
-
-        for (size_t j = 0; j < featureCount; j++) {
-
-            float32 val = X.at(i * featureCount + j);
-
-            if (train) {
-                xTrain.push_back(val);
-            } else {
-                xTest.push_back(val);
-            }
-        }
-
-        if (train) {
-            yTrain.push_back(Y.at(i));
-        } else {
-            yTest.push_back(Y.at(i));
-        }
-    }
-
-    tensor X_train(
-        {static_cast<int64>(trainSize), static_cast<int64>(featureCount)},
-        xTrain.data(),
-        dev
-    );
-
-    tensor Y_train(
-        {static_cast<int64>(trainSize), 1},
-        yTrain.data(),
-        dev
-    );
-
-    tensor X_test(
-        {static_cast<int64>(testSize), static_cast<int64>(featureCount)},
-        xTest.data(),
-        dev
-    );
-
-    tensor Y_test(
-        {static_cast<int64>(testSize), 1},
-        yTest.data(),
-        dev
-    );
-
-    return {
-        X_train,
-        Y_train,
-        X_test,
-        Y_test
-    };
-}
-
-void DataFrame::parseCsv(const std::string &path) {
-    std::ifstream file(path);
-
-    if (!file.is_open()) {
-        throw std::runtime_error("CSV file could not open.");
-    }
-
-    std::string line;
-
-    if (std::getline(file, line)) {
-
-        std::stringstream ss(line);
-        std::string col;
-
-        while (std::getline(ss, col, ',')) {
-
-            this->m_columns.push_back(col);
-            this->m_data[col] = {};
-        }
-    }
-
-    while (std::getline(file, line)) {
-
-        std::stringstream ss(line);
-        std::string value;
-
-        size_t colIdx = 0;
-
-        while (std::getline(ss, value, ',')) {
-
-            float32 v = std::stof(value);
-
-            this->m_data[this->m_columns[colIdx]].push_back(v);
-
-            colIdx++;
-        }
-
-        this->m_rows++;
-    }
+    return {X_train.clone(), X_test.clone()};
 }
