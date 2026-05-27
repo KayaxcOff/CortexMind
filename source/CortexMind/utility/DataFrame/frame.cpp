@@ -111,15 +111,36 @@ std::pair<tensor, tensor> DataFrame::toTensor() {
     return {X, Y};
 }
 
-std::pair<tensor, tensor> DataFrame::split(const float32 raite) {
-    const int64 split_idx = this->m_row * static_cast<int64>(raite);
+std::pair<tensor, tensor> DataFrame::split(const float32 ratio) {
+    CXM_ASSERT(this->target_name.empty(), "Target not set, call Set() first");
+    CXM_ASSERT(ratio <= 0.0f || ratio >= 1.0f, "ratio must be in (0, 1)");
 
-    auto [X, Y] = this->toTensor();
+    const auto N = static_cast<size_t>(this->m_row);
+    const auto train_n = N * static_cast<size_t>(ratio);
+    const size_t test_n = N - train_n;
+    const size_t n_feat = static_cast<size_t>(this->m_col) - 1;
 
-    tensor X_train = X.slice(0, 0, split_idx);
-    tensor X_test  = X.slice(0, split_idx, this->m_row);
-    tensor Y_train = Y.slice(0, 0, split_idx);
-    tensor Y_test  = Y.slice(0, split_idx, this->m_row);
+    std::vector<float32> Xtr, Ytr, Xte, Yte;
+    Xtr.reserve(train_n * n_feat);
+    Ytr.reserve(train_n);
+    Xte.reserve(test_n  * n_feat);
+    Yte.reserve(test_n);
 
-    return {X_train.clone(), X_test.clone()};
+    for (size_t r = 0; r < N; ++r) {
+        auto& Xbuf = (r < train_n) ? Xtr : Xte;
+        auto& Ybuf = (r < train_n) ? Ytr : Yte;
+
+        for (const auto& col : this->m_order) {
+            if (col == this->target_name) continue;
+            Xbuf.push_back(this->idx[col][r]);
+        }
+        Ybuf.push_back(this->idx[this->target_name][r]);
+    }
+
+    tensor X_train({static_cast<int64>(train_n), static_cast<int64>(n_feat)}, Xtr.data(), host);
+    tensor Y_train({static_cast<int64>(train_n),1}, Ytr.data(), host);
+    tensor X_test ({static_cast<int64>(test_n), static_cast<int64>(n_feat)}, Xte.data(), host);
+    tensor Y_test ({static_cast<int64>(test_n), 1}, Yte.data(), host);
+
+    return {X_train, X_test};
 }

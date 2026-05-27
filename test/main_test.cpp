@@ -19,13 +19,15 @@ int main() {
     }
 
     train_df.Set("A3");
-    auto [x, y] = train_df.split(1.0f);
+    auto [x, y] = train_df.split(0.2f);
     std::cout << x << "\n" << y << std::endl;
 
     return 0;
 }
 
 /*
+C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
 No NAN
-[ERROR] [CortexMind\framework\Tensor\tensor.cpp | 504] slice: invalid start 4
+
+Process finished with exit code -1073741819 (0xC0000005)
 */

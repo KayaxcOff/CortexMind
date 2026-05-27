@@ -17,7 +17,7 @@ namespace cortex::_fw {
         void normalize(f32 value);
         void scale();
         [[nodiscard]]
-        std::vector<f32>& data() const;
+        std::vector<f32>& data();
     private:
         std::vector<f32>& m_data;
     };

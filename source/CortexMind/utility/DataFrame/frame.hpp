@@ -28,7 +28,7 @@ namespace cortex::utils {
         [[nodiscard]]
         int64 col() const;
         [[nodiscard]]
-        std::pair<tensor, tensor> split(float32 raite);
+        std::pair<tensor, tensor> split(float32 ratio);
         [[nodiscard]]
         _fw::Series operator[](const std::string& name);
         [[nodiscard]]

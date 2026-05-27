@@ -18,6 +18,6 @@ void Series::scale() {
 
 }
 
-std::vector<f32>& Series::data() const {
+std::vector<f32>& Series::data() {
     return this->m_data;
 }
