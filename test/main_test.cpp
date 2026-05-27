@@ -4,6 +4,7 @@
 
 #include <CortexMind/cortexmind.hpp>
 #include <iomanip>
+#include <iostream>
 
 using namespace cortex;
 
@@ -33,7 +34,7 @@ int main() {
     model.eval();
     auto pred = model.predict(X);
 
-    for (size_t i = 123; i < 126; ++i) {
+    for (size_t i = 123; i < 128; ++i) {
         std::cout << " [" << std::fixed << std::setprecision(1) << s.X[i * 2] << ", " << s.X[i * 2 + 1] << "]" << " -> " << std::fixed << std::setprecision(4) << pred.get()[i] << " (expected: " << s.Y[i] << ")" << std::endl;
     }
 
@@ -60,50 +61,51 @@ Loss Function : BCE(0.000000)
 Optimizer     : Adam(0.001000)
 Total Params  : 4417
 ==================================================
-Epoch 0     | Loss: 0.696275%
-Epoch 500   | Loss: 0.626950%
-Epoch 1000  | Loss: 0.410603%
-Epoch 1500  | Loss: 0.248763%
-Epoch 2000  | Loss: 0.181638%
-Epoch 2500  | Loss: 0.140614%
-Epoch 3000  | Loss: 0.115951%
-Epoch 3500  | Loss: 0.100175%
-Epoch 4000  | Loss: 0.089573%
-Epoch 4500  | Loss: 0.077082%
-Epoch 5000  | Loss: 0.064277%
-Epoch 5500  | Loss: 0.055680%
-Epoch 6000  | Loss: 0.051013%
-Epoch 6500  | Loss: 0.047020%
-Epoch 7000  | Loss: 0.040149%
-Epoch 7500  | Loss: 0.037445%
-Epoch 8000  | Loss: 0.035479%
-Epoch 8500  | Loss: 0.033978%
-Epoch 9000  | Loss: 0.032805%
-Epoch 9500  | Loss: 0.031848%
-Epoch 10000 | Loss: 0.031056%
-Epoch 10500 | Loss: 0.030389%
-Epoch 11000 | Loss: 0.028411%
-Epoch 11500 | Loss: 0.025510%
-Epoch 12000 | Loss: 0.024428%
-Epoch 12500 | Loss: 0.023737%
-Epoch 13000 | Loss: 0.016548%
-Epoch 13500 | Loss: 0.015577%
-Epoch 14000 | Loss: 0.015118%
-Epoch 14500 | Loss: 0.014812%
-Epoch 15000 | Loss: 0.014573%
-Epoch 15500 | Loss: 0.014381%
-Epoch 16000 | Loss: 0.014226%
-Epoch 16500 | Loss: 0.014093%
-Epoch 17000 | Loss: 0.011984%
-Epoch 17500 | Loss: 0.005682%
-Epoch 18000 | Loss: 0.003115%
-Epoch 18500 | Loss: 0.001979%
-Epoch 19000 | Loss: 0.001372%
-Epoch 19500 | Loss: 0.001010%
- [1.1, -0.2] -> 0.0000 (expected: 0.0000)
- [0.9, -0.2] -> 0.0000 (expected: 0.0000)
- [0.1, -0.1] -> 1.0000 (expected: 1.0000)
+Epoch 0     | Loss: 0.688307%
+Epoch 500   | Loss: 0.619313%
+Epoch 1000  | Loss: 0.344934%
+Epoch 1500  | Loss: 0.205641%
+Epoch 2000  | Loss: 0.130343%
+Epoch 2500  | Loss: 0.091893%
+Epoch 3000  | Loss: 0.068547%
+Epoch 3500  | Loss: 0.056063%
+Epoch 4000  | Loss: 0.048978%
+Epoch 4500  | Loss: 0.043269%
+Epoch 5000  | Loss: 0.040104%
+Epoch 5500  | Loss: 0.038060%
+Epoch 6000  | Loss: 0.036675%
+Epoch 6500  | Loss: 0.035721%
+Epoch 7000  | Loss: 0.035012%
+Epoch 7500  | Loss: 0.034469%
+Epoch 8000  | Loss: 0.034067%
+Epoch 8500  | Loss: 0.033765%
+Epoch 9000  | Loss: 0.033518%
+Epoch 9500  | Loss: 0.033337%
+Epoch 10000 | Loss: 0.033197%
+Epoch 10500 | Loss: 0.033079%
+Epoch 11000 | Loss: 0.032991%
+Epoch 11500 | Loss: 0.032919%
+Epoch 12000 | Loss: 0.032863%
+Epoch 12500 | Loss: 0.032810%
+Epoch 13000 | Loss: 0.028583%
+Epoch 13500 | Loss: 0.028205%
+Epoch 14000 | Loss: 0.028046%
+Epoch 14500 | Loss: 0.027963%
+Epoch 15000 | Loss: 0.027909%
+Epoch 15500 | Loss: 0.027870%
+Epoch 16000 | Loss: 0.027843%
+Epoch 16500 | Loss: 0.027824%
+Epoch 17000 | Loss: 0.027809%
+Epoch 17500 | Loss: 0.027798%
+Epoch 18000 | Loss: 0.027789%
+Epoch 18500 | Loss: 0.027782%
+Epoch 19000 | Loss: 0.027777%
+Epoch 19500 | Loss: 0.027772%
+ [1.0, -0.3] -> 0.0000 (expected: 0.0000)
+ [1.1, -0.1] -> 0.0000 (expected: 0.0000)
+ [-0.1, -0.1] -> 1.0000 (expected: 1.0000)
+ [-0.0, 0.1] -> 1.0000 (expected: 1.0000)
+ [-0.1, 0.0] -> 1.0000 (expected: 1.0000)
 
 Process finished with exit code 0
-
 */
