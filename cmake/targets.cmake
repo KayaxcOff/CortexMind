@@ -62,6 +62,7 @@ add_library(CortexMind STATIC
         source/CortexMind/tools/version.cpp
         source/CortexMind/utility/Cast/factory.cpp
         source/CortexMind/utility/DataFrame/frame.cpp
+        source/CortexMind/utility/DataFrame/operators.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
