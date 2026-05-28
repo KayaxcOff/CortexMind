@@ -12,6 +12,12 @@
 using namespace cortex::_fw;
 using namespace cortex::utils;
 using namespace cortex;
+/*
+template<typename T>
+Series<T>& get(const std::string& name) {
+    return std::get<Series<T>>(series[name]);
+}
+*/
 
 DataFrame::DataFrame(const std::string& path) : m_col(0), m_row(0), isInit(false) {
     std::ifstream file(path);
