@@ -621,40 +621,81 @@ namespace cortex::_fw::meta {
         Tensor* cached_output;
     };
 
+    /**
+     * @brief Gradient node for Conv2D layer (`Conv2DBackward`).
+     *
+     * Computes gradients for a 2D convolution operation.
+     */
     struct conv2d : GradientFlow {
+        /**
+         * @brief Constructs a Conv2D gradient node.
+         *
+         * @param _x Input tensor packed data
+         * @param iH,iW Input height and width
+         * @param kH,kW Kernel height and width
+         * @param sH,sW Stride height and width
+         * @param pH,pW Padding height and width
+         * @param oH,oW Output height and width
+         */
         explicit conv2d(const GradientPacked& _x, i64 iH, i64 iW, i64 kH, i64 kW, i64 sH, i64 sW, i64 pH, i64 pW, i64 oH, i64 oW);
         ~conv2d() override;
 
+        /**
+         * @brief Computes gradient with respect to the input of Conv2D.
+         *
+         * Uses the `ix::Convolution::fold` operation to perform the backward pass
+         * of the convolution (equivalent to full convolution with rotated kernel).
+         */
         void backward(const Tensor &_grad) override;
     private:
         Tensor* tx;
         i64 iH, iW, kH, kW, sH, sW, pH, pW, oH, oW;
     };
 
+    /**
+     * @brief Gradient node for reshape operation.
+     *
+     * Propagates gradients through a reshape operation (which is its own inverse).
+     */
     struct reshape : GradientFlow {
         explicit reshape(const GradientPacked& _x, const std::vector<i64>& shape);
         ~reshape() override;
 
+        /**
+         * @brief Propagates gradient by reshaping it back to original shape.
+         */
         void backward(const Tensor& _grad) override;
     private:
         std::vector<i64> shape;
         Tensor* tx;
     };
 
+    /**
+     * @brief Gradient node for permute (transpose) operation.
+     */
     struct permute : GradientFlow {
         explicit permute(const GradientPacked& _x, const std::vector<i64>& axis);
         ~permute() override;
 
+        /**
+         * @brief Propagates gradient by applying the inverse permutation.
+         */
         void backward(const Tensor& _grad) override;
     private:
         std::vector<i64> axis;
         Tensor* tx;
     };
 
+    /**
+     * @brief Gradient node for sum reduction along specified dimensions.
+     */
     struct sum_dim : GradientFlow {
         sum_dim(const GradientPacked& _x, const std::vector<i64>& dims,bool keep);
         ~sum_dim() override;
 
+        /**
+         * @brief Propagates gradient by broadcasting it back to original shape.
+         */
         void backward(const Tensor& _grad) override;
     private:
         Tensor* tx;
@@ -662,15 +703,39 @@ namespace cortex::_fw::meta {
         bool keep;
     };
 
+    /**
+     * @brief Gradient node for clamp operation.
+     *
+     * Clamps values between min and max.
+     */
     struct clamp  : GradientFlow {
         explicit clamp(const GradientPacked& _x, f32 min_val, f32 max_val);
         ~clamp() override;
 
+        /**
+         * @brief Gradient is zero where input was clamped, otherwise equal to incoming gradient.
+         */
         void backward(const Tensor& _grad) override;
     private:
         Tensor* tx;
         f32 min_val;
         f32 max_val;
+    };
+
+    /**
+     * @brief Gradient node for Softmax operation.
+     */
+    struct softmax : GradientFlow {
+        explicit softmax(const GradientPacked& _x, const GradientPacked& _y);
+        ~softmax() override;
+
+        /**
+         * @brief Computes softmax gradient: `grad * (y - sum(y * grad))`
+         */
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+        Tensor* cached_output;
     };
 } //namespace cortex::_fw::meta
 

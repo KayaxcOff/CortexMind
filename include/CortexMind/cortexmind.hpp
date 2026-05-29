@@ -12,6 +12,7 @@
 
 // ----- net -----
 #include <CortexMind/net/LossFunction/bce.hpp>
+#include <CortexMind/net/LossFunction/cce.hpp>
 #include <CortexMind/net/LossFunction/mae.hpp>
 #include <CortexMind/net/LossFunction/mse.hpp>
 #include <CortexMind/net/Model/model.hpp>
@@ -29,6 +30,7 @@
 #include <CortexMind/net/NeuralNetwork/sigmoid_fast.hpp>
 #include <CortexMind/net/NeuralNetwork/silu.hpp>
 #include <CortexMind/net/NeuralNetwork/silu_fast.hpp>
+#include <CortexMind/net/NeuralNetwork/softmax.hpp>
 #include <CortexMind/net/NeuralNetwork/tanh.hpp>
 #include <CortexMind/net/OptimizationFunction/adam.hpp>
 #include <CortexMind/net/OptimizationFunction/momentum.hpp>

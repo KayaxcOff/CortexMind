@@ -686,3 +686,25 @@ void clamp::backward(const Tensor &_grad) {
         this->tx->backward(grad_expanded);
     }
 }
+
+softmax::softmax(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("Softmax") {
+    this->tx = new Tensor(_x);
+    this->cached_output = new Tensor(_y);
+}
+
+softmax::~softmax() {
+    delete this->tx;
+    delete this->cached_output;
+}
+
+void softmax::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) [[likely]] {
+        const Tensor y_times_grad = (*this->cached_output) * _grad;
+        const Tensor sum_term = y_times_grad.sum();
+
+        const Tensor grad_expanded = (*this->cached_output) * _grad - (*this->cached_output) * sum_term;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}

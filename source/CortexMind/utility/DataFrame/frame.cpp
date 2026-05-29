@@ -3,6 +3,7 @@
 //
 
 #include "CortexMind/utility/DataFrame/frame.hpp"
+#include <CortexMind/framework/Tools/as_string.hpp>
 #include <CortexMind/tools/values.hpp>
 #include <fstream>
 #include <iostream>
@@ -12,12 +13,6 @@
 using namespace cortex::_fw;
 using namespace cortex::utils;
 using namespace cortex;
-/*
-template<typename T>
-Series<T>& get(const std::string& name) {
-    return std::get<Series<T>>(series[name]);
-}
-*/
 
 DataFrame::DataFrame(const std::string& path) : m_col(0), m_row(0), isInit(false) {
     std::ifstream file(path);
@@ -47,11 +42,25 @@ DataFrame::DataFrame(const std::string& path) : m_col(0), m_row(0), isInit(false
 
         while (std::getline(ss, cell, ',')) {
             if (col_idx < this->names.size()) {
+                const std::string& col_name = this->names[col_idx];
+
                 try {
-                    float val = std::stof(cell);
-                    this->series[this->names[col_idx]].data().push_back(val);
+                    f32 val = std::stof(cell);
+                    if (this->series[col_name].dtype() == DType::Float32) {
+                        this->series[col_name].as<f32>().push_back(val);
+                    }
                 } catch (const std::invalid_argument&) {
-                    this->series[this->names[col_idx]].data().push_back(0.0f);
+                    if (cell == "true" || cell == "false" || cell == "True" || cell == "False") {
+                        if (this->series[col_name].dtype() == DType::Float32 && this->series[col_name].empty()) {
+                            this->series[col_name] = Series(std::vector<bool>{});
+                        }
+                        this->series[col_name].as<bool>().push_back(cell == "true" || cell == "True");
+                    } else {
+                        if (this->series[col_name].dtype() == DType::Float32 && this->series[col_name].empty()) {
+                            this->series[col_name] = Series(std::vector<std::string>{});
+                        }
+                        this->series[col_name].as<std::string>().push_back(cell);
+                    }
                 }
             }
             col_idx++;
@@ -77,12 +86,19 @@ void DataFrame::drop(const std::string& idx) {
 
 void DataFrame::info() const {
     std::cout << "<DataFrame: " << this->m_row << " rows x " << this->m_col << " cols>\n";
-    for (const auto& name : this->names) {
-        std::cout << " - " << name << " (float32)\n";
+    for (const auto& item : this->names) {
+        const auto& it = this->series.at(item);
+        std::string type_str;
+        switch (it.dtype()) {
+            case DType::Float32: type_str = as_string(DType::Float32); break;
+            case DType::Bool:    type_str = as_string(DType::Bool);    break;
+            case DType::String:  type_str = as_string(DType::String);  break;
+        }
+        std::cout << " - " << item << " (" << type_str << ")\n";
     }
 }
 
-void DataFrame::head(const size_t row_to_show) {
+void DataFrame::head(const size_t row_to_show) const {
     for (const auto& item : this->names) {
         std::cout << item << "\t";
     }
@@ -90,17 +106,26 @@ void DataFrame::head(const size_t row_to_show) {
 
     const size_t limit = std::min(row_to_show, static_cast<size_t>(this->m_row));
     for (size_t i = 0; i < limit; ++i) {
-        for (const auto& item : this->names) {
-            std::cout << this->series[item].data()[i] << "\t";
+        for (const auto& name : this->names) {
+            switch (const auto& s = this->series.at(name); s.dtype()) {
+                case DType::Float32: std::cout << s.as<f32>()[i];          break;
+                case DType::Bool:    std::cout << s.as<bool>()[i];         break;
+                case DType::String:  std::cout << s.as<std::string>()[i];  break;
+            }
+            std::cout << "\t";
         }
         std::cout << "\n";
     }
 }
 
-bool DataFrame::NaN() {
-    for (const auto &vals: this->series | std::views::values) {
-        for (const float32 v : vals.data()) {
-            if (std::isnan(v)) {
+bool DataFrame::NaN() const {
+    for (const auto& item : this->names) {
+        const auto& s = this->series.at(item);
+        if (s.dtype() != DType::Float32) {
+            continue;
+        }
+        for (const f32 it : s.as<f32>()) {
+            if (std::isnan(it)) {
                 return true;
             }
         }
@@ -117,7 +142,7 @@ int64 DataFrame::col() const {
 }
 
 std::pair<tensor, tensor> DataFrame::split() {
-    CXM_ASSERT(!isInit, "Target column is not initialized. Call Set() first.");
+    CXM_ASSERT(!this->isInit, "Target column is not initialized. Call Set() first.");
     CXM_ASSERT(!this->series.contains(this->target), "Target column not found in DataFrame.");
 
     int64 x_cols = this->m_col - 1;
@@ -143,4 +168,69 @@ std::pair<tensor, tensor> DataFrame::split() {
     _x.SetData(x_data.data());
 
     return std::make_pair(_x, _y);
+}
+
+void DataFrame::one_hot(const std::string& idx) {
+    CXM_ASSERT(this->series[idx].dtype() != DType::String, "one_hot() is only valid for string sequences: " + idx);
+
+    const auto& str_vec = this->series[idx].as<std::string>();
+
+    std::vector<std::string> categories;
+    for (const auto& val : str_vec) {
+        if (std::ranges::find(categories, val) == categories.end()) {
+            categories.push_back(val);
+        }
+    }
+
+    for (const auto& cat : categories) {
+        std::string new_col;
+        new_col.reserve(idx.size() + 1 + cat.size());
+
+        new_col += idx;
+        new_col += '_';
+        new_col += cat;
+        std::vector<f32> encoded(str_vec.size());
+        for (size_t i = 0; i < str_vec.size(); ++i) {
+            encoded[i] = (str_vec[i] == cat) ? 1.0f : 0.0f;
+        }
+
+        this->series[new_col] = Series(std::move(encoded));
+        this->names.push_back(new_col);
+        ++this->m_col;
+    }
+
+    this->drop(idx);
+}
+
+void DataFrame::encode_bool(const std::string& idx) {
+    CXM_ASSERT(this->series[idx].dtype() != DType::Bool, "encode_bool() is only valid for Boolean series: " + idx);
+
+    const auto& bool_vec = this->series[idx].as<bool>();
+    std::vector<f32> encoded(bool_vec.size());
+    for (size_t i = 0; i < bool_vec.size(); ++i) {
+        encoded[i] = bool_vec[i] ? 1.0f : 0.0f;
+    }
+
+    this->series[idx] = Series(std::move(encoded));
+}
+
+void DataFrame::label_encode(const std::string& idx) {
+    CXM_ASSERT(this->series[idx].dtype() != DType::String, "label_encode() yalnızca String seriler için geçerli: " + idx);
+
+    const auto& str_vec = this->series[idx].as<std::string>();
+
+    std::vector<std::string> categories;
+    for (const auto& item : str_vec) {
+        if (std::ranges::find(categories, item) == categories.end()) {
+            categories.push_back(item);
+        }
+    }
+
+    std::vector<f32> encoded(str_vec.size());
+    for (size_t i = 0; i < str_vec.size(); ++i) {
+        const auto it = std::ranges::find(categories, str_vec[i]);
+        encoded[i] = static_cast<f32>(std::distance(categories.begin(), it));
+    }
+
+    this->series[idx] = Series(std::move(encoded));
 }

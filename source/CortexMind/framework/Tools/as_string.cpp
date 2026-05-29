@@ -37,3 +37,20 @@ std::string cortex::_fw::as_string(const BroadcastKind kind) {
         }
     }
 }
+
+std::string cortex::_fw::as_string(const DType dtype) {
+    switch (dtype) {
+        case DType::Bool: {
+            return "bool";
+        }
+        case DType::Float32: {
+            return "float32";
+        }
+        case DType::String: {
+            return "string";
+        }
+        default: {
+            return "unknown";
+        }
+    }
+}

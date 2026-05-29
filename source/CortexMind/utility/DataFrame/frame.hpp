@@ -50,14 +50,14 @@ namespace cortex::utils {
          *
          * @param row_to_show Number of rows to display (default: 5)
          */
-        void head(size_t row_to_show = 5);
+        void head(size_t row_to_show = 5) const;
         /**
          * @brief Checks if the DataFrame contains any NaN values.
          *
          * @return `true` if any NaN value is found, `false` otherwise
          */
         [[nodiscard]]
-        bool NaN();
+        bool NaN() const;
         /**
          * @brief Returns the number of rows.
          */
@@ -85,6 +85,29 @@ namespace cortex::utils {
          * @brief Access a column by name (const).
          */
         const _fw::Series& operator[](const std::string& idx) const;
+
+        /**
+         * @brief Performs one-hot encoding on a string column.
+         *
+         * Creates new binary columns for each unique category.
+         *
+         * @param idx Name of the column to encode
+         */
+        void one_hot(const std::string& idx);
+        /**
+         * @brief Converts a boolean column to float32 (0.0 / 1.0).
+         *
+         * @param idx Name of the boolean column
+         */
+        void encode_bool(const std::string& idx);
+        /**
+         * @brief Performs label encoding on a string column.
+         *
+         * Converts each unique string to an integer (0, 1, 2, ...).
+         *
+         * @param idx Name of the string column
+         */
+        void label_encode(const std::string& idx);
     private:
         std::unordered_map<std::string, _fw::Series> series;
         std::vector<std::string> names;

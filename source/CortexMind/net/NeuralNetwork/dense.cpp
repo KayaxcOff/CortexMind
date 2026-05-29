@@ -11,7 +11,7 @@ using namespace cortex::_fw;
 using namespace cortex::nn;
 using namespace cortex;
 
-Dense::Dense(int64 in_dim, int64 out_dim, const DeviceType device) : LayerBase("Dense (" + std::to_string(in_dim) + ", " + std::to_string(out_dim) + ")") {
+Dense::Dense(int64 in_dim, int64 out_dim, const DeviceType device) : LayerBase("Dense(" + std::to_string(in_dim) + ", " + std::to_string(out_dim) + ")") {
     this->weight = tensor({in_dim, out_dim}, device, true);
     this->bias = tensor({1, out_dim}, device, true);
 

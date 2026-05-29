@@ -62,15 +62,15 @@ void Model::summary() const {
     constexpr int W2 = 15;
 
     std::cout << "\n==================================================\n";
-    std::cout << "Model: " <<(this->m_name.empty() ? this->m_name : "") << '\n';
+    std::cout << "Model: " <<(this->m_name.empty() ? this->m_name : "Model") << '\n';
     std::cout << "==================================================\n";
 
-    std::cout << std::left << std::setw(W1) << "Layer" << std::setw(W2) << "Trainable" << '\n';
+    std::cout << std::left << std::setw(W1) << "Layer" << std::setw(W2) << "Mode" << '\n';
 
     std::cout << "--------------------------------------------------\n";
 
     for (const auto& item : this->layers_) {
-        std::cout << std::left << std::setw(W1) << item->name() << std::setw(W2) << (item->flag() ? "Yes" : "No") << '\n';
+        std::cout << std::left << std::setw(W1) << item->name() << std::setw(W2) << (item->flag() ? "Train" : "Eval") << '\n';
     }
 
     std::cout << "==================================================\n";
