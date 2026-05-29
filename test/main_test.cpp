@@ -10,6 +10,7 @@ using namespace cortex;
 int main() {
     auto train_df = load(R"(..\test\archive\student_train.csv)");
     auto test_df = load(R"(..\test\archive\student_test.csv)");
+    train_df.info();
 
     train_df.label_encode("placement_status");
     test_df.label_encode("placement_status");
@@ -59,25 +60,36 @@ int main() {
         std::cout << "Predict: " << pred.get()[i] << " Target: " << y_test.get()[i] << std::endl;
     }
 
+    model.save(R"(..\test\model.json)");
+
     return 0;
 }
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
+<DataFrame: 10000 rows x 8 cols>
+ - study_hours (float32)
+ - attendance (float32)
+ - sleep_hours (float32)
+ - internet_usage (float32)
+ - assignments_completed (float32)
+ - previous_score (float32)
+ - exam_score (float32)
+ - placement_status (string)
 
 ==================================================
 Model:
 ==================================================
 Layer                         Mode
 --------------------------------------------------
-Dense (7, 16)                 Train
+Dense(7, 16)                  Train
 ReLU                          Train
-Dense (16, 32)                Train
+Dense(16, 32)                 Train
 ReLU                          Train
-Dense (32, 32)                Train
+Dense(32, 32)                 Train
 ReLU                          Train
-Dense (32, 16)                Train
+Dense(32, 16)                 Train
 ReLU                          Train
-Dense (16, 1)                 Train
+Dense(16, 1)                  Train
 Sigmoid                       Train
 ==================================================
 Is compiled   : Yes
@@ -85,22 +97,22 @@ Loss Function : BCE(0.000000)
 Optimizer     : Adam(0.001000)
 Total Params  : 2273
 ==================================================
-Epoch 0     | Loss: 0.746220%
-Epoch 100   | Loss: 0.278850%
-Epoch 200   | Loss: 0.040181%
-Epoch 300   | Loss: 0.015640%
-Epoch 400   | Loss: 0.009944%
-Epoch 500   | Loss: 0.007196%
-Epoch 600   | Loss: 0.005592%
-Epoch 700   | Loss: 0.004572%
-Epoch 800   | Loss: 0.003850%
-Epoch 900   | Loss: 0.003278%
+Epoch 0     | Loss: 0.730896%
+Epoch 100   | Loss: 0.211155%
+Epoch 200   | Loss: 0.035153%
+Epoch 300   | Loss: 0.015196%
+Epoch 400   | Loss: 0.009694%
+Epoch 500   | Loss: 0.007078%
+Epoch 600   | Loss: 0.005542%
+Epoch 700   | Loss: 0.004503%
+Epoch 800   | Loss: 0.003805%
+Epoch 900   | Loss: 0.003358%
 Predict: 0.000000 Target: 0.000000
 Predict: 0.000000 Target: 0.000000
 Predict: 0.000000 Target: 0.000000
 Predict: 0.000000 Target: 0.000000
 Predict: 0.000000 Target: 0.000000
-Predict: 0.000027 Target: 0.000000
+Predict: 0.000212 Target: 0.000000
 Predict: 0.000000 Target: 0.000000
 Predict: 0.000000 Target: 0.000000
 Predict: 0.000000 Target: 0.000000

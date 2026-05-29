@@ -3,7 +3,9 @@
 //
 
 #include "CortexMind/net/Model/model.hpp"
+#include <nlohmann/json.hpp>
 #include <algorithm>
+#include <fstream>
 #include <iomanip>
 #include <ios>
 #include <iostream>
@@ -96,6 +98,33 @@ void Model::eval() const {
     for (const auto& item : this->layers_) {
         item->EvalMode();
     }
+}
+
+void Model::save(const std::string &path) {
+    nlohmann::ordered_json json;
+
+    json["model_name"] = this->m_name;
+    json["loss_function"] = this->loss_fn_->name();
+    json["optimizer"] = this->optim_fn_->name();
+    json["layers"] = nlohmann::json::array();
+
+    for (const auto& item : this->layers_) {
+        nlohmann::ordered_json layer_json;
+
+        layer_json["name"] = item->name();
+        layer_json["mode"] = item->flag() ? "Train" : "Eval";
+
+        json["layers"].push_back(layer_json);
+    }
+
+    std::ofstream file(path);
+    file << json.dump(4);
+
+    file.close();
+}
+
+void Model::load(const std::string &path) {
+
 }
 
 bool Model::trainable() const {

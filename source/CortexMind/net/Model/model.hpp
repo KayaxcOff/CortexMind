@@ -88,7 +88,8 @@ namespace cortex::net {
          * @brief Sets all layers to evaluation mode.
          */
         void eval() const;
-
+        void save(const std::string& path);
+        void load(const std::string& path);
         /**
          * @brief Returns whether any layer in the model is trainable.
          */
