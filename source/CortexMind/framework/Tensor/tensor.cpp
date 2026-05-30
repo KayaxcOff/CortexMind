@@ -556,7 +556,7 @@ Tensor Tensor::sum(const std::vector<i64> &dims, const bool keep) const {
             }
         }
         if (!squeezed.empty()) {
-            output = output.reshape(squeezed);
+            output = output.clone().reshape(squeezed);
         }
     }
 
