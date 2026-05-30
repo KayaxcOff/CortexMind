@@ -88,7 +88,27 @@ namespace cortex::net {
          * @brief Sets all layers to evaluation mode.
          */
         void eval() const;
+        /**
+         * @brief Saves the entire model (architecture + weights) to disk.
+         *
+         * Creates a directory containing:
+         * - `map.json`     : Model architecture, layer names, parameter metadata
+         * - `weights.bin`  : Binary file containing all trainable weights (float32)
+         *
+         * @param path Directory path where the model will be saved
+         */
         void save(const std::string& path);
+        /**
+         * @brief Loads a previously saved model from disk.
+         *
+         * Restores model architecture and all trainable weights from:
+         * - `map.json`
+         * - `weights.bin`
+         *
+         * Performs validation checks (model name, layer count, tensor shapes).
+         *
+         * @param path Directory path from which the model will be loaded
+         */
         void load(const std::string& path);
         /**
          * @brief Returns whether any layer in the model is trainable.

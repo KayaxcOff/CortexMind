@@ -5,6 +5,7 @@
 #include "CortexMind/net/Model/model.hpp"
 #include <nlohmann/json.hpp>
 #include <algorithm>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <ios>
@@ -101,30 +102,106 @@ void Model::eval() const {
 }
 
 void Model::save(const std::string &path) {
-    nlohmann::ordered_json json;
+    std::filesystem::create_directories(path);
 
+    nlohmann::ordered_json json;
     json["model_name"] = this->m_name;
     json["loss_function"] = this->loss_fn_->name();
     json["optimizer"] = this->optim_fn_->name();
     json["layers"] = nlohmann::json::array();
 
+    std::ofstream bin(path + "/weights.bin", std::ios::binary);
+
+    size_t current_offset = 0;
+
     for (const auto& item : this->layers_) {
         nlohmann::ordered_json layer_json;
-
         layer_json["name"] = item->name();
         layer_json["mode"] = item->flag() ? "Train" : "Eval";
+        layer_json["params"] = nlohmann::json::array();
+
+        const auto& params = item->getParameters();
+
+        for (size_t i = 0; i < params.size(); ++i) {
+            const tensor& t = params[i].get();
+            const size_t num_elements = t.len();
+            const size_t byte_size   = num_elements * sizeof(float32);
+
+            nlohmann::ordered_json param_json;
+            param_json["index"]     = i;
+            param_json["offset"]    = current_offset;
+            param_json["byte_size"] = byte_size;
+            param_json["elements"]  = num_elements;
+            layer_json["params"].push_back(param_json);
+
+            bin.write(reinterpret_cast<const char*>(t.get()), byte_size);
+            current_offset += byte_size;
+        }
 
         json["layers"].push_back(layer_json);
     }
 
-    std::ofstream file(path);
-    file << json.dump(4);
+    bin.close();
 
+    std::ofstream file(path + "/map.json");
+    file << json.dump(4);
     file.close();
 }
 
 void Model::load(const std::string &path) {
+    std::ifstream file(path + "/map.json");
+    CXM_ASSERT(!file.is_open(), "map.json can't open");
 
+    nlohmann::ordered_json json;
+    file >> json;
+    file.close();
+
+    // Temel kontroller
+    CXM_ASSERT(json["model_name"] != this->m_name,
+        "Model names mismatch");
+    CXM_ASSERT(json["layers"].size() != this->layers_.size(),
+        "Size of layers mistach");
+
+    std::ifstream bin(path + "/weights.bin", std::ios::binary);
+    CXM_ASSERT(!bin.is_open(), "weights.bin can't open");
+
+    for (size_t li = 0; li < this->layers_.size(); ++li) {
+        const auto& item       = this->layers_[li];
+        const auto& layer_json = json["layers"][li];
+
+        CXM_ASSERT(layer_json["name"] != item->name(),
+            "Layer name mismatch: Expected=" + item->name() +
+            " In file=" + layer_json["name"].get<std::string>());
+
+        const auto& params = item->getParameters();
+
+        if (params.empty()) {
+            continue;
+        }
+
+        CXM_ASSERT(layer_json["params"].size() != params.size(),
+            "Len of tensor mismatch: " + item->name());
+
+        for (size_t pi = 0; pi < params.size(); ++pi) {
+            const auto& param_json = layer_json["params"][pi];
+            tensor& t = params[pi].get();
+
+            const size_t expected_elements = param_json["elements"].get<size_t>();
+            const size_t offset = param_json["offset"].get<size_t>();
+            const size_t byte_size = param_json["byte_size"].get<size_t>();
+
+            CXM_ASSERT(t.len() != expected_elements,
+                "Tensor size mismatch: " + item->name() +
+                " param[" + std::to_string(pi) + "]");
+
+            bin.seekg(static_cast<std::streamoff>(offset));
+            bin.read(reinterpret_cast<char*>(t.get()), byte_size);
+
+            CXM_ASSERT(bin.fail(), "Binary reading error: " + item->name());
+        }
+    }
+
+    bin.close();
 }
 
 bool Model::trainable() const {
