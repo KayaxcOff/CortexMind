@@ -3,7 +3,6 @@
 //
 
 #include <CortexMind/cortexmind.hpp>
-#include <iostream>
 
 using namespace cortex;
 
@@ -14,25 +13,23 @@ int main() {
 
     image = image.div(255.0f);
 
-    nn::Conv2D l1(3,16,3,3,2,2,1,1);
-    nn::ReLU l2;
+    net::Model model;
 
-    tensor output = l1.forward(image);
-    output = l2.forward(output);
+    model.add<nn::Conv2D>(3,16,3,3,8,8,1,1);
+    model.add<nn::ReLU>();
+    model.add<nn::GlobalAveragePool2D>();
+    model.add<nn::Dense>(16, 1);
 
-    std::cout << "Max: " << output.max() << std::endl;
-    std::cout << "Min: " << output.min() << std::endl;
-    std::cout << "Mean: " << output.mean() << std::endl;
-    std::cout << "Variance: " << output.variance() << std::endl;
+    model.compile<loss::MeanSquared, opt::Adam>();
+    auto y_true = tensor({1, 1});
+    y_true.fill(1.0f);
+    model.fit(image, y_true, 5);
 
     return 0;
 }
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
-Max: 2.87184
-Min: 0
-Mean: 0.477196
-Variance: 0.35541
+[ERROR] [CortexMind\framework\Tensor\tensor.cpp | 362] reshape requires a contiguous tensor
 
-Process finished with exit code 0
+Process finished with exit code 1
 */

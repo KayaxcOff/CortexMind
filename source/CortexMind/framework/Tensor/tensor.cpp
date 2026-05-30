@@ -566,7 +566,7 @@ Tensor Tensor::sum(const std::vector<i64> &dims, const bool keep) const {
 
     return output;
 }
-
+#include <iostream>
 Tensor Tensor::mean(const std::vector<i64> &dims, const bool keep) const {
     const Tensor output = this->sum(dims, keep);
 
