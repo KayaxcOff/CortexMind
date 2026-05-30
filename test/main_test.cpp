@@ -3,117 +3,112 @@
 //
 
 #include <CortexMind/cortexmind.hpp>
-#include <iostream>
 
 using namespace cortex;
 
 int main() {
-    auto test_df = load(R"(..\test\archive\student_test.csv)");
+    auto train_df = load(R"(..\test\archive\salary_elite.csv)");
 
-    test_df.label_encode("placement_status");
+    train_df.label_encode("branch");
+    train_df.label_encode("company_type");
+    train_df.label_encode("job_role");
 
-    test_df.Set("placement_status");
+    train_df["cgpa"].scale();
+    train_df["coding_score"].scale();
+    train_df["communication_score"].scale();
+    train_df["aptitude_score"].scale();
+    train_df["projects"].scale();
+    train_df["resume_score"].scale();
+    train_df["salary_lpa"].scale();
 
-    test_df["study_hours"].scale();
-    test_df["attendance"].scale();
-    test_df["sleep_hours"].scale();
-    test_df["internet_usage"].scale();
-    test_df["assignments_completed"].scale();
-    test_df["previous_score"].scale();
-    test_df["exam_score"].scale();
+    train_df.drop("student_id");
+    train_df.info();
+    train_df.Set("salary_lpa");
 
-    auto [x_test, y_test] = test_df.split();
+    auto[x, y] = train_df.split();
 
     net::Model model;
 
-    model.add<nn::Dense>(7, 16);
+    model.add<nn::Dense>(18, 16);
     model.add<nn::ReLU>();
     model.add<nn::Dense>(16, 32);
     model.add<nn::ReLU>();
-    model.add<nn::Dense>(32, 32);
+    model.add<nn::Dense>(32, 64);
+    model.add<nn::ReLU>();
+    model.add<nn::Dense>(64, 64);
+    model.add<nn::ReLU>();
+    model.add<nn::Dense>(64, 32);
     model.add<nn::ReLU>();
     model.add<nn::Dense>(32, 16);
     model.add<nn::ReLU>();
+    model.add<nn::Dropout>();
     model.add<nn::Dense>(16, 1);
-    model.add<nn::Sigmoid>();
 
-    model.compile<loss::BinaryCrossEntropy, opt::Adam>();
-    model.load(R"(..\test\model)");
+    model.compile<loss::MeanSquared, opt::Adam>(0.0001f);
+    model.summary();
 
-    auto pred = model.predict(x_test);
-
-    for (size_t i = 0; i < 20; i++) {
-        auto pred_val = pred.get()[i];
-        std::cout << "Predict: " << (pred_val > 0.5f ? 1 : 0) << "\n";
-        std::cout << "Expected: " << y_test.get()[i] << std::endl;
-        std::cout << std::endl;
-    }
+    model.fit(x, y, 1000, 100);
 
     return 0;
 }
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
-Predict: 0
-Expected: 0
+<DataFrame: 9000 rows x 19 cols>
+ - cgpa (float32)
+ - branch (float32)
+ - college_tier (float32)
+ - python_skill (float32)
+ - dsa_skill (float32)
+ - ml_skill (float32)
+ - web_dev_skill (float32)
+ - coding_score (float32)
+ - communication_score (float32)
+ - aptitude_score (float32)
+ - internships (float32)
+ - projects (float32)
+ - backlogs (float32)
+ - resume_score (float32)
+ - skill_score (float32)
+ - placed (float32)
+ - company_type (float32)
+ - job_role (float32)
+ - salary_lpa (float32)
 
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
-Predict: 1
-Expected: 1
-
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
-Predict: 0
-Expected: 0
-
+==================================================
+Model:
+==================================================
+Layer                         Mode
+--------------------------------------------------
+Dense(18, 16)                 Train
+ReLU                          Train
+Dense(16, 32)                 Train
+ReLU                          Train
+Dense(32, 64)                 Train
+ReLU                          Train
+Dense(64, 64)                 Train
+ReLU                          Train
+Dense(64, 32)                 Train
+ReLU                          Train
+Dense(32, 16)                 Train
+ReLU                          Train
+Dropout(0.100000)             Train
+Dense(16, 1)                  Train
+==================================================
+Is compiled   : Yes
+Loss Function : MSE
+Optimizer     : Adam(0.000100)
+Total Params  : 9745
+==================================================
+Epoch 0     | Loss: 0.187510%
+Epoch 100   | Loss: 0.047994%
+Epoch 200   | Loss: 0.023667%
+Epoch 300   | Loss: 0.015905%
+Epoch 400   | Loss: 0.012764%
+Epoch 500   | Loss: 0.010260%
+Epoch 600   | Loss: 0.009257%
+Epoch 700   | Loss: 0.007889%
+Epoch 800   | Loss: 0.007269%
+Epoch 900   | Loss: 0.006760%
 
 Process finished with exit code 0
-
 */
