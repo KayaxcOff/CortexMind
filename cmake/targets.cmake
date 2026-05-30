@@ -46,6 +46,7 @@ add_library(CortexMind STATIC
         source/CortexMind/net/NeuralNetwork/flatten.cpp
         source/CortexMind/net/NeuralNetwork/gelu.cpp
         source/CortexMind/net/NeuralNetwork/gelu_exact.cpp
+        source/CortexMind/net/NeuralNetwork/global_avg_pool_2d.cpp
         source/CortexMind/net/NeuralNetwork/input.cpp
         source/CortexMind/net/NeuralNetwork/leaky_relu.cpp
         source/CortexMind/net/NeuralNetwork/relu.cpp
@@ -65,6 +66,7 @@ add_library(CortexMind STATIC
         source/CortexMind/utility/Cast/factory.cpp
         source/CortexMind/utility/DataFrame/frame.cpp
         source/CortexMind/utility/DataFrame/operators.cpp
+        source/CortexMind/utility/Image/vm.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
