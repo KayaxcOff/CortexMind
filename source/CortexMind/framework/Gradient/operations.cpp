@@ -546,8 +546,10 @@ void silu::backward(const Tensor &_grad) {
     }
 }
 
-conv2d::conv2d(const GradientPacked &_x, const i64 iH, const i64 iW, const i64 kH, const i64 kW, const i64 sH, const i64 sW, const i64 pH, const i64 pW, const i64 oH, const i64 oW) : GradientFlow("Conv2D") {
+conv2d::conv2d(const GradientPacked &_x, const GradientPacked &_weight, const GradientPacked &_bias, const i64 iH, const i64 iW, const i64 kH, const i64 kW, const i64 sH, const i64 sW, const i64 pH, const i64 pW, const i64 oH, const i64 oW) : GradientFlow("Conv2D") {
     this->tx = new Tensor(_x);
+    this->tw = new Tensor(_weight);
+    this->tb = new Tensor(_bias);
 
     this->iH = iH;
     this->iW = iW;
@@ -558,38 +560,69 @@ conv2d::conv2d(const GradientPacked &_x, const i64 iH, const i64 iW, const i64 k
     this->sH = sH;
     this->sW = sW;
 
-    this->pH = pH;
-    this->pW = pW;
-
     this->oH = oH;
     this->oW = oW;
+
+    this->pH = pH;
+    this->pW = pW;
 }
 
 conv2d::~conv2d() {
     delete this->tx;
+    delete this->tb;
+    delete this->tw;
 }
 
 void conv2d::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
-        const i64 N = this->tx->shape()[0];
-        const i64 C = this->tx->shape()[1];
+    const i64 N  = tx->shape()[0];
+    const i64 C  = tx->shape()[1];
+    const i64 oC = tw->shape()[0];
 
-        Tensor grad_expanded(this->tx->shape(), this->tx->device(), false);
+    const Tensor d_out = _grad
+        .permute({1, 0, 2, 3})
+        .clone()
+        .reshape({oC, N * oH * oW});
 
+    const i64 rows = C * kH * kW;
+    const i64 cols = N * oH * oW;
+    Tensor col({rows, cols}, tx->device(), false);
+    ix::Convolution::unfold(
+        tx->get(), col.get(),
+        N, C, iH, iW,
+        kH, kW, sH, sW, pH, pW,
+        oH, oW,
+        tx->device()
+    );
+
+    if (tw->has_grad()) {
+        const Tensor grad_w = d_out
+            .matmul(col.transpose())
+            .reshape(tw->shape());
+        tw->grad() += grad_w;
+        //tw->backward(grad_w);
+    }
+
+    if (tb->has_grad()) {
+        const Tensor grad_b = d_out.sum({1}, false);
+        tb->grad() += grad_b;
+        //tb->backward(grad_b);
+    }
+
+    if (tx->has_grad()) {
+        const Tensor W_flat = tw->detach().reshape({oC, C * kH * kW});
+        const Tensor d_col  = W_flat.transpose().matmul(d_out);
+
+        Tensor grad_input(tx->shape(), tx->device(), false);
         ix::Convolution::fold(
-            _grad.get(),
-            grad_expanded.get(),
-            N, C,
-            this->iH, this->iW,
-            this->kH, this->kW,
-            this->sH, this->sW,
-            this->pH, this->pW,
-            this->oH, this->oW,
-            this->tx->device()
+            d_col.get(), grad_input.get(),
+            N, C, iH, iW,
+            kH, kW, sH, sW, pH, pW,
+            oH, oW,
+            tx->device()
         );
 
-        this->tx->grad() += grad_expanded;
-        this->tx->backward(grad_expanded);
+        tx->grad() += grad_input;
+        tx->backward(grad_input);
     }
 }
 

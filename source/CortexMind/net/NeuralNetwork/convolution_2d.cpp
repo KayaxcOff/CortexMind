@@ -5,6 +5,7 @@
 #include "CortexMind/net/NeuralNetwork/convolution_2d.hpp"
 #include <CortexMind/framework/Engine/IX/convolution.hpp>
 #include <CortexMind/framework/Gradient/operations.hpp>
+#include <CortexMind/utility/Image/kernel.hpp>
 #include <cmath>
 #include <iostream>
 #include <memory>
@@ -36,26 +37,44 @@ Conv2D::~Conv2D() = default;
 
 tensor Conv2D::forward(const tensor& input) {
     CXM_ASSERT(input.ndim() != 4, "Conv2D expects 4D input (N,C,H,W)");
-    CXM_ASSERT(input.shape()[1] != this->weight.shape()[1], "Input channels mismatch");
+    CXM_ASSERT(input.shape()[1] != weight.shape()[1], "Input channels mismatch");
 
     const i64 N  = input.shape()[0];
     const i64 H  = input.shape()[2];
     const i64 W  = input.shape()[3];
-    const i64 oC = this->weight.shape()[0];
+    const i64 oC = weight.shape()[0];
+    const i64 C  = weight.shape()[1];
 
     auto [oH, oW] = compute_output_size(H, W);
 
-    Tensor col = this->im2col(input);
+    const Tensor col = im2col(input);
 
-    const Tensor weight_flat = this->weight.reshape({oC, -1});
-    // col.grad() = col.grad().reshape(..);
-    Tensor output = weight_flat.matmul(col);
+    const Tensor W_flat = weight.detach().reshape({oC, C * this->KERNEL_HEIGHT * this->KERNEL_WIDTH});
+    const Tensor b_flat = bias.detach().reshape({oC, 1});
 
-    output = output + this->bias.reshape({oC, 1});
-
+    Tensor output = utils::SpatialKernel::apply(W_flat, col);
+    output = output + b_flat;
     output = output.reshape({oC, N, oH, oW});
-    output = output.permute({1,0,2,3});
-    //output.grad() = output.grad().reshape({oC, N * oH * oW});
+    output = output.permute({1, 0, 2, 3});
+
+    // Tek grad node: conv2d
+    const bool need_grad = input.has_grad()
+                        || weight.has_grad()
+                        || bias.has_grad();
+    if (need_grad) {
+        output.require_grad();
+        output.SetFlow(std::make_shared<meta::conv2d>(
+            input.pack(),
+            weight.pack(),
+            bias.pack(),
+            H, W,
+            KERNEL_HEIGHT, KERNEL_WIDTH,
+            STRIDE_HEIGHT, STRIDE_WIDTH,
+            PADDING_HEIGHT, PADDING_WIDTH,
+            oH, oW
+        ));
+    }
+
     return output;
 }
 
@@ -99,10 +118,6 @@ tensor Conv2D::im2col(const tensor& input) const {
         oH, oW,
         input.device()
     );
-
-    if (output.has_grad()) [[likely]] {
-        output.SetFlow(std::make_shared<meta::conv2d>(input.pack(), H, W, this->KERNEL_HEIGHT, this->KERNEL_WIDTH, this->STRIDE_HEIGHT, this->STRIDE_WIDTH, this->PADDING_HEIGHT, this->PADDING_WIDTH, oH, oW));
-    }
 
     return output;
 }

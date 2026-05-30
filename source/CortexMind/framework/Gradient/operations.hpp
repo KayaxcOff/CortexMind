@@ -621,34 +621,23 @@ namespace cortex::_fw::meta {
         Tensor* cached_output;
     };
 
-    /**
-     * @brief Gradient node for Conv2D layer (`Conv2DBackward`).
-     *
-     * Computes gradients for a 2D convolution operation.
-     */
     struct conv2d : GradientFlow {
-        /**
-         * @brief Constructs a Conv2D gradient node.
-         *
-         * @param _x Input tensor packed data
-         * @param iH,iW Input height and width
-         * @param kH,kW Kernel height and width
-         * @param sH,sW Stride height and width
-         * @param pH,pW Padding height and width
-         * @param oH,oW Output height and width
-         */
-        explicit conv2d(const GradientPacked& _x, i64 iH, i64 iW, i64 kH, i64 kW, i64 sH, i64 sW, i64 pH, i64 pW, i64 oH, i64 oW);
+        explicit conv2d(
+            const GradientPacked& _x,       // input
+            const GradientPacked& _weight,  // yeni
+            const GradientPacked& _bias,    // yeni
+            i64 iH, i64 iW,
+            i64 kH, i64 kW,
+            i64 sH, i64 sW,
+            i64 pH, i64 pW,
+            i64 oH, i64 oW
+        );
         ~conv2d() override;
-
-        /**
-         * @brief Computes gradient with respect to the input of Conv2D.
-         *
-         * Uses the `ix::Convolution::fold` operation to perform the backward pass
-         * of the convolution (equivalent to full convolution with rotated kernel).
-         */
-        void backward(const Tensor &_grad) override;
+        void backward(const Tensor& _grad) override;
     private:
-        Tensor* tx;
+        Tensor* tx;      // input
+        Tensor* tw;      // weight  — yeni
+        Tensor* tb;      // bias    — yeni
         i64 iH, iW, kH, kW, sH, sW, pH, pW, oH, oW;
     };
 

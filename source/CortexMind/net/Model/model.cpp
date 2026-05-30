@@ -18,7 +18,7 @@ Model::Model(std::string name) : m_flag(false), m_name(std::move(name)) {}
 
 Model::~Model() = default;
 
-void Model::fit(const tensor &Xx, const tensor &Xy, const int32 epochs, int32 epochIdx) const {
+void Model::fit(const tensor &Xx, const tensor &Xy, const int32 epochs, const int32 epochIdx) const {
     CXM_ASSERT(!this->m_flag, "Model isn't compiled");
 
     this->optim_fn_->SetParams(this->parameters());
@@ -31,9 +31,7 @@ void Model::fit(const tensor &Xx, const tensor &Xy, const int32 epochs, int32 ep
         const float32 epoch_loss = loss.get()[0];
 
         this->optim_fn_->zero_grad();
-
         loss.backward();
-
         this->optim_fn_->update();
 
         if (epoch % epochIdx == 0) {
@@ -134,7 +132,7 @@ void Model::save(const std::string &path) {
             param_json["elements"]  = num_elements;
             layer_json["params"].push_back(param_json);
 
-            bin.write(reinterpret_cast<const char*>(t.get()), byte_size);
+            bin.write(reinterpret_cast<const char*>(t.get()), static_cast<long long>(byte_size));
             current_offset += byte_size;
         }
 
@@ -195,7 +193,7 @@ void Model::load(const std::string &path) {
                 " param[" + std::to_string(pi) + "]");
 
             bin.seekg(static_cast<std::streamoff>(offset));
-            bin.read(reinterpret_cast<char*>(t.get()), byte_size);
+            bin.read(reinterpret_cast<char*>(t.get()), static_cast<long long>(byte_size));
 
             CXM_ASSERT(bin.fail(), "Binary reading error: " + item->name());
         }

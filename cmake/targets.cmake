@@ -66,6 +66,7 @@ add_library(CortexMind STATIC
         source/CortexMind/utility/Cast/factory.cpp
         source/CortexMind/utility/DataFrame/frame.cpp
         source/CortexMind/utility/DataFrame/operators.cpp
+        source/CortexMind/utility/Image/kernel.cpp
         source/CortexMind/utility/Image/vm.cpp
 )
 
