@@ -210,12 +210,23 @@ bool Model::trainable() const {
         }
     );
 }
-
+/*
 std::vector<_fw::ref<tensor>> Model::parameters() const {
     std::vector<_fw::ref<tensor>> output;
     for (const auto & item : this->layers_) {
         for (size_t i = 0; i < item->getParameters().size(); ++i) {
             output.push_back(item->getParameters()[i]);
+        }
+    }
+    return output;
+}
+*/
+
+std::vector<_fw::ref<tensor>> Model::parameters() const {
+    std::vector<_fw::ref<tensor>> output;
+    for (const auto& item : this->layers_) {
+        for (auto& p : item->getParameters()) {
+            output.push_back(p);
         }
     }
     return output;

@@ -28,9 +28,9 @@ tensor Dense::forward(const tensor &input) {
 }
 
 std::vector<ref<tensor>> Dense::getParameters() {
-    return {this->weight, this->bias};
+    return {std::ref(this->weight), std::ref(this->bias)};
 }
 
 std::vector<ref<tensor>> Dense::getGradients() {
-    return {this->weight.grad(), this->bias.grad()};
+    return {std::ref(this->weight.grad()), std::ref(this->bias.grad())};
 }

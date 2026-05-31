@@ -79,11 +79,11 @@ tensor Conv2D::forward(const tensor& input) {
 }
 
 std::vector<ref<tensor>> Conv2D::getParameters() {
-    return {this->weight, this->bias};
+    return {std::ref(this->weight), std::ref(this->bias)};
 }
 
 std::vector<ref<tensor>> Conv2D::getGradients() {
-    return {this->weight.grad(), this->bias.grad()};
+    return {std::ref(this->weight.grad()), std::ref(this->bias)};
 }
 
 std::pair<int64, int64> Conv2D::compute_output_size(const int64 input_height, const int64 input_width) const {

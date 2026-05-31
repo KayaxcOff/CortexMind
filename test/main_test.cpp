@@ -19,7 +19,7 @@ int main() {
     model.add<nn::GlobalAveragePool2D>();
     model.add<nn::Dense>(16, 1);
 
-    model.compile<loss::MeanSquared, opt::Adam>(1e-6f);
+    model.compile<loss::MeanSquared, opt::Adam>(0.01f);
     model.summary();
 
     auto y_true = tensor({1, 1});
@@ -45,19 +45,20 @@ Dense(16, 1)                  Train
 ==================================================
 Is compiled   : Yes
 Loss Function : MSE
-Optimizer     : Adam(0.000001)
+Optimizer     : Adam(0.010000)
 Total Params  : 465
 ==================================================
-Epoch 0     | Loss: 6.382914%
-Epoch 10    | Loss: 2.352662%
-Epoch 20    | Loss: 2.344524%
-Epoch 30    | Loss: 1.296104%
-Epoch 40    | Loss: 1.293711%
-Epoch 50    | Loss: 1.302455%
-Epoch 60    | Loss: 1.299800%
-Epoch 70    | Loss: 1.310878%
-Epoch 80    | Loss: 1.308000%
-Epoch 90    | Loss: 1.321075%
+Epoch 0     | Loss: 1.932275%
+Epoch 10    | Loss: 0.219304%
+Epoch 20    | Loss: 0.000404%
+Epoch 30    | Loss: 0.022602%
+Epoch 40    | Loss: 0.002741%
+Epoch 50    | Loss: 0.000184%
+Epoch 60    | Loss: 0.000402%
+Epoch 70    | Loss: 0.000036%
+Epoch 80    | Loss: 0.000002%
+Epoch 90    | Loss: 0.000005%
 
 Process finished with exit code 0
+
 */
