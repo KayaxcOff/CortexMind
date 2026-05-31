@@ -20,5 +20,5 @@ tensor CategoricalCrossEntropy::forward(const tensor &predict, const tensor &tar
 
     const tensor output = target.mul(probs.log()).sum({1}, false).neg();
 
-    return output / static_cast<float32>(output.len());
+    return output.sum() / static_cast<float32>(output.len());
 }

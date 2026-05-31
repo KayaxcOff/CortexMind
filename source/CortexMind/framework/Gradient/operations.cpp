@@ -733,7 +733,7 @@ softmax::~softmax() {
 void softmax::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
         const Tensor y_times_grad = (*this->cached_output) * _grad;
-        const Tensor sum_term = y_times_grad.sum();
+        const Tensor sum_term = y_times_grad.sum({1}, true);
 
         const Tensor grad_expanded = (*this->cached_output) * _grad - (*this->cached_output) * sum_term;
 
