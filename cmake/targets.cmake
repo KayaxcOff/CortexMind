@@ -41,6 +41,8 @@ add_library(CortexMind STATIC
         source/CortexMind/net/LossFunction/mse.cpp
         source/CortexMind/net/Metrics/acc.cpp
         source/CortexMind/net/Metrics/approx.cpp
+        source/CortexMind/net/Metrics/mse.cpp
+        source/CortexMind/net/Metrics/rmse.cpp
         source/CortexMind/net/Model/model.cpp
         source/CortexMind/net/NeuralNetwork/batch_norm.cpp
         source/CortexMind/net/NeuralNetwork/convolution_2d.cpp

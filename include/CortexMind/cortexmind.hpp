@@ -18,6 +18,8 @@
 #include <CortexMind/net/Model/model.hpp>
 #include <CortexMind/net/Metrics/acc.hpp>
 #include <CortexMind/net/Metrics/approx.hpp>
+#include <CortexMind/net/Metrics/mse.hpp>
+#include <CortexMind/net/Metrics/rmse.hpp>
 #include <CortexMind/net/NeuralNetwork/batch_norm.hpp>
 #include <CortexMind/net/NeuralNetwork/convolution_2d.hpp>
 #include <CortexMind/net/NeuralNetwork/dense.hpp>

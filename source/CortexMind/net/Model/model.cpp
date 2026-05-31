@@ -38,8 +38,8 @@ void Model::fit(const tensor &Xx, const tensor &Xy, const int32 epochs, const in
             const float32 met = this->metric_fn_->forward(pred, Xy);
             std::cout
                 << "Epoch " << std::setw(5) << epoch
-                << " | Loss: " << std::fixed << std::setprecision(6) << epoch_loss << "%"
-                << " | " << "Metric: " <<  met
+                << " | Loss: " << std::fixed << std::setprecision(6) << epoch_loss
+                << " | " << this->metric_fn_->name() << ": " << met
                 << std::endl;
         }
     }

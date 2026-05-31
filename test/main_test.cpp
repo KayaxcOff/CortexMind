@@ -7,52 +7,79 @@
 using namespace cortex;
 
 int main() {
+    auto train_df = load(R"(..\test\archive\train.csv)");
+    train_df.Set("price_range");
 
-    auto train_df = load(R"(..\test\archive\Teen_Mental_Health_Dataset.csv)");
-    train_df.Set("depression_label");
-
-    train_df.label_encode("gender");
-    train_df.label_encode("platform_usage");
-    train_df.label_encode("social_interaction_level");
-
-    train_df["age"].scale();
-    train_df["daily_social_media_hours"].scale();
-    train_df["sleep_hours"].scale();
-    train_df["screen_time_before_sleep"].scale();
-    train_df["academic_performance"].scale();
-    train_df["physical_activity"].scale();
-    train_df["stress_level"].scale();
-    train_df["anxiety_level"].scale();
-    train_df["addiction_level"].scale();
-
-    auto[x, y] = train_df.split();
+    train_df["battery_power"].scale();
+    train_df["int_memory"].scale();
+    train_df["mobile_wt"].scale();
+    train_df["n_cores"].scale();
+    train_df["pc"].scale();
+    train_df["px_height"].scale();
+    train_df["px_width"].scale();
+    train_df["ram"].scale();
+    train_df["sc_h"].scale();
+    train_df["sc_w"].scale();
+    train_df["talk_time"].scale();
 
     net::Model model;
 
-    model.add<nn::Dense>(12, 32);
+    model.add<nn::Dense>(20, 64);
     model.add<nn::ReLU>();
-    model.add<nn::Dense>(32, 32);
+    model.add<nn::Dense>(64, 32);
     model.add<nn::ReLU>();
-    model.add<nn::Dense>(32, 1);
-    model.add<nn::Sigmoid>();
+    model.add<nn::Dense>(32, 16);
+    model.add<nn::ReLU>();
+    model.add<nn::Dense>(16, 4);
+    model.add<nn::Softmax>();
 
-    model.compile<loss::BinaryCrossEntropy, opt::Adam, metric::Accuracy>();
-    model.fit(x, y, 1000, 100);
+    model.compile<loss::CategoricalCrossEntropy, opt::Adam, metric::Accuracy>();
+    model.summary();
+
+    auto[x, y] = train_df.split();
+
+    model.fit(x, y, 1500, 100);
 
     return 0;
 }
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
-Epoch     0 | Loss: 0.684001% | Metric: 0.529167
-Epoch   100 | Loss: 0.121951% | Metric: 0.974167
-Epoch   200 | Loss: 0.098952% | Metric: 0.974167
-Epoch   300 | Loss: 0.073791% | Metric: 0.974167
-Epoch   400 | Loss: 0.052781% | Metric: 0.974167
-Epoch   500 | Loss: 0.036998% | Metric: 0.977500
-Epoch   600 | Loss: 0.026367% | Metric: 0.990833
-Epoch   700 | Loss: 0.018714% | Metric: 0.995000
-Epoch   800 | Loss: 0.013183% | Metric: 0.995833
-Epoch   900 | Loss: 0.009646% | Metric: 0.998333
+
+==================================================
+Model:
+==================================================
+Layer                         Mode
+--------------------------------------------------
+Dense(20, 64)                 Train
+ReLU                          Train
+Dense(64, 32)                 Train
+ReLU                          Train
+Dense(32, 16)                 Train
+ReLU                          Train
+Dense(16, 4)                  Train
+Softmax                       Train
+==================================================
+Is compiled   : Yes
+Loss Function : CCE(0.000000)
+Optimizer     : Adam(0.001000)
+Metric        : Accuracy
+Total Params  : 4020
+==================================================
+Epoch 0     | Loss: 0.017890 | Accuracy: 0.250000
+Epoch 100   | Loss: 0.017890 | Accuracy: 0.250000
+Epoch 200   | Loss: 0.017890 | Accuracy: 0.250000
+Epoch 300   | Loss: 0.017890 | Accuracy: 0.250000
+Epoch 400   | Loss: 0.017890 | Accuracy: 0.250000
+Epoch 500   | Loss: 0.017890 | Accuracy: 0.250000
+Epoch 600   | Loss: 0.017890 | Accuracy: 0.250000
+Epoch 700   | Loss: 0.017890 | Accuracy: 0.250000
+Epoch 800   | Loss: 0.017890 | Accuracy: 0.250000
+Epoch 900   | Loss: 0.017890 | Accuracy: 0.250000
+Epoch 1000  | Loss: 0.017890 | Accuracy: 0.250000
+Epoch 1100  | Loss: 0.017890 | Accuracy: 0.250000
+Epoch 1200  | Loss: 0.017890 | Accuracy: 0.250000
+Epoch 1300  | Loss: 0.017890 | Accuracy: 0.250000
+Epoch 1400  | Loss: 0.017890 | Accuracy: 0.250000
 
 Process finished with exit code 0
 */

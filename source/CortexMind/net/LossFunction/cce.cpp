@@ -16,7 +16,7 @@ CategoricalCrossEntropy::CategoricalCrossEntropy(const float32 eps) : LossBase("
 CategoricalCrossEntropy::~CategoricalCrossEntropy() = default;
 
 tensor CategoricalCrossEntropy::forward(const tensor &predict, const tensor &target) {
-    const tensor probs = predict.clamp(eps, 1.0f - eps);
+    const tensor probs = predict.clamp(this->eps, 1.0f - this->eps);
 
     const tensor output = target.mul(probs.log()).sum({1}, false).neg();
 
