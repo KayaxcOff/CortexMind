@@ -637,7 +637,7 @@ reshape::~reshape() {
 
 void reshape::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        const Tensor grad_expanded = _grad.clone().reshape(this->shape);
+        const Tensor grad_expanded = _grad.contiguous().reshape(this->shape);
 
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);

@@ -38,7 +38,7 @@ int main() {
 
     auto[x, y] = train_df.split();
 
-    model.fit(x, y, 10);
+    model.fit(x, y, 1000, 100);
 
     return 0;
 }
@@ -65,16 +65,16 @@ Optimizer     : Adam(0.001000)
 Metric        : Accuracy
 Total Params  : 4020
 ==================================================
-Epoch 0     | Loss: 9.493619 | Accuracy: 0.273500
-Epoch 1     | Loss: 9.274014 | Accuracy: 0.270000
-Epoch 2     | Loss: 96.708672 | Accuracy: 0.250000
-Epoch 3     | Loss: 96.708672 | Accuracy: 0.250000
-Epoch 4     | Loss: 96.708672 | Accuracy: 0.250000
-Epoch 5     | Loss: 96.708672 | Accuracy: 0.250000
-Epoch 6     | Loss: 96.708672 | Accuracy: 0.250000
-Epoch 7     | Loss: 96.708672 | Accuracy: 0.250000
-Epoch 8     | Loss: 96.708672 | Accuracy: 0.250000
-Epoch 9     | Loss: 96.708672 | Accuracy: 0.250000
+Epoch 0     | Loss: 8.418642 | Accuracy: 0.250000
+Epoch 100   | Loss: 8.319709 | Accuracy: 0.250000
+Epoch 200   | Loss: 8.318594 | Accuracy: 0.250000
+Epoch 300   | Loss: 8.318226 | Accuracy: 0.250000
+Epoch 400   | Loss: 8.318065 | Accuracy: 0.250000
+Epoch 500   | Loss: 8.317975 | Accuracy: 0.250000
+Epoch 600   | Loss: 8.317924 | Accuracy: 0.250000
+Epoch 700   | Loss: 8.317889 | Accuracy: 0.250000
+Epoch 800   | Loss: 8.317865 | Accuracy: 0.250000
+Epoch 900   | Loss: 8.317854 | Accuracy: 0.250000
 
 Process finished with exit code 0
 */

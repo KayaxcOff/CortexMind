@@ -177,7 +177,7 @@ namespace cortex::_fw {
          * @return True if tensor is contiguous.
          */
         [[nodiscard]]
-        bool contiguous() const;
+        bool is_contiguous() const;
         /**
          * @brief Returns the device where the tensor is stored.
          *
@@ -599,7 +599,8 @@ namespace cortex::_fw {
 
         [[nodiscard]]
         Tensor clamp(f32 min, f32 max) const;
-
+        [[nodiscard]]
+        Tensor contiguous() const;
         /**
          * @brief Returns the gradient tensor.
          *

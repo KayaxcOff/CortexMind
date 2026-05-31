@@ -120,8 +120,8 @@ bool Tensor::empty() const {
     return this->storage_->isEmpty();
 }
 
-bool Tensor::contiguous() const {
-    return is_contiguous(this->m_strides, this->m_shape);
+bool Tensor::is_contiguous() const {
+    return _fw::is_contiguous(this->m_strides, this->m_shape);
 }
 
 DeviceType Tensor::device() const {
@@ -278,7 +278,7 @@ Tensor Tensor::matmul(const Tensor &other) const {
     CXM_ASSERT(this->device() != other.device(),
         "matmul device mismatch");
 
-    CXM_ASSERT(!this->contiguous() || !other.contiguous(),
+    CXM_ASSERT(!this->is_contiguous() || !other.is_contiguous(),
     "matmul requires contiguous tensors");
 
     const auto M = static_cast<size_t>(this->m_shape[0]);
@@ -359,7 +359,7 @@ Tensor Tensor::permute(const std::vector<i64> &dims) const {
 }
 
 Tensor Tensor::reshape(const std::vector<i64> &_new_shape) const {
-    CXM_ASSERT(!this->contiguous(), "reshape requires a contiguous tensor");
+    CXM_ASSERT(!this->is_contiguous(), "reshape requires a contiguous tensor");
 
     std::vector<i64> new_shape = _new_shape;
     i64 inferred_idx = -1;
@@ -556,7 +556,7 @@ Tensor Tensor::sum(const std::vector<i64> &dims, const bool keep) const {
             }
         }
         if (!squeezed.empty()) {
-            output = output.clone().reshape(squeezed);
+            output = output.clone().contiguous().reshape(squeezed);
         }
     }
 
@@ -844,6 +844,12 @@ Tensor Tensor::clamp(const f32 min, const f32 max) const {
         output.flow_ = std::make_shared<meta::clamp>(this->pack(), min, max);
     }
 
+    return output;
+}
+
+Tensor Tensor::contiguous() const {
+    Tensor output(this->m_shape, this->storage_, this->m_requires_grad);
+    output.flow_ = this->flow_;
     return output;
 }
 

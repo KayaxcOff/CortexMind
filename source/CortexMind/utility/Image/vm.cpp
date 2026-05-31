@@ -44,7 +44,7 @@ tensor VisionModule::load(const std::filesystem::path &path, ChannelFormat fmt, 
 void VisionModule::save(const tensor &tensor, const std::filesystem::path &path, const int32 jpeg_quality) {
     CXM_ASSERT(tensor.device() != DeviceType::kHOST, "Tensor must be on HOST.");
     CXM_ASSERT(tensor.ndim() < 2 || tensor.ndim() > 3, "Expected [C,H,W] or [H,W] tensor.");
-    CXM_ASSERT(!tensor.contiguous(), "Tensor must be contiguous. Call .clone() first.");
+    CXM_ASSERT(!tensor.is_contiguous(), "Tensor must be contiguous. Call .clone() first.");
 
     const auto& sh = tensor.shape();
     const int64 C = (tensor.ndim() == 2) ? 1   : sh[0];
@@ -109,7 +109,7 @@ tensor VisionModule::normalize(const tensor &t, const std::vector<float32> &mean
 
     const int64 C = t.shape()[0];
     CXM_ASSERT(static_cast<int64>(mean.size()) != C || static_cast<int64>(std.size())  != C, "mean/std length must equal channel count.");
-    CXM_ASSERT(!t.contiguous(), "Tensor must be contiguous.");
+    CXM_ASSERT(!t.is_contiguous(), "Tensor must be contiguous.");
 
     const int64 H = t.shape()[1];
     const int64 W = t.shape()[2];
