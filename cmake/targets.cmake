@@ -22,6 +22,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Memory/mem.cpp
         source/CortexMind/framework/Net/layer.cpp
         source/CortexMind/framework/Net/loss.cpp
+        source/CortexMind/framework/Net/metric.cpp
         source/CortexMind/framework/Net/optimization.cpp
         source/CortexMind/framework/Storage/operators.cpp
         source/CortexMind/framework/Storage/stor.cpp
@@ -38,6 +39,8 @@ add_library(CortexMind STATIC
         source/CortexMind/net/LossFunction/cce.cpp
         source/CortexMind/net/LossFunction/mae.cpp
         source/CortexMind/net/LossFunction/mse.cpp
+        source/CortexMind/net/Metrics/acc.cpp
+        source/CortexMind/net/Metrics/approx.cpp
         source/CortexMind/net/Model/model.cpp
         source/CortexMind/net/NeuralNetwork/batch_norm.cpp
         source/CortexMind/net/NeuralNetwork/convolution_2d.cpp

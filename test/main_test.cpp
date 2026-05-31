@@ -8,57 +8,51 @@ using namespace cortex;
 
 int main() {
 
-    auto image = utils::VisionModule::load(R"(..\test\test01.jpg)");
-    image = utils::VisionModule::normalize(image);
-    image = image.unsqueeze(0);
+    auto train_df = load(R"(..\test\archive\Teen_Mental_Health_Dataset.csv)");
+    train_df.Set("depression_label");
+
+    train_df.label_encode("gender");
+    train_df.label_encode("platform_usage");
+    train_df.label_encode("social_interaction_level");
+
+    train_df["age"].scale();
+    train_df["daily_social_media_hours"].scale();
+    train_df["sleep_hours"].scale();
+    train_df["screen_time_before_sleep"].scale();
+    train_df["academic_performance"].scale();
+    train_df["physical_activity"].scale();
+    train_df["stress_level"].scale();
+    train_df["anxiety_level"].scale();
+    train_df["addiction_level"].scale();
+
+    auto[x, y] = train_df.split();
 
     net::Model model;
 
-    model.add<nn::Conv2D>(3, 16, 3, 3, 8, 8, 1, 1);
+    model.add<nn::Dense>(12, 32);
     model.add<nn::ReLU>();
-    model.add<nn::GlobalAveragePool2D>();
-    model.add<nn::Dense>(16, 1);
+    model.add<nn::Dense>(32, 32);
+    model.add<nn::ReLU>();
+    model.add<nn::Dense>(32, 1);
+    model.add<nn::Sigmoid>();
 
-    model.compile<loss::MeanSquared, opt::Adam>(0.01f);
-    model.summary();
-
-    auto y_true = tensor({1, 1});
-    y_true.fill(1.0f);
-
-    model.fit(image, y_true, 100, 10);
-
+    model.compile<loss::BinaryCrossEntropy, opt::Adam, metric::Accuracy>();
+    model.fit(x, y, 1000, 100);
 
     return 0;
 }
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
-
-==================================================
-Model:
-==================================================
-Layer                         Mode
---------------------------------------------------
-Conv2D(16)                    Train
-ReLU                          Train
-GlobalAveragePooling2D        Train
-Dense(16, 1)                  Train
-==================================================
-Is compiled   : Yes
-Loss Function : MSE
-Optimizer     : Adam(0.010000)
-Total Params  : 465
-==================================================
-Epoch 0     | Loss: 1.932275%
-Epoch 10    | Loss: 0.219304%
-Epoch 20    | Loss: 0.000404%
-Epoch 30    | Loss: 0.022602%
-Epoch 40    | Loss: 0.002741%
-Epoch 50    | Loss: 0.000184%
-Epoch 60    | Loss: 0.000402%
-Epoch 70    | Loss: 0.000036%
-Epoch 80    | Loss: 0.000002%
-Epoch 90    | Loss: 0.000005%
+Epoch     0 | Loss: 0.684001% | Metric: 0.529167
+Epoch   100 | Loss: 0.121951% | Metric: 0.974167
+Epoch   200 | Loss: 0.098952% | Metric: 0.974167
+Epoch   300 | Loss: 0.073791% | Metric: 0.974167
+Epoch   400 | Loss: 0.052781% | Metric: 0.974167
+Epoch   500 | Loss: 0.036998% | Metric: 0.977500
+Epoch   600 | Loss: 0.026367% | Metric: 0.990833
+Epoch   700 | Loss: 0.018714% | Metric: 0.995000
+Epoch   800 | Loss: 0.013183% | Metric: 0.995833
+Epoch   900 | Loss: 0.009646% | Metric: 0.998333
 
 Process finished with exit code 0
-
 */

@@ -7,6 +7,7 @@
 
 #include <CortexMind/framework/Net/layer.hpp>
 #include <CortexMind/framework/Net/loss.hpp>
+#include <CortexMind/framework/Net/metric.hpp>
 #include <CortexMind/framework/Net/optimization.hpp>
 #include <CortexMind/utility/DataFrame/frame.hpp>
 #include <concepts>
@@ -49,13 +50,15 @@ namespace cortex::net {
          *
          * @tparam LossT Loss function type (must derive from LossBase)
          * @tparam OptT  Optimizer type (must derive from OptimizationBase)
+         * @tparam MetT  Metric Type (must derive from MetricBase)
          * @tparam Args  Constructor arguments for the optimizer
          * @param args   Arguments forwarded to the optimizer constructor
          */
-        template<typename LossT, typename OptT, typename... Args>
+        template<typename LossT, typename OptT, typename MetT, typename... Args>
         void compile(Args&&... args) {
             static_assert(std::is_base_of_v<_fw::LossBase, LossT>);
             static_assert(std::is_base_of_v<_fw::OptimizationBase, OptT>);
+            static_assert(std::is_base_of_v<_fw::MetricBase, MetT>);
 
             if (this->m_flag) {
                 CXM_WARN(true, "Model is already compiled");
@@ -63,6 +66,7 @@ namespace cortex::net {
             }
 
             this->loss_fn_ = std::make_unique<LossT>();
+            this->metric_fn_ = std::make_unique<MetT>();
             this->optim_fn_ = std::make_unique<OptT>(std::forward<Args>(args)...);
             this->m_flag = true;
         }
@@ -136,6 +140,7 @@ namespace cortex::net {
     private:
         std::vector<std::unique_ptr<_fw::LayerBase>> layers_;
         std::unique_ptr<_fw::LossBase> loss_fn_;
+        std::unique_ptr<_fw::MetricBase> metric_fn_;
         std::unique_ptr<_fw::OptimizationBase> optim_fn_;
         bool m_flag;
 

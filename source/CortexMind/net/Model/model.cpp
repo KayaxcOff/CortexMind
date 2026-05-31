@@ -35,16 +35,12 @@ void Model::fit(const tensor &Xx, const tensor &Xy, const int32 epochs, const in
         this->optim_fn_->update();
 
         if (epoch % epochIdx == 0) {
+            const float32 met = this->metric_fn_->forward(pred, Xy);
             std::cout
-            << "Epoch "
-            << std::setw(5)
-            << epoch
-            << " | Loss: "
-            << std::fixed
-            << std::setprecision(6)
-            << epoch_loss
-            << "%"
-            << std::endl;
+                << "Epoch " << std::setw(5) << epoch
+                << " | Loss: " << std::fixed << std::setprecision(6) << epoch_loss << "%"
+                << " | " << "Metric: " <<  met
+                << std::endl;
         }
     }
 }
@@ -81,6 +77,8 @@ void Model::summary() const {
     std::cout << "Loss Function : " << (this->loss_fn_ ? this->loss_fn_->name() : "None") << '\n';
 
     std::cout << "Optimizer     : "<< (this->optim_fn_ ? this->optim_fn_->name() : "None") << '\n';
+
+    std::cout << "Metric        : " << (this->metric_fn_ ? this->metric_fn_->name() : "None") << '\n';
 
     std::cout << "Total Params  : " << this->compute_element() << '\n';
 
@@ -158,7 +156,7 @@ void Model::load(const std::string &path) {
     CXM_ASSERT(json["model_name"] != this->m_name,
         "Model names mismatch");
     CXM_ASSERT(json["layers"].size() != this->layers_.size(),
-        "Size of layers mistach");
+        "Size of layers mismatch");
 
     std::ifstream bin(path + "/weights.bin", std::ios::binary);
     CXM_ASSERT(!bin.is_open(), "weights.bin can't open");
@@ -210,17 +208,6 @@ bool Model::trainable() const {
         }
     );
 }
-/*
-std::vector<_fw::ref<tensor>> Model::parameters() const {
-    std::vector<_fw::ref<tensor>> output;
-    for (const auto & item : this->layers_) {
-        for (size_t i = 0; i < item->getParameters().size(); ++i) {
-            output.push_back(item->getParameters()[i]);
-        }
-    }
-    return output;
-}
-*/
 
 std::vector<_fw::ref<tensor>> Model::parameters() const {
     std::vector<_fw::ref<tensor>> output;
@@ -234,9 +221,9 @@ std::vector<_fw::ref<tensor>> Model::parameters() const {
 
 std::vector<_fw::ref<tensor>> Model::gradients() const {
     std::vector<_fw::ref<tensor>> output;
-    for (const auto & item : this->layers_) {
-        for (size_t i = 0; i < item->getGradients().size(); ++i) {
-            output.push_back(item->getGradients()[i]);
+    for (const auto& item : this->layers_) {
+        for (auto& p : item->getGradients()) {
+            output.push_back(p);
         }
     }
     return output;
