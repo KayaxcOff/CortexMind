@@ -65,21 +65,16 @@ Optimizer     : Adam(0.001000)
 Metric        : Accuracy
 Total Params  : 4020
 ==================================================
-Epoch 0     | Loss: 0.017890 | Accuracy: 0.250000
-Epoch 100   | Loss: 0.017890 | Accuracy: 0.250000
-Epoch 200   | Loss: 0.017890 | Accuracy: 0.250000
-Epoch 300   | Loss: 0.017890 | Accuracy: 0.250000
-Epoch 400   | Loss: 0.017890 | Accuracy: 0.250000
-Epoch 500   | Loss: 0.017890 | Accuracy: 0.250000
-Epoch 600   | Loss: 0.017890 | Accuracy: 0.250000
-Epoch 700   | Loss: 0.017890 | Accuracy: 0.250000
-Epoch 800   | Loss: 0.017890 | Accuracy: 0.250000
-Epoch 900   | Loss: 0.017890 | Accuracy: 0.250000
-Epoch 1000  | Loss: 0.017890 | Accuracy: 0.250000
-Epoch 1100  | Loss: 0.017890 | Accuracy: 0.250000
-Epoch 1200  | Loss: 0.017890 | Accuracy: 0.250000
-Epoch 1300  | Loss: 0.017890 | Accuracy: 0.250000
-Epoch 1400  | Loss: 0.017890 | Accuracy: 0.250000
+Epoch 0     | Loss: 9.493619 | Accuracy: 0.273500
+Epoch 1     | Loss: 9.274014 | Accuracy: 0.270000
+Epoch 2     | Loss: 96.708672 | Accuracy: 0.250000
+Epoch 3     | Loss: 96.708672 | Accuracy: 0.250000
+Epoch 4     | Loss: 96.708672 | Accuracy: 0.250000
+Epoch 5     | Loss: 96.708672 | Accuracy: 0.250000
+Epoch 6     | Loss: 96.708672 | Accuracy: 0.250000
+Epoch 7     | Loss: 96.708672 | Accuracy: 0.250000
+Epoch 8     | Loss: 96.708672 | Accuracy: 0.250000
+Epoch 9     | Loss: 96.708672 | Accuracy: 0.250000
 
 Process finished with exit code 0
 */

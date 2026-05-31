@@ -820,7 +820,7 @@ Tensor Tensor::clone() const {
     output.m_requires_grad = this->m_requires_grad;
     output.m_offset        = this->m_offset;
     output.storage_        = std::make_shared<TensorStorage>(this->storage_->clone());
-    output.flow_           = this->flow_;
+    output.flow_           = nullptr;
 
     if (this->m_requires_grad && this->gradient_ != nullptr) {
         output.gradient_ = std::make_shared<Tensor>(this->gradient_->clone());
