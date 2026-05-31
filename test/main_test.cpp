@@ -38,7 +38,7 @@ int main() {
 
     auto[x, y] = train_df.split();
 
-    model.fit(x, y, 1500, 100);
+    model.fit(x, y, 10);
 
     return 0;
 }
