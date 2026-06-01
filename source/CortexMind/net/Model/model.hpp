@@ -9,7 +9,6 @@
 #include <CortexMind/framework/Net/loss.hpp>
 #include <CortexMind/framework/Net/metric.hpp>
 #include <CortexMind/framework/Net/optimization.hpp>
-#include <CortexMind/utility/DataFrame/frame.hpp>
 #include <concepts>
 #include <memory>
 #include <vector>

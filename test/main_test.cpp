@@ -7,74 +7,52 @@
 using namespace cortex;
 
 int main() {
-    auto train_df = load(R"(..\test\archive\train.csv)");
-    train_df.Set("price_range");
+    auto train_df = load(R"(..\test\archive\winequality-white new.csv)");
+    train_df.Set("pH");
+    train_df.drop("alcohol");
 
-    train_df["battery_power"].scale();
-    train_df["int_memory"].scale();
-    train_df["mobile_wt"].scale();
-    train_df["n_cores"].scale();
-    train_df["pc"].scale();
-    train_df["px_height"].scale();
-    train_df["px_width"].scale();
-    train_df["ram"].scale();
-    train_df["sc_h"].scale();
-    train_df["sc_w"].scale();
-    train_df["talk_time"].scale();
-
-    net::Model model;
-
-    model.add<nn::Dense>(20, 64);
-    model.add<nn::ReLU>();
-    model.add<nn::Dense>(64, 32);
-    model.add<nn::ReLU>();
-    model.add<nn::Dense>(32, 16);
-    model.add<nn::ReLU>();
-    model.add<nn::Dense>(16, 4);
-    model.add<nn::Softmax>();
-
-    model.compile<loss::CategoricalCrossEntropy, opt::Adam, metric::Accuracy>();
-    model.summary();
+    train_df["fixed acidity"].scale();
+    train_df["volatile acidity"].scale();
+    train_df["citric acid"].scale();
+    train_df["residual sugar"].scale();
+    train_df["chlorides"].scale();
+    train_df["free sulfur dioxide"].scale();
+    train_df["total sulfur dioxide"].scale();
+    train_df["density"].scale();
+    train_df["pH"].scale();
+    train_df["sulphates"].scale();
+    train_df["quality"].scale();
 
     auto[x, y] = train_df.split();
 
-    model.fit(x, y, 1000, 100);
+    net::Model model;
+
+    model.add<nn::Dense>(10, 32);
+    model.add<nn::ReLU>();
+    model.add<nn::Dense>(32, 32);
+    model.add<nn::ReLU>();
+    model.add<nn::Dropout>();
+    model.add<nn::Dense>(32, 16);
+    model.add<nn::ReLU>();
+    model.add<nn::Dense>(16, 1);
+    model.compile<loss::MeanSquared, opt::Adam, metric::RootMeanSquared>();
+
+    model.fit(x, y, 100, 10);
 
     return 0;
 }
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
-
-==================================================
-Model:
-==================================================
-Layer                         Mode
---------------------------------------------------
-Dense(20, 64)                 Train
-ReLU                          Train
-Dense(64, 32)                 Train
-ReLU                          Train
-Dense(32, 16)                 Train
-ReLU                          Train
-Dense(16, 4)                  Train
-Softmax                       Train
-==================================================
-Is compiled   : Yes
-Loss Function : CCE(0.000000)
-Optimizer     : Adam(0.001000)
-Metric        : Accuracy
-Total Params  : 4020
-==================================================
-Epoch 0     | Loss: 8.418642 | Accuracy: 0.250000
-Epoch 100   | Loss: 8.319709 | Accuracy: 0.250000
-Epoch 200   | Loss: 8.318594 | Accuracy: 0.250000
-Epoch 300   | Loss: 8.318226 | Accuracy: 0.250000
-Epoch 400   | Loss: 8.318065 | Accuracy: 0.250000
-Epoch 500   | Loss: 8.317975 | Accuracy: 0.250000
-Epoch 600   | Loss: 8.317924 | Accuracy: 0.250000
-Epoch 700   | Loss: 8.317889 | Accuracy: 0.250000
-Epoch 800   | Loss: 8.317865 | Accuracy: 0.250000
-Epoch 900   | Loss: 8.317854 | Accuracy: 0.250000
+Epoch     0 | Loss: 0.164955 | RMSE: 0.406147
+Epoch    10 | Loss: 0.069818 | RMSE: 0.264232
+Epoch    20 | Loss: 0.029073 | RMSE: 0.170508
+Epoch    30 | Loss: 0.029341 | RMSE: 0.171293
+Epoch    40 | Loss: 0.024132 | RMSE: 0.155344
+Epoch    50 | Loss: 0.023103 | RMSE: 0.151997
+Epoch    60 | Loss: 0.021696 | RMSE: 0.147297
+Epoch    70 | Loss: 0.020721 | RMSE: 0.143949
+Epoch    80 | Loss: 0.020681 | RMSE: 0.143808
+Epoch    90 | Loss: 0.020203 | RMSE: 0.142136
 
 Process finished with exit code 0
 */
