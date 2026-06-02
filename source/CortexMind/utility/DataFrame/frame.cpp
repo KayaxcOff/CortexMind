@@ -151,7 +151,7 @@ int64 DataFrame::row() const {
 int64 DataFrame::col() const {
     return this->m_col;
 }
-
+/*
 std::pair<tensor, tensor> DataFrame::split() {
     CXM_ASSERT(!this->isInit, "Target column is not initialized. Call Set() first.");
 
@@ -178,6 +178,44 @@ std::pair<tensor, tensor> DataFrame::split() {
             } else {
                 y_data.push_back(this->series[item].data()[i]);
             }
+        }
+    }
+
+    _x.SetData(x_data.data());
+    _y.SetData(y_data.data());
+
+    return std::make_pair(_x, _y);
+}
+*/
+
+std::pair<tensor, tensor> DataFrame::split() {
+    CXM_ASSERT(!this->isInit, "Target column is not initialized. Call Set() first.");
+
+    for (const auto& item : this->targets) {
+        CXM_ASSERT(!this->series.contains(item), "Target column not found in DataFrame.");
+    }
+
+    auto y_cols = static_cast<int64>(this->targets.size());
+    int64 x_cols = this->m_col - y_cols;
+
+    tensor _x({this->m_row, x_cols}, host);
+    tensor _y({this->m_row, y_cols}, host);
+
+    std::vector<float32> x_data;
+    std::vector<float32> y_data;
+
+    x_data.reserve(x_cols * this->m_row);
+    y_data.reserve(y_cols * this->m_row);
+
+    for (size_t i = 0; i < this->m_row; ++i) {
+        for (const auto& item : this->names) {
+            if (std::ranges::find(this->targets, item) == this->targets.end()) {
+                x_data.push_back(this->series[item].data()[i]);
+            }
+        }
+
+        for (const auto& item : this->targets) {
+            y_data.push_back(this->series[item].data()[i]);
         }
     }
 

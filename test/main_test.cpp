@@ -5,7 +5,7 @@
 #include <CortexMind/cortexmind.hpp>
 
 using namespace cortex;
-
+/*
 int main() {
     auto train_df = load(R"(..\test\archive\antenna_dataset.csv)");
     train_df.Set("Status");
@@ -31,6 +31,7 @@ int main() {
 
     return 0;
 }
+*/
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
 
@@ -69,20 +70,23 @@ Epoch 90    | Loss: 0.023113 | Accuracy: 0.999333
 Process finished with exit code 0
 */
 
-/*
+
 int main() {
     auto train_df = load(R"(..\test\archive\antenna_dataset.csv)");
     train_df.one_hot("Fault_Type");
-    train_df.Set("Fault_Type_1.000000");
-    train_df.Set("Fault_Type_2.000000");
-    train_df.Set("Fault_Type_3.000000");
-    train_df.Set("Fault_Type_4.000000");
-    train_df.Set("Fault_Type_5.000000");
+    train_df.Set({
+    "Fault_Type_0.000000",
+    "Fault_Type_1.000000",
+    "Fault_Type_2.000000",
+    "Fault_Type_3.000000",
+    "Fault_Type_4.000000",
+    "Fault_Type_5.000000"
+    });
     train_df.head();
 
     net::Model model;
 
-    model.add<nn::Dense>(13, 64);
+    model.add<nn::Dense>(8, 64);
     model.add<nn::ReLU>();
     model.add<nn::Dense>(64, 32);
     model.add<nn::ReLU>();
@@ -101,7 +105,7 @@ int main() {
 
     return 0;
 }
-
+/*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
 S11 (dB)        VSWR    Gain (dBi)      Eff (%) BW (MHz)        Z_Real (Ohms)   Z_Imag (Ohms)   Status  Fault_Type_1.000
 000     Fault_Type_4.000000     Fault_Type_2.000000     Fault_Type_0.000000     Fault_Type_5.000000     Fault_Type_3.000
@@ -122,7 +126,7 @@ Model:
 ==================================================
 Layer                         Mode
 --------------------------------------------------
-Dense(13, 64)                 Train
+Dense(8, 64)                  Train
 ReLU                          Train
 Dense(64, 32)                 Train
 ReLU                          Train
@@ -136,19 +140,18 @@ Is compiled   : Yes
 Loss Function : CCE(0.000000)
 Optimizer     : Adam(0.001000)
 Metric        : Accuracy
-Total Params  : 3606
+Total Params  : 3286
 ==================================================
-Epoch 0     | Loss: 1.795672 | Accuracy: 0.833333
-Epoch 10    | Loss: 16.118093 | Accuracy: 0.833333
-Epoch 20    | Loss: 16.118093 | Accuracy: 0.833333
-Epoch 30    | Loss: 16.118093 | Accuracy: 0.833333
-Epoch 40    | Loss: 16.118093 | Accuracy: 0.833333
-Epoch 50    | Loss: 16.118093 | Accuracy: 0.833333
-Epoch 60    | Loss: 16.118093 | Accuracy: 0.833333
-Epoch 70    | Loss: 16.118093 | Accuracy: 0.833333
-Epoch 80    | Loss: 16.118093 | Accuracy: 0.833333
-Epoch 90    | Loss: 16.118093 | Accuracy: 0.833333
+Epoch 0     | Loss: 1.741861 | Accuracy: 0.833333
+Epoch 10    | Loss: 16.032141 | Accuracy: 0.833333
+Epoch 20    | Loss: 16.032141 | Accuracy: 0.833333
+Epoch 30    | Loss: 16.032141 | Accuracy: 0.833333
+Epoch 40    | Loss: 16.032141 | Accuracy: 0.833333
+Epoch 50    | Loss: 16.032141 | Accuracy: 0.833333
+Epoch 60    | Loss: 16.032141 | Accuracy: 0.833333
+Epoch 70    | Loss: 16.032141 | Accuracy: 0.833333
+Epoch 80    | Loss: 16.032141 | Accuracy: 0.833333
+Epoch 90    | Loss: 16.032141 | Accuracy: 0.833333
 
 Process finished with exit code 0
-
 */
