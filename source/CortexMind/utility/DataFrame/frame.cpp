@@ -195,8 +195,8 @@ void DataFrame::one_hot(const std::string& idx) {
 
         for (const auto item : float_data) {
             str_vec.push_back(std::to_string(item));
-            this->series[idx] = Series(std::move(str_vec));
         }
+        this->series[idx] = Series(std::move(str_vec));
     }
 
     CXM_ASSERT(this->series[idx].dtype() != DType::String, "one_hot() is only valid for string sequences: " + idx);
