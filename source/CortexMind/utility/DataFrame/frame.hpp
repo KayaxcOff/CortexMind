@@ -14,15 +14,17 @@
 
 namespace cortex::utils {
     /**
-     * @brief Simple DataFrame class for handling tabular data (CSV-like).
+     * @brief DataFrame for loading, exploring, and preprocessing tabular data.
      *
-     * Provides basic functionality for loading data from CSV files, column access,
-     * statistical information, and splitting into features (X) and target (Y).
+     * Supports CSV loading, multiple target columns, one-hot encoding,
+     * label encoding, boolean encoding, and splitting into features (X) and targets (Y).
      */
     class DataFrame {
     public:
         /**
          * @brief Constructs a DataFrame by loading data from a CSV file.
+         *
+         * The first row is treated as the header (column names).
          *
          * @param path Path to the CSV file
          */
@@ -30,11 +32,17 @@ namespace cortex::utils {
         ~DataFrame();
 
         /**
-         * @brief Sets the target (label) column for supervised learning.
+         * @brief Sets a single target column for supervised learning.
          *
          * @param idx Name of the target column
          */
         void Set(const std::string &idx);
+        /**
+         * @brief Sets multiple target columns for multi-output supervised learning.
+         *
+         * @param idx List of target column names
+         */
+        void Set(const std::vector<std::string>& idx);
         /**
          * @brief Drops a column from the DataFrame.
          *
@@ -42,7 +50,7 @@ namespace cortex::utils {
          */
         void drop(const std::string& idx);
         /**
-         * @brief Prints basic information about the DataFrame.
+         * @brief Prints basic information about the DataFrame (shape and column types).
          */
         void info() const;
         /**
@@ -52,42 +60,7 @@ namespace cortex::utils {
          */
         void head(size_t row_to_show = 5) const;
         /**
-         * @brief Checks if the DataFrame contains any NaN values.
-         *
-         * @return `true` if any NaN value is found, `false` otherwise
-         */
-        [[nodiscard]]
-        bool NaN() const;
-        /**
-         * @brief Returns the number of rows.
-         */
-        [[nodiscard]]
-        int64 row() const;
-        /**
-         * @brief Returns the number of columns.
-         */
-        [[nodiscard]]
-        int64 col() const;
-        /**
-         * @brief Splits the DataFrame into features (X) and target (Y).
-         *
-         * Requires `Set()` to be called beforehand to specify the target column.
-         *
-         * @return Pair of tensors: (X features, Y target)
-         */
-        [[nodiscard]]
-        std::pair<tensor, tensor> split();
-        /**
-         * @brief Access a column by name (mutable).
-         */
-        _fw::Series& operator[](const std::string& idx);
-        /**
-         * @brief Access a column by name (const).
-         */
-        const _fw::Series& operator[](const std::string& idx) const;
-
-        /**
-         * @brief Performs one-hot encoding on a string column.
+         * @brief Performs one-hot encoding on a categorical (string) column.
          *
          * Creates new binary columns for each unique category.
          *
@@ -103,16 +76,52 @@ namespace cortex::utils {
         /**
          * @brief Performs label encoding on a string column.
          *
-         * Converts each unique string to an integer (0, 1, 2, ...).
+         * Maps each unique string to an integer (0, 1, 2, ...).
          *
          * @param idx Name of the string column
          */
         void label_encode(const std::string& idx);
+
+        /**
+         * @brief Checks if the DataFrame contains any NaN values.
+         *
+         * @return `true` if any NaN is found, `false` otherwise
+         */
+        [[nodiscard]]
+        bool NaN() const;
+        /**
+         * @brief Returns the number of rows.
+         */
+        [[nodiscard]]
+        int64 row() const;
+        /**
+         * @brief Returns the number of columns.
+         */
+        [[nodiscard]]
+        int64 col() const;
+        /**
+         * @brief Splits the DataFrame into features (X) and target(s) (Y).
+         *
+         * Requires `Set()` to be called first to specify target column(s).
+         *
+         * @return Pair of tensors: `(X features, Y target(s))`
+         */
+        [[nodiscard]]
+        std::pair<tensor, tensor> split();
+
+        /**
+         * @brief Access a column by name (mutable).
+         */
+        _fw::Series& operator[](const std::string& idx);
+        /**
+         * @brief Access a column by name (const).
+         */
+        const _fw::Series& operator[](const std::string& idx) const;
     private:
         std::unordered_map<std::string, _fw::Series> series;
         std::vector<std::string> names;
         int64 m_col, m_row;
-        std::string target;
+        std::vector<std::string> targets;
         bool isInit;
     };
 } //namespace cortex::utils

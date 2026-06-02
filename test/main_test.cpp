@@ -43,16 +43,16 @@ int main() {
 }
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
-Epoch     0 | Loss: 0.164955 | RMSE: 0.406147
-Epoch    10 | Loss: 0.069818 | RMSE: 0.264232
-Epoch    20 | Loss: 0.029073 | RMSE: 0.170508
-Epoch    30 | Loss: 0.029341 | RMSE: 0.171293
-Epoch    40 | Loss: 0.024132 | RMSE: 0.155344
-Epoch    50 | Loss: 0.023103 | RMSE: 0.151997
-Epoch    60 | Loss: 0.021696 | RMSE: 0.147297
-Epoch    70 | Loss: 0.020721 | RMSE: 0.143949
-Epoch    80 | Loss: 0.020681 | RMSE: 0.143808
-Epoch    90 | Loss: 0.020203 | RMSE: 0.142136
+Epoch     0 | Loss: 0.221528 | RMSE: 0.470667
+Epoch    10 | Loss: 0.122767 | RMSE: 0.350382
+Epoch    20 | Loss: 0.056801 | RMSE: 0.238331
+Epoch    30 | Loss: 0.026964 | RMSE: 0.164208
+Epoch    40 | Loss: 0.027557 | RMSE: 0.166004
+Epoch    50 | Loss: 0.023533 | RMSE: 0.153403
+Epoch    60 | Loss: 0.021683 | RMSE: 0.147253
+Epoch    70 | Loss: 0.020617 | RMSE: 0.143587
+Epoch    80 | Loss: 0.019715 | RMSE: 0.140410
+Epoch    90 | Loss: 0.018866 | RMSE: 0.137354
 
 Process finished with exit code 0
 */

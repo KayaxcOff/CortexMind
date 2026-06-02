@@ -74,7 +74,12 @@ DataFrame::DataFrame(const std::string& path) : m_col(0), m_row(0), isInit(false
 DataFrame::~DataFrame() = default;
 
 void DataFrame::Set(const std::string &idx) {
-    this->target = idx;
+    this->targets = {idx};
+    this->isInit = true;
+}
+
+void DataFrame::Set(const std::vector<std::string> &idx) {
+    this->targets = idx;
     this->isInit = true;
 }
 
@@ -106,11 +111,17 @@ void DataFrame::head(const size_t row_to_show) const {
 
     const size_t limit = std::min(row_to_show, static_cast<size_t>(this->m_row));
     for (size_t i = 0; i < limit; ++i) {
-        for (const auto& name : this->names) {
-            switch (const auto& s = this->series.at(name); s.dtype()) {
-                case DType::Float32: std::cout << s.as<f32>()[i];          break;
-                case DType::Bool:    std::cout << s.as<bool>()[i];         break;
-                case DType::String:  std::cout << s.as<std::string>()[i];  break;
+        for (const auto& item : this->names) {
+            switch (const auto& it = this->series.at(item); it.dtype()) {
+                case DType::Float32:
+                    std::cout << it.as<f32>()[i];
+                    break;
+                case DType::Bool:
+                    std::cout << it.as<bool>()[i];
+                    break;
+                case DType::String:
+                    std::cout << it.as<std::string>()[i];
+                    break;
             }
             std::cout << "\t";
         }
@@ -143,34 +154,51 @@ int64 DataFrame::col() const {
 
 std::pair<tensor, tensor> DataFrame::split() {
     CXM_ASSERT(!this->isInit, "Target column is not initialized. Call Set() first.");
-    CXM_ASSERT(!this->series.contains(this->target), "Target column not found in DataFrame.");
 
-    int64 x_cols = this->m_col - 1;
+    for (const auto& item : this->targets) {
+        CXM_ASSERT(!this->series.contains(item), "Target column not found in DataFrame.");
+    }
+
+    auto y_cols = static_cast<int64>(this->targets.size());
+    int64 x_cols = this->m_col - y_cols;
 
     tensor _x({this->m_row, x_cols}, host);
-    tensor _y({this->m_row, 1}, host);
+    tensor _y({this->m_row, y_cols}, host);
 
-    _y.SetData(this->series[this->target].data().data());
+    std::vector<float32> x_data;
+    std::vector<float32> y_data;
 
-    std::vector<float> x_data;
     x_data.reserve(x_cols * this->m_row);
+    y_data.reserve(y_cols * this->m_row);
 
-    for (size_t i = 0; i < static_cast<size_t>(this->m_row); ++i) {
+    for (size_t i = 0; i < this->m_row; ++i) {
         for (const auto& item : this->names) {
-            if (item == this->target) {
-                continue;
+            if (std::ranges::find(this->targets, item) == this->targets.end()) {
+                x_data.push_back(this->series[item].data()[i]);
+            } else {
+                y_data.push_back(this->series[item].data()[i]);
             }
-
-            x_data.push_back(this->series[item].data()[i]);
         }
     }
 
     _x.SetData(x_data.data());
+    _y.SetData(y_data.data());
 
     return std::make_pair(_x, _y);
 }
 
 void DataFrame::one_hot(const std::string& idx) {
+    if (this->series[idx].dtype() == DType::Float32) {
+        std::vector<std::string> str_vec;
+        const auto& float_data = this->series[idx].as<f32>();
+        str_vec.reserve(float_data.size());
+
+        for (const auto item : float_data) {
+            str_vec.push_back(std::to_string(item));
+            this->series[idx] = Series(std::move(str_vec));
+        }
+    }
+
     CXM_ASSERT(this->series[idx].dtype() != DType::String, "one_hot() is only valid for string sequences: " + idx);
 
     const auto& str_vec = this->series[idx].as<std::string>();
@@ -182,16 +210,21 @@ void DataFrame::one_hot(const std::string& idx) {
         }
     }
 
-    for (const auto& cat : categories) {
-        std::string new_col;
-        new_col.reserve(idx.size() + 1 + cat.size());
+    std::vector<std::string> generated_cols;
 
+
+    for (const auto& item : categories) {
+        std::string new_col;
+        new_col.reserve(idx.size() + 1 + item.size());
         new_col += idx;
         new_col += '_';
-        new_col += cat;
+        new_col += item;
+
+        generated_cols.push_back(new_col);
+
         std::vector<f32> encoded(str_vec.size());
         for (size_t i = 0; i < str_vec.size(); ++i) {
-            encoded[i] = (str_vec[i] == cat) ? 1.0f : 0.0f;
+            encoded[i] = (str_vec[i] == item) ? 1.0f : 0.0f;
         }
 
         this->series[new_col] = Series(std::move(encoded));
