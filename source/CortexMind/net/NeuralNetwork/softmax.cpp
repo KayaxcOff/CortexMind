@@ -33,7 +33,7 @@ tensor Softmax::forward(const tensor &input) {
     tensor output(input.shape(), input.device(), input.has_grad());
 
     const f32* in_ptr  = input.get();
-    f32*       out_ptr = output.get();
+    f32* out_ptr = output.get();
 
     for (i64 n = 0; n < N; ++n) {
         ix::Activation::softmax(
@@ -47,7 +47,6 @@ tensor Softmax::forward(const tensor &input) {
     if (output.has_grad()) [[likely]] {
         output.SetFlow(std::make_shared<meta::softmax>(input.pack(), output.pack()));
     }
-
 
     return output;
 }

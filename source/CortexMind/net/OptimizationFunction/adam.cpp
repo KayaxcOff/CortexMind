@@ -33,7 +33,6 @@ void Adam::update() {
     const float32 alpha = this->m_lr * std::sqrt(bc2) / bc1;
 
     for (size_t i = 0; i < this->m_params.size(); ++i) {
-
         tensor& param = this->m_params[i].get();
         tensor& g = param.grad();
 
@@ -56,7 +55,8 @@ void Adam::update() {
         //this->v[i] = new_v_data.clamp(0.0f, std::numeric_limits<f32>::max());
 
         param -= this->m[i] * alpha / (this->v[i].sqrt() + this->eps);
-        */
+    }
+    */
     /*
         const tensor g_copy = this->m_params[i].get().grad().clone();  // tamamen bağımsız kopya
         const tensor g_sq = g_copy * g_copy;
@@ -73,7 +73,8 @@ void Adam::update() {
         const tensor param_new = this->m_params[i].get().detach().clone() - step;
         this->m_params[i].get().SetData(param_new.get());
     }
-*/
+    */
+
     if (!this->flag) {
         this->Init();
     }
@@ -86,19 +87,18 @@ void Adam::update() {
 
     for (size_t i = 0; i < this->m_params.size(); ++i) {
         tensor& param = this->m_params[i].get();
-        const tensor g = param.grad().clone();  // bağımsız kopya
+        const tensor g = param.grad().clone();
 
-        // m ve v yeni storage ile hesaplanıyor
         const tensor m_new = this->m[i].clone() * this->beta1 + g * (1.0f - this->beta1);
         const tensor v_new = this->v[i].clone() * this->beta2 + (g * g) * (1.0f - this->beta2);
 
-        // SetData ile sadece veri yazılıyor, storage değişmiyor
         this->m[i].SetData(m_new.get());
         this->v[i].SetData(v_new.get());
 
         const tensor step = this->m[i].clone() * alpha / (this->v[i].clone().sqrt() + this->eps);
         param.SetData((param.detach().clone() - step).get());
     }
+
 }
 
 void Adam::Init() {

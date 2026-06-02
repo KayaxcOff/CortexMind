@@ -715,6 +715,7 @@ void clamp::backward(const Tensor &_grad) {
         const Tensor mask = (*this->tx > lo) * (*this->tx < hi);
 
         const Tensor grad_expanded = _grad * mask;
+
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
