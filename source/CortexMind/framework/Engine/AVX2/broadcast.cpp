@@ -139,8 +139,10 @@ namespace {
         const size_t rows = x_shape[0];
         const size_t cols = x_shape[1];
 
-        const int64_t y_stride_row = y_strides[0];
-        const int64_t y_stride_col = y_strides[1];
+        const bool is_y_col_broadcast = (y_shape[1] == 1 || y_strides[1] == 0);
+        const bool is_y_row_broadcast = (y_shape[0] == 1);
+
+        const int64_t y_stride_row = is_y_row_broadcast ? 0 : y_strides[0];
 
         for (size_t r = 0; r < rows; ++r) {
             const f32* x_row = x + r * x_strides[0];
@@ -148,7 +150,7 @@ namespace {
 
             const f32* y_row = y + r * y_stride_row;
 
-            if (y_stride_col == 0) {
+            if (is_y_col_broadcast) {
                 const f32 ys = y_row[0];
                 const vec8f yv = set1(ys);
                 apply_row_broadcast(x_row, yv, ys, z_row, cols, op_vec, op_scalar);

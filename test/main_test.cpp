@@ -94,14 +94,14 @@ int main() {
     model.add<nn::ReLU>();
     model.add<nn::Dropout>();
     model.add<nn::Dense>(16, 6);
-    model.add<nn::Softmax>();
+    //model.add<nn::Softmax>();
 
-    model.compile<loss::CategoricalCrossEntropy, opt::StochasticGradient, metric::Accuracy>();
+    model.compile<loss::CategoricalCrossEntropyWithLogit, opt::Adam, metric::Accuracy>();
     model.summary();
 
     auto[x, y] = train_df.split();
 
-    model.fit(x, y, 10);
+    model.fit(x, y, 250, 50);
 
     return 0;
 }
@@ -124,21 +124,16 @@ Dense(16, 6)                  Train
 Softmax                       Train
 ==================================================
 Is compiled   : Yes
-Loss Function : CCE(0.000000)
-Optimizer     : SGD(0.000100)
+Loss Function : CCEWithLogit
+Optimizer     : Adam(0.001000)
 Metric        : Accuracy
 Total Params  : 3286
 ==================================================
-Epoch 0     | Loss: 1.794401 | Accuracy: 0.833333
-Epoch 1     | Loss: 1.797775 | Accuracy: 0.833333
-Epoch 2     | Loss: 1.796639 | Accuracy: 0.833333
-Epoch 3     | Loss: 1.796928 | Accuracy: 0.833333
-Epoch 4     | Loss: 1.796003 | Accuracy: 0.833333
-Epoch 5     | Loss: 1.797281 | Accuracy: 0.833333
-Epoch 6     | Loss: 1.795694 | Accuracy: 0.833333
-Epoch 7     | Loss: 1.791859 | Accuracy: 0.833333
-Epoch 8     | Loss: 1.793572 | Accuracy: 0.833333
-Epoch 9     | Loss: 1.797070 | Accuracy: 0.833333
+Epoch 0     | Loss: 1.799956 | Accuracy: 0.150667
+Epoch 50    | Loss: 1.436035 | Accuracy: 0.695333
+Epoch 100   | Loss: 1.134546 | Accuracy: 0.966667
+Epoch 150   | Loss: 1.077203 | Accuracy: 0.984000
+Epoch 200   | Loss: 1.064484 | Accuracy: 0.990000
 
 Process finished with exit code 0
 */

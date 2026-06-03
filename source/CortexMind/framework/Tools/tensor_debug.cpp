@@ -29,23 +29,56 @@ std::string TensorDebug::stats_str(const Tensor &t) {
 }
 
 void TensorDebug::validateGradient(const Tensor &grad, const std::string &tensor_name) {
-    if (grad.len() == 0) {
-        return;
+    validateTensor(grad, tensor_name, true);
+}
+
+bool TensorDebug::validateTensor(const Tensor &t, const std::string &tensor_name, const bool is_gradient) {
+    if (t.len() == 0) return true;
+
+    const float* ptr = t.get();
+    const size_t length = t.len();
+
+    bool has_nan = false;
+    bool has_inf = false;
+    float extreme_val = 0.0f;
+
+    for (size_t i = 0; i < length; ++i) {
+        if (std::isnan(ptr[i])) {
+            has_nan = true;
+            break;
+        }
+        if (std::isinf(ptr[i])) {
+            has_inf = true;
+            break;
+        }
+        if (std::abs(ptr[i]) > extreme_val) {
+            extreme_val = std::abs(ptr[i]);
+        }
     }
 
-    if (const f32 max_val = grad.max(); isNaN(max_val)) {
-        Logger::getInstance().error("NaN detected in " + tensor_name + " gradient!");
-    } else if (isInf(max_val)) {
-        Logger::getInstance().error("Inf detected in " + tensor_name + " gradient!");
-    } else if (std::abs(max_val) > 1e8f) {
-        std::ostringstream oss;
-        oss << std::scientific << std::setprecision(3) << max_val;
-        Logger::getInstance().warn(tensor_name + " gradient extremely large: " + oss.str());
-    } else if (std::abs(max_val) < 1e-20f && max_val != 0.0f) {
-        std::ostringstream oss;
-        oss << std::scientific << std::setprecision(3) << max_val;
-        Logger::getInstance().warn(tensor_name + " gradient vanishing: " + oss.str());
+    const std::string type_str = is_gradient ? " gradient" : " activation";
+
+    if (has_nan) {
+        Logger::getInstance().error("[💥 IMPORTANT] NaN detected in " + tensor_name + type_str + "! Shape: " + shape_str(t));
+        return false;
     }
+
+    if (has_inf) {
+        Logger::getInstance().error("[💥 IMPORTANT] Inf detected in " + tensor_name + type_str + "! Shape: " + shape_str(t));
+        return false;
+    }
+
+    if (extreme_val > 1e8f) {
+        std::ostringstream oss;
+        oss << std::scientific << std::setprecision(3) << extreme_val;
+        Logger::getInstance().warn(tensor_name + type_str + " extremely large (Exploding): " + oss.str());
+    } else if (is_gradient && extreme_val < 1e-20f && extreme_val != 0.0f) {
+        std::ostringstream oss;
+        oss << std::scientific << std::setprecision(3) << extreme_val;
+        Logger::getInstance().warn(tensor_name + type_str + " vanishing: " + oss.str());
+    }
+
+    return true;
 }
 
 void TensorDebug::logTensor(const std::string &name, const Tensor &t, const bool show_stats) {

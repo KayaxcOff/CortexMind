@@ -726,6 +726,16 @@ namespace cortex::_fw::meta {
         Tensor* tx;
         Tensor* cached_output;
     };
+
+    struct logit_loss : GradientFlow {
+        explicit logit_loss(const GradientPacked& _x, const GradientPacked& _y);
+        ~logit_loss() override;
+
+        void backward(const Tensor& _grad) override;
+    private:
+        Tensor* tx;
+        Tensor* cached_output;
+    };
 } //namespace cortex::_fw::meta
 
 #endif //CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP

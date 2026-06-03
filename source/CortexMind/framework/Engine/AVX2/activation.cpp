@@ -199,7 +199,7 @@ void Activation::swish_fast(const f32* Xx, f32* Xz, const size_t N, const f32 be
 }
 
 void Activation::softmax(const f32* Xx, f32* Xz, const size_t N) {
-
+    /*
     const vec8f vmax = set1(reduce::max(Xx, N));
 
     vec8f vacc = zero();
@@ -210,7 +210,7 @@ void Activation::softmax(const f32* Xx, f32* Xz, const size_t N) {
         storeu(Xz + i, e);
         vacc = add(vacc, e);
     }
-    /*
+    -
     const f32 sum = horizontal::sum(vacc);
 
     Xz[i] = std::exp(Xx[i] - reduce::max(Xx, N));
@@ -223,7 +223,7 @@ void Activation::softmax(const f32* Xx, f32* Xz, const size_t N) {
     for (; i < N; ++i) {
         Xz[i] *= 1.0f / sum;
     }
-    */
+    -
 
     const f32 max_val = reduce::max(Xx, N);
 
@@ -235,7 +235,40 @@ void Activation::softmax(const f32* Xx, f32* Xz, const size_t N) {
     for (size_t j = 0; j < N; ++j) {
         Xz[j] /= sum;
     }
+    */
 
+    const f32 max_val = reduce::max(Xx, N);
+    const vec8f vmax = set1(max_val);
+
+    vec8f vacc = zero();
+    size_t i = 0;
+
+    for (; i + 8 <= N; i += 8) {
+        const vec8f e = avx2::exp(sub(loadu(Xx + i), vmax));
+        storeu(Xz + i, e);
+        vacc = add(vacc, e);
+    }
+
+    f32 sum = horizontal::sum(vacc);
+
+    for (; i < N; ++i) {
+        const f32 e = std::exp(Xx[i] - max_val);
+        Xz[i] = e;
+        sum += e;
+    }
+
+    sum = std::max(sum, 1e-12f);
+
+    const vec8f vsum = set1(1.0f / sum);
+
+    i = 0;
+    for (; i + 8 <= N; i += 8) {
+        storeu(Xz + i, mul(loadu(Xz + i), vsum));
+    }
+
+    for (; i < N; ++i) {
+        Xz[i] /= sum;
+    }
 }
 
 void Activation::sigmoid_fast(const f32* Xx, f32* Xz, const size_t N) {

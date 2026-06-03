@@ -730,8 +730,9 @@ softmax::~softmax() {
     delete this->tx;
     delete this->cached_output;
 }
-
+#include <CortexMind/framework/Tools/tensor_debug.hpp>
 void softmax::backward(const Tensor &_grad) {
+    /*
     if (this->tx->has_grad()) [[likely]] {
         const Tensor y_times_grad = (*this->cached_output) * _grad;
         const Tensor sum_term = y_times_grad.sum({1}, true);
@@ -740,5 +741,97 @@ void softmax::backward(const Tensor &_grad) {
 
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
+    }
+    */
+    /*
+    if (this->tx->has_grad()) [[likely]] {
+        // 1. y_times_grad = cached_output * _grad  -> Boyut: [B, C]
+        Tensor y_times_grad = (*this->cached_output) * _grad;
+
+        // 2. sum_term = sum(y_times_grad, axis=1, keepdim=true) -> Boyut: [B, 1]
+        // Bu işlem artık execute_broadcast_2d'yi patlatmayacak.
+        Tensor sum_term = y_times_grad.sum({1}, true);
+
+        // 3. dX = cached_output * (_grad - sum_term)
+        // Burada (_grad - sum_term) işlemi [B, C] ile [B, 1] arasında bir Col-Broadcast tetikler.
+        Tensor grad_expanded = (*this->cached_output) * (_grad - sum_term);
+
+        // 4. Akümülasyon ve Geriye Aktarım
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+    */
+    if (this->tx->has_grad()) [[likely]] {
+        // 0. Giriş gradyanını kontrol et
+        TensorDebug::validateGradient(_grad, "Softmax::backward _grad");
+
+        // 1. y_times_grad
+        Tensor y_times_grad = (*this->cached_output) * _grad;
+        TensorDebug::validateTensor(y_times_grad, "Softmax::backward y_times_grad", false);
+
+        // 2. sum_term
+        Tensor sum_term = y_times_grad.sum({1}, true);
+        TensorDebug::validateTensor(sum_term, "Softmax::backward sum_term", false);
+
+        // 3. grad_expanded
+        Tensor grad_expanded = (*this->cached_output) * (_grad - sum_term);
+        TensorDebug::validateGradient(grad_expanded, "Softmax::backward grad_expanded");
+
+        // 4. Akümülasyon ve Geriye Aktarım
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+logit_loss::logit_loss(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("LogitLoss") {
+    this->tx = new Tensor(_x);
+    this->cached_output = new Tensor(_y);
+}
+
+logit_loss::~logit_loss() {
+    delete this->tx;
+    delete this->cached_output;
+}
+#include <cmath>
+void logit_loss::backward(const Tensor &_grad) {
+    if (this->tx->has_grad()) {
+        // Gradyan boyutları: [Batch_Size, Class_Count]
+        Tensor grad_input(this->tx->shape(), this->tx->device(), false);
+
+        const f32* pred_ptr = this->tx->get();
+        const f32* target_ptr = this->cached_output->get();
+        f32* grad_in_ptr = grad_input.get();
+
+        size_t batch_size = this->tx->shape()[0];
+        size_t class_count = this->tx->shape()[1];
+        f32 inv_b = 1.0f / static_cast<f32>(batch_size);
+
+        // Her örnek için Softmax çıktısını hesapla ve (Softmax - Target) / B formülünü uygula
+        for (size_t b = 0; b < batch_size; ++b) {
+            size_t offset = b * class_count;
+
+            // Stable Softmax adımları
+            f32 max_logit = pred_ptr[offset];
+            for (size_t c = 1; c < class_count; ++c) {
+                if (pred_ptr[offset + c] > max_logit) max_logit = pred_ptr[offset + c];
+            }
+
+            f32 sum_exp = 0.0f;
+            for (size_t c = 0; c < class_count; ++c) {
+                sum_exp += std::exp(pred_ptr[offset + c] - max_logit);
+            }
+
+            // Gradyanı yaz: _grad değeri genellikle Loss skalarından gelen 1.0f'dir
+            f32 upstream_grad = _grad.empty() ? 1.0f : _grad.get()[0];
+
+            for (size_t c = 0; c < class_count; ++c) {
+                f32 softmax_val = std::exp(pred_ptr[offset + c] - max_logit) / sum_exp;
+                // Türev: (Softmax_Olasılığı - Gerçek_Değer) * Üstten_Gelen_Gradyan / Batch_Size
+                grad_in_ptr[offset + c] = (softmax_val - target_ptr[offset + c]) * upstream_grad * inv_b;
+            }
+        }
+
+        this->tx->grad() += grad_input;
+        this->tx->backward(grad_input);
     }
 }

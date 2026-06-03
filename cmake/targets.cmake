@@ -37,6 +37,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/tensor_meta.cpp
         source/CortexMind/net/LossFunction/bce.cpp
         source/CortexMind/net/LossFunction/cce.cpp
+        source/CortexMind/net/LossFunction/cce_with_logit.cpp
         source/CortexMind/net/LossFunction/mae.cpp
         source/CortexMind/net/LossFunction/mse.cpp
         source/CortexMind/net/Metrics/acc.cpp

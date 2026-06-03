@@ -81,6 +81,7 @@ namespace cortex::utils {
          * @param idx Name of the string column
          */
         void label_encode(const std::string& idx);
+        void shuffle();
 
         /**
          * @brief Checks if the DataFrame contains any NaN values.
@@ -108,6 +109,15 @@ namespace cortex::utils {
          */
         [[nodiscard]]
         std::pair<tensor, tensor> split();
+        /**
+         * @brief Splits the DataFrame into features (X_Train, X_Test) and target(s) (Y_Train, Y_Test).
+         *
+         * Requires `Set()` to be called first to specify target column(s).
+         *
+         * @return Pair of tensors: `(X features, Y target(s))`
+         */
+        [[nodiscard]]
+        std::pair<std::pair<tensor, tensor>, std::pair<tensor, tensor>> train_test_split(float32 test_size, bool shuffle_data);
 
         /**
          * @brief Access a column by name (mutable).
@@ -123,6 +133,7 @@ namespace cortex::utils {
         int64 m_col, m_row;
         std::vector<std::string> targets;
         bool isInit;
+        std::vector<size_t> m_indices;
     };
 } //namespace cortex::utils
 

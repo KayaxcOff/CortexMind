@@ -5,8 +5,11 @@
 #include "CortexMind/utility/DataFrame/frame.hpp"
 #include <CortexMind/framework/Tools/as_string.hpp>
 #include <CortexMind/tools/values.hpp>
+#include <algorithm>
 #include <fstream>
+#include <numeric>
 #include <iostream>
+#include <random>
 #include <ranges>
 #include <sstream>
 
@@ -129,6 +132,16 @@ void DataFrame::head(const size_t row_to_show) const {
     }
 }
 
+void DataFrame::shuffle() {
+    if (this->m_indices.size() != this->m_row) {
+        this->m_indices.resize(this->m_row);
+        std::iota(this->m_indices.begin(), this->m_indices.end(), 0);
+    }
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::ranges::shuffle(this->m_indices, g);
+}
+
 bool DataFrame::NaN() const {
     for (const auto& item : this->names) {
         const auto& s = this->series.at(item);
@@ -151,42 +164,6 @@ int64 DataFrame::row() const {
 int64 DataFrame::col() const {
     return this->m_col;
 }
-/*
-std::pair<tensor, tensor> DataFrame::split() {
-    CXM_ASSERT(!this->isInit, "Target column is not initialized. Call Set() first.");
-
-    for (const auto& item : this->targets) {
-        CXM_ASSERT(!this->series.contains(item), "Target column not found in DataFrame.");
-    }
-
-    auto y_cols = static_cast<int64>(this->targets.size());
-    int64 x_cols = this->m_col - y_cols;
-
-    tensor _x({this->m_row, x_cols}, host);
-    tensor _y({this->m_row, y_cols}, host);
-
-    std::vector<float32> x_data;
-    std::vector<float32> y_data;
-
-    x_data.reserve(x_cols * this->m_row);
-    y_data.reserve(y_cols * this->m_row);
-
-    for (size_t i = 0; i < this->m_row; ++i) {
-        for (const auto& item : this->names) {
-            if (std::ranges::find(this->targets, item) == this->targets.end()) {
-                x_data.push_back(this->series[item].data()[i]);
-            } else {
-                y_data.push_back(this->series[item].data()[i]);
-            }
-        }
-    }
-
-    _x.SetData(x_data.data());
-    _y.SetData(y_data.data());
-
-    return std::make_pair(_x, _y);
-}
-*/
 
 std::pair<tensor, tensor> DataFrame::split() {
     CXM_ASSERT(!this->isInit, "Target column is not initialized. Call Set() first.");
@@ -225,6 +202,65 @@ std::pair<tensor, tensor> DataFrame::split() {
     return std::make_pair(_x, _y);
 }
 
+std::pair<std::pair<tensor, tensor>, std::pair<tensor, tensor>> DataFrame::train_test_split(float32 test_size, bool shuffle_data) {
+    CXM_ASSERT(!this->isInit, "Target column is not initialized. Call Set() first.");
+    CXM_ASSERT(test_size <= 0.0f || test_size >= 1.0f, "test_size must be between 0.0 and 1.0");
+
+    if (m_indices.size() != m_row) {
+        m_indices.resize(m_row);
+        std::iota(m_indices.begin(), m_indices.end(), 0);
+    }
+
+    if (shuffle_data) {
+        this->shuffle();
+    }
+
+    int64 test_rows = this->m_row * static_cast<int64>(test_size);
+    int64 train_rows = this->m_row - test_rows;
+
+    auto y_cols = static_cast<int64>(this->targets.size());
+    int64 x_cols = this->m_col - y_cols;
+
+    for (const auto& item : this->names) {
+        CXM_ASSERT(this->series[item].dtype() != DType::Float32, "Muted Error: All columns must be encoded to Float32 before splitting. Check: " + item);
+    }
+
+    tensor train_x({train_rows, x_cols}, host);
+    tensor train_y({train_rows, y_cols}, host);
+    tensor test_x({test_rows, x_cols}, host);
+    tensor test_y({test_rows, y_cols}, host);
+
+    std::vector<float32> tr_x_data; tr_x_data.reserve(train_rows * x_cols);
+    std::vector<float32> tr_y_data; tr_y_data.reserve(train_rows * y_cols);
+    std::vector<float32> te_x_data; te_x_data.reserve(test_rows * x_cols);
+    std::vector<float32> te_y_data; te_y_data.reserve(test_rows * y_cols);
+
+    for (size_t i = 0; i < this->m_row; ++i) {
+        size_t actual_row = m_indices[i];
+        bool is_train = (static_cast<int64>(i) < train_rows);
+
+        auto& x_dest = is_train ? tr_x_data : te_x_data;
+        auto& y_dest = is_train ? tr_y_data : te_y_data;
+
+        for (const auto& item : this->names) {
+            if (std::ranges::find(this->targets, item) == this->targets.end()) {
+                x_dest.push_back(this->series[item].as<f32>()[actual_row]);
+            }
+        }
+
+        for (const auto& item : this->targets) {
+            y_dest.push_back(this->series[item].as<f32>()[actual_row]);
+        }
+    }
+
+    train_x.SetData(tr_x_data.data());
+    train_y.SetData(tr_y_data.data());
+    test_x.SetData(te_x_data.data());
+    test_y.SetData(te_y_data.data());
+
+    return std::make_pair(std::make_pair(train_x, train_y), std::make_pair(test_x, test_y));
+}
+
 void DataFrame::one_hot(const std::string& idx) {
     if (this->series[idx].dtype() == DType::Float32) {
         std::vector<std::string> str_vec;
@@ -250,7 +286,6 @@ void DataFrame::one_hot(const std::string& idx) {
 
     std::vector<std::string> generated_cols;
 
-
     for (const auto& item : categories) {
         std::string new_col;
         new_col.reserve(idx.size() + 1 + item.size());
@@ -270,6 +305,11 @@ void DataFrame::one_hot(const std::string& idx) {
         ++this->m_col;
     }
 
+    if (const auto item = std::ranges::find(this->targets, idx); item != this->targets.end()) {
+        this->targets.erase(item);
+        this->targets.insert(this->targets.end(), generated_cols.begin(), generated_cols.end());
+    }
+
     this->drop(idx);
 }
 
@@ -286,7 +326,7 @@ void DataFrame::encode_bool(const std::string& idx) {
 }
 
 void DataFrame::label_encode(const std::string& idx) {
-    CXM_ASSERT(this->series[idx].dtype() != DType::String, "label_encode() yalnızca String seriler için geçerli: " + idx);
+    CXM_ASSERT(this->series[idx].dtype() != DType::String, "Label encode is only for string Series: " + idx);
 
     const auto& str_vec = this->series[idx].as<std::string>();
 

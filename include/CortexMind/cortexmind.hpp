@@ -13,6 +13,7 @@
 // ----- net -----
 #include <CortexMind/net/LossFunction/bce.hpp>
 #include <CortexMind/net/LossFunction/cce.hpp>
+#include <CortexMind/net/LossFunction/cce_with_logit.hpp>
 #include <CortexMind/net/LossFunction/mae.hpp>
 #include <CortexMind/net/LossFunction/mse.hpp>
 #include <CortexMind/net/Model/model.hpp>

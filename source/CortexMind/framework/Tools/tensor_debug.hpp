@@ -48,6 +48,8 @@ namespace cortex::_fw {
          * @param tensor_name Name of the tensor (for logging)
          */
         static void validateGradient(const Tensor& grad, const std::string& tensor_name);
+
+        static bool validateTensor(const Tensor &t, const std::string &tensor_name, bool is_gradient);
         /**
          * @brief Logs tensor information (shape and optional statistics).
          *
