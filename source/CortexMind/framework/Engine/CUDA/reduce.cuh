@@ -5,102 +5,31 @@
 #ifndef CORTEXMIND_FRAMEWORK_ENGINE_CUDA_REDUCE_CUH
 #define CORTEXMIND_FRAMEWORK_ENGINE_CUDA_REDUCE_CUH
 
-#include <CortexMind/framework/Tools/err.hpp>
+#include <CortexMind/framework/Tools/types.hpp>
 
 namespace cortex::_fw::cuda {
     /**
-     * @brief CUDA reduction operations manager.
-     *
-     * This class encapsulates reduction operations on GPU memory using:
-     * - Custom warp-shuffle + shared memory kernels for sum and variance
-     * - cuBLAS for high-performance norms, dot product, and argmin/argmax
-     *
-     * Uses pinned + mapped memory for efficient host-device data transfer.
+     * @brief CUDA reduction operations manager for Tensor-to-Tensor operations.
+     * All outputs are written directly to device memory pointers (Xz).
      */
     struct ReduceOp {
-        ReduceOp();
-        ~ReduceOp();
+        static void sum(const f32* __restrict Xx, f32* __restrict Xz, size_t N) const;
+        static void mean(const f32* __restrict Xx, f32* __restrict Xz, size_t N) const;
+        static void var(const f32* __restrict Xx, f32* __restrict Xz, size_t N) const;
+        static void stdv(const f32* __restrict Xx, f32* __restrict Xz, size_t N) const;
+        static void argmax(const f32* __restrict Xx, i32* __restrict Xz, size_t N) const;
+        static void argmin(const f32* __restrict Xx, i32* __restrict Xz, size_t N) const;
 
-        /**
-         * @brief Computes the sum of all elements.
-         * @param x Input array on device
-         * @param N Number of elements
-         * @return Sum of all elements
-         */
-        [[nodiscard]]
-        f32 sum(const f32* __restrict x, size_t N);
-
-        /**
-         * @brief Computes the arithmetic mean.
-         * @param x Input array on device
-         * @param N Number of elements
-         * @return Mean value = sum(x) / N
-         */
-        [[nodiscard]]
-        f32 mean(const f32* __restrict x, size_t N);
-
-        /**
-         * @brief Computes the population variance.
-         * @param x Input array on device
-         * @param N Number of elements
-         * @return Population variance = (∑(x[i] - mean)²) / N
-         */
-        [[nodiscard]]
-        f32 var(const f32* __restrict x, size_t N);
-
-        /**
-         * @brief Computes the standard deviation.
-         * @param x Input array on device
-         * @param N Number of elements
-         * @return Standard deviation = sqrt(variance)
-         */
-        [[nodiscard]]
-        f32 stdv(const f32* __restrict x, size_t N);
-
-        /**
-         * @brief Finds the minimum value using cuBLAS.
-         * @param x Input array on device
-         * @param N Number of elements
-         * @return Minimum value in the array
-         */
-        [[nodiscard]]
-        f32 min(const f32* __restrict x, size_t N) const;
-
-        /**
-         * @brief Finds the maximum value using cuBLAS.
-         * @param x Input array on device
-         * @param N Number of elements
-         * @return Maximum value in the array
-         */
-        [[nodiscard]]
-        f32 max(const f32* __restrict x, size_t N) const;
-
-        /**
-         * @brief Computes L1 norm (∑|x[i]|) using cuBLAS.
-         */
-        [[nodiscard]]
-        f32 norm1(const f32* __restrict x, size_t N) const;
-
-        /**
-         * @brief Computes L2 norm (Euclidean norm) using cuBLAS.
-         */
-        [[nodiscard]]
-        f32 norm2(const f32* __restrict x, size_t N) const;
-
-        /**
-         * @brief Computes dot product using cuBLAS: x · y
-         */
-        [[nodiscard]]
-        f32 dot(const f32* __restrict Xx, const f32* __restrict Xy, size_t N) const;
-
-        static void sum_last_dim(const f32* __restrict Xx, f32* __restrict Xz, size_t rows, size_t cols);
-        static void sum_first_dim(const f32* __restrict Xx, f32* __restrict Xz, size_t rows, size_t cols);
-    private:
-        f32* host_output{nullptr};   ///< Pinned + mapped host memory
-        f32* cuda_output{nullptr};   ///< Device pointer (mapped)
-
-        i32* host_index{nullptr};    ///< Pinned + mapped index memory
-        i32* cuda_index{nullptr};    ///< Device pointer for argmin/argmax
+        static void sum_dim(const f32* __restrict Xx, f32* __restrict Xz, size_t outer, size_t dim, size_t inner) const;
+        static void mean_dim(const f32* __restrict Xx, f32* __restrict Xz, size_t outer, size_t dim, size_t inner) const;
+        static void var_dim(const f32* __restrict Xx, f32* __restrict Xz, const f32* __restrict means, size_t outer, size_t dim, size_t inner) const;
+        static void stdv_dim(const f32* __restrict Xx, f32* __restrict Xz, const f32* __restrict means, size_t outer, size_t dim, size_t inner) const;
+        static void min_dim(const f32* __restrict Xx, f32* __restrict Xz, size_t outer, size_t dim, size_t inner) const;
+        static void max_dim(const f32* __restrict Xx, f32* __restrict Xz, size_t outer, size_t dim, size_t inner) const;
+        static void argmax_dim(const f32* __restrict Xx, i32* __restrict Xz, size_t outer, size_t dim, size_t inner) const;
+        static void argmin_dim(const f32* __restrict Xx, i32* __restrict Xz, size_t outer, size_t dim, size_t inner) const;
+        static void norm1_dim(const f32* __restrict Xx, f32* __restrict Xz, size_t outer, size_t dim, size_t inner) const;
+        static void norm2_dim(const f32* __restrict Xx, f32* __restrict Xz, size_t outer, size_t dim, size_t inner) const;
     };
 } //namespace cortex::_fw::cuda
 

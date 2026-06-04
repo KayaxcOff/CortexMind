@@ -41,6 +41,37 @@ namespace cortex::_fw::cuda::kernels {
         return val;
     }
 
+    struct KeyValuePair {
+        f32 value;
+        i32 index;
+    };
+
+    __device__ inline KeyValuePair warp_reduce_argmax(KeyValuePair kv) {
+        KeyValuePair target;
+        #pragma unroll
+        for (i32 offset = 16; offset > 0; offset /= 2) {
+            target.value = shfl::down(kv.value, offset);
+            target.index = shfl::down(kv.index, offset);
+            if (target.value > kv.value || (target.value == kv.value && target.index < kv.index)) {
+                kv = target;
+            }
+        }
+        return kv;
+    }
+
+    __device__ inline KeyValuePair warp_reduce_argmin(KeyValuePair kv) {
+        KeyValuePair target;
+        #pragma unroll
+        for (i32 offset = 16; offset > 0; offset /= 2) {
+            target.value = shfl::down(kv.value, offset);
+            target.index = shfl::down(kv.index, offset);
+            if (target.value < kv.value || (target.value == kv.value && target.index < kv.index)) {
+                kv = target;
+            }
+        }
+        return kv;
+    }
+
     /**
      * @brief CUDA kernel for parallel sum reduction.
      *
@@ -219,7 +250,7 @@ namespace cortex::_fw::cuda::kernels {
             sdata[warp_id] = local_sum;
         }
 
-        __syncthreads();
+        SynchronizeThreads();
 
         // Block reduce (first warp processes all warp results)
         if (warp_id == 0) {
@@ -262,7 +293,7 @@ namespace cortex::_fw::cuda::kernels {
             sdata[warp_id] = local_sum;
         }
 
-        __syncthreads();
+        SynchronizeThreads();
 
         if (warp_id == 0) {
             f32 val = (tid < (BlockSize / WARP_SIZE)) ? sdata[tid] : 0.0f;
@@ -308,7 +339,7 @@ namespace cortex::_fw::cuda::kernels {
             sdata[warp_id] = local_var;
         }
 
-        __syncthreads();
+        SynchronizeThreads();
 
         if (warp_id == 0) {
             f32 val = (tid < (BlockSize / WARP_SIZE)) ? sdata[tid] : 0.0f;
@@ -355,11 +386,11 @@ namespace cortex::_fw::cuda::kernels {
             sdata[warp_id] = local_min;
         }
 
-        __syncthreads();
+        SynchronizeThreads();
 
         if (warp_id == 0) {
             const size_t actual_warps = blockDim.x / WARP_SIZE;
-            f32 val = (tid < actual_warps) ? sdata[tid] : 0.0f;
+            f32 val = (tid < actual_warps) ? sdata[tid] : INFINITY;
             val = fminf(val, shfl::down(val, 16));
             val = fminf(val, shfl::down(val, 8));
             val = fminf(val, shfl::down(val, 4));
@@ -407,11 +438,11 @@ namespace cortex::_fw::cuda::kernels {
             sdata[warp_id] = local_max;
         }
 
-        __syncthreads();
+        SynchronizeThreads();
 
         if (warp_id == 0) {
             const size_t actual_warps = blockDim.x / WARP_SIZE;
-            f32 val = (tid < actual_warps) ? sdata[tid] : 0.0f;
+            f32 val = (tid < actual_warps) ? sdata[tid] : -INFINITY;
             val = fmaxf(val, shfl::down(val, 16));
             val = fmaxf(val, shfl::down(val, 8));
             val = fmaxf(val, shfl::down(val, 4));
@@ -420,6 +451,317 @@ namespace cortex::_fw::cuda::kernels {
 
             if (tid == 0) {
                 Xz[out_idx] = val;
+            }
+        }
+    }
+
+    /**
+     * @brief Global ArgMax kernel.
+     * @param Xz Output index pointer (single integer)
+     */
+    __global__ void ArgMax(const f32* __restrict Xx, i32* __restrict Xz, const size_t N) {
+        extern __shared__ KeyValuePair kv_sdata[];
+
+        const size_t tid = threadIdx.x;
+        KeyValuePair local = {-INFINITY, -1};
+
+        CXM_CUDA_LOOP_1D(i, N) {
+            if (Xx[i] > local.value) {
+                local.value = Xx[i];
+                local.index = static_cast<int>(i);
+            }
+        }
+
+        local = warp_reduce_argmax(local);
+
+        if (tid % WARP_SIZE == 0) {
+            kv_sdata[tid / WARP_SIZE] = local;
+        }
+
+        SynchronizeThreads();
+
+        const size_t warp_count = blockDim.x / WARP_SIZE;
+        if (tid < warp_count) {
+            KeyValuePair warp_val = kv_sdata[tid];
+            warp_val = warp_reduce_argmax(warp_val);
+            if (tid == 0) {
+                static_assert(sizeof(unsigned long long) == sizeof(KeyValuePair), "Size mismatch for atomic");
+                if(blockIdx.x == 0) {
+                    *Xz = warp_val.index;
+                }
+            }
+        }
+    }
+
+    /**
+     * @brief CUDA kernel for parallel global ArgMin reduction.
+     *
+     * Finds the minimum value's index in the entire array Xx[0..N-1]
+     * and writes it to *Xz.
+     *
+     * @param Xx Input array
+     * @param Xz Output pointer (single integer for the global minimum index)
+     * @param N  Number of elements
+     *
+     * @note Designed for a single-block execution or coordinated multi-block.
+     */
+    __global__ void ArgMin(const f32* __restrict Xx, int* __restrict Xz, const size_t N) {
+        extern __shared__ char shared_mem[];
+        KeyValuePair* kv_sdata = reinterpret_cast<KeyValuePair*>(shared_mem);
+
+        const size_t tid = threadIdx.x;
+        KeyValuePair local = {INFINITY, -1};
+
+        // Grid-stride loop ile tüm elemanları tara
+        CXM_CUDA_LOOP_1D(i, N) {
+            f32 val = Xx[i];
+            if (val < local.value) {
+                local.value = val;
+                local.index = static_cast<int>(i);
+            }
+        }
+
+        local = warp_reduce_argmin(local);
+
+        if (tid % WARP_SIZE == 0) {
+            kv_sdata[tid / WARP_SIZE] = local;
+        }
+
+        SynchronizeThreads();
+
+        const size_t warp_count = blockDim.x / WARP_SIZE;
+        if (tid < warp_count) {
+            KeyValuePair warp_val = kv_sdata[tid];
+            warp_val = warp_reduce_argmin(warp_val);
+
+            if (tid == 0) {
+                if (blockIdx.x == 0) {
+                    *Xz = warp_val.index;
+                }
+            }
+        }
+    }
+
+    /**
+     * @brief Reduce ArgMax along a dimension.
+     * @param Xz Output index array (type: int)
+     */
+    template <size_t BlockSize>
+    __global__ void ReduceArgMaxDim(const f32* __restrict Xx, int* __restrict Xz,
+                                    size_t outer_size, size_t dim_size, size_t inner_size) {
+        __shared__ KeyValuePair sdata[BlockSize / WARP_SIZE];
+
+        size_t out_idx = blockIdx.x;
+        if (out_idx >= outer_size * inner_size) return;
+
+        size_t outer_coord = out_idx / inner_size;
+        size_t inner_coord = out_idx % inner_size;
+        size_t base_offset = outer_coord * (dim_size * inner_size) + inner_coord;
+
+        KeyValuePair local_max = {-INFINITY, -1};
+        for (size_t d = threadIdx.x; d < dim_size; d += blockDim.x) {
+            f32 val = Xx[base_offset + d * inner_size];
+            if (val > local_max.value) {
+                local_max.value = val;
+                local_max.index = static_cast<i32>(d);
+            }
+        }
+
+        local_max = warp_reduce_argmax(local_max);
+
+        const size_t tid = threadIdx.x;
+        const size_t lane = tid % WARP_SIZE;
+        const size_t warp_id = tid / WARP_SIZE;
+
+        if (lane == 0) {
+            sdata[warp_id] = local_max;
+        }
+
+        SynchronizeThreads();
+
+        if (warp_id == 0) {
+            KeyValuePair val = (tid < (BlockSize / WARP_SIZE)) ? sdata[tid] : KeyValuePair{-INFINITY, -1};
+            val = warp_reduce_argmax(val);
+
+            if (tid == 0) {
+                Xz[out_idx] = val.index;
+            }
+        }
+    }
+
+    /**
+     * @brief Reduce ArgMin along a dimension.
+     */
+    template <size_t BlockSize>
+    __global__ void ReduceArgMinDim(const f32* __restrict Xx, int* __restrict Xz,
+                                    size_t outer_size, size_t dim_size, size_t inner_size) {
+        __shared__ KeyValuePair sdata[BlockSize / WARP_SIZE];
+
+        size_t out_idx = blockIdx.x;
+        if (out_idx >= outer_size * inner_size) return;
+
+        size_t outer_coord = out_idx / inner_size;
+        size_t inner_coord = out_idx % inner_size;
+        size_t base_offset = outer_coord * (dim_size * inner_size) + inner_coord;
+
+        KeyValuePair local_min = {INFINITY, -1};
+        for (size_t d = threadIdx.x; d < dim_size; d += blockDim.x) {
+            f32 val = Xx[base_offset + d * inner_size];
+            if (val < local_min.value) {
+                local_min.value = val;
+                local_min.index = static_cast<int>(d);
+            }
+        }
+
+        local_min = warp_reduce_argmin(local_min);
+
+        const size_t tid = threadIdx.x;
+        const size_t lane = tid % WARP_SIZE;
+        const size_t warp_id = tid / WARP_SIZE;
+
+        if (lane == 0) {
+            sdata[warp_id] = local_min;
+        }
+
+        SynchronizeThreads();
+
+        if (warp_id == 0) {
+            KeyValuePair val = (tid < (BlockSize / WARP_SIZE)) ? sdata[tid] : KeyValuePair{INFINITY, -1}
+            val = warp_reduce_argmin(val);
+
+            if (tid == 0) {
+                Xz[out_idx] = val.index;
+            }
+        }
+    }
+
+    /**
+     * @brief Reduce L1 Norm (Sum of absolute values) along a dimension.
+     */
+    template <size_t BlockSize>
+    __global__ void ReduceNorm1Dim(const f32* __restrict Xx, f32* __restrict Xz,
+                                  size_t outer_size, size_t dim_size, size_t inner_size) {
+        __shared__ f32 sdata[BlockSize / WARP_SIZE];
+
+        size_t out_idx = blockIdx.x;
+        if (out_idx >= outer_size * inner_size) return;
+
+        size_t outer_coord = out_idx / inner_size;
+        size_t inner_coord = out_idx % inner_size;
+        size_t base_offset = outer_coord * (dim_size * inner_size) + inner_coord;
+
+        f32 local_sum = 0.0f;
+        for (size_t d = threadIdx.x; d < dim_size; d += blockDim.x) {
+            local_sum += fabsf(Xx[base_offset + d * inner_size]);
+        }
+
+        local_sum = warp_reduce_sum(local_sum);
+
+        const size_t tid = threadIdx.x;
+        const size_t lane = tid % WARP_SIZE;
+        const size_t warp_id = tid / WARP_SIZE;
+
+        if (lane == 0) {
+            sdata[warp_id] = local_sum;
+        }
+
+        SynchronizeThreads();
+
+        if (warp_id == 0) {
+            f32 val = (tid < (BlockSize / WARP_SIZE)) ? sdata[tid] : 0.0f;
+            val = warp_reduce_sum(val);
+
+            if (tid == 0) {
+                Xz[out_idx] = val;
+            }
+        }
+    }
+
+    /**
+     * @brief Reduce L2 Norm (Square root of sum of squares) along a dimension.
+     */
+    template <size_t BlockSize>
+    __global__ void ReduceNorm2Dim(const f32* __restrict Xx, f32* __restrict Xz,
+                                  size_t outer_size, size_t dim_size, size_t inner_size) {
+        __shared__ f32 sdata[BlockSize / WARP_SIZE];
+
+        size_t out_idx = blockIdx.x;
+        if (out_idx >= outer_size * inner_size) return;
+
+        size_t outer_coord = out_idx / inner_size;
+        size_t inner_coord = out_idx % inner_size;
+        size_t base_offset = outer_coord * (dim_size * inner_size) + inner_coord;
+
+        f32 local_squares = 0.0f;
+        for (size_t d = threadIdx.x; d < dim_size; d += blockDim.x) {
+            f32 val = Xx[base_offset + d * inner_size];
+            local_squares += val * val;
+        }
+
+        local_squares = warp_reduce_sum(local_squares);
+
+        const size_t tid = threadIdx.x;
+        const size_t lane = tid % WARP_SIZE;
+        const size_t warp_id = tid / WARP_SIZE;
+
+        if (lane == 0) {
+            sdata[warp_id] = local_squares;
+        }
+
+        SynchronizeThreads();
+
+        if (warp_id == 0) {
+            f32 val = (tid < (BlockSize / WARP_SIZE)) ? sdata[tid] : 0.0f;
+            val = warp_reduce_sum(val);
+
+            if (tid == 0) {
+                Xz[out_idx] = sqrtf(val);
+            }
+        }
+    }
+
+    /**
+     * @brief Reduce Standard Deviation along a dimension (requires pre-computed means).
+     */
+    template <size_t BlockSize>
+    __global__ void ReduceStdvDim(const f32* __restrict Xx, f32* __restrict Xz,
+                                 const f32* __restrict means,
+                                 size_t outer_size, size_t dim_size, size_t inner_size) {
+        __shared__ f32 sdata[BlockSize / WARP_SIZE];
+
+        size_t out_idx = blockIdx.x;
+        if (out_idx >= outer_size * inner_size) return;
+
+        size_t outer_coord = out_idx / inner_size;
+        size_t inner_coord = out_idx % inner_size;
+        size_t base_offset = outer_coord * (dim_size * inner_size) + inner_coord;
+
+        const f32 mean = means[out_idx];
+
+        f32 local_var = 0.0f;
+        for (size_t d = threadIdx.x; d < dim_size; d += blockDim.x) {
+            f32 diff = Xx[base_offset + d * inner_size] - mean;
+            local_var += diff * diff;
+        }
+
+        local_var = warp_reduce_sum(local_var);
+
+        const size_t tid = threadIdx.x;
+        const size_t lane = tid % WARP_SIZE;
+        const size_t warp_id = tid / WARP_SIZE;
+
+        if (lane == 0) {
+            sdata[warp_id] = local_var;
+        }
+
+        SynchronizeThreads();
+
+        if (warp_id == 0) {
+            f32 val = (tid < (BlockSize / WARP_SIZE)) ? sdata[tid] : 0.0f;
+            val = warp_reduce_sum(val);
+
+            if (tid == 0) {
+                Xz[out_idx] = sqrtf(val / static_cast<f32>(dim_size));
             }
         }
     }

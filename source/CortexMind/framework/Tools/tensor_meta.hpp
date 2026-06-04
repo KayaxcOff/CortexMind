@@ -8,7 +8,8 @@
 #include <CortexMind/framework/Tools/broadcast_info.hpp>
 #include <CortexMind/framework/Tools/broadcast_kind.hpp>
 #include <CortexMind/framework/Tools/types.hpp>
-#include <vector>
+#include <CortexMind/runtime/macros.hpp>
+#include <array>
 
 namespace cortex::_fw {
     /**
@@ -24,18 +25,15 @@ namespace cortex::_fw {
      * @note Returns empty vector if shape is empty.
      */
     [[nodiscard]]
-    std::vector<i64> compute_stride(const std::vector<i64>& shape);
+    std::array<i64, CXM_MAX_DIMS> compute_stride(const std::array<i64, CXM_MAX_DIMS>& shape, size_t ndim);
     /**
      * @brief Computes the total number of elements in a tensor.
      *
      * @param shape Tensor shape (dimensions)
      * @return Total number of elements (`product of all dimensions`)
-     *
-     * @note Returns 1 for empty shape (scalar case).
-     * @note Uses `std::accumulate` with `std::multiplies` internally.
      */
     [[nodiscard]]
-    size_t compute_size(const std::vector<i64>& shape);
+    size_t compute_size(const std::array<i64, CXM_MAX_DIMS>& shape, size_t ndim);
     /**
      * @brief Checks whether two shapes can be broadcasted together.
      *

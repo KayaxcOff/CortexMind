@@ -9,26 +9,30 @@
 
 using namespace cortex::_fw;
 
-std::vector<i64> cortex::_fw::compute_stride(const std::vector<i64> &shape) {
-    std::vector<i64> output(shape.size());
+std::array<i64, 8> cortex::_fw::compute_stride(const std::array<i64, 8> &shape, const size_t ndim) {
+    std::array<i64, CXM_MAX_DIMS> output{};
 
-    if (shape.empty()) {
+    if (ndim <= 0) {
         return output;
     }
 
-    output.back() = 1;
+    output[ndim - 1] = 1;
 
-    for (i32 i = static_cast<i32>(shape.size()) - 2; i >= 0; --i) {
+    for (i32 i = static_cast<i32>(ndim) - 2; i >= 0; --i) {
         output[i] = output[i + 1] * shape[i + 1];
     }
 
     return output;
 }
 
-size_t cortex::_fw::compute_size(const std::vector<i64> &shape) {
-    return std::accumulate(shape.begin(), shape.end(), size_t{1}, std::multiplies());
-}
+size_t cortex::_fw::compute_size(const std::array<i64, 8> &shape, const size_t ndim) {
+    if (ndim <= 0) {
+        return 0;
+    }
 
+    return std::accumulate(shape.begin(), shape.begin() + static_cast<long long>(ndim), size_t{1}, std::multiplies());
+}
+/*
 bool cortex::_fw::is_broadcastable(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y) {
     const size_t rank_x = shape_x.size();
     const size_t rank_y = shape_y.size();
@@ -86,7 +90,7 @@ BroadcastKind cortex::_fw::classify_broadcast(const std::vector<i64>& shape_x, c
     }
 
     return BroadcastKind::kGeneral;
-    */
+
     if (!is_broadcastable(shape_x, shape_y)) {
         return BroadcastKind::kNone;
     }
@@ -178,3 +182,4 @@ std::vector<i64> cortex::_fw::grad_reduce_dims(const std::vector<i64> &input_sha
     }
     return output;
 }
+*/

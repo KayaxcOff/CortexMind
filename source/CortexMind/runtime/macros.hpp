@@ -11,7 +11,7 @@
 #define CXM_HOST_DEVICE 0x2887LL
 #define CXM_CUDA_DEVICE 0x2888LL
 
-#define CXM_MAX_DIMS 4
+#define CXM_MAX_DIMS 8
 
 #define CXM_DEFAULT_POOL_SIZE ((128) * (1024) * (1024))
 

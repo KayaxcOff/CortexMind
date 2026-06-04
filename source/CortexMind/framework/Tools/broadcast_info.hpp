@@ -7,6 +7,7 @@
 
 #include <CortexMind/framework/Tools/types.hpp>
 #include <CortexMind/runtime/macros.hpp>
+#include <array>
 
 namespace cortex::_fw {
     /**
@@ -17,11 +18,11 @@ namespace cortex::_fw {
      * dynamic shape checks inside hot loops.
      */
     struct BroadcastInfo {
-        i32 ndim;                             ///< Number of dimensions after broadcasting
-        size_t shape[CXM_MAX_DIMS];           ///< Broadcasted common shape
-        size_t stride_x[CXM_MAX_DIMS];        ///< Strides for first input
-        size_t stride_y[CXM_MAX_DIMS];        ///< Strides for second input
-        size_t stride_z[CXM_MAX_DIMS];        ///< Strides for output
+        i32 ndim;                                      ///< Number of dimensions after broadcasting
+        std::array<i64, CXM_MAX_DIMS> shape;           ///< Broadcasted common shape
+        std::array<i64, CXM_MAX_DIMS> stride_x;        ///< Strides for first input
+        std::array<i64, CXM_MAX_DIMS> stride_y;        ///< Strides for second input
+        std::array<i64, CXM_MAX_DIMS> stride_z;        ///< Strides for output
     };
 } //namespace cortex::_fw
 
