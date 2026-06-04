@@ -52,6 +52,26 @@ void wise::log(const f32 *Xx, f32 *Xz, const size_t N) {
     }
 }
 
+void wise::log2(const f32 *Xx, f32 *Xz, const size_t N) {
+    size_t i = 0;
+    for (; i + 8 <= N; i += 8) {
+        storeu(Xz + i, avx2::log2(loadu(Xx + i)));
+    }
+    for (; i < N; ++i) {
+        Xz[i] = std::log2(Xx[i]);
+    }
+}
+
+void wise::log10(const f32 *Xx, f32 *Xz, const size_t N) {
+    size_t i = 0;
+    for (; i + 8 <= N; i += 8) {
+        storeu(Xz + i, avx2::log10(loadu(Xx + i)));
+    }
+    for (; i < N; ++i) {
+        Xz[i] = std::log10(Xx[i]);
+    }
+}
+
 void wise::exp(const f32 *Xx, f32 *Xz, const size_t N) {
     size_t i = 0;
     for (; i + 8 <= N; i += 8) {
@@ -59,6 +79,36 @@ void wise::exp(const f32 *Xx, f32 *Xz, const size_t N) {
     }
     for (; i < N; ++i) {
         Xz[i] = std::exp(Xx[i]);
+    }
+}
+
+void wise::exp2(const f32 *Xx, f32 *Xz, const size_t N) {
+    size_t i = 0;
+    for (; i + 8 <= N; i += 8) {
+        storeu(Xz + i, avx2::exp2(loadu(Xx + i)));
+    }
+    for (; i < N; ++i) {
+        Xz[i] = std::exp2(Xx[i]);
+    }
+}
+
+void wise::exp10(const f32 *Xx, f32 *Xz, const size_t N) {
+    size_t i = 0;
+    for (; i + 8 <= N; i += 8) {
+        storeu(Xz + i, avx2::exp10(loadu(Xx + i)));
+    }
+    for (; i < N; ++i) {
+        Xz[i] = std::pow(10.0f, Xx[i]);
+    }
+}
+
+void wise::erf(const f32 *Xx, f32 *Xz, const size_t N) {
+    size_t i = 0;
+    for (; i + 8 <= N; i += 8) {
+        storeu(Xz + i, avx2::erf(loadu(Xx + i)));
+    }
+    for (; i < N; ++i) {
+        Xz[i] = std::erf(Xx[i]);
     }
 }
 
@@ -79,6 +129,26 @@ void wise::cos(const f32 *Xx, f32 *Xz, const size_t N) {
     }
     for (; i < N; ++i) {
         Xz[i] = std::cos(Xx[i]);
+    }
+}
+
+void wise::tan(const f32 *Xx, f32 *Xz, const size_t N) {
+    size_t i = 0;
+    for (; i + 8 <= N; i += 8) {
+        storeu(Xz + i, avx2::tan(loadu(Xx + i)));
+    }
+    for (; i < N; ++i) {
+        Xz[i] = std::tan(Xx[i]);
+    }
+}
+
+void wise::cot(const f32 *Xx, f32 *Xz, const size_t N) {
+    size_t i = 0;
+    for (; i + 8 <= N; i += 8) {
+        storeu(Xz + i, avx2::cot(loadu(Xx + i)));
+    }
+    for (; i < N; ++i) {
+        Xz[i] = std::cos(Xx[i]) / std::sin(Xx[i]);
     }
 }
 
@@ -124,54 +194,6 @@ void wise::sign(const f32 *Xx, f32 *Xz, const size_t N) {
     for (; i < N; ++i) {
         const f32 val = Xx[i];
         Xz[i] = static_cast<f32>((0.0f < val) - (val < 0.0f));
-    }
-}
-
-void wise::greater(const f32* Xx, const f32* Xy, f32* Xz, const size_t N) {
-    size_t i = 0;
-    const vec8f one = set1(1.0f);
-    for (; i + 8 <= N; i += 8) {
-        const vec8f mask = cmp::gt(loadu(Xx + i), loadu(Xy + i));
-        storeu(Xz + i, _mm256_and_ps(mask, one));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = Xx[i] > Xy[i] ? 1.0f : 0.0f;
-    }
-}
-
-void wise::less(const f32* Xx, const f32* Xy, f32* Xz, const size_t N) {
-    size_t i = 0;
-    const vec8f one = set1(1.0f);
-    for (; i + 8 <= N; i += 8) {
-        const vec8f mask = cmp::lt(loadu(Xx + i), loadu(Xy + i));
-        storeu(Xz + i, _mm256_and_ps(mask, one));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = Xx[i] < Xy[i] ? 1.0f : 0.0f;
-    }
-}
-
-void wise::greater_eq(const f32* Xx, const f32* Xy, f32* Xz, const size_t N) {
-    size_t i = 0;
-    const vec8f one = set1(1.0f);
-    for (; i + 8 <= N; i += 8) {
-        const vec8f mask = cmp::ge(loadu(Xx + i), loadu(Xy + i));
-        storeu(Xz + i, _mm256_and_ps(mask, one));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = Xx[i] >= Xy[i] ? 1.0f : 0.0f;
-    }
-}
-
-void wise::less_eq(const f32* Xx, const f32* Xy, f32* Xz, const size_t N) {
-    size_t i = 0;
-    const vec8f one = set1(1.0f);
-    for (; i + 8 <= N; i += 8) {
-        const vec8f mask = cmp::le(loadu(Xx + i), loadu(Xy + i));
-        storeu(Xz + i, _mm256_and_ps(mask, one));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = Xx[i] <= Xy[i] ? 1.0f : 0.0f;
     }
 }
 

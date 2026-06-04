@@ -361,8 +361,7 @@ namespace cortex::_fw::ops {
      * @brief Functor for clamp operation: min(max(x, min_val), max_val)
      */
     struct Clamp {
-        explicit __host__ __device__ Clamp(const f32 min_val, const f32 max_val)
-            : min_val(min_val), max_val(max_val) {}
+        explicit __host__ __device__ Clamp(const f32 min_val, const f32 max_val) : min_val(min_val), max_val(max_val) {}
 
         __device__ __forceinline__ f32 operator()(const f32 x) const {
             return fminf(fmaxf(x, this->min_val), this->max_val);
@@ -371,6 +370,159 @@ namespace cortex::_fw::ops {
     private:
         f32 min_val;
         f32 max_val;
+    };
+
+    /**
+     * @brief Functor for log base 2.
+     */
+    struct Log2 {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return __log2f(x);
+        }
+    };
+
+    /**
+     * @brief Functor for log base 10.
+     */
+    struct Log10 {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return log10f(x);
+        }
+    };
+
+    /**
+     * @brief Functor for 2^x (power of 2).
+     */
+    struct Exp2 {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return powf(2.0f, x);
+        }
+    };
+
+    /**
+     * @brief Functor for 10^x (power of 10).
+     */
+    struct Exp10 {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return powf(10.0f, x);
+        }
+    };
+
+    /**
+     * @brief Functor for error function (erf).
+     */
+    struct Erf {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return erff(x);
+        }
+    };
+
+    /**
+     * @brief Functor for tangent.
+     */
+    struct Tan {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return tanf(x);
+        }
+    };
+
+    /**
+     * @brief Fast tangent using hardware intrinsics.
+     */
+    struct TanFast {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return __tanf(x);
+        }
+    };
+
+    /**
+     * @brief Functor for cotangent (1/tan(x)).
+     */
+    struct Cot {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return 1.0f / tanf(x);
+        }
+    };
+
+    /**
+     * @brief Fast cotangent approximation.
+     */
+    struct CotFast {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return __fdividef(1.0f, __tanf(x));
+        }
+    };
+
+    /**
+     * @brief Inverse sine (arcsin).
+     */
+    struct Asin {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return asinf(x);
+        }
+    };
+
+    /**
+     * @brief Inverse cosine (arccos).
+     */
+    struct Acos {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return acosf(x);
+        }
+    };
+
+    /**
+     * @brief Inverse tangent (arctan).
+     */
+    struct Atan {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return atanf(x);
+        }
+    };
+
+    /**
+     * @brief Hyperbolic sine.
+     */
+    struct Sinh {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return sinhf(x);
+        }
+    };
+
+    /**
+     * @brief Hyperbolic cosine.
+     */
+    struct Cosh {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return coshf(x);
+        }
+    };
+
+    /**
+     * @brief Hyperbolic tangent (same as Tanh but explicit).
+     */
+    struct Atanh {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return atanhf(x);
+        }
+    };
+
+    /**
+     * @brief Inverse hyperbolic sine.
+     */
+    struct Asinh {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return asinhf(x);
+        }
+    };
+
+    /**
+     * @brief Inverse hyperbolic cosine.
+     */
+    struct Acosh {
+        __device__ __forceinline__ f32 operator()(const f32 x) const {
+            return acoshf(x);
+        }
     };
 } //namespace cortex::_fw::ops
 

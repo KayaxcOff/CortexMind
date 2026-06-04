@@ -194,10 +194,6 @@ void Broadcast::row_div(const f32* Xx, const f32* Xy, f32* Xz, const size_t M, c
     }
 }
 
-// ------------------------------------------------------------------ //
-//  Row broadcast — in-place                                            //
-// ------------------------------------------------------------------ //
-
 void Broadcast::row_add(f32* Xx, const f32* Xy, const size_t M, const size_t N) {
     for (size_t row = 0; row < M; ++row) {
         apply_row_ip(Xx + row * N, Xy, N,
@@ -269,10 +265,6 @@ void Broadcast::col_div(const f32* Xx, const f32* Xy, f32* Xz, const size_t M, c
             [](const f32 a, const f32 b)     { return a / b; });
     }
 }
-
-// ------------------------------------------------------------------ //
-//  Col broadcast — in-place                                            //
-// ------------------------------------------------------------------ //
 
 void Broadcast::col_add(f32* Xx, const f32* Xy, const size_t M, const size_t N) {
     for (size_t row = 0; row < M; ++row) {

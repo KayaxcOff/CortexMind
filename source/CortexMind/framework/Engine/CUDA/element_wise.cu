@@ -39,10 +39,34 @@ void ElementWise::log(const f32* Xx, f32* Xz, const size_t N) {
     kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Log{});
 }
 
+void ElementWise::log2(const f32* Xx, f32* Xz, const size_t N) {
+    const f32x4* Xx4 = reinterpret_cast<const f32x4*>(Xx);
+    f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);
+    kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Log2{});
+}
+
+void ElementWise::log10(const f32* Xx, f32* Xz, const size_t N) {
+    const f32x4* Xx4 = reinterpret_cast<const f32x4*>(Xx);
+    f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);
+    kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Log10{});
+}
+
 void ElementWise::exp(const f32* Xx, f32* Xz, const size_t N) {
     const f32x4* Xx4 = reinterpret_cast<const f32x4*>(Xx);
     f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);
     kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Exp{});
+}
+
+void ElementWise::exp2(const f32* Xx, f32* Xz, const size_t N) {
+    const f32x4* Xx4 = reinterpret_cast<const f32x4*>(Xx);
+    f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);
+    kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Exp2{});
+}
+
+void ElementWise::exp10(const f32* Xx, f32* Xz, const size_t N) {
+    const f32x4* Xx4 = reinterpret_cast<const f32x4*>(Xx);
+    f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);
+    kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Exp10{});
 }
 
 void ElementWise::abs(const f32 *Xx, f32 *Xz, size_t N) {
@@ -63,6 +87,18 @@ void ElementWise::cos(const f32 *Xx, f32 *Xz, size_t N) {
     kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Cos{});
 }
 
+void ElementWise::tan(const f32 *Xx, f32 *Xz, size_t N) {
+    const f32x4* Xx4 = reinterpret_cast<const f32x4*>(Xx);
+    f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);
+    kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Tan{});
+}
+
+void ElementWise::cot(const f32 *Xx, f32 *Xz, size_t N) {
+    const f32x4* Xx4 = reinterpret_cast<const f32x4*>(Xx);
+    f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);
+    kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Cot{});
+}
+
 void ElementWise::sign(const f32 *Xx, f32 *Xz, size_t N) {
     const f32x4* Xx4 = reinterpret_cast<const f32x4*>(Xx);
     f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);
@@ -79,4 +115,10 @@ void ElementWise::clamp(const f32* Xx, const f32 min_val, const f32 max_val, f32
     const f32x4* Xx4 = reinterpret_cast<const f32x4*>(Xx);
     f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);
     kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Clamp{min_val, max_val});
+}
+
+void ElementWise::erf(const f32 *Xx, f32 *Xz, size_t N) {
+    const f32x4* Xx4 = reinterpret_cast<const f32x4*>(Xx);
+    f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);
+    kernels::activation<<<grid1d(N), BLOCK_SIZE_1D>>>(Xx4, Xz4, N, ops::Erf{});
 }

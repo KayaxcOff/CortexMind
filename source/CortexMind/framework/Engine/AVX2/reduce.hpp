@@ -9,122 +9,206 @@
 
 namespace cortex::_fw::avx2 {
     /**
-     * @brief AVX2 accelerated reduction (fold) operations on contiguous float arrays.
+     * @brief AVX2 optimized reduction operations.
      *
-     * All functions are optimized with a hybrid approach:
-     * - Main loop uses 8-wide AVX2 vectorization
-     * - Remainder uses scalar operations
+     * All functions have two overloads:
+     * - Scalar version: reduces entire array to a single value.
+     * - Multi-dimensional version: reduces along a specific dimension.
      */
     struct reduce {
         /**
          * @brief Computes the sum of all elements in the array.
          *
-         * @param x Input array pointer.
-         * @param N Number of elements to process.
-         * @return Sum of all elements (`∑x[i]`).
-         *
-         * @note Returns 0.0f if N == 0.
+         * @param Xx Input array
+         * @param Xz Output array (single element)
+         * @param N  Number of elements
          */
-        [[nodiscard]]
-        static f32 sum(const f32* __restrict x, size_t N);
+        static void sum(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
         /**
-         * @brief Computes the arithmetic mean (average) of the array.
+         * @brief Computes sum along a specified dimension.
          *
-         * @param x Input array pointer.
-         * @param N Number of elements.
-         * @return Mean value = sum(x) / N.
-         *
-         * @note Returns 0.0f if N == 0.
+         * @param Xx          Input array
+         * @param Xz          Output array
+         * @param outer_size  Size of dimensions before the reduced one
+         * @param dim_size    Size of the dimension being reduced
+         * @param inner_size  Size of dimensions after the reduced one
          */
-        [[nodiscard]]
-        static f32 mean(const f32* __restrict x, size_t N);
+        static void sum(const f32* __restrict Xx, f32* __restrict Xz, size_t outer_size, size_t dim_size, size_t inner_size);
         /**
-         * @brief Computes the population variance of the array.
+         * @brief Computes the arithmetic mean of all elements.
          *
-         * @param x Input array pointer.
-         * @param N Number of elements.
-         * @return Population variance = (∑(x[i] - mean)²) / N
-         *
-         * @note Uses population variance (divide by N, not N-1).
-         * @see std()
+         * @param Xx Input array
+         * @param Xz Output array (single element)
+         * @param N  Number of elements
          */
-        [[nodiscard]]
-        static f32 var(const f32* __restrict x, size_t N);
+        static void mean(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
         /**
-         * @brief Computes the standard deviation of the array.
+         * @brief Computes mean along a specified dimension.
          *
-         * @param x Input array pointer.
-         * @param N Number of elements.
-         * @return Standard deviation = sqrt(variance)
-         *
-         * @note Uses population standard deviation.
+         * @param Xx          Input array
+         * @param Xz          Output array
+         * @param outer_size  Size of dimensions before the reduced one
+         * @param dim_size    Size of the dimension being reduced
+         * @param inner_size  Size of dimensions after the reduced one
          */
-        [[nodiscard]]
-        static f32 std(const f32* __restrict x, size_t N);
+        static void mean(const f32* __restrict Xx, f32* __restrict Xz, size_t outer_size, size_t dim_size, size_t inner_size);
+        /**
+         * @brief Computes the population variance of all elements.
+         *
+         * Uses the formula: `var = mean((x - μ)²)`
+         *
+         * @param Xx Input array
+         * @param Xz Output array (single element)
+         * @param N  Number of elements
+         */
+        static void var(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Computes variance along a specified dimension.
+         *
+         * @param Xx          Input array
+         * @param Xz          Output array
+         * @param outer_size  Size of dimensions before the reduced one
+         * @param dim_size    Size of the dimension being reduced
+         * @param inner_size  Size of dimensions after the reduced one
+         */
+        static void var(const f32* __restrict Xx, f32* __restrict Xz, size_t outer_size, size_t dim_size, size_t inner_size);
+        /**
+         * @brief Computes the population standard deviation.
+         *
+         * Equivalent to `sqrt(var(x))`
+         *
+         * @param Xx Input array
+         * @param Xz Output array (single element)
+         * @param N  Number of elements
+         */
+        static void stdv(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Computes standard deviation along a specified dimension.
+         *
+         * @param Xx          Input array
+         * @param Xz          Output array
+         * @param outer_size  Size of dimensions before the reduced one
+         * @param dim_size    Size of the dimension being reduced
+         * @param inner_size  Size of dimensions after the reduced one
+         */
+        static void stdv(const f32* __restrict Xx, f32* __restrict Xz, size_t outer_size, size_t dim_size, size_t inner_size);
         /**
          * @brief Finds the minimum value in the array.
          *
-         * @param x Input array pointer.
-         * @param N Number of elements.
-         * @return Minimum value in the array.
-         *
-         * @warning Behavior is undefined if N == 0 (assumes N ≥ 1).
+         * @param Xx Input array
+         * @param Xz Output array (single element)
+         * @param N  Number of elements
          */
-        [[nodiscard]]
-        static f32 min(const f32* __restrict x, size_t N);
+        static void min(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Computes minimum value along a specified dimension.
+         *
+         * @param Xx          Input array
+         * @param Xz          Output array
+         * @param outer_size  Size of dimensions before the reduced one
+         * @param dim_size    Size of the dimension being reduced
+         * @param inner_size  Size of dimensions after the reduced one
+         */
+        static void min(const f32* __restrict Xx, f32* __restrict Xz, size_t outer_size, size_t dim_size, size_t inner_size);
         /**
          * @brief Finds the maximum value in the array.
          *
-         * @param x Input array pointer.
-         * @param N Number of elements.
-         * @return Maximum value in the array.
-         *
-         * @warning Behavior is undefined if N == 0 (assumes N ≥ 1).
+         * @param Xx Input array
+         * @param Xz Output array (single element)
+         * @param N  Number of elements
          */
-        [[nodiscard]]
-        static f32 max(const f32* __restrict x, size_t N);
+        static void max(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
         /**
-         * @brief Computes L1 norm (Manhattan norm): ∑|x[i]|
+         * @brief Computes maximum value along a specified dimension.
          *
-         * @param x Input array pointer.
-         * @param N Number of elements.
-         * @return L1 norm of the array.
+         * @param Xx          Input array
+         * @param Xz          Output array
+         * @param outer_size  Size of dimensions before the reduced one
+         * @param dim_size    Size of the dimension being reduced
+         * @param inner_size  Size of dimensions after the reduced one
          */
-        [[nodiscard]]
-        static f32 norm1(const f32* __restrict x, size_t N);
+        static void max(const f32* __restrict Xx, f32* __restrict Xz, size_t outer_size, size_t dim_size, size_t inner_size);
         /**
-         * @brief Computes L2 norm (Euclidean norm): sqrt(∑x[i]²)
+         * @brief Computes L1 norm (sum of absolute values).
          *
-         * @param x Input array pointer.
-         * @param N Number of elements.
-         * @return L2 norm of the array.
+         * @param Xx Input array
+         * @param Xz Output array (single element)
+         * @param N  Number of elements
          */
-        [[nodiscard]]
-        static f32 norm2(const f32* __restrict x, size_t N);
+        static void norm1(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
         /**
-         * @brief Computes the dot product of two arrays.
+         * @brief Computes l1 norm along a specified dimension.
          *
-         * @param Xx First input array.
-         * @param Xy Second input array.
-         * @param N  Number of elements.
-         * @return Dot product = ∑(Xx[i] * Xy[i])
-         *
-         * @note Arrays must not overlap.
+         * @param Xx          Input array
+         * @param Xz          Output array
+         * @param outer_size  Size of dimensions before the reduced one
+         * @param dim_size    Size of the dimension being reduced
+         * @param inner_size  Size of dimensions after the reduced one
          */
-        [[nodiscard]]
-        static f32 dot(const f32* __restrict Xx, const f32* __restrict Xy, size_t N);
+        static void norm1(const f32* __restrict Xx, f32* __restrict Xz, size_t outer_size, size_t dim_size, size_t inner_size);
         /**
-         * @brief Check are items of pointer equal
-         * @param Xx First input
-         * @param Xy Second input
-         * @param N Number of element
-         * @return If equal, true, if it isn't, false
+         * @brief Computes L2 norm (Euclidean norm).
+         *
+         * @param Xx Input array
+         * @param Xz Output array (single element)
+         * @param N  Number of elements
          */
-        [[nodiscard]]
-        static bool equal(const f32* Xx, const f32* Xy, size_t N);
-
-        static void sum_last_dim(const f32* __restrict src, f32* __restrict dst, size_t rows, size_t cols);
-        static void sum_first_dim(const f32* __restrict src, f32* __restrict dst, size_t rows, size_t cols);
+        static void norm2(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Computes l2 norm along a specified dimension.
+         *
+         * @param Xx          Input array
+         * @param Xz          Output array
+         * @param outer_size  Size of dimensions before the reduced one
+         * @param dim_size    Size of the dimension being reduced
+         * @param inner_size  Size of dimensions after the reduced one
+         */
+        static void norm2(const f32* __restrict Xx, f32* __restrict Xz, size_t outer_size, size_t dim_size, size_t inner_size);
+        /**
+         * @brief Finds the index of the maximum value in the array.
+         *
+         * @param Xx Input array
+         * @param Xz Output array (single index)
+         * @param N  Number of elements
+         */
+        static void argmax(const f32* __restrict Xx, i64* __restrict Xz, size_t N);
+        /**
+         * @brief Computes the index of maximum value along a specified dimension.
+         *
+         * @param Xx          Input array
+         * @param Xz          Output array
+         * @param outer_size  Size of dimensions before the reduced one
+         * @param dim_size    Size of the dimension being reduced
+         * @param inner_size  Size of dimensions after the reduced one
+         */
+        static void argmax(const f32* __restrict Xx, i64* __restrict Xz, size_t outer_size, size_t dim_size, size_t inner_size);
+        /**
+         * @brief Finds the index of the minimum value in the array.
+         *
+         * @param Xx Input array
+         * @param Xz Output array (single index)
+         * @param N  Number of elements
+         */
+        static void argmin(const f32* __restrict Xx, i64* __restrict Xz, size_t N);
+        /**
+         * @brief Computes the index of minimum value along a specified dimension.
+         *
+         * @param Xx          Input array
+         * @param Xz          Output array
+         * @param outer_size  Size of dimensions before the reduced one
+         * @param dim_size    Size of the dimension being reduced
+         * @param inner_size  Size of dimensions after the reduced one
+         */
+        static void argmin(const f32* __restrict Xx, i64* __restrict Xz, size_t outer_size, size_t dim_size, size_t inner_size);
+        /**
+         * @brief Computes the dot product of two vectors.
+         *
+         * @param Xx First input vector
+         * @param Xy Second input vector
+         * @param Xz Output array (single element)
+         * @param N  Length of the vectors
+         */
+        static void dot(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t N);
     };
 } //namespace cortex::_fw::avx2
 

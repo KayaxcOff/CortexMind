@@ -53,6 +53,22 @@ namespace cortex::_fw::avx2 {
          */
         static void log(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
         /**
+         * @brief Element-wise natural logarithm: `Z[i] = log2(X[i])`
+         *
+         * @param Xx Input array pointer
+         * @param Xz Output array pointer
+         * @param N  Number of elements
+         */
+        static void log2(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Element-wise natural logarithm: `Z[i] = log10(X[i])`
+         *
+         * @param Xx Input array pointer
+         * @param Xz Output array pointer
+         * @param N  Number of elements
+         */
+        static void log10(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        /**
          * @brief Element-wise exponential: `Z[i] = e^X[i]`
          *
          * @param Xx Input array pointer
@@ -60,6 +76,30 @@ namespace cortex::_fw::avx2 {
          * @param N  Number of elements
          */
         static void exp(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Element-wise exponential: `Z[i] = 2^X[i]`
+         *
+         * @param Xx Input array pointer
+         * @param Xz Output array pointer
+         * @param N  Number of elements
+         */
+        static void exp2(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Element-wise exponential: `Z[i] = 10^X[i]`
+         *
+         * @param Xx Input array pointer
+         * @param Xz Output array pointer
+         * @param N  Number of elements
+         */
+        static void exp10(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Element-wise error function: `Z[i] = erf(X[i])`
+         *
+         * @param Xx Input array pointer
+         * @param Xz Output array pointer
+         * @param N  Number of elements
+         */
+        static void erf(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
         /**
          * @brief Element-wise sine: `Z[i] = sin(X[i])`
          *
@@ -76,6 +116,22 @@ namespace cortex::_fw::avx2 {
          * @param N  Number of elements
          */
         static void cos(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Element-wise tangent: `Z[i] = tan(X[i])`
+         *
+         * @param Xx Input array pointer
+         * @param Xz Output array pointer
+         * @param N  Number of elements
+         */
+        static void tan(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        /**
+         * @brief Element-wise cotangent: `Z[i] = 1 / tan(X[i])`
+         *
+         * @param Xx Input array pointer
+         * @param Xz Output array pointer
+         * @param N  Number of elements
+         */
+        static void cot(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
         /**
          * @brief Element-wise absolute value: `Z[i] = |X[i]|`
          *
@@ -101,58 +157,14 @@ namespace cortex::_fw::avx2 {
          */
         static void sign(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
         /**
-         * @brief Element-wise greater than comparison (`Z = X > Y`).
+         * @brief Element-wise clamp operation: `Z[i] = clamp(X[i], min_val, max_val)`
          *
-         * Performs element-wise comparison and stores result as float:
-         * - 1.0f if X[i] > Y[i]
-         * - 0.0f otherwise
-         *
-         * @param Xx First input array
-         * @param Xy Second input array
-         * @param Xz Output array
-         * @param N  Number of elements
+         * @param Xx      Input array
+         * @param min_val Lower bound
+         * @param max_val Upper bound
+         * @param Xz      Output array
+         * @param N       Number of elements
          */
-        static void greater(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t N);
-        /**
-         * @brief Element-wise less than comparison (`Z = X < Y`).
-         *
-         * Performs element-wise comparison and stores result as float:
-         * - 1.0f if X[i] < Y[i]
-         * - 0.0f otherwise
-         *
-         * @param Xx First input array
-         * @param Xy Second input array
-         * @param Xz Output array
-         * @param N  Number of elements
-         */
-        static void less(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t N);
-        /**
-         * @brief Element-wise greater than or equal comparison (`Z = X >= Y`).
-         *
-         * Performs element-wise comparison and stores result as float:
-         * - 1.0f if X[i] >= Y[i]
-         * - 0.0f otherwise
-         *
-         * @param Xx First input array
-         * @param Xy Second input array
-         * @param Xz Output array
-         * @param N  Number of elements
-         */
-        static void greater_eq(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t N);
-        /**
-         * @brief Element-wise less than or equal comparison (`Z = X <= Y`).
-         *
-         * Performs element-wise comparison and stores result as float:
-         * - 1.0f if X[i] <= Y[i]
-         * - 0.0f otherwise
-         *
-         * @param Xx First input array
-         * @param Xy Second input array
-         * @param Xz Output array
-         * @param N  Number of elements
-         */
-        static void less_eq(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t N);
-
         static void clamp(const f32* Xx, f32 min_val, f32 max_val, f32* Xz, size_t N);
     };
 } //namespace cortex::_fw::avx2

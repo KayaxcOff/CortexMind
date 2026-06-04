@@ -119,6 +119,10 @@ namespace cortex::_fw::avx2 {
     inline vec8f exp2(const vec8f x) {
         return _mm256_exp2_ps(x);
     }
+    [[nodiscard]]
+    inline vec8f exp10(const vec8f x) {
+        return _mm256_exp10_ps(x);
+    }
     /**
      * @brief Element-wise natural logarithm: ln(x)
      */
@@ -154,6 +158,10 @@ namespace cortex::_fw::avx2 {
     inline vec8f rsqrt(const vec8f x) {
         return _mm256_rsqrt_ps(x);
     }
+    [[nodiscard]]
+    inline vec8f erf(const vec8f x) {
+        return _mm256_erf_ps(x);
+    }
     /**
      * @brief Element-wise sine.
      */
@@ -175,12 +183,30 @@ namespace cortex::_fw::avx2 {
     inline vec8f sinh(const vec8f x) {
         return _mm256_sinh_ps(x);
     }
+    [[nodiscard]]
+    inline vec8f cosh(const vec8f x) {
+        return _mm256_cosh_ps(x);
+    }
+    [[nodiscard]]
+    inline vec8f asin(const vec8f x) {
+        return _mm256_asin_ps(x);
+    }
+    [[nodiscard]]
+    inline vec8f acos(const vec8f x) {
+        return _mm256_acos_ps(x);
+    }
     /**
      * @brief Element-wise tangent.
      */
     [[nodiscard]]
     inline vec8f tan(const vec8f x) {
         return _mm256_tan_ps(x);
+    }
+    [[nodiscard]]
+    inline vec8f cot(const vec8f x) {
+        const vec8f r0 = cos(x);
+        const vec8f r1 = sin(x);
+        return div(r0, r1);
     }
     /**
      * @brief Element-wise hyperbolic tangent.
@@ -290,7 +316,7 @@ namespace cortex::_fw::avx2 {
     inline vec8f gelu_exact(const vec8f x) {
         const vec8f inv_sqrt2 = set1(0.7071067811865475f);
         const vec8f erf_input = mul(x, inv_sqrt2);
-        const vec8f erf_val = _mm256_erf_ps(erf_input);
+        const vec8f erf_val = erf(erf_input);
         const vec8f one_plus_erf = add(set1(1.0f), erf_val);
         return mul(mul(set1(0.5f), x), one_plus_erf);
     }

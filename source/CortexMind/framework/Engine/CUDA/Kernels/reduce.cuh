@@ -183,6 +183,246 @@ namespace cortex::_fw::cuda::kernels {
             }
         }
     }
+
+    /**
+     * @brief Reduce sum along a dimension (template-based, compile-time block size).
+     *
+     * Each block handles exactly one output element → no atomic operations needed.
+     */
+    template <size_t BlockSize>
+    __global__ void ReduceSumDim(const f32* __restrict Xx, f32* __restrict Xz,
+                                 size_t outer_size, size_t dim_size, size_t inner_size) {
+        __shared__ f32 sdata[BlockSize / WARP_SIZE];
+
+        size_t out_idx = blockIdx.x;
+        if (out_idx >= outer_size * inner_size) return;
+
+        size_t outer_coord = out_idx / inner_size;
+        size_t inner_coord = out_idx % inner_size;
+        size_t base_offset = outer_coord * (dim_size * inner_size) + inner_coord;
+
+        // Local reduction across dimension
+        f32 local_sum = 0.0f;
+        for (size_t d = threadIdx.x; d < dim_size; d += blockDim.x) {
+            local_sum += Xx[base_offset + d * inner_size];
+        }
+
+        // Warp reduce
+        local_sum = warp_reduce_sum(local_sum);
+
+        const size_t tid = threadIdx.x;
+        const size_t lane = tid % WARP_SIZE;
+        const size_t warp_id = tid / WARP_SIZE;
+
+        // Warp leads write to shared memory
+        if (lane == 0) {
+            sdata[warp_id] = local_sum;
+        }
+
+        __syncthreads();
+
+        // Block reduce (first warp processes all warp results)
+        if (warp_id == 0) {
+            f32 val = (tid < (BlockSize / WARP_SIZE)) ? sdata[tid] : 0.0f;
+            val = warp_reduce_sum(val);
+
+            if (tid == 0) {
+                Xz[out_idx] = val;  // Direct write (no atomic needed!)
+            }
+        }
+    }
+
+    /**
+     * @brief Reduce mean along a dimension.
+     */
+    template <size_t BlockSize>
+    __global__ void ReduceMeanDim(const f32* __restrict Xx, f32* __restrict Xz,
+                                  size_t outer_size, size_t dim_size, size_t inner_size) {
+        __shared__ f32 sdata[BlockSize / WARP_SIZE];
+
+        size_t out_idx = blockIdx.x;
+        if (out_idx >= outer_size * inner_size) return;
+
+        size_t outer_coord = out_idx / inner_size;
+        size_t inner_coord = out_idx % inner_size;
+        size_t base_offset = outer_coord * (dim_size * inner_size) + inner_coord;
+
+        f32 local_sum = 0.0f;
+        for (size_t d = threadIdx.x; d < dim_size; d += blockDim.x) {
+            local_sum += Xx[base_offset + d * inner_size];
+        }
+
+        local_sum = warp_reduce_sum(local_sum);
+
+        const size_t tid = threadIdx.x;
+        const size_t lane = tid % WARP_SIZE;
+        const size_t warp_id = tid / WARP_SIZE;
+
+        if (lane == 0) {
+            sdata[warp_id] = local_sum;
+        }
+
+        __syncthreads();
+
+        if (warp_id == 0) {
+            f32 val = (tid < (BlockSize / WARP_SIZE)) ? sdata[tid] : 0.0f;
+            val = warp_reduce_sum(val);
+
+            if (tid == 0) {
+                Xz[out_idx] = val / static_cast<f32>(dim_size);
+            }
+        }
+    }
+
+    /**
+     * @brief Reduce variance along a dimension (requires pre-computed means).
+     */
+    template <size_t BlockSize>
+    __global__ void ReduceVarDim(const f32* __restrict Xx, f32* __restrict Xz,
+                                 const f32* __restrict means,
+                                 size_t outer_size, size_t dim_size, size_t inner_size) {
+        __shared__ f32 sdata[BlockSize / WARP_SIZE];
+
+        size_t out_idx = blockIdx.x;
+        if (out_idx >= outer_size * inner_size) return;
+
+        size_t outer_coord = out_idx / inner_size;
+        size_t inner_coord = out_idx % inner_size;
+        size_t base_offset = outer_coord * (dim_size * inner_size) + inner_coord;
+
+        const f32 mean = means[out_idx];
+
+        f32 local_var = 0.0f;
+        for (size_t d = threadIdx.x; d < dim_size; d += blockDim.x) {
+            f32 diff = Xx[base_offset + d * inner_size] - mean;
+            local_var += diff * diff;
+        }
+
+        local_var = warp_reduce_sum(local_var);
+
+        const size_t tid = threadIdx.x;
+        const size_t lane = tid % WARP_SIZE;
+        const size_t warp_id = tid / WARP_SIZE;
+
+        if (lane == 0) {
+            sdata[warp_id] = local_var;
+        }
+
+        __syncthreads();
+
+        if (warp_id == 0) {
+            f32 val = (tid < (BlockSize / WARP_SIZE)) ? sdata[tid] : 0.0f;
+            val = warp_reduce_sum(val);
+
+            if (tid == 0) {
+                Xz[out_idx] = val / static_cast<f32>(dim_size);
+            }
+        }
+    }
+
+    /**
+     * @brief Reduce min along a dimension.
+     */
+    template <size_t BlockSize>
+    __global__ void ReduceMinDim(const f32* __restrict Xx, f32* __restrict Xz,
+                                 size_t outer_size, size_t dim_size, size_t inner_size) {
+        __shared__ f32 sdata[BlockSize / WARP_SIZE];
+
+        size_t out_idx = blockIdx.x;
+        if (out_idx >= outer_size * inner_size) return;
+
+        size_t outer_coord = out_idx / inner_size;
+        size_t inner_coord = out_idx % inner_size;
+        size_t base_offset = outer_coord * (dim_size * inner_size) + inner_coord;
+
+        f32 local_min = INFINITY;
+        for (size_t d = threadIdx.x; d < dim_size; d += blockDim.x) {
+            local_min = fminf(local_min, Xx[base_offset + d * inner_size]);
+        }
+
+        // Warp reduce min
+        local_min = fminf(local_min, shfl::down(local_min, 16));
+        local_min = fminf(local_min, shfl::down(local_min, 8));
+        local_min = fminf(local_min, shfl::down(local_min, 4));
+        local_min = fminf(local_min, shfl::down(local_min, 2));
+        local_min = fminf(local_min, shfl::down(local_min, 1));
+
+        const size_t tid = threadIdx.x;
+        const size_t lane = tid % WARP_SIZE;
+        const size_t warp_id = tid / WARP_SIZE;
+
+        if (lane == 0) {
+            sdata[warp_id] = local_min;
+        }
+
+        __syncthreads();
+
+        if (warp_id == 0) {
+            const size_t actual_warps = blockDim.x / WARP_SIZE;
+            f32 val = (tid < actual_warps) ? sdata[tid] : 0.0f;
+            val = fminf(val, shfl::down(val, 16));
+            val = fminf(val, shfl::down(val, 8));
+            val = fminf(val, shfl::down(val, 4));
+            val = fminf(val, shfl::down(val, 2));
+            val = fminf(val, shfl::down(val, 1));
+
+            if (tid == 0) {
+                Xz[out_idx] = val;
+            }
+        }
+    }
+
+    /**
+     * @brief Reduce max along a dimension.
+     */
+    template <size_t BlockSize>
+    __global__ void ReduceMaxDim(const f32* __restrict Xx, f32* __restrict Xz,
+                                 size_t outer_size, size_t dim_size, size_t inner_size) {
+        __shared__ f32 sdata[BlockSize / WARP_SIZE];
+
+        size_t out_idx = blockIdx.x;
+        if (out_idx >= outer_size * inner_size) return;
+
+        size_t outer_coord = out_idx / inner_size;
+        size_t inner_coord = out_idx % inner_size;
+        size_t base_offset = outer_coord * (dim_size * inner_size) + inner_coord;
+
+        f32 local_max = -INFINITY;
+        for (size_t d = threadIdx.x; d < dim_size; d += blockDim.x) {
+            local_max = fmaxf(local_max, Xx[base_offset + d * inner_size]);
+        }
+
+        // Warp reduce max
+        local_max = fmaxf(local_max, shfl::down(local_max, 16));
+        local_max = fmaxf(local_max, shfl::down(local_max, 8));
+        local_max = fmaxf(local_max, shfl::down(local_max, 4));
+        local_max = fmaxf(local_max, shfl::down(local_max, 2));
+        local_max = fmaxf(local_max, shfl::down(local_max, 1));
+
+        const size_t tid = threadIdx.x;
+        const size_t lane = tid % WARP_SIZE;
+        const size_t warp_id = tid / WARP_SIZE;
+
+        if (lane == 0) {
+            sdata[warp_id] = local_max;
+        }
+
+        __syncthreads();
+
+        if (warp_id == 0) {
+            const size_t actual_warps = blockDim.x / WARP_SIZE;
+            f32 val = (tid < actual_warps) ? sdata[tid] : 0.0f;
+            val = fmaxf(val, shfl::down(val, 16));
+            val = fmaxf(val, shfl::down(val, 8));
+            val = fmaxf(val, shfl::down(val, 4));
+            val = fmaxf(val, shfl::down(val, 2));
+            val = fmaxf(val, shfl::down(val, 1));
+
+            if (tid == 0) {
+                Xz[out_idx] = val;
+            }
+        }
+    }
 } //namespace cortex::_fw::cuda::kernels
 
 #endif //CORTEXMIND_FRAMEWORK_ENGINE_CUDA_KERNELS_REDUCE_CUH

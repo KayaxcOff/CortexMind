@@ -68,68 +68,10 @@ namespace cortex::_fw::avx2 {
          * @note Computes `Z[i] = exp(X[i] - max) / sum(exp(X - max))`
          */
         static void softmax(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
-
         /**
          * @brief Fast Sigmoid approximation.
          */
         static void sigmoid_fast(const f32* Xx, f32* Xz, size_t N);
-        /**
-         * @brief In-place ReLU: `X[i] = max(0, X[i])`
-         */
-        static void relu(f32* Xx, size_t N);
-        /**
-         * @brief In-place Leaky ReLU.
-         *
-         * @param alpha Negative slope coefficient (default = 0.01)
-         */
-        static void leaky_relu(f32* Xx, size_t N, f32 alpha = 0.01f);
-        /**
-         * @brief In-place Sigmoid.
-         */
-        static void sigmoid(f32* Xx, size_t N);
-        /**
-         * @brief In-place Tanh.
-         */
-        static void tanh(f32* Xx, size_t N);
-        /**
-         * @brief In-place GELU (approximate).
-         */
-        static void gelu(f32* Xx, size_t N);
-        /**
-         * @brief In-place GELU exact (using erf).
-         */
-        static void gelu_exact(f32* Xx, size_t N);
-        /**
-         * @brief In-place SiLU.
-         */
-        static void silu(f32* Xx, size_t N);
-        /**
-         * @brief In-place fast SiLU.
-         */
-        static void silu_fast(f32* Xx, size_t N);
-        /**
-         * @brief In-place Swish.
-         *
-         * @param beta Scaling parameter (default = 1.0)
-         */
-        static void swish(f32* Xx, size_t N, f32 beta = 1.0f);
-        /**
-         * @brief In-place fast Swish.
-         *
-         * @param beta Scaling parameter (default = 1.0)
-         */
-        static void swish_fast(f32* Xx, size_t N, f32 beta = 1.0f);
-        /**
-         * @brief In-place Softmax.
-         *
-         * @note Modifies the input array in-place.
-         */
-        static void softmax(f32* Xx, size_t N);
-
-        /**
-         * @brief In-place fast sigmoid
-         */
-        static void sigmoid_fast(f32* Xx, size_t N);
     };
 } //namespace cortex::_fw::avx2
 

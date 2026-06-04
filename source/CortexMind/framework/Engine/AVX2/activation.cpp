@@ -199,75 +199,39 @@ void Activation::swish_fast(const f32* Xx, f32* Xz, const size_t N, const f32 be
 }
 
 void Activation::softmax(const f32* Xx, f32* Xz, const size_t N) {
-    /*
-    const vec8f vmax = set1(reduce::max(Xx, N));
-
-    vec8f vacc = zero();
-    size_t i = 0;
-
-    for (; i + 8 <= N; i += 8) {
-        const vec8f e = avx2::exp(sub(loadu(Xx + i), vmax));
-        storeu(Xz + i, e);
-        vacc = add(vacc, e);
-    }
-    -
-    const f32 sum = horizontal::sum(vacc);
-
-    Xz[i] = std::exp(Xx[i] - reduce::max(Xx, N));
-
-    const vec8f vsum = set1(1.0f / sum);
-    i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, mul(loadu(Xz + i), vsum));
-    }
-    for (; i < N; ++i) {
-        Xz[i] *= 1.0f / sum;
-    }
-    -
-
-    const f32 max_val = reduce::max(Xx, N);
-
-    f32 sum = 0.0f;
-    for (size_t j = 0; j < N; ++j) {
-        Xz[j] = std::exp(Xx[j] - max_val);
-        sum += Xz[j];
-    }
-    for (size_t j = 0; j < N; ++j) {
-        Xz[j] /= sum;
-    }
-    */
-
-    const f32 max_val = reduce::max(Xx, N);
+    f32 max_val = 0.0f;
+    reduce::max(Xx, &max_val, N);
     const vec8f vmax = set1(max_val);
 
     vec8f vacc = zero();
     size_t i = 0;
 
     for (; i + 8 <= N; i += 8) {
-        const vec8f e = avx2::exp(sub(loadu(Xx + i), vmax));
-        storeu(Xz + i, e);
-        vacc = add(vacc, e);
+        const vec8f shifted = sub(loadu(Xx + i), vmax);
+        const vec8f exp_vals = avx2::exp(shifted);
+        storeu(Xz + i, exp_vals);
+        vacc = add(vacc, exp_vals);
     }
 
-    f32 sum = horizontal::sum(vacc);
-
+    f32 tail_sum = 0.0f;
     for (; i < N; ++i) {
-        const f32 e = std::exp(Xx[i] - max_val);
-        Xz[i] = e;
-        sum += e;
+        const f32 exp_val = std::exp(Xx[i] - max_val);
+        Xz[i] = exp_val;
+        tail_sum += exp_val;
     }
 
-    sum = std::max(sum, 1e-12f);
+    f32 total_sum = horizontal::sum(vacc) + tail_sum;
+    total_sum = std::max(total_sum, 1e-10f);
 
-    const vec8f vsum = set1(1.0f / sum);
+    const f32 inv_sum = 1.0f / total_sum;
+    const vec8f v_inv_sum = set1(inv_sum);
 
     i = 0;
     for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, mul(loadu(Xz + i), vsum));
+        storeu(Xz + i, mul(loadu(Xz + i), v_inv_sum));
     }
-
     for (; i < N; ++i) {
-        Xz[i] /= sum;
+        Xz[i] *= inv_sum;
     }
 }
 
@@ -280,147 +244,5 @@ void Activation::sigmoid_fast(const f32* Xx, f32* Xz, const size_t N) {
 
     for (; i < N; ++i) {
         Xz[i] = scalar_sigmoid_fast(Xx[i]);
-    }
-}
-
-void Activation::relu(f32* Xx, const size_t N) {
-    size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xx + i, avx2::relu(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xx[i] = std::max(0.0f, Xx[i]);
-    }
-}
-
-void Activation::leaky_relu(f32* Xx, const size_t N, const f32 alpha) {
-    size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xx + i, avx2::leaky_relu(loadu(Xx + i), alpha));
-    }
-    for (; i < N; ++i) {
-        Xx[i] = Xx[i] > 0.0f ? Xx[i] : alpha * Xx[i];
-    }
-}
-
-void Activation::sigmoid(f32* Xx, const size_t N) {
-    size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xx + i, avx2::sigmoid(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xx[i] = scalar_sigmoid(Xx[i]);
-    }
-}
-
-void Activation::tanh(f32* Xx, const size_t N) {
-    size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xx + i, avx2::tanh(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xx[i] = std::tanh(Xx[i]);
-    }
-}
-
-void Activation::gelu(f32* Xx, const size_t N) {
-    size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xx + i, avx2::gelu(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xx[i] = scalar_gelu(Xx[i]);
-    }
-}
-
-void Activation::gelu_exact(f32* Xx, const size_t N) {
-    size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xx + i, avx2::gelu_exact(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xx[i] = scalar_gelu_exact(Xx[i]);
-    }
-}
-
-void Activation::silu(f32* Xx, const size_t N) {
-    size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xx + i, avx2::silu(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xx[i] = Xx[i] * scalar_sigmoid(Xx[i]);
-    }
-}
-
-void Activation::silu_fast(f32* Xx, const size_t N) {
-    size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xx + i, avx2::silu_fast(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xx[i] = Xx[i] * scalar_sigmoid(Xx[i]);
-    }
-}
-
-void Activation::swish(f32* Xx, const size_t N, const f32 beta) {
-    size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xx + i, avx2::swish(loadu(Xx + i), beta));
-    }
-    for (; i < N; ++i) {
-        Xx[i] = Xx[i] * scalar_sigmoid(beta * Xx[i]);
-    }
-}
-
-void Activation::swish_fast(f32* Xx, const size_t N, const f32 beta) {
-    size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xx + i, avx2::swish_fast(loadu(Xx + i), beta));
-    }
-    for (; i < N; ++i) {
-        Xx[i] = Xx[i] * scalar_sigmoid(beta * Xx[i]);
-    }
-}
-
-void Activation::softmax(f32* Xx, const size_t N) {
-    f32 x_max = Xx[0];
-    for (size_t i = 1; i < N; ++i) {
-        x_max = std::max(x_max, Xx[i]);
-    }
-
-    const vec8f vmax = set1(x_max);
-    f32 sum = 0.0f;
-    size_t i = 0;
-
-    for (; i + 8 <= N; i += 8) {
-        const vec8f e = avx2::exp(sub(loadu(Xx + i), vmax));
-        storeu(Xx + i, e);
-        sum += horizontal::sum(e);
-    }
-    for (; i < N; ++i) {
-        Xx[i] = std::exp(Xx[i] - x_max);
-        sum += Xx[i];
-    }
-
-    const vec8f vsum = set1(1.0f / sum);
-    i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xx + i, mul(loadu(Xx + i), vsum));
-    }
-    for (; i < N; ++i) {
-        Xx[i] *= 1.0f / sum;
-    }
-}
-
-void Activation::sigmoid_fast(f32* Xx, const size_t N) {
-    size_t i = 0;
-
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xx + i, avx2::sigmoid_fast(loadu(Xx + i)));
-    }
-
-    for (; i < N; ++i) {
-        Xx[i] = scalar_sigmoid_fast(Xx[i]);
     }
 }

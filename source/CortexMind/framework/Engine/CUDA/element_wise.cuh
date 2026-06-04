@@ -65,7 +65,8 @@ namespace cortex::_fw::cuda {
          * @param N   Number of elements
          */
         static void log(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
-
+        static void log2(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        static void log10(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
         /**
          * @brief Element-wise exponential: `Z[i] = e^X[i]`
          *
@@ -75,7 +76,8 @@ namespace cortex::_fw::cuda {
          * @param N   Number of elements
          */
         static void exp(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
-
+        static void exp2(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+        static void exp10(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
         /**
          * @brief Element-wise absolute value: `Z[i] = |X[i]|`
          *
@@ -90,11 +92,17 @@ namespace cortex::_fw::cuda {
 
         static void cos(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
 
+        static void tan(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+
+        static void cot(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
+
         static void sign(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
 
         static void neg(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
 
         static void clamp(const f32* __restrict Xx, const f32 min_val, const f32 max_val, f32* __restrict Xz, const size_t N);
+
+        static void erf(const f32* __restrict Xx, f32* __restrict Xz, size_t N);
     };
 } //namespace cortex::_fw::cuda
 
