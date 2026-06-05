@@ -116,7 +116,7 @@ namespace cortex::_fw {
         [[nodiscard]]
         Tensor argmax(i64 dim, bool keep_dim = true) const;
         [[nodiscard]]
-        Tensor argmin();
+        Tensor argmin() const;
         [[nodiscard]]
         Tensor argmin(i64 dim, bool keep_dim = true) const;
         [[nodiscard]]
@@ -250,6 +250,8 @@ namespace cortex::_fw {
         TensorShape m_shape;
 
         bool m_require;
+
+        void reduce_sizes(i64 dim, size_t& outer_size, size_t& dim_size, size_t& inner_size) const;
     };
 } //namespace cortex::_fw
 
