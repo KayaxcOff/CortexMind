@@ -3,6 +3,7 @@
 //
 
 #include "CortexMind/framework/Tools/tensor_meta.hpp"
+#include <CortexMind/framework/Tools/err.hpp>
 #include <numeric>
 #include <utility>
 #include <xutility>
@@ -32,6 +33,40 @@ size_t cortex::_fw::compute_size(const std::array<i64, 8> &shape, const size_t n
 
     return std::accumulate(shape.begin(), shape.begin() + static_cast<long long>(ndim), size_t{1}, std::multiplies());
 }
+
+i64 cortex::_fw::compute_idx(const std::array<i64, 8> &strides, const std::array<i64, 8> &indices, const i32 ndim, const i64 offset) {
+    CXM_ASSERT(ndim >= CXM_MAX_DIMS, "Dimension count is too large");
+
+    i64 output = offset;
+
+    for (i32 i = 0; i < ndim; ++i) {
+        output += indices[i] * strides[i];
+    }
+
+    return output;
+}
+
+bool cortex::_fw::is_contiguous(const std::array<i64, 8> &strides, const std::array<i64, 8> &shape, const i32 ndim) {
+    if (ndim <= 1) {
+        return true;
+    }
+
+    i64 expected_stride = 1;
+    for (i32 i = ndim - 1; i >= 0; --i) {
+        if (shape[i] == 1) {
+            continue;
+        }
+
+        if (strides[i] != expected_stride) {
+            return false;
+        }
+
+        expected_stride *= shape[i];
+    }
+
+    return true;
+}
+
 /*
 bool cortex::_fw::is_broadcastable(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y) {
     const size_t rank_x = shape_x.size();

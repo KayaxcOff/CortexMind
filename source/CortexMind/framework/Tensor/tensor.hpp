@@ -9,6 +9,8 @@
 #include <CortexMind/framework/Gradient/pack.hpp>
 #include <CortexMind/framework/Shape/shape.hpp>
 #include <CortexMind/framework/Storage/stor.hpp>
+#include <CortexMind/framework/Tools/err.hpp>
+#include <CortexMind/framework/Tools/tensor_meta.hpp>
 #include <memory>
 #include <span>
 
@@ -17,6 +19,7 @@ namespace cortex::_fw {
     public:
         Tensor();
         Tensor(const std::initializer_list<i64>& _shape, sys::DeviceType _device = sys::DeviceType::kHOST, bool _requires_grad = false);
+        explicit Tensor(const std::span<const i64>& _shape, sys::DeviceType _device = sys::DeviceType::kHOST, bool _requires_grad = false);
         explicit Tensor(const meta::GradientPacked& packed);
         Tensor(const Tensor& other);
         Tensor(Tensor&& other) noexcept;
@@ -24,10 +27,22 @@ namespace cortex::_fw {
 
         template<typename ... Args> requires (std::integral<Args> && ...)
         [[nodiscard]]
-        f32& at(Args...args);
+        f32& at(Args...args) {
+            CXM_ASSERT(this->storage_->device() != sys::DeviceType::kHOST, "Linear index access on at() can only be on CPU");
+            CXM_ASSERT(sizeof...(args) == this->m_shape.ndim, "Number of arguments does not match tensor dimensions.");
+            const std::array<i64, CXM_MAX_DIMS> indices{ static_cast<i64>(args)... };
+            const i64 idx = compute_idx(this->m_shape.stride, indices, this->m_shape.ndim, this->m_shape.offset);
+            return this->storage_->data()[idx];
+        }
         template<typename ... Args> requires (std::integral<Args> && ...)
         [[nodiscard]]
-        const f32& at(Args...args) const;
+        const f32& at(Args...args) const {
+            CXM_ASSERT(this->storage_->device() != sys::DeviceType::kHOST, "Linear index access on at() can only be on CPU");
+            CXM_ASSERT(sizeof...(args) == this->m_shape.ndim, "Number of arguments does not match tensor dimensions.");
+            const std::array<i64, CXM_MAX_DIMS> indices{ static_cast<i64>(args)... };
+            const i64 idx = compute_idx(this->m_shape.stride, indices, this->m_shape.ndim, this->m_shape.offset);
+            return this->storage_->data()[idx];
+        }
 
         [[nodiscard]]
         f32* get();
@@ -51,10 +66,10 @@ namespace cortex::_fw {
         [[nodiscard]]
         size_t ndim() const;
 
-        void fill(f32 value);
-        void zero();
-        void ones();
-        void randn();
+        void fill(f32 value) const;
+        void zero() const;
+        void ones() const;
+        void randn() const;
         void require_grad();
         void uniform(f32 min = 0.0f, f32 max = 1.0f) const;
         void backward() const;

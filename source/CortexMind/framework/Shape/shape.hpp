@@ -9,10 +9,12 @@
 #include <CortexMind/runtime/macros.hpp>
 #include <array>
 #include <initializer_list>
+#include <span>
 
 namespace cortex::_fw {
     struct TensorShape {
         TensorShape(std::initializer_list<i64> _shape);
+        explicit TensorShape(const std::span<const i64>& _shape);
 
         std::array<i64, CXM_MAX_DIMS> shape;
         std::array<i64, CXM_MAX_DIMS> stride;

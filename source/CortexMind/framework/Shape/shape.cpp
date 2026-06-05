@@ -21,3 +21,10 @@ TensorShape::TensorShape(std::initializer_list<i64> _shape) : shape({}), stride(
 
     this->stride = compute_stride(this->shape, this->ndim);
 }
+
+TensorShape::TensorShape(const std::span<const i64> &_shape) : shape({}), stride({}), offset(0), ndim(static_cast<i32>(_shape.size())) {
+    for (size_t i = 0; i < this->ndim; i++) {
+        this->shape[i] = static_cast<i64>(_shape[i]);
+    }
+    this->stride = compute_stride(this->shape, this->ndim);
+}
