@@ -4,7 +4,7 @@
 
 #include "CortexMind/framework/Tensor/tensor.hpp"
 #include <CortexMind/framework/Engine/IX/TensorInit/init.hpp>
-#include <CortexMind/framework/Engine/IX/fill.hpp>
+#include <CortexMind/framework/Engine/IX/TensorReduce/reduce.hpp>
 #if CXM_IS_CUDA_AVAILABLE
     #include <CortexMind/framework/Memory/transform.cuh>
 #else //#if CXM_IS_CUDA_AVAILABLE
@@ -115,15 +115,15 @@ size_t Tensor::ndim() const {
 }
 
 void Tensor::fill(const f32 value) const {
-    ix::FillOp::fill(this->storage_.get(), value, this->len());
+    ix::TensorInit::fill(this->storage_.get(), value);
 }
 
 void Tensor::zero() const {
-    ix::FillOp::zero(this->storage_.get(), this->len());
+    ix::TensorInit::fill(this->storage_.get(), 0);
 }
 
 void Tensor::ones() const {
-    ix::FillOp::ones(this->storage_.get(), this->len());
+    ix::TensorInit::fill(this->storage_.get(), 1);
 }
 
 void Tensor::randn() const {
@@ -183,4 +183,12 @@ void Tensor::SetGrad(const Tensor &_grad) {
 
 void Tensor::SetFlow(const std::shared_ptr<meta::GradientFlow> &_flow) {
     this->flow_ = _flow;
+}
+
+Tensor Tensor::mean() const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::TensorReduce::mean(this->storage_.get(), output.storage_.get());
+
+    return output;
 }

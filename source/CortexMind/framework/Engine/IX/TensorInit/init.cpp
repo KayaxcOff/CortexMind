@@ -162,3 +162,35 @@ void TensorInit::uniform(TensorStorage *x, const f32 min, const f32 max) {
         }
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
 }
+
+void TensorInit::fill(TensorStorage *x, const f32 value) {
+    CXM_ASSERT(x == nullptr, "Storage is null");
+    CXM_ASSERT(!x->isValid(), "Storage is invalid");
+    CXM_ASSERT(x->isEmpty(), "Storage is empty");
+
+    const size_t num = x->size();
+
+    #if CXM_IS_CUDA_AVAILABLE
+        if (x->device() == DeviceType::kHOST) {
+            const auto val = avx2::set1(value);
+            size_t i = 0;
+            for (; i + 8 <= num; i += 8) {
+                avx2::storeu(x->data() + i, val);
+            }
+            for (; i < num; ++i) {
+                x->data()[i] = value;
+            }
+        } else {
+
+        }
+    #else //#if CXM_IS_CUDA_AVAILABLE
+        const auto val = avx2::set1(value);
+        size_t i = 0;
+        for (; i + 8 <= num; i += 8) {
+            avx2::storeu(x->data() + i, val);
+        }
+        for (; i < num; ++i) {
+            x->data()[i] = value;
+        }
+    #endif //#if CXM_IS_CUDA_AVAILABLE #else
+}
