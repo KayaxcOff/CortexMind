@@ -8,6 +8,8 @@
 
 using namespace cortex::_fw;
 
+TensorShape::TensorShape() : shape({}), stride({}), offset(0), ndim(0) {}
+
 TensorShape::TensorShape(std::initializer_list<i64> _shape) : shape({}), stride({}), offset(0), ndim(0) {
     CXM_ASSERT(_shape.size() > CXM_MAX_DIMS, "Tensor dimension count exceeds maximum allowed dimension (CXM_MAX_DIMS = 8).");
 

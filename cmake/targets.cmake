@@ -77,6 +77,7 @@ add_library(CortexMind STATIC
         source/CortexMind/utility/Image/vm.cpp
         ../source/CortexMind/framework/Engine/IX/TensorInit/init.cpp
         ../source/CortexMind/framework/Engine/IX/TensorReduce/reduce.cpp
+        ../source/CortexMind/framework/Engine/IX/TensorOp/op.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)

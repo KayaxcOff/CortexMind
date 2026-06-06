@@ -104,6 +104,6 @@ namespace cortex::_fw::avx2 {
          */
         static void div(f32* Xx, const f32* __restrict Xy, size_t N);
     };
-} //namespace cortex::_fw::avx2 {}
+} //namespace cortex::_fw::avx2
 
 #endif //CORTEXMIND_FRAMEWORK_ENGINE_AVX2_MATRIX_HPP

@@ -5,11 +5,13 @@
 #ifndef CORTEXMIND_FRAMEWORK_TOOLS_TENSOR_META_HPP
 #define CORTEXMIND_FRAMEWORK_TOOLS_TENSOR_META_HPP
 
+#include <CortexMind/framework/Shape/shape.hpp>
 #include <CortexMind/framework/Tools/broadcast_info.hpp>
 #include <CortexMind/framework/Tools/broadcast_kind.hpp>
 #include <CortexMind/framework/Tools/types.hpp>
 #include <CortexMind/runtime/macros.hpp>
 #include <array>
+#include <vector>
 
 namespace cortex::_fw {
     /**
@@ -38,21 +40,18 @@ namespace cortex::_fw {
     size_t compute_size(const std::array<i64, CXM_MAX_DIMS>& shape, size_t ndim);
     [[nodiscard]]
     i64 compute_idx(const std::array<i64, CXM_MAX_DIMS>& strides, const std::array<i64, CXM_MAX_DIMS>& indices, i32 ndim, i64 offset = 0);
-    [[nodiscard]] bool is_contiguous(const std::array<i64, CXM_MAX_DIMS>& strides, const std::array<i64, CXM_MAX_DIMS>& shape, i32 ndim);
-    /*
     [[nodiscard]]
-    bool is_broadcastable(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
+    bool is_contiguous(const std::array<i64, CXM_MAX_DIMS>& strides, const std::array<i64, CXM_MAX_DIMS>& shape, i32 ndim);
     [[nodiscard]]
-    std::vector<i64> broadcast_shape(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
+    bool is_broadcastable(const TensorShape& shape_x, const TensorShape& shape_y);
     [[nodiscard]]
-    BroadcastKind classify_broadcast(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y);
+    TensorShape broadcast_shape(const TensorShape& shape_x, const TensorShape& shape_y);
     [[nodiscard]]
-    BroadcastInfo make_broadcast_info(const std::vector<i64> &shape_a, const std::vector<i64> &stride_a, const std::vector<i64> &shape_b, const std::vector<i64> &stride_b, const std::vector<i64> &shape_z, const std::vector<i64> &stride_z);
+    BroadcastKind classify_broadcast(const TensorShape& shape_x, const TensorShape& shape_y);
     [[nodiscard]]
-    bool is_contiguous(const std::vector<i64>& strides, const std::vector<i64>& shape);
+    BroadcastInfo make_broadcast_info(const TensorShape& shape_a, const TensorShape& shape_b, const TensorShape& shape_z);
     [[nodiscard]]
-    std::vector<i64> grad_reduce_dims(const std::vector<i64>& input_shape, const std::vector<i64>& grad_shape);
-    */
+    std::vector<i64> grad_reduce_dims(const TensorShape& input_shape, const TensorShape& grad_shape);
 } //namespace cortex::_fw
 
 #endif //CORTEXMIND_FRAMEWORK_TOOLS_TENSOR_META_HPP

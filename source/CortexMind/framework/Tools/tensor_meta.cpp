@@ -67,15 +67,12 @@ bool cortex::_fw::is_contiguous(const std::array<i64, 8> &strides, const std::ar
     return true;
 }
 
-/*
-bool cortex::_fw::is_broadcastable(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y) {
-    const size_t rank_x = shape_x.size();
-    const size_t rank_y = shape_y.size();
-    const size_t max_rank = std::max(rank_x, rank_y);
+bool cortex::_fw::is_broadcastable(const TensorShape &shape_x, const TensorShape &shape_y) {
+    const i32 max_rank = std::max(shape_x.ndim, shape_y.ndim);
 
-    for (size_t i = 0; i < max_rank; ++i) {
-        const i64 dim_x = (i < rank_x) ? shape_x[rank_x - 1 - i] : 1;
-        const i64 dim_y = (i < rank_y) ? shape_y[rank_y - 1 - i] : 1;
+    for (i32 i = 0; i < max_rank; ++i) {
+        const i64 dim_x = (i < shape_x.ndim) ? shape_x.shape[shape_x.ndim - 1 - i] : 1;
+        const i64 dim_y = (i < shape_y.ndim) ? shape_y.shape[shape_y.ndim - 1 - i] : 1;
 
         if (dim_x != dim_y && dim_x != 1 && dim_y != 1) {
             return false;
@@ -84,137 +81,96 @@ bool cortex::_fw::is_broadcastable(const std::vector<i64>& shape_x, const std::v
     return true;
 }
 
-std::vector<i64> cortex::_fw::broadcast_shape(const std::vector<i64> &shape_x, const std::vector<i64> &shape_y) {
-    const size_t ndim = std::max(shape_x.size(), shape_y.size());
-    std::vector<i64> out(ndim);
-    for (size_t i = 0; i < ndim; ++i) {
-        const i64 da = i < shape_x.size() ? shape_x[shape_x.size() - 1 - i] : 1;
-        const i64 db = i < shape_y.size() ? shape_y[shape_y.size() - 1 - i] : 1;
-        out[ndim - 1 - i] = std::max(da, db);
+TensorShape cortex::_fw::broadcast_shape(const TensorShape &shape_x, const TensorShape &shape_y) {
+    TensorShape output{};
+    output.ndim = std::max(shape_x.ndim, shape_y.ndim);
+    output.offset = 0;
+
+    for (i32 i = 0; i < output.ndim; ++i) {
+        const i64 da = (i < shape_x.ndim) ? shape_x.shape[shape_x.ndim - 1 - i] : 1;
+        const i64 db = (i < shape_y.ndim) ? shape_y.shape[shape_y.ndim - 1 - i] : 1;
+
+        output.shape[output.ndim - 1 - i] = std::max(da, db);
     }
-    return out;
+
+    return output;
 }
 
-BroadcastKind cortex::_fw::classify_broadcast(const std::vector<i64>& shape_x, const std::vector<i64>& shape_y) {
-    /*
+BroadcastKind cortex::_fw::classify_broadcast(const TensorShape &shape_x, const TensorShape &shape_y) {
     if (!is_broadcastable(shape_x, shape_y)) {
         return BroadcastKind::kNone;
     }
 
-    if (shape_x == shape_y) {
-        return BroadcastKind::kNone;
+    if (shape_x.ndim == shape_y.ndim) {
+        bool identical = true;
+        for (i32 i = 0; i < shape_x.ndim; ++i) {
+            if (shape_x.shape[i] != shape_y.shape[i]) {
+                identical = false;
+                break;
+            }
+        }
+        if (identical) {
+            return BroadcastKind::kNone;
+        }
     }
 
-    const size_t rank_x = shape_x.size();
-    const size_t rank_y = shape_y.size();
-
-    if (rank_y == 1 && shape_y[0] == shape_x.back()) {
-        return BroadcastKind::kRow;
-    }
-
-    if (rank_x == 2 && rank_y == 2 && shape_x[0] > 1 && shape_y[0] == 1 && shape_x[1] == shape_y[1]) {
-        return BroadcastKind::kRow;
-    }
-
-    if (rank_x == 1 && shape_x[0] == shape_y.back()) {
-        return BroadcastKind::kCol;
-    }
-
-    if (rank_x == 2 && rank_y == 2 && shape_y[1] == 1 && shape_y[0] > 1 && shape_x[0] == shape_y[0]) {
-        return BroadcastKind::kCol;
-    }
-
-    return BroadcastKind::kGeneral;
-
-    if (!is_broadcastable(shape_x, shape_y)) {
-        return BroadcastKind::kNone;
-    }
-    if (shape_x == shape_y) {
-        return BroadcastKind::kNone;
-    }
-
-    const size_t rank_x = shape_x.size();
-    const size_t rank_y = shape_y.size();
-
-    // Scalar: tek eleman
-    if (rank_x == 1 && shape_x[0] == 1) {
+    if (shape_x.ndim == 1 && shape_x.shape[0] == 1) {
         return BroadcastKind::kGeneral;
     }
-    if (rank_y == 1 && shape_y[0] == 1) {
+    if (shape_y.ndim == 1 && shape_y.shape[0] == 1) {
         return BroadcastKind::kGeneral;
     }
 
-    // Row: Y(N) → X(M,N)
-    if (rank_y == 1 && shape_y[0] == shape_x.back()) {
+    if (shape_y.ndim == 1 && shape_y.shape[0] == shape_x.shape[shape_x.ndim - 1]) {
         return BroadcastKind::kRow;
     }
-    if (rank_y == 1 && shape_y[0] == 1) {
-        return BroadcastKind::kGeneral;
-    }
 
-    // Col: Y(M,1) → X(M,N)
-    if (rank_x == 2 && rank_y == 2 && shape_y[1] == 1 && shape_x[0] == shape_y[0]) {
+    if (shape_x.ndim == 2 && shape_y.ndim == 2 && shape_y.shape[1] == 1 && shape_x.shape[0] == shape_y.shape[0]) {
         return BroadcastKind::kCol;
     }
-    if (rank_x == 1 && shape_x[0] == shape_y[0] && shape_y.back() != shape_x[0]) {
+
+    if (shape_x.ndim == 1 && shape_x.shape[0] == shape_y.shape[0] && shape_y.shape[shape_y.ndim - 1] != shape_x.shape[0]) {
         return BroadcastKind::kCol;
     }
 
     return BroadcastKind::kGeneral;
 }
 
-BroadcastInfo cortex::_fw::make_broadcast_info(const std::vector<i64>& shape_a, const std::vector<i64>& stride_a, const std::vector<i64>& shape_b, const std::vector<i64>& stride_b, const std::vector<i64>& shape_z, const std::vector<i64>& stride_z){
-    BroadcastInfo info{};
-    info.ndim = static_cast<i32>(shape_z.size());
+BroadcastInfo cortex::_fw::make_broadcast_info(const TensorShape &shape_a, const TensorShape &shape_b, const TensorShape &shape_z) {
+    BroadcastInfo output{};
+    output.ndim = shape_z.ndim;
 
-    const i32 off_a = info.ndim - static_cast<i32>(shape_a.size());
-    const i32 off_b = info.ndim - static_cast<i32>(shape_b.size());
+    const i32 off_a = output.ndim - shape_a.ndim;
+    const i32 off_b = output.ndim - shape_b.ndim;
 
-    for (i32 d = 0; d < info.ndim; ++d) {
-        info.shape[d] = static_cast<size_t>(shape_z[d]);
+    for (i32 d = 0; d < output.ndim; ++d) {
+        output.shape[d] = shape_z.shape[d];
 
         const i32 da = d - off_a;
-        info.stride_x[d] = (da >= 0 && shape_a[da] != 1)
-            ? static_cast<size_t>(stride_a[da]) : 0;
+        output.stride_x[d] = (da >= 0 && shape_a.shape[da] != 1) ? shape_a.stride[da] : 0;
 
         const i32 db = d - off_b;
-        info.stride_y[d] = (db >= 0 && shape_b[db] != 1)
-            ? static_cast<size_t>(stride_b[db]) : 0;
+        output.stride_y[d] = (db >= 0 && shape_b.shape[db] != 1) ? shape_b.stride[db] : 0;
 
-        info.stride_z[d] = static_cast<size_t>(stride_z[d]);
-    }
-    return info;
-}
-
-i64 cortex::_fw::compute_linear_index(const std::vector<i64> &strides, const std::vector<i64> &indices, const i64 offset) {
-    i64 output = offset;
-    for (size_t d = 0; d < strides.size(); ++d) {
-        output += indices[d] * strides[d];
+        output.stride_z[d] = shape_z.stride[d];
     }
     return output;
 }
 
-bool cortex::_fw::is_contiguous(const std::vector<i64>& strides, const std::vector<i64>& shape) {
-    if (strides.size() != shape.size()) return false;
-    const auto expected = compute_stride(shape);
-    return strides == expected;
-}
-
-std::vector<i64> cortex::_fw::grad_reduce_dims(const std::vector<i64> &input_shape, const std::vector<i64> &grad_shape) {
+std::vector<i64> cortex::_fw::grad_reduce_dims(const TensorShape &input_shape, const TensorShape &grad_shape) {
     std::vector<i64> output;
-    const size_t ndim = grad_shape.size();
-    const size_t offset = ndim - input_shape.size();
+    const i32 ndim = grad_shape.ndim;
+    const i32 offset = ndim - input_shape.ndim;
 
-    for (size_t d = 0; d < ndim; ++d) {
+    for (i32 d = 0; d < ndim; ++d) {
         if (d < offset) {
-            output.push_back(static_cast<i64>(d));
+            output.push_back(d);
         } else {
-            const size_t id = d - offset;
-            if (input_shape[id] == 1 && grad_shape[d] > 1) {
-                output.push_back(static_cast<i64>(d));
+            const i32 id = d - offset;
+            if (input_shape.shape[id] == 1 && grad_shape.shape[d] > 1) {
+                output.push_back(d);
             }
         }
     }
     return output;
 }
-*/

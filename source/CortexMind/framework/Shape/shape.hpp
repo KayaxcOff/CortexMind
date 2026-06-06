@@ -13,6 +13,7 @@
 
 namespace cortex::_fw {
     struct TensorShape {
+        TensorShape();
         TensorShape(std::initializer_list<i64> _shape);
         explicit TensorShape(const std::span<const i64>& _shape);
 
