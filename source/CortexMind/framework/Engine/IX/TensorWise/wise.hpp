@@ -27,7 +27,7 @@ namespace cortex::_fw::ix {
         static void abs(const TensorStorage* __restrict Xx, TensorStorage* __restrict Xz);
         static void neg(const TensorStorage* __restrict Xx, TensorStorage* __restrict Xz);
         static void sign(const TensorStorage* __restrict Xx, TensorStorage* __restrict Xz);
-        static void inverse(const TensorStorage* __restrict Xx, TensorStorage* __restrict Xz);
+        static void reciprocal(const TensorStorage* __restrict Xx, TensorStorage* __restrict Xz);
         static void clamp(const TensorStorage* __restrict Xx, f32 min, f32 max, TensorStorage* __restrict Xz);
     };
 } //namespace cortex::_fw::ix

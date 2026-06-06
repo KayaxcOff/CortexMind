@@ -197,7 +197,7 @@ namespace cortex::_fw {
         [[nodiscard]]
         Tensor detach() const;
         [[nodiscard]]
-        Tensor clone();
+        Tensor clone() const;
 
         [[nodiscard]]
         Tensor& grad();
@@ -252,6 +252,8 @@ namespace cortex::_fw {
         bool m_require;
 
         void reduce_sizes(i64 dim, size_t& outer_size, size_t& dim_size, size_t& inner_size) const;
+
+        Tensor(const std::span<const i64>& _shape, const std::shared_ptr<TensorStorage>& _storage, bool _requires_grad = false);
     };
 } //namespace cortex::_fw
 

@@ -5,13 +5,12 @@
 #ifndef CORTEXMIND_FRAMEWORK_GRADIENT_PACK_HPP
 #define CORTEXMIND_FRAMEWORK_GRADIENT_PACK_HPP
 
-#include <CortexMind/framework/Tools/types.hpp>
 #include <memory>
-#include <vector>
 
 namespace cortex::_fw {
     class Tensor;
     struct TensorStorage;
+    struct TensorShape;
 
     namespace meta {
         struct GradientFlow;
@@ -37,7 +36,7 @@ namespace cortex::_fw::meta {
         std::shared_ptr<Tensor> gradient;
 
         /** @brief Shape of the tensor. */
-        std::vector<i64> shape;
+        TensorShape shape;
 
         /** @brief Whether this tensor requires gradient computation. */
         bool has_gradient{false};

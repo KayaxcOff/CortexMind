@@ -15,6 +15,7 @@
 #endif //#if CXM_IS_CUDA_AVAILABLE #else
 #include <CortexMind/framework/Tools/err.hpp>
 #include <CortexMind/framework/Tools/tensor_meta.hpp>
+#include <numeric>
 
 using namespace cortex::_fw::sys;
 using namespace cortex::_fw;
@@ -43,7 +44,7 @@ Tensor::Tensor(const std::span<const i64> &_shape, const DeviceType _device, con
     }
 }
 
-Tensor::Tensor(const meta::GradientPacked &packed) : m_shape({}), m_require(packed.has_gradient) {
+Tensor::Tensor(const meta::GradientPacked &packed) : m_shape(packed.shape), m_require(packed.has_gradient) {
     this->storage_ = packed.stor;
     this->flow_ = packed.flow;
 
@@ -813,7 +814,7 @@ Tensor Tensor::erf() const {
 Tensor Tensor::inv() const {
     Tensor output(this->shape(), this->device(), this->m_require);
 
-    ix::TensorWise::inverse(this->storage_.get(), output.storage_.get());
+    ix::TensorWise::reciprocal(this->storage_.get(), output.storage_.get());
 
     return output;
 }
@@ -903,4 +904,137 @@ Tensor Tensor::to(const DeviceType _device) {
     }
 
     return *this;
+}
+
+Tensor Tensor::transpose() const {
+    CXM_ASSERT(this->m_shape.ndim >= 2, "Transpose requires at least 2 dimensions.");
+
+    Tensor output(*this);
+
+    const i32 d1 = this->m_shape.ndim - 1;
+    const i32 d2 = this->m_shape.ndim - 2;
+
+    std::swap(output.m_shape.shape[d1], output.m_shape.shape[d2]);
+    std::swap(output.m_shape.stride[d1], output.m_shape.stride[d2]);
+
+    return output;
+}
+
+Tensor Tensor::permute(const std::initializer_list<i64> dims) const {
+    CXM_ASSERT(dims.size() == static_cast<size_t>(this->m_shape.ndim), "Permute dimensions must match tensor ndim.");
+
+    Tensor output(*this);
+
+    bool seen[CXM_MAX_DIMS] = { false };
+    size_t idx = 0;
+
+    for (i64 item : dims) {
+        if (item < 0) {
+            item += this->m_shape.ndim;
+        }
+
+        CXM_ASSERT(item >= 0 && item < this->m_shape.ndim, "Permute dimension out of range.");
+        CXM_ASSERT(!seen[item], "Permute dimensions cannot contain duplicates.");
+        seen[item] = true;
+
+        output.m_shape.shape[idx] = this->m_shape.shape[item];
+        output.m_shape.stride[idx] = this->m_shape.stride[item];
+        idx++;
+    }
+
+    return output;
+}
+
+Tensor Tensor::reshape(const std::initializer_list<i64> _new_shape) const {
+    return {_new_shape, this->storage_, this->m_require};
+}
+
+Tensor Tensor::squeeze(i64 dim) const {
+    Tensor output(*this);
+    output.m_shape.ndim = 0;
+
+    if (dim < 0 && dim != -1) dim += this->m_shape.ndim;
+
+    for (i32 i = 0; i < this->m_shape.ndim; ++i) {
+        if (dim == -1) {
+            if (m_shape.shape[i] == 1) {
+                continue;
+            }
+        } else {
+            if (i == static_cast<i32>(dim)) {
+                CXM_ASSERT(this->m_shape.shape[i] == 1, "Can only squeeze a dimension of size 1.");
+                continue;
+            }
+        }
+
+        output.m_shape.shape[output.m_shape.ndim] = this->m_shape.shape[i];
+        output.m_shape.stride[output.m_shape.ndim] = this->m_shape.stride[i];
+        output.m_shape.ndim++;
+    }
+
+    return output;
+}
+
+Tensor Tensor::unsqueeze(i64 dim) const {
+    if (dim < 0) dim += this->m_shape.ndim + 1;
+    CXM_ASSERT(dim >= 0 && dim <= this->m_shape.ndim, "Unsqueeze dimension out of range.");
+    CXM_ASSERT(this->m_shape.ndim < CXM_MAX_DIMS, "Max dimensions exceeded.");
+
+    Tensor output(*this);
+    output.m_shape.ndim = this->m_shape.ndim + 1;
+
+    i32 src_idx = 0;
+    for (i32 i = 0; i < output.m_shape.ndim; ++i) {
+        if (i == static_cast<i32>(dim)) {
+            output.m_shape.shape[i] = 1;
+            output.m_shape.stride[i] = (i < output.m_shape.ndim - 1) ? this->m_shape.stride[src_idx] : 1;
+        } else {
+            output.m_shape.shape[i] = this->m_shape.shape[src_idx];
+            output.m_shape.stride[i] = this->m_shape.stride[src_idx];
+            src_idx++;
+        }
+    }
+
+    return output;
+}
+
+Tensor Tensor::contiguous() const {
+    return {this->shape(), this->storage_, this->m_require};
+}
+
+Tensor Tensor::detach() const {
+    Tensor output(*this);
+    output.flow_ = nullptr;
+    output.gradient_ = nullptr;
+    output.m_require = false;
+    return output;
+}
+
+Tensor Tensor::clone() const {
+    Tensor output;
+    output.m_shape = this->m_shape;
+    output.storage_ = std::make_shared<TensorStorage>(this->storage_->clone());
+    output.m_require = this->m_require;
+    if (this->m_require) {
+        output.gradient_ = std::make_shared<Tensor>(this->gradient_->clone());
+    }
+    return output;
+}
+
+Tensor &Tensor::grad() {
+    CXM_ASSERT(this->gradient_ == nullptr, "Gradient is null");
+    return *this->gradient_;
+}
+
+const Tensor &Tensor::grad() const {
+    CXM_ASSERT(this->gradient_ == nullptr, "Gradient is null");
+    return *this->gradient_;
+}
+
+meta::GradientPacked Tensor::pack() const {
+    return {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_require};
+}
+
+Tensor::Tensor(const std::span<const i64> &_shape, const std::shared_ptr<TensorStorage> &_storage, const bool _requires_grad) : m_shape(_shape), m_require(_requires_grad) {
+    this->storage_ = _storage;
 }

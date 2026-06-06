@@ -78,6 +78,8 @@ add_library(CortexMind STATIC
         ../source/CortexMind/framework/Engine/IX/TensorInit/init.cpp
         ../source/CortexMind/framework/Engine/IX/TensorReduce/reduce.cpp
         ../source/CortexMind/framework/Engine/IX/TensorOp/op.cpp
+        ../source/CortexMind/framework/Engine/IX/TensorWise/wise.cpp
+        ../source/CortexMind/framework/Engine/AVX2/compare.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)

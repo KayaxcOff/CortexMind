@@ -352,8 +352,8 @@ namespace cortex::_fw::ops {
      * Returns boolean result unlike other comparison functors.
      */
     struct Equal {
-        __device__ __forceinline__ bool operator()(const f32 Xx, const f32 Xy) const {
-            return Xx == Xy;
+        __device__ __forceinline__ f32 operator()(const f32 Xx, const f32 Xy) const {
+            return Xx == Xy ? 1.0f : 0.0f;
         }
     };
 
