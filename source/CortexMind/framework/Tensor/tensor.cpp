@@ -4,8 +4,10 @@
 
 #include "CortexMind/framework/Tensor/tensor.hpp"
 #include <CortexMind/framework/Engine/IX/TensorInit/init.hpp>
+#include <CortexMind/framework/Engine/IX/TensorOp/op.hpp>
 #include <CortexMind/framework/Engine/IX/TensorReduce/reduce.hpp>
 #include <CortexMind/framework/Engine/IX/TensorWise/wise.hpp>
+#include <CortexMind/framework/Engine/IX/scalar.hpp>
 #if CXM_IS_CUDA_AVAILABLE
     #include <CortexMind/framework/Memory/transform.cuh>
 #else //#if CXM_IS_CUDA_AVAILABLE
@@ -806,4 +808,99 @@ Tensor Tensor::erf() const {
     ix::TensorWise::erf(this->storage_.get(), output.storage_.get());
 
     return output;
+}
+
+Tensor Tensor::inv() const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::TensorWise::inverse(this->storage_.get(), output.storage_.get());
+
+    return output;
+}
+
+Tensor Tensor::slice(i64 dim, i64 start, i64 end) const {
+
+}
+
+Tensor Tensor::clamp(const f32 min, const f32 max) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::TensorWise::clamp(this->storage_.get(), min, max, output.storage_.get());
+
+    return output;
+}
+
+Tensor Tensor::add(const Tensor &other) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::TensorOp::add(this->storage_.get(), this->m_shape, other.storage_.get(), other.m_shape, output.storage_.get(), output.m_shape);
+
+    return output;
+}
+
+Tensor Tensor::sub(const Tensor &other) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::TensorOp::sub(this->storage_.get(), this->m_shape, other.storage_.get(), other.m_shape, output.storage_.get(), output.m_shape);
+
+    return output;
+}
+
+Tensor Tensor::mul(const Tensor &other) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::TensorOp::mul(this->storage_.get(), this->m_shape, other.storage_.get(), other.m_shape, output.storage_.get(), output.m_shape);
+
+    return output;
+}
+
+Tensor Tensor::div(const Tensor &other) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::TensorOp::div(this->storage_.get(), this->m_shape, other.storage_.get(), other.m_shape, output.storage_.get(), output.m_shape);
+
+    return output;
+}
+
+Tensor Tensor::add(const f32 value) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::ScalarOp::add(this->storage_.get(), value, output.storage_.get(), this->len());
+
+    return output;
+
+}
+
+Tensor Tensor::sub(const f32 value) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::ScalarOp::sub(this->storage_.get(), value, output.storage_.get(), this->len());
+
+    return output;
+}
+
+Tensor Tensor::mul(const f32 value) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::ScalarOp::mul(this->storage_.get(), value, output.storage_.get(), this->len());
+
+    return output;
+}
+
+Tensor Tensor::div(const f32 value) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::ScalarOp::div(this->storage_.get(), value, output.storage_.get(), this->len());
+
+    return output;
+}
+
+Tensor Tensor::to(const DeviceType _device) {
+    this->storage_->SetDevice(_device);
+
+    if (this->gradient_) {
+        this->gradient_->storage_->SetDevice(_device);
+    }
+
+    return *this;
 }

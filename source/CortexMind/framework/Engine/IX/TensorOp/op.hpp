@@ -19,6 +19,8 @@ namespace cortex::_fw::ix {
         static void sub(TensorStorage* Xx, const TensorShape& shape_x, const TensorStorage* __restrict Xy, const TensorShape& shape_y);
         static void mul(TensorStorage* Xx, const TensorShape& shape_x, const TensorStorage* __restrict Xy, const TensorShape& shape_y);
         static void div(TensorStorage* Xx, const TensorShape& shape_x, const TensorStorage* __restrict Xy, const TensorShape& shape_y);
+
+        static void matmul(const TensorStorage* __restrict Xx, const TensorShape& shape_x, const TensorStorage* __restrict Xy, const TensorShape& shape_y, TensorStorage* __restrict Xz, const TensorShape& shape_z);
     };
 } //namespace cortex::_fw::ix
 
