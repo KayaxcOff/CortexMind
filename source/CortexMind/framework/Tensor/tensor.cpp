@@ -15,7 +15,7 @@
 #endif //#if CXM_IS_CUDA_AVAILABLE #else
 #include <CortexMind/framework/Tools/err.hpp>
 #include <CortexMind/framework/Tools/tensor_meta.hpp>
-#include <numeric>
+#include <bitset>
 
 using namespace cortex::_fw::sys;
 using namespace cortex::_fw;
@@ -134,14 +134,19 @@ void Tensor::randn() const {
     ix::TensorInit::rand(this->storage_.get());
 }
 
-void Tensor::require_grad() {
-    CXM_WARN(this->m_require == true, "Gradient is already required");
+void Tensor::require() {
+    CXM_WARN(this->m_require == true, "Gradient already is required");
     this->m_require = true;
 
     if (this->gradient_ == nullptr) {
         this->gradient_ = std::make_shared<Tensor>(this->shape(), this->device());
         this->gradient_->zero();
     }
+}
+
+void Tensor::unrequire() {
+    CXM_WARN(this->m_require == false, "Gradient already is not required");
+    this->m_require = false;
 }
 
 void Tensor::uniform(const f32 min, const f32 max) const {
@@ -197,21 +202,24 @@ Tensor Tensor::mean() const {
     return output;
 }
 
-Tensor Tensor::mean(i64 dim, const bool keep_dim) const {
+Tensor Tensor::mean(const std::initializer_list<i64> dims, const bool keep_dim) const {
     const i64 ndim_actual = this->m_shape.ndim;
-    if (dim < 0) {
-        dim += ndim_actual;
+
+    std::bitset<CXM_MAX_DIMS> reduce_mask;
+    for (auto item : dims) {
+        if (item < 0) item += ndim_actual;
+        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
+        reduce_mask.set(item);
     }
-    CXM_ASSERT(dim >= 0 && dim < ndim_actual, "Dimension out of range");
 
     size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dim, outer_size, dim_size, inner_size);
+    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
 
     std::array<i64, CXM_MAX_DIMS> new_shape_array{};
     size_t new_ndim = 0;
 
     for (i64 i = 0; i < ndim_actual; ++i) {
-        if (i == dim) {
+        if (reduce_mask.test(i)) {
             if (keep_dim) {
                 new_shape_array[new_ndim++] = 1;
             }
@@ -226,11 +234,9 @@ Tensor Tensor::mean(i64 dim, const bool keep_dim) const {
     }
 
     const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::mean(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
-
     return output;
 }
 
@@ -242,21 +248,23 @@ Tensor Tensor::variance() const {
     return output;
 }
 
-Tensor Tensor::variance(i64 dim, const bool keep_dim) const {
+Tensor Tensor::variance(const std::initializer_list<i64> dims, const bool keep_dim) const {
     const i64 ndim_actual = this->m_shape.ndim;
-    if (dim < 0) {
-        dim += ndim_actual;
+    std::bitset<CXM_MAX_DIMS> reduce_mask;
+    for (auto item : dims) {
+        if (item < 0) item += ndim_actual;
+        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
+        reduce_mask.set(item);
     }
-    CXM_ASSERT(dim >= 0 && dim < ndim_actual, "Dimension out of range");
 
     size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dim, outer_size, dim_size, inner_size);
+    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
 
     std::array<i64, CXM_MAX_DIMS> new_shape_array{};
     size_t new_ndim = 0;
 
     for (i64 i = 0; i < ndim_actual; ++i) {
-        if (i == dim) {
+        if (reduce_mask.test(i)) {
             if (keep_dim) {
                 new_shape_array[new_ndim++] = 1;
             }
@@ -271,11 +279,9 @@ Tensor Tensor::variance(i64 dim, const bool keep_dim) const {
     }
 
     const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::var(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
-
     return output;
 }
 
@@ -287,21 +293,23 @@ Tensor Tensor::stdv() const {
     return output;
 }
 
-Tensor Tensor::stdv(i64 dim, const bool keep_dim) const {
+Tensor Tensor::stdv(const std::initializer_list<i64> dims, const bool keep_dim) const {
     const i64 ndim_actual = this->m_shape.ndim;
-    if (dim < 0) {
-        dim += ndim_actual;
+    std::bitset<CXM_MAX_DIMS> reduce_mask;
+    for (auto item : dims) {
+        if (item < 0) item += ndim_actual;
+        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
+        reduce_mask.set(item);
     }
-    CXM_ASSERT(dim >= 0 && dim < ndim_actual, "Dimension out of range");
 
     size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dim, outer_size, dim_size, inner_size);
+    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
 
     std::array<i64, CXM_MAX_DIMS> new_shape_array{};
     size_t new_ndim = 0;
 
     for (i64 i = 0; i < ndim_actual; ++i) {
-        if (i == dim) {
+        if (reduce_mask.test(i)) {
             if (keep_dim) {
                 new_shape_array[new_ndim++] = 1;
             }
@@ -316,11 +324,9 @@ Tensor Tensor::stdv(i64 dim, const bool keep_dim) const {
     }
 
     const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::stdv(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
-
     return output;
 }
 
@@ -332,21 +338,23 @@ Tensor Tensor::norm1() const {
     return output;
 }
 
-Tensor Tensor::norm1(i64 dim, const bool keep_dim) const {
+Tensor Tensor::norm1(const std::initializer_list<i64> dims, const bool keep_dim) const {
     const i64 ndim_actual = this->m_shape.ndim;
-    if (dim < 0) {
-        dim += ndim_actual;
+    std::bitset<CXM_MAX_DIMS> reduce_mask;
+    for (auto item : dims) {
+        if (item < 0) item += ndim_actual;
+        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
+        reduce_mask.set(item);
     }
-    CXM_ASSERT(dim >= 0 && dim < ndim_actual, "Dimension out of range");
 
     size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dim, outer_size, dim_size, inner_size);
+    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
 
     std::array<i64, CXM_MAX_DIMS> new_shape_array{};
     size_t new_ndim = 0;
 
     for (i64 i = 0; i < ndim_actual; ++i) {
-        if (i == dim) {
+        if (reduce_mask.test(i)) {
             if (keep_dim) {
                 new_shape_array[new_ndim++] = 1;
             }
@@ -361,37 +369,35 @@ Tensor Tensor::norm1(i64 dim, const bool keep_dim) const {
     }
 
     const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::norm1(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
-
     return output;
 }
 
 Tensor Tensor::norm2() const {
     Tensor output({1}, this->device(), this->m_require);
-
     ix::TensorReduce::norm2(this->storage_.get(), output.storage_.get());
-
     return output;
 }
 
-Tensor Tensor::norm2(i64 dim, const bool keep_dim) const {
+Tensor Tensor::norm2(const std::initializer_list<i64> dims, const bool keep_dim) const {
     const i64 ndim_actual = this->m_shape.ndim;
-    if (dim < 0) {
-        dim += ndim_actual;
+    std::bitset<CXM_MAX_DIMS> reduce_mask;
+    for (auto item : dims) {
+        if (item < 0) item += ndim_actual;
+        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
+        reduce_mask.set(item);
     }
-    CXM_ASSERT(dim >= 0 && dim < ndim_actual, "Dimension out of range");
 
     size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dim, outer_size, dim_size, inner_size);
+    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
 
     std::array<i64, CXM_MAX_DIMS> new_shape_array{};
     size_t new_ndim = 0;
 
     for (i64 i = 0; i < ndim_actual; ++i) {
-        if (i == dim) {
+        if (reduce_mask.test(i)) {
             if (keep_dim) {
                 new_shape_array[new_ndim++] = 1;
             }
@@ -406,37 +412,35 @@ Tensor Tensor::norm2(i64 dim, const bool keep_dim) const {
     }
 
     const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::norm2(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
-
     return output;
 }
 
 Tensor Tensor::max() const {
     Tensor output({1}, this->device(), this->m_require);
-
     ix::TensorReduce::max(this->storage_.get(), output.storage_.get());
-
     return output;
 }
 
-Tensor Tensor::max(i64 dim, const bool keep_dim) const {
+Tensor Tensor::max(const std::initializer_list<i64> dims, const bool keep_dim) const {
     const i64 ndim_actual = this->m_shape.ndim;
-    if (dim < 0) {
-        dim += ndim_actual;
+    std::bitset<CXM_MAX_DIMS> reduce_mask;
+    for (auto item : dims) {
+        if (item < 0) item += ndim_actual;
+        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
+        reduce_mask.set(item);
     }
-    CXM_ASSERT(dim >= 0 && dim < ndim_actual, "Dimension out of range");
 
     size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dim, outer_size, dim_size, inner_size);
+    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
 
     std::array<i64, CXM_MAX_DIMS> new_shape_array{};
     size_t new_ndim = 0;
 
     for (i64 i = 0; i < ndim_actual; ++i) {
-        if (i == dim) {
+        if (reduce_mask.test(i)) {
             if (keep_dim) {
                 new_shape_array[new_ndim++] = 1;
             }
@@ -451,37 +455,35 @@ Tensor Tensor::max(i64 dim, const bool keep_dim) const {
     }
 
     const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::max(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
-
     return output;
 }
 
 Tensor Tensor::min() const {
     Tensor output({1}, this->device(), this->m_require);
-
     ix::TensorReduce::min(this->storage_.get(), output.storage_.get());
-
     return output;
 }
 
-Tensor Tensor::min(i64 dim, const bool keep_dim) const {
+Tensor Tensor::min(const std::initializer_list<i64> dims, const bool keep_dim) const {
     const i64 ndim_actual = this->m_shape.ndim;
-    if (dim < 0) {
-        dim += ndim_actual;
+    std::bitset<CXM_MAX_DIMS> reduce_mask;
+    for (auto item : dims) {
+        if (item < 0) item += ndim_actual;
+        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
+        reduce_mask.set(item);
     }
-    CXM_ASSERT(dim >= 0 && dim < ndim_actual, "Dimension out of range");
 
     size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dim, outer_size, dim_size, inner_size);
+    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
 
     std::array<i64, CXM_MAX_DIMS> new_shape_array{};
     size_t new_ndim = 0;
 
     for (i64 i = 0; i < ndim_actual; ++i) {
-        if (i == dim) {
+        if (reduce_mask.test(i)) {
             if (keep_dim) {
                 new_shape_array[new_ndim++] = 1;
             }
@@ -496,37 +498,35 @@ Tensor Tensor::min(i64 dim, const bool keep_dim) const {
     }
 
     const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::min(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
-
     return output;
 }
 
 Tensor Tensor::sum() const {
     Tensor output({1}, this->device(), this->m_require);
-
     ix::TensorReduce::sum(this->storage_.get(), output.storage_.get());
-
     return output;
 }
 
-Tensor Tensor::sum(i64 dim, const bool keep_dim) const {
+Tensor Tensor::sum(const std::initializer_list<i64> dims, const bool keep_dim) const {
     const i64 ndim_actual = this->m_shape.ndim;
-    if (dim < 0) {
-        dim += ndim_actual;
+    std::bitset<CXM_MAX_DIMS> reduce_mask;
+    for (auto item : dims) {
+        if (item < 0) item += ndim_actual;
+        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
+        reduce_mask.set(item);
     }
-    CXM_ASSERT(dim >= 0 && dim < ndim_actual, "Dimension out of range");
 
     size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dim, outer_size, dim_size, inner_size);
+    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
 
     std::array<i64, CXM_MAX_DIMS> new_shape_array{};
     size_t new_ndim = 0;
 
     for (i64 i = 0; i < ndim_actual; ++i) {
-        if (i == dim) {
+        if (reduce_mask.test(i)) {
             if (keep_dim) {
                 new_shape_array[new_ndim++] = 1;
             }
@@ -541,37 +541,35 @@ Tensor Tensor::sum(i64 dim, const bool keep_dim) const {
     }
 
     const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::sum(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
-
     return output;
 }
 
 Tensor Tensor::argmax() const {
     Tensor output({1}, this->device(), this->m_require);
-
     ix::TensorReduce::argmax(this->storage_.get(), output.m_shape.shape.data());
-
     return output;
 }
 
-Tensor Tensor::argmax(i64 dim, const bool keep_dim) const {
+Tensor Tensor::argmax(const std::initializer_list<i64> dims, const bool keep_dim) const {
     const i64 ndim_actual = this->m_shape.ndim;
-    if (dim < 0) {
-        dim += ndim_actual;
+    std::bitset<CXM_MAX_DIMS> reduce_mask;
+    for (auto item : dims) {
+        if (item < 0) item += ndim_actual;
+        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
+        reduce_mask.set(item);
     }
-    CXM_ASSERT(dim >= 0 && dim < ndim_actual, "Dimension out of range");
 
     size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dim, outer_size, dim_size, inner_size);
+    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
 
     std::array<i64, CXM_MAX_DIMS> new_shape_array{};
     size_t new_ndim = 0;
 
     for (i64 i = 0; i < ndim_actual; ++i) {
-        if (i == dim) {
+        if (reduce_mask.test(i)) {
             if (keep_dim) {
                 new_shape_array[new_ndim++] = 1;
             }
@@ -586,37 +584,35 @@ Tensor Tensor::argmax(i64 dim, const bool keep_dim) const {
     }
 
     const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::argmax(this->storage_.get(), output.m_shape.shape.data(), outer_size, dim_size, inner_size);
-
     return output;
 }
 
 Tensor Tensor::argmin() const {
     Tensor output({1}, this->device(), this->m_require);
-
     ix::TensorReduce::argmin(this->storage_.get(), output.m_shape.shape.data());
-
     return output;
 }
 
-Tensor Tensor::argmin(i64 dim, const bool keep_dim) const {
+Tensor Tensor::argmin(const std::initializer_list<i64> dims, const bool keep_dim) const {
     const i64 ndim_actual = this->m_shape.ndim;
-    if (dim < 0) {
-        dim += ndim_actual;
+    std::bitset<CXM_MAX_DIMS> reduce_mask;
+    for (auto item : dims) {
+        if (item < 0) item += ndim_actual;
+        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
+        reduce_mask.set(item);
     }
-    CXM_ASSERT(dim >= 0 && dim < ndim_actual, "Dimension out of range");
 
     size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dim, outer_size, dim_size, inner_size);
+    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
 
     std::array<i64, CXM_MAX_DIMS> new_shape_array{};
     size_t new_ndim = 0;
 
     for (i64 i = 0; i < ndim_actual; ++i) {
-        if (i == dim) {
+        if (reduce_mask.test(i)) {
             if (keep_dim) {
                 new_shape_array[new_ndim++] = 1;
             }
@@ -631,36 +627,11 @@ Tensor Tensor::argmin(i64 dim, const bool keep_dim) const {
     }
 
     const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::argmin(this->storage_.get(), output.m_shape.shape.data(), outer_size, dim_size, inner_size);
-
     return output;
 }
-
-void Tensor::reduce_sizes(i64 dim, size_t &outer_size, size_t &dim_size, size_t &inner_size) const {
-    const i64 ndim_actual = this->m_shape.ndim;
-
-    if (dim < 0) {
-        dim += ndim_actual;
-    }
-
-    CXM_ASSERT(dim >= 0 && dim < ndim_actual, "Dimension out of range");
-
-    outer_size = 1;
-    dim_size = static_cast<size_t>(this->m_shape.shape[dim]);
-    inner_size = 1;
-
-    for (i64 i = 0; i < dim; ++i) {
-        outer_size *= this->m_shape.shape[i];
-    }
-
-    for (i64 i = dim + 1; i < ndim_actual; ++i) {
-        inner_size *= this->m_shape.shape[i];
-    }
-}
-
 
 Tensor Tensor::matmul(const Tensor &other) const {
     Tensor output(this->shape(), this->device(), this->m_require);
@@ -831,7 +802,49 @@ Tensor Tensor::inv() const {
 }
 
 Tensor Tensor::slice(i64 dim, i64 start, i64 end) const {
-    return {};
+    const i64 ndim_actual = this->m_shape.ndim;
+
+    if (dim < 0) {
+        dim += ndim_actual;
+    }
+    CXM_ASSERT(dim < 0 || dim >= ndim_actual, "Dimension out of range");
+
+    const i64 dim_len = this->m_shape.shape[dim];
+
+    if (start < 0) {
+        start += dim_len;
+    }
+    if (end < 0) {
+        end += dim_len;
+    }
+
+    if (start < 0) {
+        start = 0;
+    }
+    if (start > dim_len) {
+        start = dim_len;
+    }
+    if (end < 0) {
+        end = 0;
+    }
+    if (end > dim_len) {
+        end = dim_len;
+    }
+
+    i64 sliced_len = end - start;
+    if (sliced_len < 0) {
+        sliced_len = 0;
+    }
+
+    auto new_shape = this->m_shape;
+
+    new_shape.shape[dim] = sliced_len;
+
+    new_shape.offset = this->m_shape.offset + (start * this->m_shape.stride[dim]);
+
+    Tensor output(new_shape.shape, this->storage_, this->m_require);
+
+    return output;
 }
 
 Tensor Tensor::clamp(const f32 min, const f32 max) const {
@@ -1044,6 +1057,55 @@ const Tensor &Tensor::grad() const {
 
 meta::GradientPacked Tensor::pack() const {
     return {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_require};
+}
+
+void Tensor::reduce_sizes(const std::initializer_list<i64> dims, size_t &outer_size, size_t &dim_size, size_t &inner_size) const {
+    const i64 ndim_actual = this->m_shape.ndim;
+
+    CXM_ASSERT(!this->is_contiguous(), "Tensor must be contiguous for multi-axis reduction.");
+
+    std::bitset<CXM_MAX_DIMS> reduce_mask;
+
+    for (auto item : dims) {
+        if (item < 0) {
+            item += ndim_actual;
+        }
+        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
+        reduce_mask.set(item);
+    }
+
+    if (dims.size() == 0) {
+        outer_size = 1;
+        dim_size = this->len();
+        inner_size = 1;
+        return;
+    }
+
+    outer_size = 1;
+    dim_size = 1;
+    inner_size = 1;
+
+    i32 stage = 0;
+
+    for (i64 i = 0; i < ndim_actual; ++i) {
+        const auto current_dim_len = static_cast<size_t>(this->m_shape.shape[i]);
+
+        if (reduce_mask.test(i)) {
+            if (stage == 0) {
+                stage = 1;
+            } else if (stage == 2) {
+                CXM_ASSERT(true, "Selected reduce dimensions must be contiguous (e.g., {1, 2} is valid, {0, 2} is invalid).");
+            }
+            dim_size *= current_dim_len;
+        } else {
+            if (stage == 0) {
+                outer_size *= current_dim_len;
+            } else {
+                stage = 2;
+                inner_size *= current_dim_len;
+            }
+        }
+    }
 }
 
 Tensor::Tensor(const std::span<const i64> &_shape, const std::shared_ptr<TensorStorage> &_storage, const bool _requires_grad) : m_shape(_shape), m_require(_requires_grad) {

@@ -70,7 +70,8 @@ namespace cortex::_fw {
         void zero() const;
         void ones() const;
         void randn() const;
-        void require_grad();
+        void require();
+        void unrequire();
         void uniform(f32 min = 0.0f, f32 max = 1.0f) const;
         void backward() const;
         void backward(const Tensor& _grad) const;
@@ -82,43 +83,43 @@ namespace cortex::_fw {
         [[nodiscard]]
         Tensor mean() const;
         [[nodiscard]]
-        Tensor mean(i64 dim, bool keep_dim = true) const;
+        Tensor mean(std::initializer_list<i64> dims, bool keep_dim = true) const;
         [[nodiscard]]
         Tensor variance() const;
         [[nodiscard]]
-        Tensor variance(i64 dim, bool keep_dim = true) const;
+        Tensor variance(std::initializer_list<i64> dims, bool keep_dim = true) const;
         [[nodiscard]]
         Tensor stdv() const;
         [[nodiscard]]
-        Tensor stdv(i64 dim, bool keep_dim = true) const;
+        Tensor stdv(std::initializer_list<i64> dims, bool keep_dim = true) const;
         [[nodiscard]]
         Tensor norm1() const;
         [[nodiscard]]
-        Tensor norm1(i64 dim, bool keep_dim = true) const;
+        Tensor norm1(std::initializer_list<i64> dims, bool keep_dim = true) const;
         [[nodiscard]]
         Tensor norm2() const;
         [[nodiscard]]
-        Tensor norm2(i64 dim, bool keep_dim = true) const;
+        Tensor norm2(std::initializer_list<i64> dims, bool keep_dim = true) const;
         [[nodiscard]]
         Tensor max() const;
         [[nodiscard]]
-        Tensor max(i64 dim, bool keep_dim = true) const;
+        Tensor max(std::initializer_list<i64> dims, bool keep_dim = true) const;
         [[nodiscard]]
         Tensor min() const;
         [[nodiscard]]
-        Tensor min(i64 dim, bool keep_dim = true) const;
+        Tensor min(std::initializer_list<i64> dims, bool keep_dim = true) const;
         [[nodiscard]]
         Tensor sum() const;
         [[nodiscard]]
-        Tensor sum(i64 dim, bool keep_dim = true) const;
+        Tensor sum(std::initializer_list<i64> dims, bool keep_dim = true) const;
         [[nodiscard]]
         Tensor argmax() const;
         [[nodiscard]]
-        Tensor argmax(i64 dim, bool keep_dim = true) const;
+        Tensor argmax(std::initializer_list<i64> dims, bool keep_dim = true) const;
         [[nodiscard]]
         Tensor argmin() const;
         [[nodiscard]]
-        Tensor argmin(i64 dim, bool keep_dim = true) const;
+        Tensor argmin(std::initializer_list<i64> dims, bool keep_dim = true) const;
         [[nodiscard]]
         Tensor matmul(const Tensor& other) const;
         [[nodiscard]]
@@ -250,7 +251,7 @@ namespace cortex::_fw {
 
         bool m_require;
 
-        void reduce_sizes(i64 dim, size_t& outer_size, size_t& dim_size, size_t& inner_size) const;
+        void reduce_sizes(std::initializer_list<i64> dims, size_t& outer_size, size_t& dim_size, size_t& inner_size) const;
 
         Tensor(const std::span<const i64>& _shape, const std::shared_ptr<TensorStorage>& _storage, bool _requires_grad = false);
     };
