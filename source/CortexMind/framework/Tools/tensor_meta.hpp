@@ -28,7 +28,7 @@ namespace cortex::_fw {
      * @note Returns empty vector if shape is empty.
      */
     [[nodiscard]]
-    std::array<i64, CXM_MAX_DIMS> compute_stride(const std::array<i64, CXM_MAX_DIMS>& shape, size_t ndim);
+    std::array<i64, CXM_MAX_DIMS> compute_stride(const std::array<i64, CXM_MAX_DIMS>& shape, i32 ndim);
     /**
      * @brief Computes the total number of elements in a tensor.
      *
@@ -37,7 +37,7 @@ namespace cortex::_fw {
      * @return Total number of elements (`product of all dimensions`)
      */
     [[nodiscard]]
-    size_t compute_size(const std::array<i64, CXM_MAX_DIMS>& shape, size_t ndim);
+    size_t compute_size(const std::array<i64, CXM_MAX_DIMS>& shape, i32 ndim);
     [[nodiscard]]
     i64 compute_idx(const std::array<i64, CXM_MAX_DIMS>& strides, const std::array<i64, CXM_MAX_DIMS>& indices, i32 ndim, i64 offset = 0);
     [[nodiscard]]

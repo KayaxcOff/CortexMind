@@ -82,7 +82,6 @@ int main() {
     "Fault_Type_4.000000",
     "Fault_Type_5.000000"
     });
-    //train_df.head();
 
     net::Model model;
 
@@ -94,7 +93,6 @@ int main() {
     model.add<nn::ReLU>();
     model.add<nn::Dropout>();
     model.add<nn::Dense>(16, 6);
-    //model.add<nn::Softmax>();
 
     model.compile<loss::CategoricalCrossEntropyWithLogit, opt::Adam, metric::Accuracy>();
     model.summary();
@@ -121,7 +119,6 @@ Dense(32, 16)                 Train
 ReLU                          Train
 Dropout(0.100000)             Train
 Dense(16, 6)                  Train
-Softmax                       Train
 ==================================================
 Is compiled   : Yes
 Loss Function : CCEWithLogit
@@ -129,11 +126,7 @@ Optimizer     : Adam(0.001000)
 Metric        : Accuracy
 Total Params  : 3286
 ==================================================
-Epoch 0     | Loss: 1.799956 | Accuracy: 0.150667
-Epoch 50    | Loss: 1.436035 | Accuracy: 0.695333
-Epoch 100   | Loss: 1.134546 | Accuracy: 0.966667
-Epoch 150   | Loss: 1.077203 | Accuracy: 0.984000
-Epoch 200   | Loss: 1.064484 | Accuracy: 0.990000
+[ERROR] [CortexMind\framework\Engine\IX\TensorInit\init.cpp | 160] Storage is invalid
 
-Process finished with exit code 0
+Process finished with exit code 1
 */

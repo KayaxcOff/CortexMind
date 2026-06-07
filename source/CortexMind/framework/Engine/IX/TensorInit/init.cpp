@@ -46,9 +46,7 @@ void TensorInit::rand(TensorStorage *x) {
                 const avx2::vec8f v2 = avx2::load(u2);
 
                 const avx2::vec8f v3 = avx2::log(v1);
-
                 const avx2::vec8f v4 = avx2::mul(vec_minus_two, v3);
-
                 const avx2::vec8f v5   = avx2::sqrt(v4);
 
                 const avx2::vec8f v_theta = avx2::mul(vec_two_pi, v2);
@@ -70,11 +68,9 @@ void TensorInit::rand(TensorStorage *x) {
                 }
             }
         } else {
-            const curandGenerator_t gen = runtime::Curand::instance().rand_handle;
-
+            curandGenerator_t gen = runtime::Curand::instance().rand_handle;
             const curandStatus_t status = curandGenerateNormal(gen, x->data(), num, 0.0f, 1.0f);
-
-            CXM_ASSERT(status != CURAND_STATUS_SUCCESS, "curandGenerateNormal() failed to execute on GPU");
+            CXM_ASSERT(status != CURAND_STATUS_SUCCESS, "curandGenerateNormal() GPU'da başarısız");
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
         std::mt19937 generator(static_cast<unsigned int>(0.1f));
@@ -99,9 +95,7 @@ void TensorInit::rand(TensorStorage *x) {
             const avx2::vec8f v2 = avx2::load(u2);
 
             const avx2::vec8f v3 = avx2::log(v1);
-
             const avx2::vec8f v4 = avx2::mul(vec_minus_two, v3);
-
             const avx2::vec8f v5   = avx2::sqrt(v4);
 
             const avx2::vec8f v_theta = avx2::mul(vec_two_pi, v2);
@@ -128,36 +122,34 @@ void TensorInit::rand(TensorStorage *x) {
 void TensorInit::uniform(TensorStorage *x, const f32 min, const f32 max) {
     CXM_ASSERT(x == nullptr, "Storage is null");
     CXM_ASSERT(!x->isValid(), "Storage is invalid");
-    CXM_ASSERT(x->isEmpty(), "Storage is empty");
 
     const size_t num = x->size();
 
     #if CXM_IS_CUDA_AVAILABLE
-    if (x->device() == DeviceType::kHOST) {
-        thread_local std::mt19937 rng{std::random_device{}()};
-        std::uniform_real_distribution dist(min, max);
-        for (size_t i = 0; i < num; ++i) {
-            x->data()[i] = dist(rng);
-        }
-    } else {
-        // cuRAND [0, 1) üretir, sonra [min, max]'a scale ederiz
-        CXM_ASSERT(
-            curandGenerateUniform(runtime::Curand::instance().rand_handle, x->data(), num)
-            != CURAND_STATUS_SUCCESS,
-            "curandGenerateUniform() failed"
-        );
+        if (x->device() == DeviceType::kHOST) {
+            thread_local std::mt19937 rng{std::random_device{}()};
+            std::uniform_real_distribution dist(min, max);
+            for (size_t i = 0; i < num; ++i) {
+                x->data()[i] = dist(rng);
+            }
+        } else {
+            CXM_ASSERT(
+                curandGenerateUniform(runtime::Curand::instance().rand_handle, x->data(), num)
+                != CURAND_STATUS_SUCCESS,
+                "curandGenerateUniform() başarısız"
+            );
 
-        if (const f32 range = max - min; range != 1.0f) {
-            cuda::ScalarKernel::mul(x->data(), range, num);
+            if (const f32 range = max - min; range != 1.0f) {
+                cuda::ScalarKernel::mul(x->data(), range, num);
+            }
+            if (min != 0.0f) {
+                cuda::ScalarKernel::add(x->data(), min, num);
+            }
         }
-        if (min != 0.0f) {
-            cuda::ScalarKernel::add(x->data(), min, num);
-        }
-    }
     #else //#if CXM_IS_CUDA_AVAILABLE
         thread_local std::mt19937 rng{std::random_device{}()};
         std::uniform_real_distribution dist(min, max);
-        for (size_t i = 0; i < N; ++i) {
+        for (size_t i = 0; i < num; ++i) {
             x->data()[i] = dist(rng);
         }
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
@@ -166,7 +158,6 @@ void TensorInit::uniform(TensorStorage *x, const f32 min, const f32 max) {
 void TensorInit::fill(TensorStorage *x, const f32 value) {
     CXM_ASSERT(x == nullptr, "Storage is null");
     CXM_ASSERT(!x->isValid(), "Storage is invalid");
-    CXM_ASSERT(x->isEmpty(), "Storage is empty");
 
     const size_t num = x->size();
 
@@ -181,7 +172,7 @@ void TensorInit::fill(TensorStorage *x, const f32 value) {
                 x->data()[i] = value;
             }
         } else {
-
+            //cuda::ScalarKernel::fill(x->data(), value, num);
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
         const auto val = avx2::set1(value);

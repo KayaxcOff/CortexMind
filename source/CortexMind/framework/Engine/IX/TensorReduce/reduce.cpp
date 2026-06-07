@@ -24,18 +24,17 @@ void TensorReduce::sum(const TensorStorage *Xx, TensorStorage *Xz) {
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-    CXM_ASSERT(Xx->size() != Xz->size(), "Size of input Storage and output Storage must be same");
 
     const auto dev = Xz->device();
 
     #if CXM_IS_CUDA_AVAILABLE
         if (dev == DeviceType::kHOST) {
-            avx2::reduce::sum(Xx->data(), Xz->data(), Xz->size());
+            avx2::reduce::sum(Xx->data(), Xz->data(), Xx->size());
         } else {
-            cuda::ReduceOp::sum(Xx->data(), Xz->data(), Xz->size());
+            cuda::ReduceOp::sum(Xx->data(), Xz->data(), Xx->size());
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
-        avx2::reduce::sum(Xx->data(), Xz->data(), Xz->size());
+        avx2::reduce::sum(Xx->data(), Xz->data(), Xx->size());
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
 }
 
@@ -49,7 +48,6 @@ void TensorReduce::sum(const TensorStorage *Xx, TensorStorage *Xz, const size_t 
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-    CXM_ASSERT(Xx->size() != Xz->size(), "Size of input Storage and output Storage must be same");
 
     const auto dev = Xz->device();
 
@@ -74,15 +72,14 @@ void TensorReduce::mean(const TensorStorage *Xx, TensorStorage *Xz) {
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-    CXM_ASSERT(Xx->size() != Xz->size(), "Size of input Storage and output Storage must be same");
 
     const auto dev = Xz->device();
 
     #if CXM_IS_CUDA_AVAILABLE
         if (dev == DeviceType::kHOST) {
-            avx2::reduce::mean(Xx->data(), Xz->data(), Xz->size());
+            avx2::reduce::mean(Xx->data(), Xz->data(), Xx->size());
         } else {
-            cuda::ReduceOp::mean(Xx->data(), Xz->data(), Xz->size());
+            cuda::ReduceOp::mean(Xx->data(), Xz->data(), Xx->size());
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
         avx2::reduce::mean(Xx->data(), Xz->data(), Xz->size());
@@ -99,7 +96,6 @@ void TensorReduce::mean(const TensorStorage *Xx, TensorStorage *Xz, const size_t
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-    CXM_ASSERT(Xx->size() != Xz->size(), "Size of input Storage and output Storage must be same");
 
     const auto dev = Xz->device();
 
@@ -124,18 +120,17 @@ void TensorReduce::var(const TensorStorage *Xx, TensorStorage *Xz) {
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-    CXM_ASSERT(Xx->size() != Xz->size(), "Size of input Storage and output Storage must be same");
 
     const auto dev = Xz->device();
 
     #if CXM_IS_CUDA_AVAILABLE
         if (dev == DeviceType::kHOST) {
-            avx2::reduce::var(Xx->data(), Xz->data(), Xz->size());
+            avx2::reduce::var(Xx->data(), Xz->data(), Xx->size());
         } else {
-            cuda::ReduceOp::var(Xx->data(), Xz->data(), Xz->size());
+            cuda::ReduceOp::var(Xx->data(), Xz->data(), Xx->size());
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
-        avx2::reduce::var(Xx->data(), Xz->data(), Xz->size());
+        avx2::reduce::var(Xx->data(), Xz->data(), Xx->size());
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
 }
 
@@ -149,7 +144,6 @@ void TensorReduce::var(const TensorStorage *Xx, TensorStorage *Xz, const size_t 
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-    CXM_ASSERT(Xx->size() != Xz->size(), "Size of input Storage and output Storage must be same");
 
     const auto dev = Xz->device();
 
@@ -174,15 +168,14 @@ void TensorReduce::stdv(const TensorStorage *Xx, TensorStorage *Xz) {
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-    CXM_ASSERT(Xx->size() != Xz->size(), "Size of input Storage and output Storage must be same");
 
     const auto dev = Xz->device();
 
     #if CXM_IS_CUDA_AVAILABLE
         if (dev == DeviceType::kHOST) {
-            avx2::reduce::stdv(Xx->data(), Xz->data(), Xz->size());
+            avx2::reduce::stdv(Xx->data(), Xz->data(), Xx->size());
         } else {
-            cuda::ReduceOp::stdv(Xx->data(), Xz->data(), Xz->size());
+            cuda::ReduceOp::stdv(Xx->data(), Xz->data(), Xx->size());
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
         avx2::reduce::stdv(Xx->data(), Xz->data(), Xz->size());
@@ -199,7 +192,6 @@ void TensorReduce::stdv(const TensorStorage *Xx, TensorStorage *Xz, size_t outer
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-    CXM_ASSERT(Xx->size() != Xz->size(), "Size of input Storage and output Storage must be same");
 
     const auto dev = Xz->device();
 
@@ -224,18 +216,17 @@ void TensorReduce::min(const TensorStorage *Xx, TensorStorage *Xz) {
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-    CXM_ASSERT(Xx->size() != Xz->size(), "Size of input Storage and output Storage must be same");
 
     const auto dev = Xz->device();
 
     #if CXM_IS_CUDA_AVAILABLE
         if (dev == DeviceType::kHOST) {
-            avx2::reduce::min(Xx->data(), Xz->data(), Xz->size());
+            avx2::reduce::min(Xx->data(), Xz->data(), Xx->size());
         } else {
             //cuda::ReduceOp::min(Xx->data(), Xz->data(), Xz->size());
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
-        avx2::reduce::stdv(Xx->data(), Xz->data(), Xz->size());
+        avx2::reduce::stdv(Xx->data(), Xz->data(), Xx->size());
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
 }
 
@@ -274,18 +265,17 @@ void TensorReduce::max(const TensorStorage *Xx, TensorStorage *Xz) {
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-    CXM_ASSERT(Xx->size() != Xz->size(), "Size of input Storage and output Storage must be same");
 
     const auto dev = Xz->device();
 
     #if CXM_IS_CUDA_AVAILABLE
         if (dev == DeviceType::kHOST) {
-            avx2::reduce::max(Xx->data(), Xz->data(), Xz->size());
+            avx2::reduce::max(Xx->data(), Xz->data(), Xx->size());
         } else {
-            //cuda::ReduceOp::max(Xx->data(), Xz->data(), Xz->size());
+            //cuda::ReduceOp::max(Xx->data(), Xz->data(), Xx->size());
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
-        avx2::reduce::max(Xx->data(), Xz->data(), Xz->size());
+        avx2::reduce::max(Xx->data(), Xz->data(), Xx->size());
     #endif //#if CXM_IS_CUDA_AVAILABLE #else
 }
 
@@ -299,7 +289,6 @@ void TensorReduce::max(const TensorStorage *Xx, TensorStorage *Xz, size_t outer_
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-    CXM_ASSERT(Xx->size() != Xz->size(), "Size of input Storage and output Storage must be same");
 
     const auto dev = Xz->device();
 
@@ -324,13 +313,12 @@ void TensorReduce::norm1(const TensorStorage *Xx, TensorStorage *Xz) {
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-    CXM_ASSERT(Xx->size() != Xz->size(), "Size of input Storage and output Storage must be same");
 
     const auto dev = Xz->device();
 
     #if CXM_IS_CUDA_AVAILABLE
         if (dev == DeviceType::kHOST) {
-            avx2::reduce::norm1(Xx->data(), Xz->data(), Xz->size());
+            avx2::reduce::norm1(Xx->data(), Xz->data(), Xx->size());
         } else {
             //cuda::ReduceOp::norm1(Xx->data(), Xz->data(), Xz->size());
         }
@@ -349,7 +337,6 @@ void TensorReduce::norm1(const TensorStorage *Xx, TensorStorage *Xz, const size_
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-    CXM_ASSERT(Xx->size() != Xz->size(), "Size of input Storage and output Storage must be same");
 
     const auto dev = Xz->device();
 
@@ -374,13 +361,12 @@ void TensorReduce::norm2(const TensorStorage *Xx, TensorStorage *Xz) {
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-    CXM_ASSERT(Xx->size() != Xz->size(), "Size of input Storage and output Storage must be same");
 
     const auto dev = Xz->device();
 
     #if CXM_IS_CUDA_AVAILABLE
         if (dev == DeviceType::kHOST) {
-            avx2::reduce::norm2(Xx->data(), Xz->data(), Xz->size());
+            avx2::reduce::norm2(Xx->data(), Xz->data(), Xx->size());
         } else {
             //cuda::ReduceOp::norm2(Xx->data(), Xz->data(), Xz->size());
         }
@@ -399,7 +385,6 @@ void TensorReduce::norm2(const TensorStorage *Xx, TensorStorage *Xz, const size_
     CXM_ASSERT(Xz->isEmpty(), "Output Storage is empty");
 
     CXM_ASSERT(Xx->device() != Xz->device(), "Input Storage's device is " + as_string(Xx->device()) + " and output Storage's device is " + as_string(Xz->device()));
-    CXM_ASSERT(Xx->size() != Xz->size(), "Size of input Storage and output Storage must be same");
 
     const auto dev = Xz->device();
 

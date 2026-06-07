@@ -46,7 +46,6 @@
 #include <CortexMind/tools/load.hpp>
 #include <CortexMind/tools/math.hpp>
 #include <CortexMind/tools/println.hpp>
-#include <CortexMind/tools/tensor_meta.hpp>
 #include <CortexMind/tools/types.hpp>
 #include <CortexMind/tools/values.hpp>
 #include <CortexMind/tools/version.hpp>

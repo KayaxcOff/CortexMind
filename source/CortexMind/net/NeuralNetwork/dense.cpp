@@ -15,7 +15,7 @@ Dense::Dense(int64 in_dim, int64 out_dim, const DeviceType device) : LayerBase("
     this->weight = tensor({in_dim, out_dim}, device, true);
     this->bias = tensor({1, out_dim}, device, true);
 
-    float64 limit = std::sqrt(6.0 / (static_cast<float64>(in_dim) + static_cast<float64>(out_dim)));
+    const float64 limit = std::sqrt(6.0 / (static_cast<float64>(in_dim) + static_cast<float64>(out_dim)));
 
     this->weight.uniform(-static_cast<float32>(limit), static_cast<float32>(limit));
     this->bias.zero();

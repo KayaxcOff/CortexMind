@@ -62,7 +62,7 @@ tensor Conv2D::forward(const tensor& input) {
                         || weight.has_grad()
                         || bias.has_grad();
     if (need_grad) {
-        output.require_grad();
+        output.require();
         output.SetFlow(std::make_shared<meta::conv2d>(
             input.pack(),
             weight.pack(),

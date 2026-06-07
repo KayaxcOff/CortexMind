@@ -10,7 +10,7 @@
 
 using namespace cortex::_fw;
 
-std::array<i64, 8> cortex::_fw::compute_stride(const std::array<i64, 8> &shape, const size_t ndim) {
+std::array<i64, 8> cortex::_fw::compute_stride(const std::array<i64, 8> &shape, const i32 ndim) {
     std::array<i64, CXM_MAX_DIMS> output{};
 
     if (ndim <= 0) {
@@ -26,12 +26,12 @@ std::array<i64, 8> cortex::_fw::compute_stride(const std::array<i64, 8> &shape, 
     return output;
 }
 
-size_t cortex::_fw::compute_size(const std::array<i64, 8> &shape, const size_t ndim) {
+size_t cortex::_fw::compute_size(const std::array<i64, 8> &shape, const i32 ndim) {
     if (ndim <= 0) {
         return 0;
     }
 
-    return std::accumulate(shape.begin(), shape.begin() + static_cast<long long>(ndim), size_t{1}, std::multiplies());
+    return std::accumulate(shape.begin(), shape.begin() + ndim, size_t{1}, std::multiplies());
 }
 
 i64 cortex::_fw::compute_idx(const std::array<i64, 8> &strides, const std::array<i64, 8> &indices, const i32 ndim, const i64 offset) {

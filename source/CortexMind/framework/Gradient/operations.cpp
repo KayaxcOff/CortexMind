@@ -5,11 +5,58 @@
 #include "CortexMind/framework/Gradient/operations.hpp"
 #include <CortexMind/framework/Engine/IX/convolution.hpp>
 #include <CortexMind/framework/Tensor/tensor.hpp>
-#include <algorithm>
+#include <cmath>
 
 using namespace cortex::_fw::meta;
 using namespace cortex::_fw;
-/*
+
+namespace {
+    std::vector<i64> grad_reduce_dims(const std::span<const i64>& input_shape, const std::span<const i64>& grad_shape) {
+    std::vector<i64> output;
+
+    if (input_shape.size() == grad_shape.size()) {
+        for (size_t d = 0; d < grad_shape.size(); ++d) {
+            if (input_shape[d] == 1 && grad_shape[d] > 1) {
+                output.push_back(static_cast<i64>(d));
+            }
+        }
+    } else if (grad_shape.size() > input_shape.size()) {
+        const i64 offset = static_cast<i64>(grad_shape.size() - input_shape.size());
+
+        for (i64 d = 0; d < offset; ++d) {
+            output.push_back(d);
+        }
+
+        for (i64 d = offset; d < static_cast<i64>(grad_shape.size()); ++d) {
+            if (const i64 input_idx = d - offset; input_shape[input_idx] == 1 && grad_shape[d] > 1) {
+                output.push_back(d);
+            }
+        }
+    }
+
+    return output;
+}
+
+    Tensor broadcast_and_reduce_grad(const Tensor& grad, const std::span<const i64>& target_shape, sys::DeviceType device){
+        const auto grad_shape = grad.shape();
+        const std::vector<i64> reduce_dims = grad_reduce_dims(target_shape, grad_shape);
+
+        if (reduce_dims.empty()) {
+        }
+
+        Tensor output = grad;
+        for (auto it = reduce_dims.rbegin(); it != reduce_dims.rend(); ++it) {
+            output = output.sum({*it}, false);
+        }
+
+        if (reduce_dims.size() == target_shape.size()) {
+            //result = result.reshape({target_shape.begin(), target_shape.end()});
+        }
+
+        return output;
+    }
+} //unnamed namespace
+
 add::add(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("Add") {
     this->tx = new Tensor(_x);
     this->ty = new Tensor(_y);
@@ -21,15 +68,13 @@ add::~add() {
 }
 
 void add::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) {
-        //const auto dims = grad_reduce_dims(this->tx->shape(), _grad.shape());
-        //const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
+    if (this->tx->is_require()) {
+        const Tensor grad_expanded = broadcast_and_reduce_grad(_grad, this->tx->shape(), this->tx->device());
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
-    if (this->ty->has_grad()) {
-        //const auto dims = grad_reduce_dims(this->ty->shape(), _grad.shape());
-        //const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
+    if (this->ty->is_require()) {
+        const Tensor grad_expanded = broadcast_and_reduce_grad(_grad, this->ty->shape(), this->ty->device());
         this->ty->grad() += grad_expanded;
         this->ty->backward(grad_expanded);
     }
@@ -46,17 +91,15 @@ sub::~sub() {
 }
 
 void sub::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) {
-        //const auto dims = grad_reduce_dims(this->tx->shape(), _grad.shape());
-        //const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
+    if (this->tx->is_require()) {
+        const Tensor grad_expanded = broadcast_and_reduce_grad(_grad, this->tx->shape(), this->tx->device());
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
-    if (this->ty->has_grad()) {
-        //const auto dims = grad_reduce_dims(this->ty->shape(), _grad.shape());
-        //const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
+    if (this->ty->is_require()) {
+        const Tensor grad_expanded = broadcast_and_reduce_grad(_grad, this->ty->shape(), this->ty->device());
         this->ty->grad() -= grad_expanded;
-        this->ty->backward(grad_expanded.neg());
+        this->ty->backward(grad_expanded);
     }
 }
 
@@ -71,17 +114,15 @@ mul::~mul() {
 }
 
 void mul::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) {
-        const Tensor grad_full = _grad * (*this->ty);
-        const auto dims = grad_reduce_dims(this->tx->shape(), grad_full.shape());
-        const Tensor grad_expanded = dims.empty() ? grad_full : grad_full.sum(dims);
+    if (this->tx->is_require()) {
+        Tensor grad_expanded = _grad * (*this->ty);
+        grad_expanded = broadcast_and_reduce_grad(grad_expanded, this->tx->shape(), this->tx->device());
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
-    if (this->ty->has_grad()) {
-        const Tensor grad_full = _grad * (*this->tx);
-        const auto dims = grad_reduce_dims(this->ty->shape(), grad_full.shape());
-        const Tensor grad_expanded = dims.empty() ? grad_full : grad_full.sum(dims);
+    if (this->ty->is_require()) {
+        Tensor grad_expanded = _grad * (*this->tx);
+        grad_expanded = broadcast_and_reduce_grad(grad_expanded, this->ty->shape(), this->ty->device());
         this->ty->grad() += grad_expanded;
         this->ty->backward(grad_expanded);
     }
@@ -98,17 +139,15 @@ div::~div() {
 }
 
 void div::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) {
-        const Tensor grad_full = _grad / (*this->ty);
-        const auto dims = grad_reduce_dims(this->tx->shape(), grad_full.shape());
-        const Tensor grad_expanded = dims.empty() ? grad_full : grad_full.sum(dims);
+    if (this->tx->is_require()) {
+        Tensor grad_expanded = _grad / (*this->ty);
+        grad_expanded = broadcast_and_reduce_grad(grad_expanded, this->tx->shape(), this->tx->device());
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
     if (this->ty->has_grad()) {
-        const Tensor grad_full = (_grad * (*this->tx)).neg() / ((*this->ty) * (*this->ty));
-        const auto dims = grad_reduce_dims(this->ty->shape(), grad_full.shape());
-        const Tensor grad_expanded = dims.empty() ? grad_full : grad_full.sum(dims);
+        Tensor grad_expanded = (_grad * (*this->tx)).neg() / this->ty->square();
+        grad_expanded = broadcast_and_reduce_grad(grad_expanded, this->ty->shape(), this->ty->device());
         this->ty->grad() += grad_expanded;
         this->ty->backward(grad_expanded);
     }
@@ -123,8 +162,8 @@ sum::~sum() {
 }
 
 void sum::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
-        Tensor ones(this->tx->shape(), this->tx->device());
+    if (this->tx->is_require()) {
+        const Tensor ones(this->tx->shape(), this->tx->device());
         ones.ones();
 
         const Tensor grad_expanded = _grad * ones;
@@ -157,9 +196,9 @@ void matmul::backward(const Tensor &_grad) {
     }
 }
 
-pow::pow(const GradientPacked &_x, const f32 _exp) : GradientFlow("Pow") {
+pow::pow(const GradientPacked &_x, const f32 exp) : GradientFlow("Pow") {
     this->tx = new Tensor(_x);
-    this->exponent = _exp;
+    this->exp = exp;
 }
 
 pow::~pow() {
@@ -167,8 +206,8 @@ pow::~pow() {
 }
 
 void pow::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
-        const Tensor grad_expanded = _grad * this->tx->pow(this->exponent - 1.0f) * this->exponent;
+    if (this->tx->is_require()) [[likely]] {
+        const Tensor grad_expanded = _grad * (this->tx->pow(this->exp - 1.0f) * this->exp);
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
@@ -183,8 +222,8 @@ sqrt::~sqrt() {
 }
 
 void sqrt::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
-        const Tensor grad_expanded = _grad * (0.5f / this->tx->sqrt());
+    if (this->tx->is_require()) [[likely]] {
+        const Tensor grad_expanded = _grad * (0.5f * this->tx->rsqrt());
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
@@ -199,7 +238,7 @@ exp::~exp() {
 }
 
 void exp::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
+    if (this->tx->is_require()) [[likely]] {
         const Tensor grad_expanded = _grad * this->tx->exp();
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
@@ -215,7 +254,7 @@ log::~log() {
 }
 
 void log::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
+    if (this->tx->is_require()) [[likely]] {
         const Tensor grad_expanded = _grad / (*this->tx);
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
@@ -231,8 +270,8 @@ rsqrt::~rsqrt() {
 }
 
 void rsqrt::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
-        const Tensor grad_expanded = _grad * (-0.5f) / this->tx->pow(1.5f);
+    if (this->tx->is_require()) [[likely]] {
+        const Tensor grad_expanded = _grad * (-0.5f / this->tx->pow(1.5f));
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
@@ -247,7 +286,7 @@ sin::~sin() {
 }
 
 void sin::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
+    if (this->tx->is_require()) [[likely]] {
         const Tensor grad_expanded = _grad * this->tx->cos();
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
@@ -263,8 +302,8 @@ cos::~cos() {
 }
 
 void cos::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
-        const Tensor grad_expanded = _grad * this->tx->sin() * (-1.0f);
+    if (this->tx->is_require()) [[likely]] {
+        const Tensor grad_expanded = _grad * (this->tx->sin() * (-1.0f));
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
@@ -279,12 +318,13 @@ abs::~abs() {
 }
 
 void abs::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
+    if (this->tx->is_require()) [[likely]] {
         const Tensor grad_expanded = _grad * this->tx->sign();
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
 }
+
 neg::neg(const GradientPacked &_x) : GradientFlow("Neg") {
     this->tx = new Tensor(_x);
 }
@@ -294,70 +334,683 @@ neg::~neg() {
 }
 
 void neg::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
+    if (this->tx->is_require()) [[likely]] {
         const Tensor grad_expanded = _grad * (-1.0f);
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
 }
 
-add_scalar::add_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("AddScalar"), scalar(_scalar) {
+scalar_add::scalar_add(const GradientPacked &_x) : GradientFlow("Scalar Add") {
     this->tx = new Tensor(_x);
 }
 
-add_scalar::~add_scalar() {
+scalar_add::~scalar_add() {
     delete this->tx;
 }
 
-void add_scalar::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
+void scalar_add::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) [[likely]] {
         this->tx->grad() += _grad;
         this->tx->backward(_grad);
     }
 }
 
-sub_scalar::sub_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("SubScalar"), scalar(_scalar) {
+scalar_sub::scalar_sub(const GradientPacked &_x) : GradientFlow("Scalar Sub") {
     this->tx = new Tensor(_x);
 }
 
-sub_scalar::~sub_scalar() {
+scalar_sub::~scalar_sub() {
     delete this->tx;
 }
 
-void sub_scalar::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
+void scalar_sub::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) [[likely]] {
         this->tx->grad() += _grad;
         this->tx->backward(_grad);
     }
 }
 
-mul_scalar::mul_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("MulScalar"), scalar(_scalar) {
+scalar_mul::scalar_mul(const GradientPacked &_x, const f32 value) : GradientFlow("Scalar Mul") {
     this->tx = new Tensor(_x);
+    this->value = value;
 }
 
-mul_scalar::~mul_scalar() {
+scalar_mul::~scalar_mul() {
     delete this->tx;
 }
 
-void mul_scalar::backward(const Tensor &_grad) {
-    const Tensor grad_expanded = _grad * this->scalar;
-    if (this->tx->has_grad()) [[likely]] {
+void scalar_mul::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) [[likely]] {
+        const Tensor grad_expanded = _grad * this->value;
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
 }
 
-div_scalar::div_scalar(const GradientPacked &_x, const f32 _scalar) : GradientFlow("DivScalar"), scalar(_scalar) {
+scalar_div::scalar_div(const GradientPacked &_x, const f32 value) : GradientFlow("Scalar Div") {
     this->tx = new Tensor(_x);
+    this->value = value;
 }
 
-div_scalar::~div_scalar() {
+scalar_div::~scalar_div() {
     delete this->tx;
 }
 
-void div_scalar::backward(const Tensor &_grad) {
-    const Tensor grad_expanded = _grad / this->scalar;
-    if (this->tx->has_grad()) [[likely]] {
+void scalar_div::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) [[likely]] {
+        const Tensor grad_expanded = _grad / this->value;
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+reshape::reshape(const GradientPacked &_x, const std::initializer_list<i64> shape) : GradientFlow("Reshape") {
+    this->tx = new Tensor(_x);
+    this->shape = shape;
+}
+
+reshape::~reshape() {
+    delete this->tx;
+}
+
+void reshape::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) [[likely]] {
+        const Tensor grad_expanded = _grad.contiguous().reshape(this->shape);
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+permute::permute(const GradientPacked &_x, const std::initializer_list<i64> dims) : GradientFlow("Permute") {
+    this->tx = new Tensor(_x);
+    this->dims = dims;
+}
+
+permute::~permute() {
+    delete this->tx;
+}
+
+void permute::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) [[likely]] {
+        const size_t ndim = this->dims.size();
+
+        std::array<i64, CXM_MAX_DIMS> inv_dims{};
+
+        size_t idx = 0;
+        for (i64 d : this->dims) {
+            if (d < 0) {
+                d += static_cast<i64>(ndim);
+            }
+            inv_dims[d] = static_cast<i64>(idx++);
+        }
+
+        Tensor grad_expanded;
+        switch (ndim) {
+            case 1: grad_expanded = _grad.permute({inv_dims[0]}); break;
+            case 2: grad_expanded = _grad.permute({inv_dims[0], inv_dims[1]}); break;
+            case 3: grad_expanded = _grad.permute({inv_dims[0], inv_dims[1], inv_dims[2]}); break;
+            case 4: grad_expanded = _grad.permute({inv_dims[0], inv_dims[1], inv_dims[2], inv_dims[3]}); break;
+            case 5: grad_expanded = _grad.permute({inv_dims[0], inv_dims[1], inv_dims[2], inv_dims[3], inv_dims[4]}); break;
+
+            default:
+                CXM_ASSERT(true, "Unsupported dimension size in permute backward");
+        }
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+clamp::clamp(const GradientPacked &_x, const f32 min, const f32 max) : GradientFlow("Clamp") {
+    this->tx = new Tensor(_x);
+    this->min = min;
+    this->max = max;
+}
+
+clamp::~clamp() {
+    delete this->tx;
+}
+
+void clamp::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) [[likely]] {
+        const Tensor lo(this->tx->shape(), this->tx->device(), false);
+        const Tensor hi(this->tx->shape(), this->tx->device(), false);
+        lo.fill(this->min);
+        hi.fill(this->max);
+
+        const Tensor mask = ((*this->tx) > lo) * ((*this->tx) < hi);
+        const Tensor grad_expanded = _grad * mask;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+transpose::transpose(const GradientPacked &_x) : GradientFlow("Transpose") {
+    this->tx = new Tensor(_x);
+}
+
+transpose::~transpose() {
+    delete this->tx;
+}
+
+void transpose::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) [[likely]] {
+        const Tensor grad_expanded = _grad.transpose();
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+slice::slice(const GradientPacked &_x, const i64 dim, const i64 start, const i64 end) : GradientFlow("Slice") {
+    this->tx = new Tensor(_x);
+    this->dim = dim;
+    this->start = start;
+    this->end = end;
+}
+
+slice::~slice() {
+    delete this->tx;
+}
+
+void slice::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) [[likely]] {
+        const Tensor grad_expanded(this->tx->shape(), this->tx->device(), false);
+        grad_expanded.zero();
+
+        //grad_expanded.slice_assign(this->dim, this->start, this->end, _grad);
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+mean::mean(const GradientPacked &_x) : GradientFlow("Mean") {
+    this->tx = new Tensor(_x);
+}
+
+mean::~mean() {
+    delete this->tx;
+}
+
+void mean::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) [[likely]] {
+        const Tensor ones(this->tx->shape(), this->tx->device());
+        ones.ones();
+
+        const f32 N = static_cast<f32>(this->tx->len());
+        const Tensor grad_expanded = _grad * (ones / N);
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+sum_dim::sum_dim(const GradientPacked &_x, const std::initializer_list<i64> dims, const bool keep_dim) : GradientFlow("SumDim") {
+    this->tx = new Tensor(_x);
+    this->dims = dims;
+    this->keep_dim = keep_dim;
+}
+
+sum_dim::~sum_dim() {
+    delete this->tx;
+}
+
+void sum_dim::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        Tensor grad_reshaped = _grad;
+
+        if (!this->keep_dim) {
+            for (const auto item : this->dims) {
+                grad_reshaped = grad_reshaped.unsqueeze(item);
+            }
+        }
+
+        const Tensor ones(this->tx->shape(), this->tx->device(), false);
+        ones.ones();
+
+        const Tensor grad_expanded = grad_reshaped * ones;
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+mean_dim::mean_dim(const GradientPacked &_x, const std::initializer_list<i64> dims, const bool keep_dim): GradientFlow("MeanDim") {
+    this->tx = new Tensor(_x);
+    this->dims = dims;
+    this->keep_dim = keep_dim;
+}
+
+mean_dim::~mean_dim() {
+    delete this->tx;
+}
+
+void mean_dim::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        Tensor grad_reshaped = _grad;
+        if (!this->keep_dim) {
+            for (const auto item : this->dims) {
+                grad_reshaped = grad_reshaped.unsqueeze(item);
+            }
+        }
+
+        i64 total_elements = 1;
+        for (const auto item : this->dims) {
+            total_elements *= this->tx->shape()[item];
+        }
+
+        const Tensor ones(this->tx->shape(), this->tx->device(), false);
+        ones.ones();
+
+        const Tensor grad_expanded = grad_reshaped * (ones / static_cast<f32>(total_elements));
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+variance_dim::variance_dim(const GradientPacked &_x, const std::initializer_list<i64> dims, const bool keep_dim) : GradientFlow("VarianceDim") {
+    this->tx = new Tensor(_x);
+    this->dims = dims;
+    this->keep_dim = keep_dim;
+}
+
+variance_dim::~variance_dim() {
+    delete this->tx;
+}
+
+void variance_dim::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        const Tensor mean_x = this->tx->mean(this->dims, true);
+        const Tensor diff = (*this->tx) - mean_x;
+
+        i64 N = 1;
+        for (const auto item : this->dims) {
+            N *= this->tx->shape()[item];
+        }
+
+        const Tensor grad_factor = diff * (2.0f / static_cast<f32>(N));
+
+        Tensor grad_reshaped = _grad;
+        if (!this->keep_dim) {
+            for (const auto item : this->dims) {
+                grad_reshaped = grad_reshaped.unsqueeze(item);
+            }
+        }
+
+        const Tensor grad_expanded = grad_reshaped * grad_factor;
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+stdv_dim::stdv_dim(const GradientPacked &_x, const GradientPacked& output, const std::initializer_list<i64> dims, const bool keep_dim) : GradientFlow("StdvDim") {
+    this->tx = new Tensor(_x);
+    this->cached_output = new Tensor(output);
+    this->dims = dims;
+    this->keep_dim = keep_dim;
+}
+
+stdv_dim::~stdv_dim() {
+    delete this->tx;
+    delete this->cached_output;
+}
+
+void stdv_dim::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        const Tensor mean_x = this->tx->mean(this->dims, true);
+        const Tensor diff = (*this->tx) - mean_x;
+
+        i64 N = 1;
+        for (const auto item : this->dims) {
+            N *= this->tx->shape()[item];
+        }
+
+        const Tensor grad_factor = diff / ((*this->cached_output) * static_cast<f32>(N));
+
+        Tensor grad_reshaped = _grad;
+        if (!this->keep_dim) {
+            for (const auto item : this->dims) {
+                grad_reshaped = grad_reshaped.unsqueeze(item);
+            }
+        }
+
+        const Tensor grad_expanded = grad_reshaped * grad_factor;
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+norm1_dim::norm1_dim(const GradientPacked &_x, const std::initializer_list<i64> dims, const bool keep_dim) : GradientFlow("Norm1D") {
+    this->tx = new Tensor(_x);
+    this->dims = dims;
+    this->keep_dim = keep_dim;
+}
+
+norm1_dim::~norm1_dim() {
+    delete this->tx;
+}
+
+void norm1_dim::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        const Tensor grad_factor = this->tx->sign();
+
+        Tensor grad_reshaped = _grad;
+        if (!this->keep_dim) {
+            for (const auto item : this->dims) {
+                grad_reshaped = grad_reshaped.unsqueeze(item);
+            }
+        }
+
+        const Tensor grad_expanded = grad_reshaped * grad_factor;
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+norm2_dim::norm2_dim(const GradientPacked &_x, const GradientPacked& output, const std::initializer_list<i64> dims, const bool keep_dim) : GradientFlow("Norm2D") {
+    this->tx = new Tensor(_x);
+    this->cached_output = new Tensor(output);
+    this->dims = dims;
+    this->keep_dim = keep_dim;
+}
+
+norm2_dim::~norm2_dim() {
+    delete this->tx;
+    delete this->cached_output;
+}
+
+void norm2_dim::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+
+        const Tensor grad_factor = (*this->tx) / (*this->cached_output);
+
+        Tensor grad_reshaped = _grad;
+        if (!this->keep_dim) {
+            for (const auto d : this->dims) {
+                grad_reshaped = grad_reshaped.unsqueeze(d);
+            }
+        }
+
+        const Tensor grad_expanded = grad_reshaped * grad_factor;
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+variance::variance(const GradientPacked &_x) : GradientFlow("Variance") {
+    this->tx = new Tensor(_x);
+}
+
+variance::~variance() {
+    delete this->tx;
+}
+
+void variance::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        const f32 N = static_cast<f32>(this->tx->len());
+        const Tensor mean_x = this->tx->mean();
+
+        const Tensor diff = (*this->tx) - mean_x;
+
+        const Tensor grad_factor = diff * (2.0f / N);
+
+        const Tensor grad_expanded = _grad * grad_factor;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+stdv::stdv(const GradientPacked &_x, const GradientPacked &output) : GradientFlow("Stdv") {
+    this->tx = new Tensor(_x);
+    this->cached_output = new Tensor(output);
+}
+
+stdv::~stdv() {
+    delete this->tx;
+    delete this->cached_output;
+}
+
+void stdv::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        const f32 N = static_cast<f32>(this->tx->len());
+        const Tensor mean_x = this->tx->mean();
+        const Tensor diff = (*this->tx) - mean_x;
+
+        const Tensor grad_factor = diff / (*this->cached_output * N);
+
+        const Tensor grad_expanded = _grad * grad_factor;
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+norm1::norm1(const GradientPacked &_x) : GradientFlow("Norm1") {
+    this->tx = new Tensor(_x);
+}
+
+norm1::~norm1() {
+    delete this->tx;
+}
+
+void norm1::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        const Tensor grad_expanded = _grad * this->tx->sign();
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+norm2::norm2(const GradientPacked &_x, const GradientPacked &output) : GradientFlow("Norm2") {
+    this->tx = new Tensor(_x);
+    this->cached_output = new Tensor(output);
+}
+
+norm2::~norm2() {
+    delete this->tx;
+    delete this->cached_output;
+}
+
+void norm2::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        const Tensor grad_factor = (*this->tx) / (*this->cached_output);
+
+        const Tensor grad_expanded = _grad * grad_factor;
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+exp2::exp2(const GradientPacked &_x) : GradientFlow("Exp2") {
+    this->tx = new Tensor(_x);
+}
+
+exp2::~exp2() {
+    delete this->tx;
+}
+
+void exp2::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        constexpr f32 ln2 = 0.69314718f;
+
+        const Tensor grad_factor = this->tx->exp10() * ln2;
+        const Tensor grad_expanded = _grad * grad_factor;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+exp10::exp10(const GradientPacked &_x) : GradientFlow("Exp10") {
+    this->tx = new Tensor(_x);
+}
+
+exp10::~exp10() {
+    delete this->tx;
+}
+
+void exp10::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        constexpr f32 ln10 = 2.30258509f;
+
+        const Tensor grad_factor = this->tx->exp10() * ln10;
+        const Tensor grad_expanded = _grad * grad_factor;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+log2::log2(const GradientPacked &_x) : GradientFlow("Log2") {
+    this->tx = new Tensor(_x);
+}
+
+log2::~log2() {
+    delete this->tx;
+}
+
+void log2::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        constexpr f32 ln2 = 0.69314718f;
+        const Tensor grad_factor = (*this->tx * ln2).inv();
+        const Tensor grad_expanded = _grad * grad_factor;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+log10::log10(const GradientPacked &_x) : GradientFlow("Log10") {
+    this->tx = new Tensor(_x);
+}
+
+log10::~log10() {
+    delete this->tx;
+}
+
+void log10::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        constexpr f32 ln10 = 2.30258509f;
+        const Tensor grad_factor = (*this->tx * ln10).inv();
+        const Tensor grad_expanded = _grad * grad_factor;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+square::square(const GradientPacked &_x) : GradientFlow("Square") {
+    this->tx = new Tensor(_x);
+}
+
+square::~square() {
+    delete this->tx;
+}
+
+void square::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        const Tensor grad_factor = (*this->tx) * 2.0f;
+        const Tensor grad_expanded = _grad * grad_factor;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+tan::tan(const GradientPacked &_x) : GradientFlow("Tan") {
+    this->tx = new Tensor(_x);
+}
+
+tan::~tan() {
+    delete this->tx;
+}
+
+void tan::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        const Tensor cos_x = this->tx->cos();
+        const Tensor grad_factor = cos_x.square().inv();
+        const Tensor grad_expanded = _grad * grad_factor;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+cot::cot(const GradientPacked &_x) : GradientFlow("Cot") {
+    this->tx = new Tensor(_x);
+}
+
+cot::~cot() {
+    delete this->tx;
+}
+
+void cot::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        const Tensor sin_x = this->tx->sin();
+        const Tensor grad_factor = sin_x.square().inv().neg();
+        const Tensor grad_expanded = _grad * grad_factor;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+sign::sign(const GradientPacked &_x) : GradientFlow("Sign") {
+    this->tx = new Tensor(_x);
+}
+
+sign::~sign() {
+    delete this->tx;
+}
+
+void sign::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        const Tensor grad_expanded(this->tx->shape(), this->tx->device(), false);
+        grad_expanded.zero();
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+erf::erf(const GradientPacked &_x) : GradientFlow("Erf") {
+    this->tx = new Tensor(_x);
+}
+
+erf::~erf() {
+    delete this->tx;
+}
+
+void erf::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+        constexpr f32 factor = 1.12837916f;
+
+        const Tensor exp_neg_x2 = (this->tx->square().neg()).exp();
+        const Tensor grad_factor = exp_neg_x2 * factor;
+        const Tensor grad_expanded = _grad * grad_factor;
+
+        this->tx->grad() += grad_expanded;
+        this->tx->backward(grad_expanded);
+    }
+}
+
+inv::inv(const GradientPacked &_x) : GradientFlow("Inv") {
+    this->tx = new Tensor(_x);
+}
+
+inv::~inv() {
+    delete this->tx;
+}
+
+void inv::backward(const Tensor &_grad) {
+    if (this->tx->is_require()) {
+
+        const Tensor grad_factor = this->tx->square().inv().neg();
+        const Tensor grad_expanded = _grad * grad_factor;
+
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
@@ -374,7 +1027,7 @@ relu::~relu() {
 void relu::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
         Tensor mask(this->tx->shape(), this->tx->device(), false);
-        Tensor zeros(this->tx->shape(), this->tx->device(), false);
+        const Tensor zeros(this->tx->shape(), this->tx->device(), false);
         zeros.zero();
 
         mask = (*this->tx) > zeros;
@@ -397,7 +1050,7 @@ tanh::~tanh() {
 
 void tanh::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        Tensor ones(this->cached_output->shape(), this->cached_output->device());
+        const Tensor ones(this->cached_output->shape(), this->cached_output->device());
         ones.ones();
 
         const Tensor grad_coeff = ones - this->cached_output->pow();
@@ -420,12 +1073,12 @@ sigmoid::~sigmoid() {
 
 void sigmoid::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        Tensor ones(this->cached_output->shape(), this->cached_output->device());
+        const Tensor ones(this->cached_output->shape(), this->cached_output->device());
         ones.ones();
 
-        Tensor one_minus_output = ones - (*this->cached_output);
-        Tensor grad_coeff = (*this->cached_output) * one_minus_output;
-        Tensor grad_expanded = _grad * grad_coeff;
+        const Tensor one_minus_output = ones - (*this->cached_output);
+        const Tensor grad_coeff = (*this->cached_output) * one_minus_output;
+        const Tensor grad_expanded = _grad * grad_coeff;
 
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
@@ -476,14 +1129,14 @@ leaky_relu::~leaky_relu() {
 void leaky_relu::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
 
-        Tensor zeros(this->tx->shape(), this->tx->device());
+        const Tensor zeros(this->tx->shape(), this->tx->device());
         zeros.zero();
 
-        Tensor mask = (*this->tx) > zeros;
+        const Tensor mask = (*this->tx) > zeros;
 
-        Tensor grad_coeff = mask * 1.0f + (1.0f - mask) * this->alpha;
+        const Tensor grad_coeff = mask * 1.0f + (1.0f - mask) * this->alpha;
 
-        Tensor grad_expanded = _grad * grad_coeff;
+        const Tensor grad_expanded = _grad * grad_coeff;
 
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
@@ -504,12 +1157,12 @@ void gelu_exact::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
         constexpr f32 INV_SQRT_2PI = 0.39894228f;
 
-        Tensor x_sq = this->tx->pow();
-        Tensor pdf = (-0.5f * x_sq).exp() * INV_SQRT_2PI;
+        const Tensor x_sq = this->tx->pow();
+        const Tensor pdf = (-0.5f * x_sq).exp() * INV_SQRT_2PI;
 
-        Tensor grad_coeff = (*this->cached_output) + (*this->tx) * pdf;
+        const Tensor grad_coeff = (*this->cached_output) + (*this->tx) * pdf;
 
-        Tensor grad_expanded = _grad * grad_coeff;
+        const Tensor grad_expanded = _grad * grad_coeff;
 
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
@@ -528,18 +1181,18 @@ silu::~silu() {
 
 void silu::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) [[likely]] {
-        Tensor ones(this->tx->shape(), this->tx->device());
+        const Tensor ones(this->tx->shape(), this->tx->device());
         ones.ones();
 
-        Tensor one_minus_sigmoid = ones - (*this->cached_output);
+        const Tensor one_minus_sigmoid = ones - (*this->cached_output);
 
-        Tensor x_times_term = (*this->tx) * one_minus_sigmoid;
+        const Tensor x_times_term = (*this->tx) * one_minus_sigmoid;
 
         Tensor grad_coeff = ones + x_times_term;
 
         grad_coeff = (*this->cached_output) * grad_coeff;
 
-        Tensor grad_expanded = _grad * grad_coeff;
+        const Tensor grad_expanded = _grad * grad_coeff;
 
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
@@ -596,16 +1249,14 @@ void conv2d::backward(const Tensor &_grad) {
 
     if (tw->has_grad()) {
         const Tensor grad_w = d_out
-            .matmul(col.transpose())
-            .reshape(tw->shape());
+            .matmul(col.transpose());
+            //.reshape(tw->shape());
         tw->grad() += grad_w;
-        //tw->backward(grad_w);
     }
 
     if (tb->has_grad()) {
         const Tensor grad_b = d_out.sum({1}, false);
         tb->grad() += grad_b;
-        //tb->backward(grad_b);
     }
 
     if (tx->has_grad()) {
@@ -626,101 +1277,6 @@ void conv2d::backward(const Tensor &_grad) {
     }
 }
 
-reshape::reshape(const GradientPacked &_x, const std::vector<i64> &shape) : GradientFlow("Reshape") {
-    this->tx = new Tensor(_x);
-    this->shape = shape;
-}
-
-reshape::~reshape() {
-    delete this->tx;
-}
-
-void reshape::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
-        const Tensor grad_expanded = _grad.contiguous().reshape(this->shape);
-
-        this->tx->grad() += grad_expanded;
-        this->tx->backward(grad_expanded);
-    }
-}
-
-permute::permute(const GradientPacked &_x, const std::vector<i64> &axis) : GradientFlow("Permute") {
-    this->tx = new Tensor(_x);
-    this->axis = axis;
-}
-
-permute::~permute() {
-    delete this->tx;
-}
-
-void permute::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
-        const Tensor grad_expanded = _grad.permute(this->axis);
-
-        this->tx->grad() += grad_expanded;
-        this->tx->backward(grad_expanded);
-    }
-}
-
-sum_dim::sum_dim(const GradientPacked &_x, const std::vector<i64> &dims, const bool keep) : GradientFlow("SumDim") {
-    this->tx = new Tensor(_x);
-    this->dims = dims;
-    this->keep = keep;
-}
-
-sum_dim::~sum_dim() {
-    delete this->tx;
-}
-
-void sum_dim::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
-        if (this->tx->has_grad()) {
-            Tensor grad_expanded = _grad;
-
-            if (!this->keep) {
-                std::vector<i64> sorted_dims = this->dims;
-                std::ranges::sort(sorted_dims);
-                for (const i64 d : sorted_dims) {
-                    grad_expanded = grad_expanded.unsqueeze(d);
-                }
-            }
-
-            Tensor ones(this->tx->shape(), this->tx->device(), false);
-            ones.ones();
-
-            grad_expanded = grad_expanded * ones;
-            this->tx->grad() += grad_expanded;
-            this->tx->backward(grad_expanded);
-        }
-    }
-}
-
-clamp::clamp(const GradientPacked &_x, const f32 min_val, const f32 max_val) : GradientFlow("Clamp") {
-    this->tx = new Tensor(_x);
-    this->min_val = min_val;
-    this->max_val = max_val;
-}
-
-clamp::~clamp() {
-    delete this->tx;
-}
-
-void clamp::backward(const Tensor &_grad) {
-    if (this->tx->has_grad()) [[likely]] {
-        Tensor lo(this->tx->shape(), this->tx->device(), false);
-        Tensor hi(this->tx->shape(), this->tx->device(), false);
-        lo.fill(this->min_val);
-        hi.fill(this->max_val);
-
-        const Tensor mask = (*this->tx > lo) * (*this->tx < hi);
-
-        const Tensor grad_expanded = _grad * mask;
-
-        this->tx->grad() += grad_expanded;
-        this->tx->backward(grad_expanded);
-    }
-}
-
 softmax::softmax(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("Softmax") {
     this->tx = new Tensor(_x);
     this->cached_output = new Tensor(_y);
@@ -730,55 +1286,17 @@ softmax::~softmax() {
     delete this->tx;
     delete this->cached_output;
 }
-#include <CortexMind/framework/Tools/tensor_debug.hpp>
+
 void softmax::backward(const Tensor &_grad) {
-    /*
+
     if (this->tx->has_grad()) [[likely]] {
+
         const Tensor y_times_grad = (*this->cached_output) * _grad;
+
         const Tensor sum_term = y_times_grad.sum({1}, true);
 
-        const Tensor grad_expanded = (*this->cached_output) * _grad - (*this->cached_output) * sum_term;
+        const Tensor grad_expanded = (*this->cached_output) * (_grad - sum_term);
 
-        this->tx->grad() += grad_expanded;
-        this->tx->backward(grad_expanded);
-    }
-    */
-    /*
-    if (this->tx->has_grad()) [[likely]] {
-        // 1. y_times_grad = cached_output * _grad  -> Boyut: [B, C]
-        Tensor y_times_grad = (*this->cached_output) * _grad;
-
-        // 2. sum_term = sum(y_times_grad, axis=1, keepdim=true) -> Boyut: [B, 1]
-        // Bu işlem artık execute_broadcast_2d'yi patlatmayacak.
-        Tensor sum_term = y_times_grad.sum({1}, true);
-
-        // 3. dX = cached_output * (_grad - sum_term)
-        // Burada (_grad - sum_term) işlemi [B, C] ile [B, 1] arasında bir Col-Broadcast tetikler.
-        Tensor grad_expanded = (*this->cached_output) * (_grad - sum_term);
-
-        // 4. Akümülasyon ve Geriye Aktarım
-        this->tx->grad() += grad_expanded;
-        this->tx->backward(grad_expanded);
-    }
-    */
-/*
-    if (this->tx->has_grad()) [[likely]] {
-        // 0. Giriş gradyanını kontrol et
-        TensorDebug::validateGradient(_grad, "Softmax::backward _grad");
-
-        // 1. y_times_grad
-        Tensor y_times_grad = (*this->cached_output) * _grad;
-        TensorDebug::validateTensor(y_times_grad, "Softmax::backward y_times_grad", false);
-
-        // 2. sum_term
-        Tensor sum_term = y_times_grad.sum({1}, true);
-        TensorDebug::validateTensor(sum_term, "Softmax::backward sum_term", false);
-
-        // 3. grad_expanded
-        Tensor grad_expanded = (*this->cached_output) * (_grad - sum_term);
-        TensorDebug::validateGradient(grad_expanded, "Softmax::backward grad_expanded");
-
-        // 4. Akümülasyon ve Geriye Aktarım
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
@@ -793,25 +1311,24 @@ logit_loss::~logit_loss() {
     delete this->tx;
     delete this->cached_output;
 }
-#include <cmath>
+
 void logit_loss::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) {
-        // Gradyan boyutları: [Batch_Size, Class_Count]
+
         Tensor grad_input(this->tx->shape(), this->tx->device(), false);
 
         const f32* pred_ptr = this->tx->get();
         const f32* target_ptr = this->cached_output->get();
         f32* grad_in_ptr = grad_input.get();
 
-        size_t batch_size = this->tx->shape()[0];
-        size_t class_count = this->tx->shape()[1];
-        f32 inv_b = 1.0f / static_cast<f32>(batch_size);
+        const size_t batch_size = this->tx->shape()[0];
+        const size_t class_count = this->tx->shape()[1];
+        const f32 inv_b = 1.0f / static_cast<f32>(batch_size);
 
-        // Her örnek için Softmax çıktısını hesapla ve (Softmax - Target) / B formülünü uygula
+
         for (size_t b = 0; b < batch_size; ++b) {
-            size_t offset = b * class_count;
+            const size_t offset = b * class_count;
 
-            // Stable Softmax adımları
             f32 max_logit = pred_ptr[offset];
             for (size_t c = 1; c < class_count; ++c) {
                 if (pred_ptr[offset + c] > max_logit) max_logit = pred_ptr[offset + c];
@@ -822,12 +1339,10 @@ void logit_loss::backward(const Tensor &_grad) {
                 sum_exp += std::exp(pred_ptr[offset + c] - max_logit);
             }
 
-            // Gradyanı yaz: _grad değeri genellikle Loss skalarından gelen 1.0f'dir
-            f32 upstream_grad = _grad.empty() ? 1.0f : _grad.get()[0];
+            const f32 upstream_grad = _grad.empty() ? 1.0f : _grad.get()[0];
 
             for (size_t c = 0; c < class_count; ++c) {
-                f32 softmax_val = std::exp(pred_ptr[offset + c] - max_logit) / sum_exp;
-                // Türev: (Softmax_Olasılığı - Gerçek_Değer) * Üstten_Gelen_Gradyan / Batch_Size
+                const f32 softmax_val = std::exp(pred_ptr[offset + c] - max_logit) / sum_exp;
                 grad_in_ptr[offset + c] = (softmax_val - target_ptr[offset + c]) * upstream_grad * inv_b;
             }
         }
@@ -836,4 +1351,3 @@ void logit_loss::backward(const Tensor &_grad) {
         this->tx->backward(grad_input);
     }
 }
-*/

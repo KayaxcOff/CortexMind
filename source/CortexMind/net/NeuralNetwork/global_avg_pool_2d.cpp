@@ -13,7 +13,7 @@ GlobalAveragePool2D::GlobalAveragePool2D() : LayerBase("GlobalAveragePooling2D")
 GlobalAveragePool2D::~GlobalAveragePool2D() = default;
 
 tensor GlobalAveragePool2D::forward(const tensor &input) {
-    return input.mean(2, false);
+    return input.mean({2, 3}, false);
 }
 
 std::vector<ref<tensor>> GlobalAveragePool2D::getParameters() {

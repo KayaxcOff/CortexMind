@@ -8,6 +8,7 @@
 #include <CortexMind/framework/Engine/IX/TensorReduce/reduce.hpp>
 #include <CortexMind/framework/Engine/IX/TensorWise/wise.hpp>
 #include <CortexMind/framework/Engine/IX/scalar.hpp>
+#include <CortexMind/framework/Gradient/operations.hpp>
 #if CXM_IS_CUDA_AVAILABLE
     #include <CortexMind/framework/Memory/transform.cuh>
 #else //#if CXM_IS_CUDA_AVAILABLE
@@ -199,6 +200,10 @@ Tensor Tensor::mean() const {
 
     ix::TensorReduce::mean(this->storage_.get(), output.storage_.get());
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::mean>(this->pack());
+    }
+
     return output;
 }
 
@@ -237,6 +242,11 @@ Tensor Tensor::mean(const std::initializer_list<i64> dims, const bool keep_dim) 
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::mean(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::mean_dim>(this->pack(), dims, keep_dim);
+    }
+
     return output;
 }
 
@@ -244,6 +254,10 @@ Tensor Tensor::variance() const {
     Tensor output({1}, this->device(), this->m_require);
 
     ix::TensorReduce::var(this->storage_.get(), output.storage_.get());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::variance>(this->pack());
+    }
 
     return output;
 }
@@ -282,6 +296,11 @@ Tensor Tensor::variance(const std::initializer_list<i64> dims, const bool keep_d
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::var(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::variance_dim>(this->pack(), dims, keep_dim);
+    }
+
     return output;
 }
 
@@ -289,6 +308,10 @@ Tensor Tensor::stdv() const {
     Tensor output({1}, this->device(), this->m_require);
 
     ix::TensorReduce::stdv(this->storage_.get(), output.storage_.get());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::stdv>(this->pack(), output.pack());
+    }
 
     return output;
 }
@@ -327,6 +350,11 @@ Tensor Tensor::stdv(const std::initializer_list<i64> dims, const bool keep_dim) 
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::stdv(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::stdv_dim>(this->pack(), output.pack(), dims, keep_dim);
+    }
+
     return output;
 }
 
@@ -334,6 +362,10 @@ Tensor Tensor::norm1() const {
     Tensor output({1}, this->device(), this->m_require);
 
     ix::TensorReduce::norm1(this->storage_.get(), output.storage_.get());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::norm1>(this->pack());
+    }
 
     return output;
 }
@@ -372,12 +404,22 @@ Tensor Tensor::norm1(const std::initializer_list<i64> dims, const bool keep_dim)
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::norm1(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::norm1_dim>(this->pack(), dims, keep_dim);
+    }
+
     return output;
 }
 
 Tensor Tensor::norm2() const {
     Tensor output({1}, this->device(), this->m_require);
     ix::TensorReduce::norm2(this->storage_.get(), output.storage_.get());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::norm2>(this->pack(), output.pack());
+    }
+
     return output;
 }
 
@@ -415,6 +457,11 @@ Tensor Tensor::norm2(const std::initializer_list<i64> dims, const bool keep_dim)
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::norm2(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::norm2_dim>(this->pack(), output.pack(), dims, keep_dim);
+    }
+
     return output;
 }
 
@@ -507,6 +554,11 @@ Tensor Tensor::min(const std::initializer_list<i64> dims, const bool keep_dim) c
 Tensor Tensor::sum() const {
     Tensor output({1}, this->device(), this->m_require);
     ix::TensorReduce::sum(this->storage_.get(), output.storage_.get());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::sum>(this->pack());
+    }
+
     return output;
 }
 
@@ -544,6 +596,11 @@ Tensor Tensor::sum(const std::initializer_list<i64> dims, const bool keep_dim) c
     Tensor output(shape_span, this->device(), this->m_require);
 
     ix::TensorReduce::sum(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::sum_dim>(this->pack(), dims, keep_dim);
+    }
+
     return output;
 }
 
@@ -634,7 +691,11 @@ Tensor Tensor::argmin(const std::initializer_list<i64> dims, const bool keep_dim
 }
 
 Tensor Tensor::matmul(const Tensor &other) const {
-    Tensor output(this->shape(), this->device(), this->m_require);
+    const std::initializer_list output_shape = {
+        this->m_shape.shape[0],
+        other.m_shape.shape[1]
+    };
+    Tensor output(output_shape, this->device(), this->m_require || other.m_require);
 
     ix::TensorOp::matmul(
         this->storage_.get(),
@@ -645,6 +706,10 @@ Tensor Tensor::matmul(const Tensor &other) const {
         output.m_shape
     );
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::matmul>(this->pack(), other.pack());
+    }
+
     return output;
 }
 
@@ -653,6 +718,10 @@ Tensor Tensor::log() const {
 
     ix::TensorWise::log(this->storage_.get(), output.storage_.get());
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::log>(this->pack());
+    }
+
     return output;
 }
 
@@ -660,6 +729,10 @@ Tensor Tensor::log2() const {
     Tensor output(this->shape(), this->device(), this->m_require);
 
     ix::TensorWise::log2(this->storage_.get(), output.storage_.get());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::log2>(this->pack());
+    }
 
     return output;
 }
@@ -670,6 +743,10 @@ Tensor Tensor::log10() const {
 
     ix::TensorWise::log10(this->storage_.get(), output.storage_.get());
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::log10>(this->pack());
+    }
+
     return output;
 }
 
@@ -677,6 +754,10 @@ Tensor Tensor::exp() const {
     Tensor output(this->shape(), this->device(), this->m_require);
 
     ix::TensorWise::exp(this->storage_.get(), output.storage_.get());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::exp>(this->pack());
+    }
 
     return output;
 }
@@ -686,6 +767,10 @@ Tensor Tensor::exp2() const {
 
     ix::TensorWise::exp2(this->storage_.get(), output.storage_.get());
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::exp2>(this->pack());
+    }
+
     return output;
 }
 
@@ -693,6 +778,10 @@ Tensor Tensor::exp10() const {
     Tensor output(this->shape(), this->device(), this->m_require);
 
     ix::TensorWise::exp10(this->storage_.get(), output.storage_.get());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::exp10>(this->pack());
+    }
 
     return output;
 }
@@ -702,6 +791,10 @@ Tensor Tensor::pow(const f32 exp) const {
 
     ix::TensorWise::pow(this->storage_.get(), exp, output.storage_.get());
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::pow>(this->pack(), exp);
+    }
+
     return output;
 }
 
@@ -709,6 +802,10 @@ Tensor Tensor::sqrt() const {
     Tensor output(this->shape(), this->device(), this->m_require);
 
     ix::TensorWise::sqrt(this->storage_.get(), output.storage_.get());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::sqrt>(this->pack());
+    }
 
     return output;
 }
@@ -718,6 +815,10 @@ Tensor Tensor::rsqrt() const {
 
     ix::TensorWise::rsqrt(this->storage_.get(), output.storage_.get());
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::rsqrt>(this->pack());
+    }
+
     return output;
 }
 
@@ -725,6 +826,10 @@ Tensor Tensor::square() const {
     Tensor output(this->shape(), this->device(), this->m_require);
 
     ix::TensorWise::square(this->storage_.get(), output.storage_.get());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::square>(this->pack());
+    }
 
     return output;
 }
@@ -734,6 +839,10 @@ Tensor Tensor::sin() const {
 
     ix::TensorWise::sin(this->storage_.get(), output.storage_.get());
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::sin>(this->pack());
+    }
+
     return output;
 }
 
@@ -741,6 +850,10 @@ Tensor Tensor::cos() const {
     Tensor output(this->shape(), this->device(), this->m_require);
 
     ix::TensorWise::cos(this->storage_.get(), output.storage_.get());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::cos>(this->pack());
+    }
 
     return output;
 }
@@ -750,6 +863,10 @@ Tensor Tensor::tan() const {
 
     ix::TensorWise::tan(this->storage_.get(), output.storage_.get());
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::tan>(this->pack());
+    }
+
     return output;
 }
 
@@ -757,6 +874,10 @@ Tensor Tensor::cot() const {
     Tensor output(this->shape(), this->device(), this->m_require);
 
     ix::TensorWise::cot(this->storage_.get(), output.storage_.get());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::cot>(this->pack());
+    }
 
     return output;
 }
@@ -766,6 +887,10 @@ Tensor Tensor::abs() const {
 
     ix::TensorWise::abs(this->storage_.get(), output.storage_.get());
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::abs>(this->pack());
+    }
+
     return output;
 }
 
@@ -773,6 +898,10 @@ Tensor Tensor::neg() const {
     Tensor output(this->shape(), this->device(), this->m_require);
 
     ix::TensorWise::neg(this->storage_.get(), output.storage_.get());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::neg>(this->pack());
+    }
 
     return output;
 }
@@ -782,6 +911,10 @@ Tensor Tensor::sign() const {
 
     ix::TensorWise::sign(this->storage_.get(), output.storage_.get());
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::sign>(this->pack());
+    }
+
     return output;
 }
 
@@ -790,6 +923,10 @@ Tensor Tensor::erf() const {
 
     ix::TensorWise::erf(this->storage_.get(), output.storage_.get());
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::erf>(this->pack());
+    }
+
     return output;
 }
 
@@ -797,6 +934,10 @@ Tensor Tensor::inv() const {
     Tensor output(this->shape(), this->device(), this->m_require);
 
     ix::TensorWise::reciprocal(this->storage_.get(), output.storage_.get());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::inv>(this->pack());
+    }
 
     return output;
 }
@@ -844,6 +985,10 @@ Tensor Tensor::slice(i64 dim, i64 start, i64 end) const {
 
     Tensor output(new_shape.shape, this->storage_, this->m_require);
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::slice>(this->pack(), dim, start, end);
+    }
+
     return output;
 }
 
@@ -852,37 +997,61 @@ Tensor Tensor::clamp(const f32 min, const f32 max) const {
 
     ix::TensorWise::clamp(this->storage_.get(), min, max, output.storage_.get());
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::clamp>(this->pack(), min, max);
+    }
+
     return output;
 }
 
 Tensor Tensor::add(const Tensor &other) const {
-    Tensor output(this->shape(), this->device(), this->m_require);
+    auto _shape = broadcast_shape(this->m_shape, other.m_shape);
+    Tensor output(_shape.shape, this->device(), this->m_require || other.m_require);
 
     ix::TensorOp::add(this->storage_.get(), this->m_shape, other.storage_.get(), other.m_shape, output.storage_.get(), output.m_shape);
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::add>(this->pack(), other.pack());
+    }
 
     return output;
 }
 
 Tensor Tensor::sub(const Tensor &other) const {
-    Tensor output(this->shape(), this->device(), this->m_require);
+    auto _shape = broadcast_shape(this->m_shape, other.m_shape);
+    Tensor output(_shape.shape, this->device(), this->m_require || other.m_require);
 
     ix::TensorOp::sub(this->storage_.get(), this->m_shape, other.storage_.get(), other.m_shape, output.storage_.get(), output.m_shape);
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::sub>(this->pack(), other.pack());
+    }
 
     return output;
 }
 
 Tensor Tensor::mul(const Tensor &other) const {
-    Tensor output(this->shape(), this->device(), this->m_require);
+    auto _shape = broadcast_shape(this->m_shape, other.m_shape);
+    Tensor output(_shape.shape, this->device(), this->m_require || other.m_require);
 
     ix::TensorOp::mul(this->storage_.get(), this->m_shape, other.storage_.get(), other.m_shape, output.storage_.get(), output.m_shape);
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::mul>(this->pack(), other.pack());
+    }
 
     return output;
 }
 
 Tensor Tensor::div(const Tensor &other) const {
-    Tensor output(this->shape(), this->device(), this->m_require);
+    auto _shape = broadcast_shape(this->m_shape, other.m_shape);
+    Tensor output(_shape.shape, this->device(), this->m_require || other.m_require);
 
     ix::TensorOp::div(this->storage_.get(), this->m_shape, other.storage_.get(), other.m_shape, output.storage_.get(), output.m_shape);
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::div>(this->pack(), other.pack());
+    }
 
     return output;
 }
@@ -891,6 +1060,10 @@ Tensor Tensor::add(const f32 value) const {
     Tensor output(this->shape(), this->device(), this->m_require);
 
     ix::ScalarOp::add(this->storage_.get(), value, output.storage_.get(), this->len());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::scalar_add>(this->pack());
+    }
 
     return output;
 
@@ -901,6 +1074,10 @@ Tensor Tensor::sub(const f32 value) const {
 
     ix::ScalarOp::sub(this->storage_.get(), value, output.storage_.get(), this->len());
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::scalar_sub>(this->pack());
+    }
+
     return output;
 }
 
@@ -909,6 +1086,10 @@ Tensor Tensor::mul(const f32 value) const {
 
     ix::ScalarOp::mul(this->storage_.get(), value, output.storage_.get(), this->len());
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::scalar_mul>(this->pack(), value);
+    }
+
     return output;
 }
 
@@ -916,6 +1097,10 @@ Tensor Tensor::div(const f32 value) const {
     Tensor output(this->shape(), this->device(), this->m_require);
 
     ix::ScalarOp::div(this->storage_.get(), value, output.storage_.get(), this->len());
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::scalar_div>(this->pack(), value);
+    }
 
     return output;
 }
@@ -931,7 +1116,7 @@ Tensor Tensor::to(const DeviceType _device) {
 }
 
 Tensor Tensor::transpose() const {
-    CXM_ASSERT(this->m_shape.ndim >= 2, "Transpose requires at least 2 dimensions.");
+    CXM_ASSERT(this->m_shape.ndim < 2, "Transpose requires at least 2 dimensions.");
 
     Tensor output(*this);
 
@@ -940,6 +1125,10 @@ Tensor Tensor::transpose() const {
 
     std::swap(output.m_shape.shape[d1], output.m_shape.shape[d2]);
     std::swap(output.m_shape.stride[d1], output.m_shape.stride[d2]);
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::transpose>(this->pack());
+    }
 
     return output;
 }
@@ -966,11 +1155,21 @@ Tensor Tensor::permute(const std::initializer_list<i64> dims) const {
         idx++;
     }
 
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::permute>(this->pack(), dims);
+    }
+
     return output;
 }
 
 Tensor Tensor::reshape(const std::initializer_list<i64> _new_shape) const {
-    return {_new_shape, this->storage_, this->m_require};
+    Tensor output(_new_shape, this->storage_, this->m_require);
+
+    if (output.m_require) {
+        output.flow_ = std::make_shared<meta::reshape>(this->pack(), _new_shape);
+    }
+
+    return output;
 }
 
 Tensor Tensor::squeeze(i64 dim) const {

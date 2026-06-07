@@ -48,6 +48,9 @@ void Model::fit(const tensor &Xx, const tensor &Xy, const int32 epochs, const in
 tensor Model::predict(const tensor &x) const {
     tensor output = x;
     for (const auto& item : this->layers_) {
+        if (output.len() == 0) {
+            std::cout << item->name() << std::endl;
+        }
         output = item->forward(output);
     }
     return output;
