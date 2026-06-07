@@ -7,7 +7,6 @@
 
 #include <CortexMind/framework/Tools/types.hpp>
 #include <CortexMind/runtime/macros.hpp>
-#include <array>
 
 namespace cortex::_fw {
     /**
@@ -19,10 +18,10 @@ namespace cortex::_fw {
      */
     struct BroadcastInfo {
         i32 ndim;                                      ///< Number of dimensions after broadcasting
-        std::array<i64, CXM_MAX_DIMS> shape;           ///< Broadcasted common shape
-        std::array<i64, CXM_MAX_DIMS> stride_x;        ///< Strides for first input
-        std::array<i64, CXM_MAX_DIMS> stride_y;        ///< Strides for second input
-        std::array<i64, CXM_MAX_DIMS> stride_z;        ///< Strides for output
+        i64 shape[CXM_MAX_DIMS];                       ///< C-style array: Broadcasted common shape
+        i64 stride_x[CXM_MAX_DIMS];                    ///< Strides for first input
+        i64 stride_y[CXM_MAX_DIMS];                    ///< Strides for second input
+        i64 stride_z[CXM_MAX_DIMS];                    ///< Strides for output
     };
 } //namespace cortex::_fw
 

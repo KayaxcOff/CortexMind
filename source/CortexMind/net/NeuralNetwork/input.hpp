@@ -6,7 +6,7 @@
 #define CORTEXMIND_NET_NEURAL_NETWORK_INPUT_HPP
 
 #include <CortexMind/framework/Net/layer.hpp>
-#include <vector>
+#include <span>
 
 namespace cortex::nn {
     /**
@@ -27,7 +27,7 @@ namespace cortex::nn {
          *
          * @param _shape Expected shape of the input tensor (e.g. {batch_size, features})
          */
-        explicit Input(const std::vector<int64>& _shape);
+        explicit Input(const std::span<int64>& _shape);
         ~Input() override;
 
         /**
@@ -60,7 +60,7 @@ namespace cortex::nn {
         [[nodiscard]]
         std::vector<_fw::ref<tensor>> getGradients() override;
     private:
-        std::vector<int64> shape;
+        std::span<int64> shape;
     };
 } //namespace cortex::nn
 

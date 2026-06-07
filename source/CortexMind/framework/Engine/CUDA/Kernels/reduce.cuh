@@ -9,6 +9,7 @@
 #include <CortexMind/framework/Tools/loop.hpp>
 #include <CortexMind/framework/Tools/types.hpp>
 #include <cmath>
+#include <math_constants.h>
 
 namespace cortex::_fw::cuda::kernels {
     /**
@@ -366,7 +367,7 @@ namespace cortex::_fw::cuda::kernels {
         size_t inner_coord = out_idx % inner_size;
         size_t base_offset = outer_coord * (dim_size * inner_size) + inner_coord;
 
-        f32 local_min = INFINITY;
+        f32 local_min = CUDART_INF_F;
         for (size_t d = threadIdx.x; d < dim_size; d += blockDim.x) {
             local_min = fminf(local_min, Xx[base_offset + d * inner_size]);
         }
@@ -390,7 +391,7 @@ namespace cortex::_fw::cuda::kernels {
 
         if (warp_id == 0) {
             const size_t actual_warps = blockDim.x / WARP_SIZE;
-            f32 val = (tid < actual_warps) ? sdata[tid] : INFINITY;
+            f32 val = (tid < actual_warps) ? sdata[tid] : CUDART_INF_F;
             val = fminf(val, shfl::down(val, 16));
             val = fminf(val, shfl::down(val, 8));
             val = fminf(val, shfl::down(val, 4));
@@ -418,7 +419,7 @@ namespace cortex::_fw::cuda::kernels {
         size_t inner_coord = out_idx % inner_size;
         size_t base_offset = outer_coord * (dim_size * inner_size) + inner_coord;
 
-        f32 local_max = -INFINITY;
+        f32 local_max = -CUDART_INF_F;
         for (size_t d = threadIdx.x; d < dim_size; d += blockDim.x) {
             local_max = fmaxf(local_max, Xx[base_offset + d * inner_size]);
         }
@@ -442,7 +443,7 @@ namespace cortex::_fw::cuda::kernels {
 
         if (warp_id == 0) {
             const size_t actual_warps = blockDim.x / WARP_SIZE;
-            f32 val = (tid < actual_warps) ? sdata[tid] : -INFINITY;
+            f32 val = (tid < actual_warps) ? sdata[tid] : -CUDART_INF_F;
             val = fmaxf(val, shfl::down(val, 16));
             val = fmaxf(val, shfl::down(val, 8));
             val = fmaxf(val, shfl::down(val, 4));
@@ -463,7 +464,7 @@ namespace cortex::_fw::cuda::kernels {
         extern __shared__ KeyValuePair kv_sdata[];
 
         const size_t tid = threadIdx.x;
-        KeyValuePair local = {-INFINITY, -1};
+        KeyValuePair local = {-CUDART_INF_F, -1};
 
         CXM_CUDA_LOOP_1D(i, N) {
             if (Xx[i] > local.value) {
@@ -510,7 +511,7 @@ namespace cortex::_fw::cuda::kernels {
         KeyValuePair* kv_sdata = reinterpret_cast<KeyValuePair*>(shared_mem);
 
         const size_t tid = threadIdx.x;
-        KeyValuePair local = {INFINITY, -1};
+        KeyValuePair local = {CUDART_INF_F, -1};
 
         // Grid-stride loop ile tüm elemanları tara
         CXM_CUDA_LOOP_1D(i, N) {
@@ -558,7 +559,7 @@ namespace cortex::_fw::cuda::kernels {
         size_t inner_coord = out_idx % inner_size;
         size_t base_offset = outer_coord * (dim_size * inner_size) + inner_coord;
 
-        KeyValuePair local_max = {-INFINITY, -1};
+        KeyValuePair local_max = {-CUDART_INF_F, -1};
         for (size_t d = threadIdx.x; d < dim_size; d += blockDim.x) {
             f32 val = Xx[base_offset + d * inner_size];
             if (val > local_max.value) {
@@ -580,7 +581,7 @@ namespace cortex::_fw::cuda::kernels {
         SynchronizeThreads();
 
         if (warp_id == 0) {
-            KeyValuePair val = (tid < (BlockSize / WARP_SIZE)) ? sdata[tid] : KeyValuePair{-INFINITY, -1};
+            KeyValuePair val = (tid < (BlockSize / WARP_SIZE)) ? sdata[tid] : KeyValuePair{-CUDART_INF_F, -1};
             val = warp_reduce_argmax(val);
 
             if (tid == 0) {
@@ -604,7 +605,7 @@ namespace cortex::_fw::cuda::kernels {
         size_t inner_coord = out_idx % inner_size;
         size_t base_offset = outer_coord * (dim_size * inner_size) + inner_coord;
 
-        KeyValuePair local_min = {INFINITY, -1};
+        KeyValuePair local_min = {CUDART_INF_F, -1};
         for (size_t d = threadIdx.x; d < dim_size; d += blockDim.x) {
             f32 val = Xx[base_offset + d * inner_size];
             if (val < local_min.value) {
@@ -626,7 +627,7 @@ namespace cortex::_fw::cuda::kernels {
         SynchronizeThreads();
 
         if (warp_id == 0) {
-            KeyValuePair val = (tid < (BlockSize / WARP_SIZE)) ? sdata[tid] : KeyValuePair{INFINITY, -1}
+            KeyValuePair val = (tid < (BlockSize / WARP_SIZE)) ? sdata[tid] : KeyValuePair{CUDART_INF_F, -1};
             val = warp_reduce_argmin(val);
 
             if (tid == 0) {

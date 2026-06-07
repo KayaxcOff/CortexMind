@@ -15,11 +15,10 @@ CategoricalCrossEntropyWithLogit::CategoricalCrossEntropyWithLogit() : LossBase(
 CategoricalCrossEntropyWithLogit::~CategoricalCrossEntropyWithLogit() = default;
 
 tensor CategoricalCrossEntropyWithLogit::forward(const tensor &predict, const tensor &target) {
-    const std::vector<i64>& shape = predict.shape();
+    const std::span<const i64> shape = predict.shape();
     const auto batch_size = static_cast<size_t>(shape[0]);
     const auto class_count = static_cast<size_t>(shape[1]);
 
-    // İleri yayılım hesaplamaları (Bir önceki mesajdaki döngünün aynısı)
     float32 total_loss = 0.0f;
     const float32* pred_ptr = predict.get();
     const float32* target_ptr = target.get();

@@ -663,7 +663,18 @@ void Tensor::reduce_sizes(i64 dim, size_t &outer_size, size_t &dim_size, size_t 
 
 
 Tensor Tensor::matmul(const Tensor &other) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
 
+    ix::TensorOp::matmul(
+        this->storage_.get(),
+        this->m_shape,
+        other.storage_.get(),
+        other.m_shape,
+        output.storage_.get(),
+        output.m_shape
+    );
+
+    return output;
 }
 
 Tensor Tensor::log() const {
@@ -820,7 +831,7 @@ Tensor Tensor::inv() const {
 }
 
 Tensor Tensor::slice(i64 dim, i64 start, i64 end) const {
-
+    return {};
 }
 
 Tensor Tensor::clamp(const f32 min, const f32 max) const {

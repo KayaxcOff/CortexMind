@@ -9,7 +9,7 @@
 
 using namespace cortex::_fw::meta;
 using namespace cortex::_fw;
-
+/*
 add::add(const GradientPacked &_x, const GradientPacked &_y) : GradientFlow("Add") {
     this->tx = new Tensor(_x);
     this->ty = new Tensor(_y);
@@ -22,14 +22,14 @@ add::~add() {
 
 void add::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) {
-        const auto dims = grad_reduce_dims(this->tx->shape(), _grad.shape());
-        const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
+        //const auto dims = grad_reduce_dims(this->tx->shape(), _grad.shape());
+        //const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
     if (this->ty->has_grad()) {
-        const auto dims = grad_reduce_dims(this->ty->shape(), _grad.shape());
-        const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
+        //const auto dims = grad_reduce_dims(this->ty->shape(), _grad.shape());
+        //const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
         this->ty->grad() += grad_expanded;
         this->ty->backward(grad_expanded);
     }
@@ -47,14 +47,14 @@ sub::~sub() {
 
 void sub::backward(const Tensor &_grad) {
     if (this->tx->has_grad()) {
-        const auto dims = grad_reduce_dims(this->tx->shape(), _grad.shape());
-        const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
+        //const auto dims = grad_reduce_dims(this->tx->shape(), _grad.shape());
+        //const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
         this->tx->grad() += grad_expanded;
         this->tx->backward(grad_expanded);
     }
     if (this->ty->has_grad()) {
-        const auto dims = grad_reduce_dims(this->ty->shape(), _grad.shape());
-        const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
+        //const auto dims = grad_reduce_dims(this->ty->shape(), _grad.shape());
+        //const Tensor grad_expanded = dims.empty() ? _grad : _grad.sum(dims);
         this->ty->grad() -= grad_expanded;
         this->ty->backward(grad_expanded.neg());
     }
@@ -761,6 +761,7 @@ void softmax::backward(const Tensor &_grad) {
         this->tx->backward(grad_expanded);
     }
     */
+/*
     if (this->tx->has_grad()) [[likely]] {
         // 0. Giriş gradyanını kontrol et
         TensorDebug::validateGradient(_grad, "Softmax::backward _grad");
@@ -835,3 +836,4 @@ void logit_loss::backward(const Tensor &_grad) {
         this->tx->backward(grad_input);
     }
 }
+*/

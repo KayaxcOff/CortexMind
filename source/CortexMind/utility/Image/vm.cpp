@@ -38,7 +38,8 @@ tensor VisionModule::load(const std::filesystem::path &path, ChannelFormat fmt, 
 
     stbi_image_free(raw);
 
-    return tensor({iC, iH, iW}, chw.data(), device);
+    //return tensor({iC, iH, iW}, chw.data(), device);
+    return {};
 }
 
 void VisionModule::save(const tensor &tensor, const std::filesystem::path &path, const int32 jpeg_quality) {

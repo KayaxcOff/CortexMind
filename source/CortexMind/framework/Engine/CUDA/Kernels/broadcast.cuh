@@ -97,8 +97,7 @@ namespace cortex::_fw::cuda::kernels {
     }
 
     template<typename OpType>
-    __global__ void general_broadcast(
-        const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, const BroadcastInfo info, const size_t total, const OpType op) {
+    __global__ void general_broadcast(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, const BroadcastInfo info, const size_t total, const OpType op) {
         CXM_CUDA_LOOP_1D(i, total) {
             size_t ox = 0, oy = 0, oz = 0;
             size_t idx = i;

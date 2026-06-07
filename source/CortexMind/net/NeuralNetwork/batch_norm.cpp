@@ -38,10 +38,10 @@ tensor BatchNormalization::forward(const tensor &input) {
     tensor output;
 
     if (this->flag()) {
-        tensor mean = input.mean(this->axes, true);
+        tensor mean = input.mean(1, true);
 
         const tensor diff = input - mean;
-        tensor var = (diff * diff).mean(this->axes, true);
+        tensor var = (diff * diff).mean(1, true);
 
         tensor x_norm = diff * (var + this->epsilon).rsqrt();
         output = this->gamma * x_norm + this->beta;

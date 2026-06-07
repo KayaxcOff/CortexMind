@@ -32,7 +32,7 @@ void CompareTo::greater(const TensorStorage *Xx, const TensorStorage* Xy, Tensor
 
     #if CXM_IS_CUDA_AVAILABLE
         if (dev == sys::DeviceType::kHOST) {
-            avx2::wise::greater(Xx->data(), Xy->data(), Xz->data(), N);
+            avx2::(Xx->data(), Xy->data(), Xz->data(), N);
         } else {
             cuda::CompareTo::greater(Xx->data(), Xy->data(), Xz->data(), N);
         }

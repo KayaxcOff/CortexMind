@@ -10,12 +10,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Engine/AVX2/scalar.cpp
         source/CortexMind/framework/Engine/AVX2/wise.cpp
         source/CortexMind/framework/Engine/IX/activation.cpp
-        source/CortexMind/framework/Engine/IX/compare.cpp
         source/CortexMind/framework/Engine/IX/convolution.cpp
-        source/CortexMind/framework/Engine/IX/element_wise.cpp
-        source/CortexMind/framework/Engine/IX/matrix.cpp
-        source/CortexMind/framework/Engine/IX/random.cpp
-        source/CortexMind/framework/Engine/IX/reduce.cpp
         source/CortexMind/framework/Engine/IX/scalar.cpp
         source/CortexMind/framework/Gradient/flow.cpp
         source/CortexMind/framework/Gradient/operations.cpp
@@ -68,7 +63,6 @@ add_library(CortexMind STATIC
         source/CortexMind/net/OptimizationFunction/sgd.cpp
         source/CortexMind/tools/load.cpp
         source/CortexMind/tools/math.cpp
-        source/CortexMind/tools/tensor_meta.cpp
         source/CortexMind/tools/version.cpp
         source/CortexMind/utility/Cast/factory.cpp
         source/CortexMind/utility/DataFrame/frame.cpp
@@ -80,6 +74,8 @@ add_library(CortexMind STATIC
         ../source/CortexMind/framework/Engine/IX/TensorOp/op.cpp
         ../source/CortexMind/framework/Engine/IX/TensorWise/wise.cpp
         ../source/CortexMind/framework/Engine/AVX2/compare.cpp
+        ../source/CortexMind/net/NeuralNetwork/latent.cpp
+        ../source/CortexMind/framework/Engine/IX/TensorCompare/compare.cpp
 )
 
 if(CXM_CUDA_AVAILABLE)
@@ -91,7 +87,6 @@ if(CXM_CUDA_AVAILABLE)
             source/CortexMind/framework/Engine/CUDA/matrix.cu
             source/CortexMind/framework/Engine/CUDA/reduce.cu
             source/CortexMind/framework/Engine/CUDA/scalar.cu
-            source/CortexMind/framework/Engine/IX/fill.cu
             source/CortexMind/framework/Memory/forge.cu
             source/CortexMind/framework/Memory/transform.cu
             source/CortexMind/framework/Tools/cuda.cu

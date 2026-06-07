@@ -38,7 +38,7 @@ void CompareTo::less_eq(const f32 *Xx, const f32 *Yy, f32 *Xz, size_t N) {
     kernels::matrix<ops::LessEqual><<<grid1d(N >> 2), BLOCK_SIZE_1D>>>(Xx4, Yy4, Xz4, N);
 }
 
-bool CompareTo::equal(const f32 *Xx, const f32 *Yy, size_t N) {
+void CompareTo::equal(const f32 *Xx, const f32 *Yy, f32* Xz, size_t N) {
     const f32x4* Xx4 = reinterpret_cast<const f32x4*>(Xx);
     const f32x4* Yy4 = reinterpret_cast<const f32x4*>(Yy);
     f32x4* Xz4 = reinterpret_cast<f32x4*>(Xz);

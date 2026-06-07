@@ -6,6 +6,7 @@
 #define CORTEXMIND_FRAMEWORK_GRADIENT_OPERATIONS_HPP
 
 #include <CortexMind/framework/Gradient/flow.hpp>
+#include <vector>
 
 namespace cortex::_fw::meta {
     /**

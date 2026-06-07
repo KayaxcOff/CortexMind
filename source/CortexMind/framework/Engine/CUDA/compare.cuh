@@ -20,26 +20,26 @@ namespace cortex::_fw::cuda {
          *
          * Writes 1.0f where X[i] > Y[i], otherwise 0.0f.
          */
-        static void greater(const f32* Xx, const f32* Yy, f32* Xz, size_t N);
+        static void greater(const f32* __restrict Xx, const f32* __restrict Yy, f32* __restrict Xz, size_t N);
         /**
          * @brief Element-wise less than comparison (`Z = X < Y`).
          *
          * Writes 1.0f where X[i] < Y[i], otherwise 0.0f.
          */
-        static void less(const f32* Xx, const f32* Yy, f32* Xz, size_t N);
+        static void less(const f32* __restrict Xx, const f32* __restrict Yy, f32* __restrict Xz, size_t N);
         /**
          * @brief Element-wise greater than or equal comparison (`Z = X >= Y`).
          *
          * Writes 1.0f where X[i] >= Y[i], otherwise 0.0f.
          */
-        static void greater_eq(const f32* Xx, const f32* Yy, f32* Xz, size_t N);
+        static void greater_eq(const f32* __restrict Xx, const f32* __restrict Yy, f32* __restrict Xz, size_t N);
         /**
          * @brief Element-wise less than or equal comparison (`Z = X <= Y`).
          *
          * Writes 1.0f where X[i] <= Y[i], otherwise 0.0f.
          */
-        static void less_eq(const f32* Xx, const f32* Yy, f32* Xz, size_t N);
-        static bool equal(const f32* Xx, const f32* Yy, size_t N); // reduce → bool
+        static void less_eq(const f32* __restrict Xx, const f32* __restrict Yy, f32* __restrict Xz, size_t N);
+        static void equal(const f32* __restrict Xx, const f32* __restrict Yy, f32* __restrict Xz, size_t N);
     };
 } //namespace cortex::_fw::cuda
 

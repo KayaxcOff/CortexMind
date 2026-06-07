@@ -18,30 +18,30 @@ namespace cortex::_fw::cuda {
      * @note Col broadcast requires M < 65535 (CUDA gridDim.y limit).
      */
     struct Broadcast {
-        static void row_add(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, size_t M, size_t N);
-        static void row_sub(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, size_t M, size_t N);
-        static void row_mul(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, size_t M, size_t N);
-        static void row_div(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, size_t M, size_t N);
+        static void row_add(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t M, size_t N);
+        static void row_sub(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t M, size_t N);
+        static void row_mul(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t M, size_t N);
+        static void row_div(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t M, size_t N);
 
-        static void row_add(f32* Xx, const f32* __restrict__ Xy, size_t M, size_t N);
-        static void row_sub(f32* Xx, const f32* __restrict__ Xy, size_t M, size_t N);
-        static void row_mul(f32* Xx, const f32* __restrict__ Xy, size_t M, size_t N);
-        static void row_div(f32* Xx, const f32* __restrict__ Xy, size_t M, size_t N);
+        static void row_add(f32* Xx, const f32* __restrict Xy, size_t M, size_t N);
+        static void row_sub(f32* Xx, const f32* __restrict Xy, size_t M, size_t N);
+        static void row_mul(f32* Xx, const f32* __restrict Xy, size_t M, size_t N);
+        static void row_div(f32* Xx, const f32* __restrict Xy, size_t M, size_t N);
 
-        static void col_add(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, size_t M, size_t N);
-        static void col_sub(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, size_t M, size_t N);
-        static void col_mul(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, size_t M, size_t N);
-        static void col_div(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, size_t M, size_t N);
+        static void col_add(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t M, size_t N);
+        static void col_sub(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t M, size_t N);
+        static void col_mul(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t M, size_t N);
+        static void col_div(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, size_t M, size_t N);
 
-        static void col_add(f32* Xx, const f32* __restrict__ Xy, size_t M, size_t N);
-        static void col_sub(f32* Xx, const f32* __restrict__ Xy, size_t M, size_t N);
-        static void col_mul(f32* Xx, const f32* __restrict__ Xy, size_t M, size_t N);
-        static void col_div(f32* Xx, const f32* __restrict__ Xy, size_t M, size_t N);
+        static void col_add(f32* Xx, const f32* __restrict Xy, size_t M, size_t N);
+        static void col_sub(f32* Xx, const f32* __restrict Xy, size_t M, size_t N);
+        static void col_mul(f32* Xx, const f32* __restrict Xy, size_t M, size_t N);
+        static void col_div(f32* Xx, const f32* __restrict Xy, size_t M, size_t N);
 
-        static void general_add(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, const BroadcastInfo& info, size_t total);
-        static void general_sub(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, const BroadcastInfo& info, size_t total);
-        static void general_mul(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, const BroadcastInfo& info, size_t total);
-        static void general_div(const f32* __restrict__ Xx, const f32* __restrict__ Xy, f32* __restrict__ Xz, const BroadcastInfo& info, size_t total);
+        static void general_add(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, const BroadcastInfo& info, size_t total);
+        static void general_sub(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, const BroadcastInfo& info, size_t total);
+        static void general_mul(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, const BroadcastInfo& info, size_t total);
+        static void general_div(const f32* __restrict Xx, const f32* __restrict Xy, f32* __restrict Xz, const BroadcastInfo& info, size_t total);
     };
 } //namespace cortex::_fw::cuda
 

@@ -5,12 +5,12 @@
 #ifndef CORTEXMIND_FRAMEWORK_GRADIENT_PACK_HPP
 #define CORTEXMIND_FRAMEWORK_GRADIENT_PACK_HPP
 
+#include <CortexMind/framework/Shape/shape.hpp>
 #include <memory>
 
 namespace cortex::_fw {
     class Tensor;
     struct TensorStorage;
-    struct TensorShape;
 
     namespace meta {
         struct GradientFlow;

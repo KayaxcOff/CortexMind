@@ -3,6 +3,7 @@
 //
 
 #include "CortexMind/framework/Tensor/tensor.hpp"
+#include <CortexMind/framework/Engine/IX/TensorCompare/compare.hpp>
 #include <CortexMind/framework/Engine/IX/TensorOp/op.hpp>
 #include <CortexMind/framework/Engine/IX/scalar.hpp>
 
@@ -84,6 +85,93 @@ Tensor &Tensor::operator*=(const f32 value) {
 
 Tensor &Tensor::operator/=(const f32 value) {
     ix::ScalarOp::div(this->storage_.get(), value, this->len());
+
+    return *this;
+}
+
+Tensor Tensor::operator==(const Tensor &other) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::TensorCompare::eq(this->storage_.get(), other.storage_.get(), output.storage_.get());
+
+    return output;
+}
+
+Tensor Tensor::operator!=(const Tensor &other) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::TensorCompare::neq(this->storage_.get(), other.storage_.get(), output.storage_.get());
+
+    return output;
+}
+
+Tensor Tensor::operator>(const Tensor &other) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::TensorCompare::gt(this->storage_.get(), other.storage_.get(), output.storage_.get());
+
+    return output;
+}
+
+Tensor Tensor::operator<(const Tensor &other) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::TensorCompare::lt(this->storage_.get(), other.storage_.get(), output.storage_.get());
+
+    return output;
+}
+
+Tensor Tensor::operator>=(const Tensor &other) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::TensorCompare::ge(this->storage_.get(), other.storage_.get(), output.storage_.get());
+
+    return output;
+}
+
+Tensor Tensor::operator<=(const Tensor &other) const {
+    Tensor output(this->shape(), this->device(), this->m_require);
+
+    ix::TensorCompare::le(this->storage_.get(), other.storage_.get(), output.storage_.get());
+
+    return output;
+}
+
+Tensor &Tensor::operator=(const Tensor &other) {
+    if (this == &other) {
+        return *this;
+    }
+
+    this->storage_ = other.storage_;
+    this->m_shape = other.m_shape;
+    this->m_require = other.m_require;
+    this->flow_ = other.flow_;
+
+    if (this->m_require) {
+        this->gradient_ = other.gradient_;
+    }
+    return *this;
+}
+
+Tensor &Tensor::operator=(Tensor &&other) noexcept {
+    if (this == &other) {
+        return *this;
+    }
+
+    this->storage_ = std::move(other.storage_);
+    this->m_shape = std::move(other.m_shape);
+    this->m_require = other.m_require;
+    this->flow_ = std::move(other.flow_);
+
+    if (this->m_require) {
+        this->gradient_ = std::move(other.gradient_);
+    }
+
+    other.storage_ = nullptr;
+    other.m_shape = {};
+    other.m_require = false;
+    other.flow_ = nullptr;
+    other.gradient_ = nullptr;
 
     return *this;
 }

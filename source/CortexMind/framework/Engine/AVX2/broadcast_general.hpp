@@ -8,6 +8,7 @@
 #include <CortexMind/framework/Tools/broadcast_info.hpp>
 #include <CortexMind/framework/Engine/AVX2/functions.hpp>
 #include <CortexMind/framework/Tools/types.hpp>
+#include <vector>
 
 namespace cortex::_fw::avx2 {
     /**
