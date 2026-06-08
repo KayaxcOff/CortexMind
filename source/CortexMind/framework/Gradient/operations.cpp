@@ -11,7 +11,7 @@ using namespace cortex::_fw::meta;
 using namespace cortex::_fw;
 
 namespace {
-    std::vector<i64> grad_reduce_dims(const std::span<const i64>& input_shape, const std::span<const i64>& grad_shape) {
+    std::vector<i64> grad_reduce_dims(const std::vector<i64>& input_shape, const std::vector<i64>& grad_shape) {
     std::vector<i64> output;
 
     if (input_shape.size() == grad_shape.size()) {
@@ -37,9 +37,9 @@ namespace {
     return output;
 }
 
-    Tensor broadcast_and_reduce_grad(const Tensor& grad, const std::span<const i64>& target_shape, sys::DeviceType device){
-        const auto grad_shape = grad.shape();
-        const std::vector<i64> reduce_dims = grad_reduce_dims(target_shape, grad_shape);
+    Tensor broadcast_and_reduce_grad(const Tensor& grad, const std::vector<i64>& target_shape, sys::DeviceType device){
+        //auto grad_shape = grad.shape();
+        const std::vector<i64> reduce_dims = grad_reduce_dims(target_shape, grad.shape());
 
         if (reduce_dims.empty()) {
         }
@@ -436,7 +436,7 @@ void permute::backward(const Tensor &_grad) {
     if (this->tx->is_require()) [[likely]] {
         const size_t ndim = this->dims.size();
 
-        std::array<i64, CXM_MAX_DIMS> inv_dims{};
+        std::vector<i64> inv_dims;
 
         size_t idx = 0;
         for (i64 d : this->dims) {

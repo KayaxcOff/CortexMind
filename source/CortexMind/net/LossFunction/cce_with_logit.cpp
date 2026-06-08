@@ -15,7 +15,7 @@ CategoricalCrossEntropyWithLogit::CategoricalCrossEntropyWithLogit() : LossBase(
 CategoricalCrossEntropyWithLogit::~CategoricalCrossEntropyWithLogit() = default;
 
 tensor CategoricalCrossEntropyWithLogit::forward(const tensor &predict, const tensor &target) {
-    const std::span<const i64> shape = predict.shape();
+    const std::vector<i64> shape = predict.shape();
     const auto batch_size = static_cast<size_t>(shape[0]);
     const auto class_count = static_cast<size_t>(shape[1]);
 
@@ -43,7 +43,7 @@ tensor CategoricalCrossEntropyWithLogit::forward(const tensor &predict, const te
     }
 
     // Skalar nihai çıkış tensörü oluşturuluyor (requires_grad'ı predict'e bağlıyoruz)
-    tensor output({1}, predict.device(), predict.has_grad());
+    tensor output(std::initializer_list<i64>{1}, predict.device(), predict.has_grad());
     output.get()[0] = total_loss / static_cast<float32>(batch_size);
 
     // KOPAN GRAFİĞİ BURADA TAMİR EDİYORUZ:

@@ -34,8 +34,8 @@ void TensorOp::add(const TensorStorage *Xx, const TensorShape &shape_x, const Te
     const auto kind = classify_broadcast(shape_x, shape_y);
     const auto dev = Xz->device();
 
-    const size_t M  = shape_z.ndim >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 2]) : 1;
-    const size_t N = shape_z.ndim >= 1 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 1]) : 1;
+    const size_t M  = shape_z.shape.size() >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 2]) : 1;
+    const size_t N = !shape_z.shape.empty() ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 1]) : 1;
 
     #if CXM_IS_CUDA_AVAILABLE
         switch (kind) {
@@ -110,8 +110,8 @@ void TensorOp::sub(const TensorStorage *Xx, const TensorShape &shape_x, const Te
     const auto kind = classify_broadcast(shape_x, shape_y);
     const auto dev = Xz->device();
 
-    const size_t M  = shape_z.ndim >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 2]) : 1;
-    const size_t N = shape_z.ndim >= 1 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 1]) : 1;
+    const size_t M  = shape_z.shape.size() >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 2]) : 1;
+    const size_t N = !shape_z.shape.empty() ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 1]) : 1;
 
     #if CXM_IS_CUDA_AVAILABLE
         switch (kind) {
@@ -186,8 +186,8 @@ void TensorOp::mul(const TensorStorage *Xx, const TensorShape &shape_x, const Te
     const auto kind = classify_broadcast(shape_x, shape_y);
     const auto dev = Xz->device();
 
-    const size_t M  = shape_z.ndim >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 2]) : 1;
-    const size_t N = shape_z.ndim >= 1 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 1]) : 1;
+    const size_t M  = shape_z.shape.size() >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 2]) : 1;
+    const size_t N = !shape_z.shape.empty() ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 1]) : 1;
 
     #if CXM_IS_CUDA_AVAILABLE
         switch (kind) {
@@ -262,8 +262,8 @@ void TensorOp::div(const TensorStorage *Xx, const TensorShape &shape_x, const Te
     const auto kind = classify_broadcast(shape_x, shape_y);
     const auto dev = Xz->device();
 
-    const size_t M  = shape_z.ndim >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 2]) : 1;
-    const size_t N = shape_z.ndim >= 1 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 1]) : 1;
+    const size_t M  = shape_z.shape.size() >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 2]) : 1;
+    const size_t N = !shape_z.shape.empty() ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 1]) : 1;
 
     #if CXM_IS_CUDA_AVAILABLE
         switch (kind) {
@@ -331,16 +331,16 @@ void TensorOp::add(TensorStorage *Xx, const TensorShape &shape_x, const TensorSt
 
     const TensorShape shape_z = broadcast_shape(shape_x, shape_y);
 
-    CXM_ASSERT(shape_x.ndim != shape_z.ndim, "In-place error: Dimension count mismatch!");
-    for (i32 i = 0; i < shape_x.ndim; ++i) {
+    CXM_ASSERT(shape_x.shape.size() != shape_z.shape.size(), "In-place error: Dimension count mismatch!");
+    for (i32 i = 0; i < shape_x.shape.size(); ++i) {
         CXM_ASSERT(shape_x.shape[i] != shape_z.shape[i], "In-place error: Xx shape cannot be expanded!");
     }
 
     const auto kind = classify_broadcast(shape_x, shape_y);
     const auto dev = Xx->device();
 
-    const size_t M = shape_z.ndim >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 2]) : 1;
-    const size_t N = shape_z.ndim >= 1 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 1]) : 1;
+    const size_t M  = shape_z.shape.size() >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 2]) : 1;
+    const size_t N = !shape_z.shape.empty() ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 1]) : 1;
 
     #if CXM_IS_CUDA_AVAILABLE
         switch (kind) {
@@ -408,16 +408,16 @@ void TensorOp::sub(TensorStorage *Xx, const TensorShape &shape_x, const TensorSt
 
     const TensorShape shape_z = broadcast_shape(shape_x, shape_y);
 
-    CXM_ASSERT(shape_x.ndim != shape_z.ndim, "In-place error: Dimension count mismatch!");
-    for (i32 i = 0; i < shape_x.ndim; ++i) {
+    CXM_ASSERT(shape_x.shape.size() != shape_z.shape.size(), "In-place error: Dimension count mismatch!");
+    for (i32 i = 0; i < shape_x.shape.size(); ++i) {
         CXM_ASSERT(shape_x.shape[i] != shape_z.shape[i], "In-place error: Xx shape cannot be expanded!");
     }
 
     const auto kind = classify_broadcast(shape_x, shape_y);
     const auto dev = Xx->device();
 
-    const size_t M = shape_z.ndim >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 2]) : 1;
-    const size_t N = shape_z.ndim >= 1 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 1]) : 1;
+    const size_t M  = shape_z.shape.size() >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 2]) : 1;
+    const size_t N = !shape_z.shape.empty() ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 1]) : 1;
 
     #if CXM_IS_CUDA_AVAILABLE
         switch (kind) {
@@ -477,7 +477,7 @@ void TensorOp::sub(TensorStorage *Xx, const TensorShape &shape_x, const TensorSt
 }
 
 void TensorOp::mul(TensorStorage *Xx, const TensorShape &shape_x, const TensorStorage *Xy, const TensorShape &shape_y) {
-        CXM_ASSERT(Xx == nullptr, "Input/Output Storage is null");
+    CXM_ASSERT(Xx == nullptr, "Input/Output Storage is null");
     CXM_ASSERT(Xy == nullptr, "Input Storage is null");
     CXM_ASSERT(!Xx->isValid(), "Input/Output Storage is invalid");
     CXM_ASSERT(!Xy->isValid(), "Input Storage is invalid");
@@ -485,16 +485,16 @@ void TensorOp::mul(TensorStorage *Xx, const TensorShape &shape_x, const TensorSt
 
     const TensorShape shape_z = broadcast_shape(shape_x, shape_y);
 
-    CXM_ASSERT(shape_x.ndim != shape_z.ndim, "In-place error: Dimension count mismatch!");
-    for (i32 i = 0; i < shape_x.ndim; ++i) {
+    CXM_ASSERT(shape_x.shape.size() != shape_z.shape.size(), "In-place error: Dimension count mismatch!");
+    for (i32 i = 0; i < shape_x.shape.size(); ++i) {
         CXM_ASSERT(shape_x.shape[i] != shape_z.shape[i], "In-place error: Xx shape cannot be expanded!");
     }
 
     const auto kind = classify_broadcast(shape_x, shape_y);
     const auto dev = Xx->device();
 
-    const size_t M = shape_z.ndim >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 2]) : 1;
-    const size_t N = shape_z.ndim >= 1 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 1]) : 1;
+    const size_t M  = shape_z.shape.size() >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 2]) : 1;
+    const size_t N = !shape_z.shape.empty() ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 1]) : 1;
 
     #if CXM_IS_CUDA_AVAILABLE
         switch (kind) {
@@ -562,16 +562,16 @@ void TensorOp::div(TensorStorage *Xx, const TensorShape &shape_x, const TensorSt
 
     const TensorShape shape_z = broadcast_shape(shape_x, shape_y);
 
-    CXM_ASSERT(shape_x.ndim != shape_z.ndim, "In-place error: Dimension count mismatch!");
-    for (i32 i = 0; i < shape_x.ndim; ++i) {
+    CXM_ASSERT(shape_x.shape.size() != shape_z.shape.size(), "In-place error: Dimension count mismatch!");
+    for (i32 i = 0; i < shape_x.shape.size(); ++i) {
         CXM_ASSERT(shape_x.shape[i] != shape_z.shape[i], "In-place error: Xx shape cannot be expanded!");
     }
 
     const auto kind = classify_broadcast(shape_x, shape_y);
     const auto dev = Xx->device();
 
-    const size_t M = shape_z.ndim >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 2]) : 1;
-    const size_t N = shape_z.ndim >= 1 ? static_cast<size_t>(shape_z.shape[shape_z.ndim - 1]) : 1;
+    const size_t M  = shape_z.shape.size() >= 2 ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 2]) : 1;
+    const size_t N = !shape_z.shape.empty() ? static_cast<size_t>(shape_z.shape[shape_z.shape.size() - 1]) : 1;
 
     #if CXM_IS_CUDA_AVAILABLE
         switch (kind) {
@@ -645,9 +645,9 @@ void TensorOp::matmul(const TensorStorage *Xx, const TensorShape &shape_x, const
 
     const auto dev = Xz->device();
 
-    const auto M = static_cast<size_t>(shape_x.shape[shape_x.ndim - 2]);
-    const auto K = static_cast<size_t>(shape_x.shape[shape_x.ndim - 1]);
-    const auto N = static_cast<size_t>(shape_y.shape[shape_y.ndim - 1]);
+    const auto M = static_cast<size_t>(shape_x.shape[shape_x.shape.size() - 2]);
+    const auto K = static_cast<size_t>(shape_x.shape[shape_x.shape.size() - 1]);
+    const auto N = static_cast<size_t>(shape_y.shape[shape_y.shape.size() - 1]);
 
     #if CXM_IS_CUDA_AVAILABLE
         if (dev == DeviceType::kHOST) {

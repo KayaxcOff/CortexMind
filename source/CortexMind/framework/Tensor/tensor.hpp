@@ -12,14 +12,14 @@
 #include <CortexMind/framework/Tools/err.hpp>
 #include <CortexMind/framework/Tools/tensor_meta.hpp>
 #include <memory>
-#include <span>
 
 namespace cortex::_fw {
     class Tensor {
     public:
         Tensor();
         Tensor(const std::initializer_list<i64>& _shape, sys::DeviceType _device = sys::DeviceType::kHOST, bool _requires_grad = false);
-        explicit Tensor(const std::span<const i64>& _shape, sys::DeviceType _device = sys::DeviceType::kHOST, bool _requires_grad = false);
+        explicit Tensor(const std::vector<i64>& _shape, sys::DeviceType _device = sys::DeviceType::kHOST, bool _requires_grad = false);
+        explicit Tensor(const TensorShape& _shape,sys::DeviceType _device = sys::DeviceType::kHOST, bool _requires_grad = false);
         explicit Tensor(const meta::GradientPacked& packed);
         Tensor(const Tensor& other);
         Tensor(Tensor&& other) noexcept;
@@ -29,18 +29,18 @@ namespace cortex::_fw {
         [[nodiscard]]
         f32& at(Args...args) {
             CXM_ASSERT(this->storage_->device() != sys::DeviceType::kHOST, "Linear index access on at() can only be on CPU");
-            CXM_ASSERT(sizeof...(args) == this->m_shape.ndim, "Number of arguments does not match tensor dimensions.");
-            const std::array<i64, CXM_MAX_DIMS> indices{ static_cast<i64>(args)... };
-            const i64 idx = compute_idx(this->m_shape.stride, indices, this->m_shape.ndim, this->m_shape.offset);
+            CXM_ASSERT(sizeof...(args) != this->m_shape.shape.size(), "Number of arguments does not match tensor dimensions.");
+            const std::vector<i64> indices{ static_cast<i64>(args)... };
+            const i64 idx = compute_idx(this->m_shape.stride, indices, this->m_shape.offset);
             return this->storage_->data()[idx];
         }
         template<typename ... Args> requires (std::integral<Args> && ...)
         [[nodiscard]]
         const f32& at(Args...args) const {
             CXM_ASSERT(this->storage_->device() != sys::DeviceType::kHOST, "Linear index access on at() can only be on CPU");
-            CXM_ASSERT(sizeof...(args) == this->m_shape.ndim, "Number of arguments does not match tensor dimensions.");
-            const std::array<i64, CXM_MAX_DIMS> indices{ static_cast<i64>(args)... };
-            const i64 idx = compute_idx(this->m_shape.stride, indices, this->m_shape.ndim, this->m_shape.offset);
+            CXM_ASSERT(sizeof...(args) != this->m_shape.shape.size(), "Number of arguments does not match tensor dimensions.");
+            const std::vector<i64> indices{ static_cast<i64>(args)... };
+            const i64 idx = compute_idx(this->m_shape.stride, indices, this->m_shape.offset);
             return this->storage_->data()[idx];
         }
 
@@ -49,7 +49,7 @@ namespace cortex::_fw {
         [[nodiscard]]
         const f32* get() const;
         [[nodiscard]]
-        std::span<const i64> shape() const;
+        const std::vector<i64>& shape() const;
         [[nodiscard]]
         bool has_grad() const;
         [[nodiscard]]
@@ -186,7 +186,7 @@ namespace cortex::_fw {
         [[nodiscard]]
         Tensor transpose() const;
         [[nodiscard]]
-        Tensor permute(std::initializer_list<i64> dims) const;
+        Tensor permute(const std::vector<i64>& dims) const;
         [[nodiscard]]
         Tensor reshape(std::initializer_list<i64> _new_shape) const;
         [[nodiscard]]
@@ -251,9 +251,9 @@ namespace cortex::_fw {
 
         bool m_require;
 
-        void reduce_sizes(std::initializer_list<i64> dims, size_t& outer_size, size_t& dim_size, size_t& inner_size) const;
+        void reduce_sizes(const std::vector<i64>& dims, size_t &outer_size, size_t &dim_size, size_t &inner_size) const;
 
-        Tensor(const std::span<const i64>& _shape, const std::shared_ptr<TensorStorage>& _storage, bool _requires_grad = false);
+        Tensor(TensorShape  _shape, const std::shared_ptr<TensorStorage>& _storage, bool _requires_grad = false);
     };
 } //namespace cortex::_fw
 

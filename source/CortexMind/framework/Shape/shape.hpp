@@ -6,21 +6,19 @@
 #define CORTEXMIND_FRAMEWORK_SHAPE_SHAPE_HPP
 
 #include <CortexMind/framework/Tools/types.hpp>
-#include <CortexMind/runtime/macros.hpp>
-#include <array>
 #include <initializer_list>
-#include <span>
+#include <vector>
 
 namespace cortex::_fw {
     struct TensorShape {
         TensorShape();
-        TensorShape(std::initializer_list<i64> _shape);
-        explicit TensorShape(const std::span<const i64>& _shape);
+        TensorShape(std::initializer_list<i64> shape);
+        explicit TensorShape(const std::vector<i64>& shape);
+        TensorShape(const std::vector<i64>& shape, const std::vector<i64>& strides);
 
-        std::array<i64, CXM_MAX_DIMS> shape;
-        std::array<i64, CXM_MAX_DIMS> stride;
+        std::vector<i64> shape;
+        std::vector<i64> stride;
         i64 offset;
-        i32 ndim;
     };
 } //namespace cortex::_fw
 

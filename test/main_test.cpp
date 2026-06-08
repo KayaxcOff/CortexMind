@@ -105,28 +105,8 @@ int main() {
 }
 /*
 C:\software\Cpp\projects\CortexMind\cmake-build-debug-visual-studio\CXM_MAIN_TEST.exe
-
-==================================================
-Model:
-==================================================
-Layer                         Mode
---------------------------------------------------
-Dense(8, 64)                  Train
-ReLU                          Train
-Dense(64, 32)                 Train
-ReLU                          Train
-Dense(32, 16)                 Train
-ReLU                          Train
-Dropout(0.100000)             Train
-Dense(16, 6)                  Train
-==================================================
-Is compiled   : Yes
-Loss Function : CCEWithLogit
-Optimizer     : Adam(0.001000)
-Metric        : Accuracy
-Total Params  : 3286
-==================================================
-[ERROR] [CortexMind\framework\Engine\IX\TensorInit\init.cpp | 160] Storage is invalid
+[ERROR] [CortexMind\framework\Tools\tensor_meta.cpp | 16] Shape is empty
+Tensor::Tensor()
 
 Process finished with exit code 1
 */

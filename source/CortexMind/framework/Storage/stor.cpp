@@ -42,12 +42,10 @@ TensorStorage::TensorStorage(const size_t _size, const f32 *data, const DeviceTy
 
     #if CXM_IS_CUDA_AVAILABLE
         if (this->m_dev == DeviceType::kHOST) {
-            this->m_host_ptr = mem.allocate(this->m_size);
             if (data != nullptr) {
                 transform::copy_h2h(this->m_host_ptr, data, this->m_size);
             }
         } else {
-            this->m_cuda_ptr = forge.allocate(this->m_size);
             if (data != nullptr) {
                 transform::upload(this->m_cuda_ptr, data, this->m_size);
             }
@@ -73,9 +71,9 @@ TensorStorage::TensorStorage(const TensorStorage &other) : m_size(other.m_size),
     #if CXM_IS_CUDA_AVAILABLE
         if (this->m_dev == DeviceType::kHOST) {
             this->m_host_ptr = mem.allocate(this->m_size);
-            this->m_host_ptr = other.m_host_ptr;
+            //this->m_host_ptr = other.m_host_ptr;
+            transform::copy_h2h(this->m_host_ptr, other.m_host_ptr, this->m_size);
         } else {
-            this->m_cuda_ptr = forge.allocate(this->m_size);
             this->m_cuda_ptr = other.m_cuda_ptr;
         }
     #else //#if CXM_IS_CUDA_AVAILABLE
@@ -89,8 +87,8 @@ TensorStorage::TensorStorage(const TensorStorage &other) : m_size(other.m_size),
 }
 
 TensorStorage::TensorStorage(TensorStorage &&other) noexcept : m_size(other.m_size), m_dev(other.m_dev) {
-    //this->m_host_ptr = nullptr;
-    //this->m_cuda_ptr = nullptr;
+    this->m_host_ptr = nullptr;
+    this->m_cuda_ptr = nullptr;
 
     #if CXM_IS_CUDA_AVAILABLE
     if (this->m_dev == DeviceType::kHOST) {
@@ -163,13 +161,7 @@ bool TensorStorage::isEmpty() const noexcept {
 }
 
 bool TensorStorage::isValid() const noexcept {
-    if (this->m_size > 0) {
-        if (this->m_dev == DeviceType::kHOST) {
-            return this->m_host_ptr != nullptr;
-        }
-        return this->m_cuda_ptr != nullptr;
-    }
-    return false;
+    return this->m_dev == DeviceType::kHOST ? this->m_host_ptr != nullptr : this->m_cuda_ptr != nullptr;
 }
 
 DeviceType TensorStorage::device() const noexcept {

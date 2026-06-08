@@ -17,18 +17,23 @@
 #include <CortexMind/framework/Tools/err.hpp>
 #include <CortexMind/framework/Tools/tensor_meta.hpp>
 #include <bitset>
+#include <utility>
 
 using namespace cortex::_fw::sys;
 using namespace cortex::_fw;
-
-Tensor::Tensor() : m_shape({}), m_require(false) {
+#include <iostream>
+Tensor::Tensor()  {
+    std::cout << "Tensor::Tensor()" << std::endl;
+    this->m_shape = TensorShape({});
+    this->m_require = false;
     this->storage_ = nullptr;
     this->flow_ = nullptr;
     this->gradient_ = nullptr;
 }
 
 Tensor::Tensor(const std::initializer_list<i64> &_shape, const DeviceType _device, const bool _requires_grad) : m_shape(_shape), m_require(_requires_grad) {
-    this->storage_ = std::make_shared<TensorStorage>(compute_size(this->m_shape.shape, this->m_shape.ndim), _device);
+    std::cout << "Tensor" << std::endl;
+    this->storage_ = std::make_shared<TensorStorage>(compute_size(this->m_shape.shape), _device);
 
     if (this->m_require) {
         this->gradient_ = std::make_shared<Tensor>(_shape, _device);
@@ -36,8 +41,17 @@ Tensor::Tensor(const std::initializer_list<i64> &_shape, const DeviceType _devic
     }
 }
 
-Tensor::Tensor(const std::span<const i64> &_shape, const DeviceType _device, const bool _requires_grad) : m_shape(_shape), m_require(_requires_grad) {
-    this->storage_ = std::make_shared<TensorStorage>(compute_size(this->m_shape.shape, this->m_shape.ndim), _device);
+Tensor::Tensor(const std::vector<i64> &_shape, const DeviceType _device, const bool _requires_grad) : m_shape(_shape), m_require(_requires_grad) {
+    this->storage_ = std::make_shared<TensorStorage>(compute_size(this->m_shape.shape), _device);
+
+    if (this->m_require) {
+        this->gradient_ = std::make_shared<Tensor>(_shape, _device);
+        this->gradient_->zero();
+    }
+}
+
+Tensor::Tensor(const TensorShape &_shape, DeviceType _device, const bool _requires_grad) : m_shape(_shape), m_require(_requires_grad) {
+    this->storage_ = std::make_shared<TensorStorage>(compute_size(this->m_shape.shape), _device);
 
     if (this->m_require) {
         this->gradient_ = std::make_shared<Tensor>(_shape, _device);
@@ -63,17 +77,13 @@ Tensor::Tensor(const Tensor &other) : m_shape(other.m_shape), m_require(other.m_
     }
 }
 
-Tensor::Tensor(Tensor &&other) noexcept : m_shape(other.m_shape), m_require(other.m_require) {
+Tensor::Tensor(Tensor &&other) noexcept : m_shape(std::move(other.m_shape)), m_require(other.m_require) {
     this->storage_ = std::move(other.storage_);
     this->flow_ = std::move(other.flow_);
 
     if (this->m_require) {
         this->gradient_ = std::move(other.gradient_);
     }
-
-    other.storage_ = nullptr;
-    other.flow_ = nullptr;
-    other.gradient_ = nullptr;
 }
 
 Tensor::~Tensor() = default;
@@ -87,8 +97,8 @@ const f32 *Tensor::get() const {
     return this->storage_->data() + this->m_shape.offset;
 }
 
-std::span<const i64> Tensor::shape() const {
-    return {this->m_shape.shape.data(), static_cast<size_t>(m_shape.ndim)};
+const std::vector<i64> &Tensor::shape() const {
+    return this->m_shape.shape;
 }
 
 bool Tensor::has_grad() const {
@@ -104,7 +114,7 @@ bool Tensor::empty() const {
 }
 
 bool Tensor::is_contiguous() const {
-    return _fw::is_contiguous(this->m_shape.stride, this->m_shape.shape, this->m_shape.ndim);
+    return _fw::is_contiguous(this->m_shape.shape, this->m_shape.stride);
 }
 
 DeviceType Tensor::device() const {
@@ -116,7 +126,7 @@ size_t Tensor::len() const {
 }
 
 size_t Tensor::ndim() const {
-    return this->m_shape.ndim;
+    return this->m_shape.shape.size();
 }
 
 void Tensor::fill(const f32 value) const {
@@ -208,45 +218,18 @@ Tensor Tensor::mean() const {
 }
 
 Tensor Tensor::mean(const std::initializer_list<i64> dims, const bool keep_dim) const {
-    const i64 ndim_actual = this->m_shape.ndim;
+    size_t outer, dim, inner;
+    this->reduce_sizes(dims, outer, dim, inner);
 
-    std::bitset<CXM_MAX_DIMS> reduce_mask;
-    for (auto item : dims) {
-        if (item < 0) item += ndim_actual;
-        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
-        reduce_mask.set(item);
-    }
+    const std::vector<i64> new_shape = compute_reduced_shape(this->m_shape, dims, keep_dim);
 
-    size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
+    Tensor output(new_shape, this->device(), this->m_require);
 
-    std::array<i64, CXM_MAX_DIMS> new_shape_array{};
-    size_t new_ndim = 0;
-
-    for (i64 i = 0; i < ndim_actual; ++i) {
-        if (reduce_mask.test(i)) {
-            if (keep_dim) {
-                new_shape_array[new_ndim++] = 1;
-            }
-        } else {
-            new_shape_array[new_ndim++] = this->m_shape.shape[i];
-        }
-    }
-
-    if (new_ndim == 0) {
-        new_shape_array[0] = 1;
-        new_ndim = 1;
-    }
-
-    const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-    Tensor output(shape_span, this->device(), this->m_require);
-
-    ix::TensorReduce::mean(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
+    ix::TensorReduce::mean(this->storage_.get(), output.storage_.get(), outer, dim, inner);
 
     if (output.m_require) {
         output.flow_ = std::make_shared<meta::mean_dim>(this->pack(), dims, keep_dim);
     }
-
     return output;
 }
 
@@ -263,39 +246,14 @@ Tensor Tensor::variance() const {
 }
 
 Tensor Tensor::variance(const std::initializer_list<i64> dims, const bool keep_dim) const {
-    const i64 ndim_actual = this->m_shape.ndim;
-    std::bitset<CXM_MAX_DIMS> reduce_mask;
-    for (auto item : dims) {
-        if (item < 0) item += ndim_actual;
-        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
-        reduce_mask.set(item);
-    }
+    size_t outer, dim, inner;
+    this->reduce_sizes(dims, outer, dim, inner);
 
-    size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
+    const std::vector<i64> new_shape = compute_reduced_shape(this->m_shape, dims, keep_dim);
 
-    std::array<i64, CXM_MAX_DIMS> new_shape_array{};
-    size_t new_ndim = 0;
+    Tensor output(new_shape, this->device(), this->m_require);
 
-    for (i64 i = 0; i < ndim_actual; ++i) {
-        if (reduce_mask.test(i)) {
-            if (keep_dim) {
-                new_shape_array[new_ndim++] = 1;
-            }
-        } else {
-            new_shape_array[new_ndim++] = this->m_shape.shape[i];
-        }
-    }
-
-    if (new_ndim == 0) {
-        new_shape_array[0] = 1;
-        new_ndim = 1;
-    }
-
-    const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-    Tensor output(shape_span, this->device(), this->m_require);
-
-    ix::TensorReduce::var(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
+    ix::TensorReduce::var(this->storage_.get(), output.storage_.get(), outer, dim, inner);
 
     if (output.m_require) {
         output.flow_ = std::make_shared<meta::variance_dim>(this->pack(), dims, keep_dim);
@@ -317,39 +275,14 @@ Tensor Tensor::stdv() const {
 }
 
 Tensor Tensor::stdv(const std::initializer_list<i64> dims, const bool keep_dim) const {
-    const i64 ndim_actual = this->m_shape.ndim;
-    std::bitset<CXM_MAX_DIMS> reduce_mask;
-    for (auto item : dims) {
-        if (item < 0) item += ndim_actual;
-        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
-        reduce_mask.set(item);
-    }
+    size_t outer, dim, inner;
+    this->reduce_sizes(dims, outer, dim, inner);
 
-    size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
+    const std::vector<i64> new_shape = compute_reduced_shape(this->m_shape, dims, keep_dim);
 
-    std::array<i64, CXM_MAX_DIMS> new_shape_array{};
-    size_t new_ndim = 0;
+    Tensor output(new_shape, this->device(), this->m_require);
 
-    for (i64 i = 0; i < ndim_actual; ++i) {
-        if (reduce_mask.test(i)) {
-            if (keep_dim) {
-                new_shape_array[new_ndim++] = 1;
-            }
-        } else {
-            new_shape_array[new_ndim++] = this->m_shape.shape[i];
-        }
-    }
-
-    if (new_ndim == 0) {
-        new_shape_array[0] = 1;
-        new_ndim = 1;
-    }
-
-    const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-    Tensor output(shape_span, this->device(), this->m_require);
-
-    ix::TensorReduce::stdv(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
+    ix::TensorReduce::stdv(this->storage_.get(), output.storage_.get(), outer, dim, inner);
 
     if (output.m_require) {
         output.flow_ = std::make_shared<meta::stdv_dim>(this->pack(), output.pack(), dims, keep_dim);
@@ -371,39 +304,14 @@ Tensor Tensor::norm1() const {
 }
 
 Tensor Tensor::norm1(const std::initializer_list<i64> dims, const bool keep_dim) const {
-    const i64 ndim_actual = this->m_shape.ndim;
-    std::bitset<CXM_MAX_DIMS> reduce_mask;
-    for (auto item : dims) {
-        if (item < 0) item += ndim_actual;
-        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
-        reduce_mask.set(item);
-    }
+    size_t outer, dim, inner;
+    this->reduce_sizes(dims, outer, dim, inner);
 
-    size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
+    const std::vector<i64> new_shape = compute_reduced_shape(this->m_shape, dims, keep_dim);
 
-    std::array<i64, CXM_MAX_DIMS> new_shape_array{};
-    size_t new_ndim = 0;
+    Tensor output(new_shape, this->device(), this->m_require);
 
-    for (i64 i = 0; i < ndim_actual; ++i) {
-        if (reduce_mask.test(i)) {
-            if (keep_dim) {
-                new_shape_array[new_ndim++] = 1;
-            }
-        } else {
-            new_shape_array[new_ndim++] = this->m_shape.shape[i];
-        }
-    }
-
-    if (new_ndim == 0) {
-        new_shape_array[0] = 1;
-        new_ndim = 1;
-    }
-
-    const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-    Tensor output(shape_span, this->device(), this->m_require);
-
-    ix::TensorReduce::norm1(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
+    ix::TensorReduce::norm1(this->storage_.get(), output.storage_.get(), outer, dim, inner);
 
     if (output.m_require) {
         output.flow_ = std::make_shared<meta::norm1_dim>(this->pack(), dims, keep_dim);
@@ -424,39 +332,14 @@ Tensor Tensor::norm2() const {
 }
 
 Tensor Tensor::norm2(const std::initializer_list<i64> dims, const bool keep_dim) const {
-    const i64 ndim_actual = this->m_shape.ndim;
-    std::bitset<CXM_MAX_DIMS> reduce_mask;
-    for (auto item : dims) {
-        if (item < 0) item += ndim_actual;
-        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
-        reduce_mask.set(item);
-    }
+    size_t outer, dim, inner;
+    this->reduce_sizes(dims, outer, dim, inner);
 
-    size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
+    const std::vector<i64> new_shape = compute_reduced_shape(this->m_shape, dims, keep_dim);
 
-    std::array<i64, CXM_MAX_DIMS> new_shape_array{};
-    size_t new_ndim = 0;
+    Tensor output(new_shape, this->device(), this->m_require);
 
-    for (i64 i = 0; i < ndim_actual; ++i) {
-        if (reduce_mask.test(i)) {
-            if (keep_dim) {
-                new_shape_array[new_ndim++] = 1;
-            }
-        } else {
-            new_shape_array[new_ndim++] = this->m_shape.shape[i];
-        }
-    }
-
-    if (new_ndim == 0) {
-        new_shape_array[0] = 1;
-        new_ndim = 1;
-    }
-
-    const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-    Tensor output(shape_span, this->device(), this->m_require);
-
-    ix::TensorReduce::norm2(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
+    ix::TensorReduce::norm2(this->storage_.get(), output.storage_.get(), outer, dim, inner);
 
     if (output.m_require) {
         output.flow_ = std::make_shared<meta::norm2_dim>(this->pack(), output.pack(), dims, keep_dim);
@@ -472,39 +355,14 @@ Tensor Tensor::max() const {
 }
 
 Tensor Tensor::max(const std::initializer_list<i64> dims, const bool keep_dim) const {
-    const i64 ndim_actual = this->m_shape.ndim;
-    std::bitset<CXM_MAX_DIMS> reduce_mask;
-    for (auto item : dims) {
-        if (item < 0) item += ndim_actual;
-        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
-        reduce_mask.set(item);
-    }
+    size_t outer, dim, inner;
+    this->reduce_sizes(dims, outer, dim, inner);
 
-    size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
+    const std::vector<i64> new_shape = compute_reduced_shape(this->m_shape, dims, keep_dim);
 
-    std::array<i64, CXM_MAX_DIMS> new_shape_array{};
-    size_t new_ndim = 0;
+    Tensor output(new_shape, this->device(), this->m_require);
 
-    for (i64 i = 0; i < ndim_actual; ++i) {
-        if (reduce_mask.test(i)) {
-            if (keep_dim) {
-                new_shape_array[new_ndim++] = 1;
-            }
-        } else {
-            new_shape_array[new_ndim++] = this->m_shape.shape[i];
-        }
-    }
-
-    if (new_ndim == 0) {
-        new_shape_array[0] = 1;
-        new_ndim = 1;
-    }
-
-    const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-    Tensor output(shape_span, this->device(), this->m_require);
-
-    ix::TensorReduce::max(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
+    ix::TensorReduce::max(this->storage_.get(), output.storage_.get(), outer, dim, inner);
     return output;
 }
 
@@ -515,39 +373,14 @@ Tensor Tensor::min() const {
 }
 
 Tensor Tensor::min(const std::initializer_list<i64> dims, const bool keep_dim) const {
-    const i64 ndim_actual = this->m_shape.ndim;
-    std::bitset<CXM_MAX_DIMS> reduce_mask;
-    for (auto item : dims) {
-        if (item < 0) item += ndim_actual;
-        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
-        reduce_mask.set(item);
-    }
+    size_t outer, dim, inner;
+    this->reduce_sizes(dims, outer, dim, inner);
 
-    size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
+    const std::vector<i64> new_shape = compute_reduced_shape(this->m_shape, dims, keep_dim);
 
-    std::array<i64, CXM_MAX_DIMS> new_shape_array{};
-    size_t new_ndim = 0;
+    Tensor output(new_shape, this->device(), this->m_require);
 
-    for (i64 i = 0; i < ndim_actual; ++i) {
-        if (reduce_mask.test(i)) {
-            if (keep_dim) {
-                new_shape_array[new_ndim++] = 1;
-            }
-        } else {
-            new_shape_array[new_ndim++] = this->m_shape.shape[i];
-        }
-    }
-
-    if (new_ndim == 0) {
-        new_shape_array[0] = 1;
-        new_ndim = 1;
-    }
-
-    const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-    Tensor output(shape_span, this->device(), this->m_require);
-
-    ix::TensorReduce::min(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
+    ix::TensorReduce::min(this->storage_.get(), output.storage_.get(), outer, dim, inner);
     return output;
 }
 
@@ -563,39 +396,14 @@ Tensor Tensor::sum() const {
 }
 
 Tensor Tensor::sum(const std::initializer_list<i64> dims, const bool keep_dim) const {
-    const i64 ndim_actual = this->m_shape.ndim;
-    std::bitset<CXM_MAX_DIMS> reduce_mask;
-    for (auto item : dims) {
-        if (item < 0) item += ndim_actual;
-        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
-        reduce_mask.set(item);
-    }
+    size_t outer, dim, inner;
+    this->reduce_sizes(dims, outer, dim, inner);
 
-    size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
+    const std::vector<i64> new_shape = compute_reduced_shape(this->m_shape, dims, keep_dim);
 
-    std::array<i64, CXM_MAX_DIMS> new_shape_array{};
-    size_t new_ndim = 0;
+    Tensor output(new_shape, this->device(), this->m_require);
 
-    for (i64 i = 0; i < ndim_actual; ++i) {
-        if (reduce_mask.test(i)) {
-            if (keep_dim) {
-                new_shape_array[new_ndim++] = 1;
-            }
-        } else {
-            new_shape_array[new_ndim++] = this->m_shape.shape[i];
-        }
-    }
-
-    if (new_ndim == 0) {
-        new_shape_array[0] = 1;
-        new_ndim = 1;
-    }
-
-    const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-    Tensor output(shape_span, this->device(), this->m_require);
-
-    ix::TensorReduce::sum(this->storage_.get(), output.storage_.get(), outer_size, dim_size, inner_size);
+    ix::TensorReduce::sum(this->storage_.get(), output.storage_.get(), outer, dim, inner);
 
     if (output.m_require) {
         output.flow_ = std::make_shared<meta::sum_dim>(this->pack(), dims, keep_dim);
@@ -611,39 +419,14 @@ Tensor Tensor::argmax() const {
 }
 
 Tensor Tensor::argmax(const std::initializer_list<i64> dims, const bool keep_dim) const {
-    const i64 ndim_actual = this->m_shape.ndim;
-    std::bitset<CXM_MAX_DIMS> reduce_mask;
-    for (auto item : dims) {
-        if (item < 0) item += ndim_actual;
-        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
-        reduce_mask.set(item);
-    }
+    size_t outer, dim, inner;
+    this->reduce_sizes(dims, outer, dim, inner);
 
-    size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
+    const std::vector<i64> new_shape = compute_reduced_shape(this->m_shape, dims, keep_dim);
 
-    std::array<i64, CXM_MAX_DIMS> new_shape_array{};
-    size_t new_ndim = 0;
+    Tensor output(new_shape, this->device(), this->m_require);
 
-    for (i64 i = 0; i < ndim_actual; ++i) {
-        if (reduce_mask.test(i)) {
-            if (keep_dim) {
-                new_shape_array[new_ndim++] = 1;
-            }
-        } else {
-            new_shape_array[new_ndim++] = this->m_shape.shape[i];
-        }
-    }
-
-    if (new_ndim == 0) {
-        new_shape_array[0] = 1;
-        new_ndim = 1;
-    }
-
-    const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-    Tensor output(shape_span, this->device(), this->m_require);
-
-    ix::TensorReduce::argmax(this->storage_.get(), output.m_shape.shape.data(), outer_size, dim_size, inner_size);
+    ix::TensorReduce::argmax(this->storage_.get(), output.m_shape.shape.data(), outer, dim, inner);
     return output;
 }
 
@@ -654,39 +437,14 @@ Tensor Tensor::argmin() const {
 }
 
 Tensor Tensor::argmin(const std::initializer_list<i64> dims, const bool keep_dim) const {
-    const i64 ndim_actual = this->m_shape.ndim;
-    std::bitset<CXM_MAX_DIMS> reduce_mask;
-    for (auto item : dims) {
-        if (item < 0) item += ndim_actual;
-        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
-        reduce_mask.set(item);
-    }
+    size_t outer, dim, inner;
+    this->reduce_sizes(dims, outer, dim, inner);
 
-    size_t outer_size, dim_size, inner_size;
-    this->reduce_sizes(dims, outer_size, dim_size, inner_size);
+    const std::vector<i64> new_shape = compute_reduced_shape(this->m_shape, dims, keep_dim);
 
-    std::array<i64, CXM_MAX_DIMS> new_shape_array{};
-    size_t new_ndim = 0;
+    Tensor output(new_shape, this->device(), this->m_require);
 
-    for (i64 i = 0; i < ndim_actual; ++i) {
-        if (reduce_mask.test(i)) {
-            if (keep_dim) {
-                new_shape_array[new_ndim++] = 1;
-            }
-        } else {
-            new_shape_array[new_ndim++] = this->m_shape.shape[i];
-        }
-    }
-
-    if (new_ndim == 0) {
-        new_shape_array[0] = 1;
-        new_ndim = 1;
-    }
-
-    const std::span<const i64> shape_span(new_shape_array.data(), new_ndim);
-    Tensor output(shape_span, this->device(), this->m_require);
-
-    ix::TensorReduce::argmin(this->storage_.get(), output.m_shape.shape.data(), outer_size, dim_size, inner_size);
+    ix::TensorReduce::argmin(this->storage_.get(), output.m_shape.shape.data(), outer, dim, inner);
     return output;
 }
 
@@ -943,7 +701,7 @@ Tensor Tensor::inv() const {
 }
 
 Tensor Tensor::slice(i64 dim, i64 start, i64 end) const {
-    const i64 ndim_actual = this->m_shape.ndim;
+    const i64 ndim_actual = static_cast<i64>(this->ndim());
 
     if (dim < 0) {
         dim += ndim_actual;
@@ -983,7 +741,7 @@ Tensor Tensor::slice(i64 dim, i64 start, i64 end) const {
 
     new_shape.offset = this->m_shape.offset + (start * this->m_shape.stride[dim]);
 
-    Tensor output(new_shape.shape, this->storage_, this->m_require);
+    Tensor output(new_shape, this->storage_, this->m_require);
 
     if (output.m_require) {
         output.flow_ = std::make_shared<meta::slice>(this->pack(), dim, start, end);
@@ -1005,7 +763,7 @@ Tensor Tensor::clamp(const f32 min, const f32 max) const {
 }
 
 Tensor Tensor::add(const Tensor &other) const {
-    auto _shape = broadcast_shape(this->m_shape, other.m_shape);
+    const auto _shape = broadcast_shape(this->m_shape, other.m_shape);
     Tensor output(_shape.shape, this->device(), this->m_require || other.m_require);
 
     ix::TensorOp::add(this->storage_.get(), this->m_shape, other.storage_.get(), other.m_shape, output.storage_.get(), output.m_shape);
@@ -1018,7 +776,7 @@ Tensor Tensor::add(const Tensor &other) const {
 }
 
 Tensor Tensor::sub(const Tensor &other) const {
-    auto _shape = broadcast_shape(this->m_shape, other.m_shape);
+    const auto _shape = broadcast_shape(this->m_shape, other.m_shape);
     Tensor output(_shape.shape, this->device(), this->m_require || other.m_require);
 
     ix::TensorOp::sub(this->storage_.get(), this->m_shape, other.storage_.get(), other.m_shape, output.storage_.get(), output.m_shape);
@@ -1031,7 +789,7 @@ Tensor Tensor::sub(const Tensor &other) const {
 }
 
 Tensor Tensor::mul(const Tensor &other) const {
-    auto _shape = broadcast_shape(this->m_shape, other.m_shape);
+    const auto _shape = broadcast_shape(this->m_shape, other.m_shape);
     Tensor output(_shape.shape, this->device(), this->m_require || other.m_require);
 
     ix::TensorOp::mul(this->storage_.get(), this->m_shape, other.storage_.get(), other.m_shape, output.storage_.get(), output.m_shape);
@@ -1044,7 +802,7 @@ Tensor Tensor::mul(const Tensor &other) const {
 }
 
 Tensor Tensor::div(const Tensor &other) const {
-    auto _shape = broadcast_shape(this->m_shape, other.m_shape);
+    const auto _shape = broadcast_shape(this->m_shape, other.m_shape);
     Tensor output(_shape.shape, this->device(), this->m_require || other.m_require);
 
     ix::TensorOp::div(this->storage_.get(), this->m_shape, other.storage_.get(), other.m_shape, output.storage_.get(), output.m_shape);
@@ -1116,12 +874,12 @@ Tensor Tensor::to(const DeviceType _device) {
 }
 
 Tensor Tensor::transpose() const {
-    CXM_ASSERT(this->m_shape.ndim < 2, "Transpose requires at least 2 dimensions.");
+    CXM_ASSERT(this->ndim() >= 2, "Transpose requires at least 2 dimensions.");
 
     Tensor output(*this);
 
-    const i32 d1 = this->m_shape.ndim - 1;
-    const i32 d2 = this->m_shape.ndim - 2;
+    const i32 d1 = static_cast<i32>(this->ndim()) - 1;
+    const i32 d2 = static_cast<i32>(this->ndim()) - 2;
 
     std::swap(output.m_shape.shape[d1], output.m_shape.shape[d2]);
     std::swap(output.m_shape.stride[d1], output.m_shape.stride[d2]);
@@ -1133,37 +891,30 @@ Tensor Tensor::transpose() const {
     return output;
 }
 
-Tensor Tensor::permute(const std::initializer_list<i64> dims) const {
-    CXM_ASSERT(dims.size() == static_cast<size_t>(this->m_shape.ndim), "Permute dimensions must match tensor ndim.");
+Tensor Tensor::permute(const std::vector<i64>& dims) const {
+    const size_t ndim = this->ndim();
+    CXM_ASSERT(dims.size() == ndim, "Permute dims must match tensor rank.");
 
     Tensor output(*this);
+    std::vector seen(ndim, false);
 
-    bool seen[CXM_MAX_DIMS] = { false };
-    size_t idx = 0;
+    for (size_t i = 0; i < ndim; ++i) {
+        i64 d = dims[i];
+        if (d < 0) d += static_cast<i64>(ndim);
 
-    for (i64 item : dims) {
-        if (item < 0) {
-            item += this->m_shape.ndim;
-        }
+        CXM_ASSERT(d >= 0 && d < static_cast<i64>(ndim), "Dimension out of range.");
+        CXM_ASSERT(!seen[d], "Duplicate dimension in permute.");
+        seen[d] = true;
 
-        CXM_ASSERT(item >= 0 && item < this->m_shape.ndim, "Permute dimension out of range.");
-        CXM_ASSERT(!seen[item], "Permute dimensions cannot contain duplicates.");
-        seen[item] = true;
-
-        output.m_shape.shape[idx] = this->m_shape.shape[item];
-        output.m_shape.stride[idx] = this->m_shape.stride[item];
-        idx++;
+        output.m_shape.shape[i] = this->m_shape.shape[d];
+        output.m_shape.stride[i] = this->m_shape.stride[d];
     }
-
-    if (output.m_require) {
-        output.flow_ = std::make_shared<meta::permute>(this->pack(), dims);
-    }
-
     return output;
 }
 
 Tensor Tensor::reshape(const std::initializer_list<i64> _new_shape) const {
-    Tensor output(_new_shape, this->storage_, this->m_require);
+    const TensorShape _shape(_new_shape);
+    Tensor output(_shape, this->storage_, this->m_require);
 
     if (output.m_require) {
         output.flow_ = std::make_shared<meta::reshape>(this->pack(), _new_shape);
@@ -1174,55 +925,47 @@ Tensor Tensor::reshape(const std::initializer_list<i64> _new_shape) const {
 
 Tensor Tensor::squeeze(i64 dim) const {
     Tensor output(*this);
-    output.m_shape.ndim = 0;
+    output.m_shape.shape.clear();
+    output.m_shape.stride.clear();
 
-    if (dim < 0 && dim != -1) dim += this->m_shape.ndim;
+    const size_t ndim = this->ndim();
+    if (dim < 0) dim += static_cast<i64>(ndim);
 
-    for (i32 i = 0; i < this->m_shape.ndim; ++i) {
-        if (dim == -1) {
-            if (m_shape.shape[i] == 1) {
-                continue;
-            }
-        } else {
-            if (i == static_cast<i32>(dim)) {
-                CXM_ASSERT(this->m_shape.shape[i] == 1, "Can only squeeze a dimension of size 1.");
-                continue;
-            }
+    for (size_t i = 0; i < ndim; ++i) {
+        if (dim != -1 && static_cast<i64>(i) == dim) {
+            CXM_ASSERT(this->m_shape.shape[i] != 1, "Can only squeeze dim of size 1.");
+            continue;
+        }
+        if (dim == -1 && this->m_shape.shape[i] == 1) {
+            continue;
         }
 
-        output.m_shape.shape[output.m_shape.ndim] = this->m_shape.shape[i];
-        output.m_shape.stride[output.m_shape.ndim] = this->m_shape.stride[i];
-        output.m_shape.ndim++;
+        output.m_shape.shape.push_back(this->m_shape.shape[i]);
+        output.m_shape.stride.push_back(this->m_shape.stride[i]);
     }
-
     return output;
 }
 
 Tensor Tensor::unsqueeze(i64 dim) const {
-    if (dim < 0) dim += this->m_shape.ndim + 1;
-    CXM_ASSERT(dim >= 0 && dim <= this->m_shape.ndim, "Unsqueeze dimension out of range.");
-    CXM_ASSERT(this->m_shape.ndim < CXM_MAX_DIMS, "Max dimensions exceeded.");
-
-    Tensor output(*this);
-    output.m_shape.ndim = this->m_shape.ndim + 1;
-
-    i32 src_idx = 0;
-    for (i32 i = 0; i < output.m_shape.ndim; ++i) {
-        if (i == static_cast<i32>(dim)) {
-            output.m_shape.shape[i] = 1;
-            output.m_shape.stride[i] = (i < output.m_shape.ndim - 1) ? this->m_shape.stride[src_idx] : 1;
-        } else {
-            output.m_shape.shape[i] = this->m_shape.shape[src_idx];
-            output.m_shape.stride[i] = this->m_shape.stride[src_idx];
-            src_idx++;
-        }
+    const size_t ndim = this->ndim();
+    if (dim < 0) {
+        dim += static_cast<i64>(ndim + 1);
     }
 
+    Tensor output(*this);
+    output.m_shape.shape.insert(output.m_shape.shape.begin() + dim, 1);
+    output.m_shape.stride.insert(output.m_shape.stride.begin() + dim, 0);
     return output;
 }
 
 Tensor Tensor::contiguous() const {
-    return {this->shape(), this->storage_, this->m_require};
+    Tensor output(this->m_shape, this->storage_, this->m_require);
+
+    output.flow_ = this->flow_;
+    if (output.m_require) {
+        output.gradient_ = this->gradient_;
+    }
+    return output;
 }
 
 Tensor Tensor::detach() const {
@@ -1258,55 +1001,42 @@ meta::GradientPacked Tensor::pack() const {
     return {this->storage_, this->flow_, this->gradient_, this->m_shape, this->m_require};
 }
 
-void Tensor::reduce_sizes(const std::initializer_list<i64> dims, size_t &outer_size, size_t &dim_size, size_t &inner_size) const {
-    const i64 ndim_actual = this->m_shape.ndim;
+void Tensor::reduce_sizes(const std::vector<i64> &dims, size_t &outer_size, size_t &dim_size, size_t &inner_size) const {
+    const size_t ndim_actual = this->m_shape.shape.size();
 
-    CXM_ASSERT(!this->is_contiguous(), "Tensor must be contiguous for multi-axis reduction.");
+    CXM_ASSERT(!this->is_contiguous(), "Tensor must be contiguous.");
 
-    std::bitset<CXM_MAX_DIMS> reduce_mask;
-
-    for (auto item : dims) {
-        if (item < 0) {
-            item += ndim_actual;
-        }
-        CXM_ASSERT(item < 0 || item >= ndim_actual, "Dimension out of range");
-        reduce_mask.set(item);
+    std::vector reduce_mask(ndim_actual, false);
+    for (const i64 item : dims) {
+        const i64 d = (item < 0) ? item + static_cast<i64>(ndim_actual) : item;
+        CXM_ASSERT(d >= 0 && d < static_cast<i64>(ndim_actual), "Dimension out of range");
+        reduce_mask[d] = true;
     }
 
-    if (dims.size() == 0) {
-        outer_size = 1;
-        dim_size = this->len();
-        inner_size = 1;
-        return;
-    }
+    outer_size = 1; dim_size = 1; inner_size = 1;
+    int stage = 0;
 
-    outer_size = 1;
-    dim_size = 1;
-    inner_size = 1;
-
-    i32 stage = 0;
-
-    for (i64 i = 0; i < ndim_actual; ++i) {
-        const auto current_dim_len = static_cast<size_t>(this->m_shape.shape[i]);
-
-        if (reduce_mask.test(i)) {
-            if (stage == 0) {
-                stage = 1;
-            } else if (stage == 2) {
-                CXM_ASSERT(true, "Selected reduce dimensions must be contiguous (e.g., {1, 2} is valid, {0, 2} is invalid).");
-            }
-            dim_size *= current_dim_len;
+    for (size_t i = 0; i < ndim_actual; ++i) {
+        const auto len = static_cast<size_t>(this->m_shape.shape[i]);
+        if (reduce_mask[i]) {
+            CXM_ASSERT(stage == 2, "Dimensions must be contiguous.");
+            stage = 1;
+            dim_size *= len;
         } else {
-            if (stage == 0) {
-                outer_size *= current_dim_len;
-            } else {
+            if (stage == 0) outer_size *= len;
+            else {
                 stage = 2;
-                inner_size *= current_dim_len;
+                inner_size *= len;
             }
         }
     }
 }
 
-Tensor::Tensor(const std::span<const i64> &_shape, const std::shared_ptr<TensorStorage> &_storage, const bool _requires_grad) : m_shape(_shape), m_require(_requires_grad) {
+Tensor::Tensor(TensorShape _shape, const std::shared_ptr<TensorStorage> &_storage, const bool _requires_grad) : m_shape(std::move(_shape)), m_require(_requires_grad) {
     this->storage_ = _storage;
+
+    if (this->m_require) {
+        this->gradient_ = std::make_shared<Tensor>(this->shape(), this->device());
+        this->gradient_->zero();
+    }
 }
