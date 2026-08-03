@@ -2,7 +2,7 @@
 // Created by muham on 3.08.2026.
 //
 
-#include "CortexMind/framework/Type/size_of.hpp"
+#include "CortexMind/framework/Type/size.hpp"
 #include <CortexMind/framework/Tools/types.hpp>
 
 std::size_t cortex::_fw::sizeOf(const DType type) noexcept {
@@ -24,9 +24,9 @@ std::size_t cortex::_fw::sizeOf(const DType type) noexcept {
         case DType::QInt8:
             return sizeof(qint8);
         case DType::QUInt16:
-            return sizeof(qint16);
+            return sizeof(quint16);
         case DType::QUInt8:
-            return sizeof(qint8);
+            return sizeof(quint8);
         case DType::Unknown:
         default:
             return 0;

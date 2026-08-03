@@ -23,9 +23,9 @@ tlx::vstring cortex::_fw::as_string(const DType type) {
         case DType::QInt8:
             return "qint8";
         case DType::QUInt16:
-            return "qint16";
+            return "quint16";
         case DType::QUInt8:
-            return "qint8";
+            return "quint8";
         case DType::Unknown:
         default:
             return "unknown";

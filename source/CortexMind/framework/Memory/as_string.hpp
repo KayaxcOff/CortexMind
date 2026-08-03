@@ -9,6 +9,23 @@
 #include <tlx/string.hpp>
 
 namespace cortex::_fw {
+    /**
+     * @brief Converts a device type to its canonical string representation.
+     *
+     * Returns the human-readable name associated with the specified
+     * @ref DeviceType. The returned string is intended for logging,
+     * debugging, serialization, and diagnostic output.
+     *
+     * If the specified device type is unknown or unsupported,
+     * the function returns `"unknown"`.
+     *
+     * @param type The device type to convert.
+     *
+     * @return A string containing the canonical device name.
+     *
+     * @note The returned names follow the CortexMind runtime naming
+     * convention (e.g. `"cpu"` and `"cuda"`).
+     */
     [[nodiscard]]
     tlx::vstring as_string(DeviceType type);
 } //namespace cortex::_fw

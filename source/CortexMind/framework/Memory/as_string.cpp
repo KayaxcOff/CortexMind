@@ -10,6 +10,7 @@ tlx::vstring cortex::_fw::as_string(const DeviceType type) {
             return "cpu";
         case DeviceType::CUDA:
             return "cuda";
+        case DeviceType::Unknown:
         default:
             return "unknown";
     }

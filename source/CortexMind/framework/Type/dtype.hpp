@@ -8,6 +8,16 @@
 #include <cstdint>
 
 namespace cortex::_fw {
+    /**
+     * @brief Represents the underlying scalar data type of tensors and numerical objects.
+     *
+     * This enumeration identifies the storage format of tensor elements and is
+     * used throughout the framework for type dispatching, memory allocation,
+     * serialization, and runtime type inspection.
+     *
+     * Both floating-point and quantized integer formats are supported to enable
+     * efficient inference and training across different hardware architectures.
+     */
     enum class DType : std::uint8_t {
         Unknown = 0,
         Int32 = 1,

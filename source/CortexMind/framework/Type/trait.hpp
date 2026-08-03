@@ -11,6 +11,23 @@
 #include <cstdint>
 
 namespace cortex::_fw {
+    /**
+     * @brief Provides a compile-time mapping from a native C++ type to its corresponding
+     *        CortexMind data type.
+     *
+     * TypeTraits is used by the framework to associate arithmetic types with
+     * their runtime representation defined by @ref DType. Each supported scalar
+     * type has a dedicated specialization exposing the corresponding @c DType
+     * through the static member @c type.
+     *
+     * This trait is primarily intended for template metaprogramming, compile-time
+     * dispatch, and automatic tensor type deduction.
+     *
+     * @tparam T A supported arithmetic-like scalar type.
+     *
+     * @note The primary template is intentionally left undefined. Only explicitly
+     * specialized types are supported.
+     */
     template<tlx::arithmetic_like>
     struct TypeTraits;
 
@@ -64,9 +81,25 @@ namespace cortex::_fw {
         static constexpr auto type = DType::QUInt8;
     };
 
+    /// Compile-time shortcut for obtaining the corresponding DType of a native C++ type.
     template<tlx::arithmetic_like T>
     constexpr auto ttype_of = TypeTraits<T>::type;
 
+    /**
+     * @brief Provides the inverse compile-time mapping from a CortexMind data type
+     *        to its corresponding native C++ type.
+     *
+     * RTypeTraits performs the reverse operation of @ref TypeTraits by exposing
+     * the associated C++ type through the member typedef @c type.
+     *
+     * This trait is commonly used when a runtime @ref DType value has already
+     * been resolved at compile time and the framework needs to recover the
+     * underlying scalar type for template instantiation.
+     *
+     * @tparam T A valid CortexMind data type.
+     *
+     * @note The specialization for @ref DType::Unknown resolves to @c void.
+     */
     template<DType>
     struct RTypeTraits;
 
@@ -125,6 +158,7 @@ namespace cortex::_fw {
         using type = void;
     };
 
+    /// Compile-time shortcut for obtaining the native C++ type associated with a DType.
     template<DType T>
     using rtype_of = RTypeTraits<T>::type;
 } //namespace cortex::_fw
