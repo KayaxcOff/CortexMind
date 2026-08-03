@@ -66,3 +66,8 @@ void errors::WarnIf(const bool condition, const tlx::vstring msg, const std::sou
         Log(std::cout, LogLevel::Yellow) << "[" << sloc.file_name() << ":" << sloc.line() << "] " << msg << "\n";
     }
 }
+
+void errors::WrongDevice() {
+    Log(std::cerr, LogLevel::Red) << "[DEVICE ERROR] Wrong device.\n";
+    std::exit(CXM_ERR_EXIT);
+}

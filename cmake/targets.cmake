@@ -7,6 +7,8 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Memory/device.cpp
         source/CortexMind/framework/Memory/mem.cpp
         source/CortexMind/framework/Memory/operator.cpp
+        source/CortexMind/framework/Storage/operator.cpp
+        source/CortexMind/framework/Storage/storage.cpp
         source/CortexMind/framework/Tools/errors.cpp
         source/CortexMind/framework/Type/as_string.cpp
         source/CortexMind/framework/Type/operator.cpp
@@ -17,6 +19,7 @@ add_library(CortexMind STATIC
 if(CXM_IS_CUDA_AVAILABLE)
     target_sources(CortexMind PRIVATE
             source/CortexMind/framework/Memory/forge.cu
+            source/CortexMind/framework/Memory/transform.cu
             source/CortexMind/framework/Tools/errors.cu
     )
 endif()

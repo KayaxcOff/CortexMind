@@ -24,6 +24,7 @@ namespace cortex::_fw {
      */
     class TensorDevice {
     public:
+        TensorDevice();
         /**
          * @brief Constructs a tensor device from the specified device type.
          *

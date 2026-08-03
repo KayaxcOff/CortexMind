@@ -2,10 +2,14 @@
 // Created by muham on 3.08.2026.
 //
 
-#include "device.hpp"
+#include "CortexMind/framework/Memory/device.hpp"
 #include <CortexMind/framework/Memory/as_string.hpp>
 
 using namespace cortex::_fw;
+
+TensorDevice::TensorDevice() {
+    this->m_type = DeviceType::Unknown;
+}
 
 TensorDevice::TensorDevice(const DeviceType type) {
     this->m_type = type;

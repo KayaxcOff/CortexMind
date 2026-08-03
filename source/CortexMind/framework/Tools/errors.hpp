@@ -51,6 +51,17 @@ namespace cortex::_fw::errors {
          */
         void ExitIf(cudaError_t condition, tlx::vstring msg, tlx::vstring file, int line);
     #endif //#if CXM_IS_CUDA_AVAILABLE
+
+    /**
+     * @brief Terminates the application due to an invalid device usage.
+     *
+     * Reports a fatal runtime error when an operation is attempted on an
+     * unsupported or incompatible execution device.
+     *
+     * This function is intended for internal framework use and is typically
+     * invoked through the @c CXM_DEVICE_ERROR macro.
+     */
+    void WrongDevice();
 } //namespace cortex::_fw::errors
 
 /// Runtime assertion for host-side code.
@@ -68,5 +79,9 @@ namespace cortex::_fw::errors {
 #else //#if CXM_IS_CUDA_AVAILABLE
     #define CXM_DEVICE_ASSERT(cond, msg)
 #endif //#if CXM_IS_CUDA_AVAILABLE
+
+/// Reports a fatal device mismatch error.
+#define CXM_DEVICE_ERROR() \
+    ::cortex::_fw::errors::WrongDevice()
 
 #endif //CORTEXMIND_FRAMEWORK_TOOLS_ERRORS_HPP
