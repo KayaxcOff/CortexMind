@@ -25,4 +25,6 @@
 #define CXM_SAFETY_EXIT 0
 #define CXM_ERR_EXIT    1
 
+#define CXM_DEFAULT_POOL_SIZE ((128) * (1024) * (1024))
+
 #endif //CORTEXMIND_RUNTIME_MACROS_HPP

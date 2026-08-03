@@ -19,17 +19,17 @@ namespace cortex::_fw::errors {
     #endif //#if CXM_IS_CUDA_AVAILABLE
 } //namespace cortex::_fw::errors
 
-#define TLX_ASSERT(cond, msg) \
+#define CXM_ASSERT(cond, msg) \
     ::cortex::_fw::errors::ExitIf((cond), (msg))
 
-#define TLX_WARN(cond, msg) \
+#define CXM_WARN(cond, msg) \
     ::cortex::_fw::errors::WarnIf((cond), (msg))
 
 #if CXM_IS_CUDA_AVAILABLE
-    #define TLX_DEVICE_ASSERT(cond, msg) \
+    #define CXM_DEVICE_ASSERT(cond, msg) \
         ::cortex::_fw::errors::ExitIf((cond), (msg), __FILE__, __LINE__)
 #else //#if CXM_IS_CUDA_AVAILABLE
-    #define TLX_DEVICE_ASSERT(cond, msg)
+    #define CXM_DEVICE_ASSERT(cond, msg)
 #endif //#if CXM_IS_CUDA_AVAILABLE
 
 #endif //CORTEXMIND_FRAMEWORK_TOOLS_ERRORS_HPP
