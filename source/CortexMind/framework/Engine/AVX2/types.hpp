@@ -205,6 +205,88 @@ namespace cortex::_fw::avx2 {
         __m256i reg{};
     };
 
+    struct vec4d : VecBase<double> {
+        vec4d() {
+            this->reg = _mm256_setzero_pd();
+        }
+        explicit vec4d(const double* src) {
+            this->reg = _mm256_load_pd(src);
+        }
+        explicit vec4d(const __m256d src) {
+            this->reg = src;
+        }
+        vec4d(const vec4d&) = default;
+        vec4d(vec4d&&) noexcept = default;
+        ~vec4d() override = default;
+
+        [[nodiscard]]
+        __m256d& raw() {
+            return this->reg;
+        }
+        [[nodiscard]]
+        const __m256d& raw() const {
+            return this->reg;
+        }
+
+        void store(value_type* dst) const {
+            _mm256_store_pd(dst, this->reg);
+        }
+
+        vec4d operator+(const vec4d& other) const {
+            return vec4d(_mm256_add_pd(this->reg, other.reg));
+        }
+        vec4d operator-(const vec4d& other) const {
+            return vec4d(_mm256_sub_pd(this->reg, other.reg));
+        }
+        vec4d operator*(const vec4d& other) const {
+            return vec4d(_mm256_mul_pd(this->reg, other.reg));
+        }
+        vec4d operator/(const vec4d& other) const {
+            return vec4d(_mm256_div_pd(this->reg, other.reg));
+        }
+
+        vec4d& operator+=(const vec4d& other) {
+            *this = *this + other;
+            return *this;
+        }
+        vec4d& operator-=(const vec4d& other) {
+            *this = *this - other;
+            return *this;
+        }
+        vec4d& operator*=(const vec4d& other) {
+            *this = *this * other;
+            return *this;
+        }
+        vec4d& operator/=(const vec4d& other) {
+            *this = *this / other;
+            return *this;
+        }
+
+        vec4d operator<(const vec4d& other) const {
+            return vec4d(_mm256_cmp_pd(this->reg, other.reg, _CMP_LT_OQ));
+        }
+        vec4d operator>(const vec4d& other) const {
+            return vec4d(_mm256_cmp_pd(this->reg, other.reg, _CMP_GT_OQ));
+        }
+        vec4d operator<=(const vec4d& other) const {
+            return vec4d(_mm256_cmp_pd(this->reg, other.reg, _CMP_LE_OQ));
+        }
+        vec4d operator>=(const vec4d& other) const {
+            return vec4d(_mm256_cmp_pd(this->reg, other.reg, _CMP_GE_OQ));
+        }
+        vec4d operator!=(const vec4d& other) const {
+            return vec4d(_mm256_cmp_pd(this->reg, other.reg, _CMP_EQ_OQ));
+        }
+        vec4d operator==(const vec4d& other) const {
+            return vec4d(_mm256_cmp_pd(this->reg, other.reg, _CMP_EQ_OQ));
+        }
+
+        vec4d& operator=(const vec4d&) = default;
+        vec4d& operator=(vec4d&&) noexcept = default;
+    private:
+        __m256d reg{};
+    };
+
     /**
      * @brief SIMD wrapper representing sixteen bfloat16 values.
      *

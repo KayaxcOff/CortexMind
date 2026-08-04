@@ -9,7 +9,7 @@
 
 namespace cortex::_fw::avx2 {
     [[nodiscard]]
-    __forceinline vec8i Init(const std::size_t n) {
+    __forceinline vec8i mask8(const std::size_t n) {
         alignas(32) static constexpr std::int32_t mask_table[9][8] = {
             {0,  0, 0, 0, 0, 0, 0, 0},
             {-1, 0, 0, 0, 0, 0, 0, 0},
@@ -23,6 +23,19 @@ namespace cortex::_fw::avx2 {
         };
 
         return vec8i(mask_table[n]);
+    }
+
+    [[nodiscard]]
+    __forceinline vec8i mask4(const std::size_t n) {
+        alignas(32) static constexpr int64_t table[5][4] = {
+            {0,  0, 0, 0},
+            {-1, 0, 0, 0},
+            {-1,-1, 0, 0},
+            {-1,-1,-1, 0},
+            {-1,-1,-1,-1}
+        };
+
+        return vec8i(_mm256_load_si256(reinterpret_cast<const __m256i*>(table[n])));
     }
 } //namespace cortex::_fw::avx2
 
