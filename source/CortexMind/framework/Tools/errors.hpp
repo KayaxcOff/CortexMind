@@ -61,7 +61,7 @@ namespace cortex::_fw::errors {
      * This function is intended for internal framework use and is typically
      * invoked through the @c CXM_DEVICE_ERROR macro.
      */
-    void WrongDevice();
+    void WrongDevice(const std::source_location& sloc = std::source_location::current());
 } //namespace cortex::_fw::errors
 
 /// Runtime assertion for host-side code.
