@@ -5,9 +5,9 @@
 #ifndef CORTEXMIND_FRAMEWORK_TYPE_TRAIT_HPP
 #define CORTEXMIND_FRAMEWORK_TYPE_TRAIT_HPP
 
-#include <CortexMind/framework/Tools/types.hpp>
 #include <CortexMind/framework/Type/dtype.hpp>
 #include <tlx/concepts.hpp>
+#include <tlx/types.hpp>
 #include <cstdint>
 
 namespace cortex::_fw {
@@ -42,7 +42,7 @@ namespace cortex::_fw {
     };
 
     template<>
-    struct TypeTraits<half> {
+    struct TypeTraits<tlx::half> {
         static constexpr auto type = DType::Float16;
     };
 
@@ -57,27 +57,27 @@ namespace cortex::_fw {
     };
 
     template<>
-    struct TypeTraits<bfloat16> {
+    struct TypeTraits<tlx::bfloat16> {
         static constexpr auto type = DType::BFloat16;
     };
 
     template<>
-    struct TypeTraits<qint16> {
+    struct TypeTraits<tlx::qint16> {
         static constexpr auto type = DType::QInt16;
     };
 
     template<>
-    struct TypeTraits<qint8> {
+    struct TypeTraits<tlx::qint8> {
         static constexpr auto type = DType::QInt8;
     };
 
     template<>
-    struct TypeTraits<quint16> {
+    struct TypeTraits<tlx::quint16> {
         static constexpr auto type = DType::QUInt16;
     };
 
     template<>
-    struct TypeTraits<quint8> {
+    struct TypeTraits<tlx::quint8> {
         static constexpr auto type = DType::QUInt8;
     };
 
@@ -130,27 +130,27 @@ namespace cortex::_fw {
 
     template<>
     struct RTypeTraits<DType::BFloat16> {
-        using type = bfloat16;
+        using type = tlx::bfloat16;
     };
 
     template<>
     struct RTypeTraits<DType::QInt16> {
-        using type = qint16;
+        using type = tlx::qint16;
     };
 
     template<>
     struct RTypeTraits<DType::QInt8> {
-        using type = qint8;
+        using type = tlx::qint8;
     };
 
     template<>
     struct RTypeTraits<DType::QUInt16> {
-        using type = quint16;
+        using type = tlx::quint16;
     };
 
     template<>
     struct RTypeTraits<DType::QUInt8> {
-        using type = quint8;
+        using type = tlx::quint8;
     };
 
     template<>
