@@ -12,15 +12,26 @@
 #include <immintrin.h>
 
 namespace cortex::_fw::avx2 {
+    /**
+     * @brief Base interface for SIMD vector types.
+     *
+     * Provides a common interface shared by all SIMD vector wrappers
+     * used by the CortexMind execution engine.
+     *
+     * @tparam T Scalar element type.
+     */
     template<tlx::arithmetic_like T>
     struct VecBase {
         virtual ~VecBase() = default;
-
-        using type = T;
-
-        virtual void store(type* dst) const = 0;
+        using value_type = T;
     };
 
+    /**
+     * @brief AVX2 vector containing eight single-precision floating-point values.
+     *
+     * This class wraps a native AVX2 register and provides arithmetic,
+     * comparison, and storage operations through a C++ interface.
+     */
     struct vec8f : VecBase<float> {
         vec8f() {
             this->reg = _mm256_setzero_ps();
@@ -36,15 +47,15 @@ namespace cortex::_fw::avx2 {
         ~vec8f() override = default;
 
         [[nodiscard]]
-        __m256 raw() {
+        __m256& raw() {
             return this->reg;
         }
         [[nodiscard]]
-        __m256 raw() const {
+        const __m256& raw() const {
             return this->reg;
         }
 
-        void store(type* dst) const override {
+        void store(value_type* dst) const {
             _mm256_store_ps(dst, this->reg);
         }
 
@@ -103,6 +114,9 @@ namespace cortex::_fw::avx2 {
         __m256 reg{};
     };
 
+    /**
+     * @brief AVX2 vector containing eight 32-bit signed integers.
+     */
     struct vec8i : VecBase<std::int32_t> {
         vec8i() {
             this->reg = _mm256_setzero_si256();
@@ -118,15 +132,15 @@ namespace cortex::_fw::avx2 {
         ~vec8i() override = default;
 
         [[nodiscard]]
-        __m256i raw() {
+        const __m256i& raw() {
             return this->reg;
         }
         [[nodiscard]]
-        __m256i raw() const {
+        const __m256i& raw() const {
             return this->reg;
         }
 
-        void store(type *dst) const override {
+        void store(value_type* dst) const {
             _mm256_store_si256(reinterpret_cast<__m256i *>(dst), this->reg);
         }
 
@@ -191,35 +205,28 @@ namespace cortex::_fw::avx2 {
         __m256i reg{};
     };
 
+    /**
+     * @brief SIMD wrapper representing sixteen bfloat16 values.
+     *
+     * Internally the values are converted into two AVX2 float vectors
+     * for computation and converted back to bfloat16 when stored.
+     */
     struct vec16bf : VecBase<tlx::bfloat16> {
         vec16bf() = default;
         explicit vec16bf(const tlx::bfloat16* src) {
-            detail::load_bf16(src, this->rlow, this->rhigh);
+            detail::load_bf16(src, this->reg);
         }
         vec16bf(const vec8f &low, const vec8f &high) {
-            this->rlow = low;
-            this->rhigh = high;
+            this->reg.low = low;
+            this->reg.high = high;
+        }
+        explicit vec16bf(const native<vec8f>& src) {
+            this->reg.low = src.low;
+            this->reg.high = src.high;
         }
         vec16bf(const vec16bf&) = default;
         vec16bf(vec16bf&&) noexcept = default;
         ~vec16bf() override = default;
-
-        [[nodiscard]]
-        vec8f& low() {
-            return this->rlow;
-        }
-        [[nodiscard]]
-        const vec8f& low() const {
-            return this->rlow;
-        }
-        [[nodiscard]]
-        vec8f& high() {
-            return this->rhigh;
-        }
-        [[nodiscard]]
-        const vec8f& high() const {
-            return this->rhigh;
-        }
 
         [[nodiscard]]
         native<vec8f>& raw() {
@@ -230,32 +237,32 @@ namespace cortex::_fw::avx2 {
             return this->reg;
         }
 
-        void store(type *dst) const override {
-            detail::store_bf16(dst, this->rlow, this->rhigh);
+        void store(value_type* dst) const {
+            detail::store_bf16(dst, this->reg);
         }
 
         vec16bf operator+(const vec16bf& other) const {
             return {
-                this->rlow + other.rlow,
-                this->rhigh + other.rhigh
+                this->reg.low + other.reg.low,
+                this->reg.high + other.reg.high
             };
         }
         vec16bf operator-(const vec16bf& other) const {
             return {
-                this->rlow - other.rlow,
-                this->rhigh - other.rhigh
+                this->reg.low - other.reg.low,
+                this->reg.high - other.reg.high
             };
         }
         vec16bf operator*(const vec16bf& other) const {
             return {
-                this->rlow * other.rlow,
-                this->rhigh * other.rhigh
+                this->reg.low * other.reg.low,
+                this->reg.high * other.reg.high
             };
         }
         vec16bf operator/(const vec16bf& other) const {
             return {
-                this->rlow / other.rlow,
-                this->rhigh / other.rhigh
+                this->reg.low / other.reg.low,
+                this->reg.high / other.reg.high
             };
         }
 
@@ -278,46 +285,44 @@ namespace cortex::_fw::avx2 {
 
         vec16bf operator<(const vec16bf& other) const {
             return {
-                this->rlow < other.rlow,
-                this->rhigh < other.rhigh
+                this->reg.low < other.reg.low,
+                this->reg.high < other.reg.high
             };
         }
         vec16bf operator>(const vec16bf& other) const {
             return {
-                this->rlow > other.rlow,
-                this->rhigh > other.rhigh
+                this->reg.low > other.reg.low,
+                this->reg.high > other.reg.high
             };
         }
         vec16bf operator<=(const vec16bf& other) const {
             return {
-                this->rlow <= other.rlow,
-                this->rhigh <= other.rhigh
+                this->reg.low <= other.reg.low,
+                this->reg.high <= other.reg.high
             };
         }
         vec16bf operator>=(const vec16bf& other) const {
             return {
-                this->rlow >= other.rlow,
-                this->rhigh >= other.rhigh
+                this->reg.low >= other.reg.low,
+                this->reg.high >= other.reg.high
             };
         }
         vec16bf operator!=(const vec16bf& other) const {
             return {
-                this->rlow != other.rlow,
-                this->rhigh != other.rhigh
+                this->reg.low != other.reg.low,
+                this->reg.high != other.reg.high
             };
         }
         vec16bf operator==(const vec16bf& other) const {
             return {
-                this->rlow == other.rlow,
-                this->rhigh == other.rhigh
+                this->reg.low == other.reg.low,
+                this->reg.high == other.reg.high
             };
         }
 
         vec16bf& operator=(const vec16bf&) = default;
         vec16bf& operator=(vec16bf&&) noexcept = default;
     private:
-        vec8f rlow{};
-        vec8f rhigh{};
         native<vec8f> reg;
     };
 } //namespace cortex::_fw::avx2

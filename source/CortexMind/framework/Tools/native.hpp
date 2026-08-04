@@ -6,6 +6,15 @@
 #define CORTEXMIND_FRAMEWORK_TOOLS_NATIVE_HPP
 
 namespace cortex::_fw {
+    /**
+     * @brief Stores two values of the same native type.
+     *
+     * native is a lightweight aggregate used to group two scalar values
+     * into a single object. The intended semantics of the two components
+     * depend on the context in which the structure is used.
+     *
+     * @tparam T Underlying scalar type.
+     */
     template<typename T>
     struct native {
         T low;

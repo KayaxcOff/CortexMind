@@ -7,7 +7,7 @@
 
 using namespace cortex::_fw;
 
-void detail::load_bf16(const tlx::bfloat16 *src, avx2::vec8f &low, avx2::vec8f &high) {
+void detail::load_bf16(const tlx::bfloat16 *src, native<avx2::vec8f> &v) {
     alignas(32) float lo[8];
     alignas(32) float hi[8];
 
@@ -19,16 +19,16 @@ void detail::load_bf16(const tlx::bfloat16 *src, avx2::vec8f &low, avx2::vec8f &
         hi[i] = static_cast<float>(src[i + 8]);
     }
 
-    low = avx2::vec8f(lo);
-    high = avx2::vec8f(hi);
+    v.low = avx2::vec8f(lo);
+    v.high = avx2::vec8f(hi);
 }
 
-void detail::store_bf16(tlx::bfloat16 *dst, const avx2::vec8f &low, const avx2::vec8f &high) {
+void detail::store_bf16(tlx::bfloat16 *dst, const native<avx2::vec8f> &v) {
     alignas(32) float lo[8];
     alignas(32) float hi[8];
 
-    low.store(lo);
-    high.store(hi);
+    v.low.store(lo);
+    v.high.store(hi);
 
     for (std::size_t i = 0; i < 8; ++i) {
         dst[i] = tlx::bfloat16(lo[i]);
