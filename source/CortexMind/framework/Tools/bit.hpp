@@ -23,7 +23,7 @@ namespace cortex::_fw {
          * @param src Pointer to sixteen consecutive bfloat16 values.
          * @param v Destination SIMD vector pair.
          */
-        void load_bf16(const tlx::bfloat16* src, native<avx2::vec8f>& v);
+        void load(const tlx::bfloat16* src, native<avx2::vec8f>& v);
         /**
          * @brief Stores two AVX2 float vectors as sixteen bfloat16 values.
          *
@@ -33,7 +33,28 @@ namespace cortex::_fw {
          * @param dst Destination buffer.
          * @param v Source SIMD vector pair.
          */
-        void store_bf16(tlx::bfloat16* dst, const native<avx2::vec8f>& v);
+        void store(tlx::bfloat16* dst, const native<avx2::vec8f>& v);
+
+        /**
+         * @brief Loads sixteen IEEE FP16 values into two AVX2 float vectors.
+         *
+         * Converts sixteen half-precision floating-point values into
+         * two @ref avx2::vec8f registers using F16C conversion intrinsics.
+         *
+         * @param src Source FP16 buffer.
+         * @param v Destination SIMD register pair.
+         */
+        void load(const tlx::half* src, native<avx2::vec8f>& v);
+        /**
+         * @brief Stores two AVX2 float vectors as sixteen IEEE FP16 values.
+         *
+         * Converts two @ref avx2::vec8f registers into sixteen half-precision
+         * floating-point values using F16C conversion intrinsics.
+         *
+         * @param dst Destination FP16 buffer.
+         * @param v Source SIMD register pair.
+         */
+        void store(tlx::half* dst, const native<avx2::vec8f>& v);
     } //namespace detail
 } //namespace cortex::_fw
 

@@ -3,6 +3,7 @@
 # =============================================================================
 
 add_library(CortexMind STATIC
+        source/CortexMind/framework/Engine/AVX2/mask-runtime.cpp
         source/CortexMind/framework/Memory/as_string.cpp
         source/CortexMind/framework/Memory/device.cpp
         source/CortexMind/framework/Memory/mem.cpp
@@ -12,13 +13,13 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/Log/as_string.cpp
         source/CortexMind/framework/Tools/Log/operator.cpp
         source/CortexMind/framework/Tools/Log/w.cpp
+        source/CortexMind/framework/Tools/bit.cpp
         source/CortexMind/framework/Tools/console.cpp
         source/CortexMind/framework/Tools/errors.cpp
         source/CortexMind/framework/Type/as_string.cpp
         source/CortexMind/framework/Type/operator.cpp
         source/CortexMind/framework/Type/size.cpp
         source/CortexMind/framework/Type/type.cpp
-        ../source/CortexMind/framework/Tools/bit.cpp
 )
 
 if(CXM_IS_CUDA_AVAILABLE)
