@@ -13,7 +13,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/Log/as_string.cpp
         source/CortexMind/framework/Tools/Log/operator.cpp
         source/CortexMind/framework/Tools/Log/w.cpp
-        source/CortexMind/framework/Tools/bit.cpp
+        source/CortexMind/framework/Tools/cast.cpp
         source/CortexMind/framework/Tools/console.cpp
         source/CortexMind/framework/Tools/errors.cpp
         source/CortexMind/framework/Type/as_string.cpp

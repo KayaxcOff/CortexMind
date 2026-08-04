@@ -5,8 +5,6 @@
 #ifndef CORTEXMIND_FRAMEWORK_ENGINE_AVX2_TYPES_HPP
 #define CORTEXMIND_FRAMEWORK_ENGINE_AVX2_TYPES_HPP
 
-#include <CortexMind/framework/Tools/bit.hpp>
-#include <CortexMind/framework/Tools/native.hpp>
 #include <tlx/concepts.hpp>
 #include <tlx/types.hpp>
 #include <immintrin.h>
@@ -205,6 +203,15 @@ namespace cortex::_fw::avx2 {
         __m256i reg{};
     };
 
+    /**
+     * @brief AVX2 vector containing four double-precision floating-point values.
+     *
+     * Wraps a native AVX2 register (`__m256d`) and provides arithmetic,
+     * comparison, and memory operations through a lightweight C++ interface.
+     *
+     * The class is intended for use by the CortexMind AVX2 execution engine
+     * and serves as the SIMD representation of four `double` values.
+     */
     struct vec4d : VecBase<double> {
         vec4d() {
             this->reg = _mm256_setzero_pd();
@@ -285,250 +292,6 @@ namespace cortex::_fw::avx2 {
         vec4d& operator=(vec4d&&) noexcept = default;
     private:
         __m256d reg{};
-    };
-
-    /**
-     * @brief SIMD wrapper representing sixteen bfloat16 values.
-     *
-     * Internally the values are converted into two AVX2 float vectors
-     * for computation and converted back to bfloat16 when stored.
-     */
-    struct vec16bf : VecBase<tlx::bfloat16> {
-        vec16bf() = default;
-        explicit vec16bf(const tlx::bfloat16* src) {
-            detail::load(src, this->reg);
-        }
-        vec16bf(const vec8f &low, const vec8f &high) {
-            this->reg.low = low;
-            this->reg.high = high;
-        }
-        explicit vec16bf(const native<vec8f>& src) {
-            this->reg.low = src.low;
-            this->reg.high = src.high;
-        }
-        vec16bf(const vec16bf&) = default;
-        vec16bf(vec16bf&&) noexcept = default;
-        ~vec16bf() override = default;
-
-        [[nodiscard]]
-        native<vec8f>& raw() {
-            return this->reg;
-        }
-        [[nodiscard]]
-        const native<vec8f>& raw() const {
-            return this->reg;
-        }
-
-        void store(value_type* dst) const {
-            detail::store(dst, this->reg);
-        }
-
-        vec16bf operator+(const vec16bf& other) const {
-            return {
-                this->reg.low + other.reg.low,
-                this->reg.high + other.reg.high
-            };
-        }
-        vec16bf operator-(const vec16bf& other) const {
-            return {
-                this->reg.low - other.reg.low,
-                this->reg.high - other.reg.high
-            };
-        }
-        vec16bf operator*(const vec16bf& other) const {
-            return {
-                this->reg.low * other.reg.low,
-                this->reg.high * other.reg.high
-            };
-        }
-        vec16bf operator/(const vec16bf& other) const {
-            return {
-                this->reg.low / other.reg.low,
-                this->reg.high / other.reg.high
-            };
-        }
-
-        vec16bf& operator+=(const vec16bf& other) {
-            *this = *this + other;
-            return *this;
-        }
-        vec16bf& operator-=(const vec16bf& other) {
-            *this = *this - other;
-            return *this;
-        }
-        vec16bf& operator*=(const vec16bf& other) {
-            *this = *this * other;
-            return *this;
-        }
-        vec16bf& operator/=(const vec16bf& other) {
-            *this = *this / other;
-            return *this;
-        }
-
-        vec16bf operator<(const vec16bf& other) const {
-            return {
-                this->reg.low < other.reg.low,
-                this->reg.high < other.reg.high
-            };
-        }
-        vec16bf operator>(const vec16bf& other) const {
-            return {
-                this->reg.low > other.reg.low,
-                this->reg.high > other.reg.high
-            };
-        }
-        vec16bf operator<=(const vec16bf& other) const {
-            return {
-                this->reg.low <= other.reg.low,
-                this->reg.high <= other.reg.high
-            };
-        }
-        vec16bf operator>=(const vec16bf& other) const {
-            return {
-                this->reg.low >= other.reg.low,
-                this->reg.high >= other.reg.high
-            };
-        }
-        vec16bf operator!=(const vec16bf& other) const {
-            return {
-                this->reg.low != other.reg.low,
-                this->reg.high != other.reg.high
-            };
-        }
-        vec16bf operator==(const vec16bf& other) const {
-            return {
-                this->reg.low == other.reg.low,
-                this->reg.high == other.reg.high
-            };
-        }
-
-        vec16bf& operator=(const vec16bf&) = default;
-        vec16bf& operator=(vec16bf&&) noexcept = default;
-    private:
-        native<vec8f> reg;
-    };
-
-    /**
-     * @brief SIMD wrapper representing sixteen IEEE FP16 values.
-     *
-     * vec16h stores sixteen half-precision floating-point values as
-     * two AVX2 float vectors internally.
-     *
-     * Arithmetic operations are performed using single-precision SIMD
-     * instructions and converted back to FP16 only when storing.
-     */
-    struct vec16h : VecBase<tlx::half> {
-        vec16h() = default;
-        explicit vec16h(const tlx::half* src) {
-            detail::load(src, this->reg);
-        }
-        vec16h(const vec8f& low, const vec8f& high) {
-            this->reg.low = low;
-            this->reg.high = high;
-        }
-        explicit vec16h(const native<vec8f>& src) {
-            this->reg = src;
-        }
-        vec16h(const vec16h&) = default;
-        vec16h(vec16h&&) noexcept = default;
-        ~vec16h() override = default;
-
-        [[nodiscard]]
-        native<vec8f>& raw() {
-            return this->reg;
-        }
-        [[nodiscard]]
-        const native<vec8f>& raw() const {
-            return this->reg;
-        }
-
-        void store(value_type* dst) const {
-            detail::store(dst, this->reg);
-        }
-
-        vec16h operator+(const vec16h& other) const {
-            return {
-                this->reg.low + other.reg.low,
-                this->reg.high + other.reg.high
-            };
-        }
-        vec16h operator-(const vec16h& other) const {
-            return {
-                this->reg.low - other.reg.low,
-                this->reg.high - other.reg.high
-            };
-        }
-        vec16h operator*(const vec16h& other) const {
-            return {
-                this->reg.low * other.reg.low,
-                this->reg.high * other.reg.high
-            };
-        }
-        vec16h operator/(const vec16h& other) const {
-            return {
-                this->reg.low / other.reg.low,
-                this->reg.high / other.reg.high
-            };
-        }
-
-        vec16h& operator+=(const vec16h& other) {
-            *this = *this + other;
-            return *this;
-        }
-        vec16h& operator-=(const vec16h& other) {
-            *this = *this - other;
-            return *this;
-        }
-        vec16h& operator*=(const vec16h& other) {
-            *this = *this * other;
-            return *this;
-        }
-        vec16h& operator/=(const vec16h& other) {
-            *this = *this / other;
-            return *this;
-        }
-
-        vec16h operator<(const vec16h& other) const {
-            return {
-                this->reg.low < other.reg.low,
-                this->reg.high < other.reg.high
-            };
-        }
-        vec16h operator>(const vec16h& other) const {
-            return {
-                this->reg.low > other.reg.low,
-                this->reg.high > other.reg.high
-            };
-        }
-        vec16h operator<=(const vec16h& other) const {
-            return {
-                this->reg.low <= other.reg.low,
-                this->reg.high <= other.reg.high
-            };
-        }
-        vec16h operator>=(const vec16h& other) const {
-            return {
-                this->reg.low >= other.reg.low,
-                this->reg.high >= other.reg.high
-            };
-        }
-        vec16h operator!=(const vec16h& other) const {
-            return {
-                this->reg.low != other.reg.low,
-                this->reg.high != other.reg.high
-            };
-        }
-        vec16h operator==(const vec16h& other) const {
-            return {
-                this->reg.low == other.reg.low,
-                this->reg.high == other.reg.high
-            };
-        }
-
-        vec16h& operator=(const vec16h&) = default;
-        vec16h& operator=(vec16h&&) noexcept = default;
-    private:
-        native<vec8f> reg;
     };
 } //namespace cortex::_fw::avx2
 
