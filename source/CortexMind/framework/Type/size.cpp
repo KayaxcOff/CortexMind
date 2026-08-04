@@ -3,7 +3,7 @@
 //
 
 #include "CortexMind/framework/Type/size.hpp"
-#include <CortexMind/framework/Tools/types.hpp>
+#include <tlx/types.hpp>
 
 std::size_t cortex::_fw::sizeOf(const DType type) noexcept {
     switch (type) {
@@ -18,15 +18,15 @@ std::size_t cortex::_fw::sizeOf(const DType type) noexcept {
         case DType::Float64:
             return sizeof(double);
         case DType::BFloat16:
-            return sizeof(bfloat16);
+            return sizeof(tlx::bfloat16);
         case DType::QInt16:
-            return sizeof(qint16);
+            return sizeof(tlx::qint16);
         case DType::QInt8:
-            return sizeof(qint8);
+            return sizeof(tlx::qint8);
         case DType::QUInt16:
-            return sizeof(quint16);
+            return sizeof(tlx::quint16);
         case DType::QUInt8:
-            return sizeof(quint8);
+            return sizeof(tlx::quint8);
         case DType::Unknown:
         default:
             return 0;
