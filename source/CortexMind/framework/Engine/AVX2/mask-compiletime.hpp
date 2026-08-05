@@ -38,7 +38,7 @@ namespace cortex::_fw::avx2 {
          */
         [[nodiscard]]
         static __forceinline vec8f load(const float* src) {
-            return vec8f(_mm256_maskload_ps(src, mask8(N).raw()));
+            return vec8f(_mm256_maskload_ps(src, mask8(N)));
         }
         /**
          * @brief Performs a masked load of 32-bit signed integers.
@@ -51,7 +51,7 @@ namespace cortex::_fw::avx2 {
          */
         [[nodiscard]]
         static __forceinline vec8i load(const std::int32_t* src) {
-            return vec8i(_mm256_maskload_epi32(src, mask8(N).raw()));
+            return vec8i(_mm256_maskload_epi32(src, mask8(N)));
         }
         /**
          * @brief Performs a masked load of double-precision floating-point values.
@@ -64,7 +64,7 @@ namespace cortex::_fw::avx2 {
          */
         [[nodiscard]]
         static __forceinline  vec4d load(const double* src) {
-            return vec4d(_mm256_maskload_pd(src, mask4(N).raw()));
+            return vec4d(_mm256_maskload_pd(src, mask4(N)));
         }
 
         /**
@@ -76,7 +76,7 @@ namespace cortex::_fw::avx2 {
          * @param src Source SIMD vector.
          */
         static __forceinline void store(float* dst, const vec8f &src) {
-            _mm256_maskstore_ps(dst, mask8(N).raw(), src.raw());
+            _mm256_maskstore_ps(dst, mask8(N), src);
         }
         /**
          * @brief Performs a masked store of 32-bit signed integers.
@@ -87,7 +87,7 @@ namespace cortex::_fw::avx2 {
          * @param src Source SIMD vector.
          */
         static __forceinline void store(std::int32_t* dst, const vec8i &src) {
-            _mm256_maskstore_epi32(dst, mask8(N).raw(), src.raw());
+            _mm256_maskstore_epi32(dst, mask8(N), src);
         }
         /**
          * @brief Performs a masked store of double-precision floating-point values.
@@ -98,7 +98,7 @@ namespace cortex::_fw::avx2 {
          * @param src Source SIMD vector.
          */
         static __forceinline void store(double* dst, const vec4d &src) {
-            _mm256_maskstore_pd(dst, mask4(N).raw(), src.raw());
+            _mm256_maskstore_pd(dst, mask4(N), src);
         }
     };
 } //namespace cortex::_fw::avx2

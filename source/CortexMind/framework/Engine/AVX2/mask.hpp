@@ -6,6 +6,8 @@
 #define CORTEXMIND_FRAMEWORK_ENGINE_AVX2_MASK_HPP
 
 #include <CortexMind/framework/Engine/AVX2/types.hpp>
+#include <cstdint>
+#include <cstddef>
 
 namespace cortex::_fw::avx2 {
     /**
@@ -36,7 +38,7 @@ namespace cortex::_fw::avx2 {
             {-1,-1,-1,-1,-1,-1,-1,-1}
         };
 
-        return vec8i(mask_table[n]);
+        return _mm256_load_si256(reinterpret_cast<const vec8i*>(mask_table[n]));
     }
 
     /**
@@ -63,7 +65,7 @@ namespace cortex::_fw::avx2 {
             {-1,-1,-1,-1}
         };
 
-        return vec8i(_mm256_load_si256(reinterpret_cast<const __m256i*>(table[n])));
+        return _mm256_load_si256(reinterpret_cast<const vec8i*>(table[n]));
     }
 } //namespace cortex::_fw::avx2
 
