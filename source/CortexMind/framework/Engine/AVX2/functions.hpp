@@ -5,6 +5,7 @@
 #ifndef CORTEXMIND_FRAMEWORK_ENGINE_AVX2_FUNCTIONS_HPP
 #define CORTEXMIND_FRAMEWORK_ENGINE_AVX2_FUNCTIONS_HPP
 
+#include <CortexMind/framework/Engine/AVX2/cmp.hpp>
 #include <CortexMind/framework/Engine/AVX2/fma.hpp>
 #include <cstdint>
 
@@ -310,6 +311,51 @@ namespace cortex::_fw::avx2 {
     [[nodiscard]]
     inline vec4d tanh(const vec4d& x) {
         return _mm256_tanh_pd(x);
+    }
+
+    [[nodiscard]]
+    inline vec8f leaky_relu(const vec8f& x, const float alpha = 0.01f) {
+        const vec8f mask = cmp::gt(x, zerof());
+        const auto alp = set1(alpha);
+        const vec8f neg_b = mul(alp, x);
+        return blendv(neg_b, x, mask);
+    }
+    [[nodiscard]]
+    inline vec4d leaky_relu(const vec4d& x, const double alpha = 0.01f) {
+        const vec4d mask = cmp::gt(x, zerod());
+        const auto alp = set1(alpha);
+        const vec4d neg_b = mul(alp, x);
+        return blendv(neg_b, x, mask);
+    }
+
+    [[nodiscard]]
+    inline vec8f sigmoid(const vec8f& x) {
+        const vec8f neg_x = neg(x);
+        const vec8f exp_neg = exp(neg_x);
+        const auto r0 = set1(1.0f);
+        const vec8f denom = add(r0, exp_neg);
+        return div(r0, denom);
+    }
+    [[nodiscard]]
+    inline vec4d sigmoid(const vec4d& x) {
+        const vec4d neg_x = neg(x);
+        const vec4d exp_neg = exp(neg_x);
+        const auto r0 = set1(1.0);
+        const vec4d denom = add(r0, exp_neg);
+        return div(r0, denom);
+    }
+
+    [[nodiscard]]
+    inline vec8f sigmoid_fast(const vec8f& x) {
+        const vec8f neg_x = neg(x);
+        const auto r0 = set1(1.0f);
+        return nr(add(r0, neg_x));
+    }
+    [[nodiscard]]
+    inline vec4d sigmoid_fast(const vec4d& x) {
+        const vec4d neg_x = neg(x);
+        const auto r0 = set1(1.0);
+        return nr(add(r0, neg_x));
     }
 } //namespace cortex::_fw::avx2
 

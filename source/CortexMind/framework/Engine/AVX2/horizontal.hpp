@@ -68,11 +68,11 @@ namespace cortex::_fw::avx2 {
 
         [[nodiscard]]
         static __forceinline float mean(const vec8f& x) {
-            return sum(x) / (1.0f / 8.0f);
+            return sum(x) / 8.0f;
         }
         [[nodiscard]]
         static __forceinline double mean(const vec4d& x) {
-            return sum(x) / (1.0 / 4.0);
+            return sum(x) / 4.0;
         }
     };
 } //namespace cortex::_fw::avx2
