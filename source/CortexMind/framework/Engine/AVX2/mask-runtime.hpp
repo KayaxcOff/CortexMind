@@ -6,7 +6,6 @@
 #define CORTEXMIND_FRAMEWORK_ENGINE_MEMORY_MASK_RUNTIME_HPP
 
 #include <CortexMind/framework/Engine/AVX2/mask.hpp>
-#include <CortexMind/framework/Tools/errors.hpp>
 
 namespace cortex::_fw::avx2 {
     /**
@@ -27,10 +26,7 @@ namespace cortex::_fw::avx2 {
          *
          * @param n Number of active lanes.
          */
-        explicit mask(const std::size_t n) {
-            CXM_ASSERT(n > 8, "Runtime AVX2 mask size must be in range [0, 8]");
-            this->m_size = n;
-        }
+        explicit mask(std::size_t n);
 
         /**
          * @brief Performs a masked load of single-precision floating-point values.

@@ -5,7 +5,7 @@
 #ifndef CORTEXMIND_FRAMEWORK_ENGINE_AVX2_FUNCTIONS_HPP
 #define CORTEXMIND_FRAMEWORK_ENGINE_AVX2_FUNCTIONS_HPP
 
-#include <CortexMind/framework/Engine/AVX2/types.hpp>
+#include <CortexMind/framework/Engine/AVX2/fma.hpp>
 #include <cstdint>
 
 namespace cortex::_fw::avx2 {
@@ -32,6 +32,7 @@ namespace cortex::_fw::avx2 {
         _mm256_store_pd(dst, src);
     }
 
+
     [[nodiscard]]
     inline vec8f loadu(const float* src) {
         return _mm256_loadu_ps(src);
@@ -53,6 +54,7 @@ namespace cortex::_fw::avx2 {
     inline void storeu(double* dst, const vec4d& src) {
         _mm256_store_pd(dst, src);
     }
+
 
     [[nodiscard]]
     inline vec8f set1(const float value) {
@@ -79,6 +81,7 @@ namespace cortex::_fw::avx2 {
     inline vec4d zerod() {
         return _mm256_setzero_pd();
     }
+
 
     [[nodiscard]]
     inline vec8f add(const vec8f& x1, const vec8f& x2) {
@@ -132,6 +135,7 @@ namespace cortex::_fw::avx2 {
         return _mm256_div_pd(x1, x2);
     }
 
+
     [[nodiscard]]
     inline vec8f square(const vec8f& x) {
         return mul(x, x);
@@ -165,7 +169,7 @@ namespace cortex::_fw::avx2 {
     }
     [[nodiscard]]
     inline vec4d rsqrt(const vec4d& x) {
-        return div(set1(1.0), sqrt(x));
+        return mul(set1(1.0), sqrt(x));
     }
 
     [[nodiscard]]
@@ -228,7 +232,7 @@ namespace cortex::_fw::avx2 {
     }
     [[nodiscard]]
     inline vec4d neg(const vec4d& x) {
-        return _mm256_andnot_pd(set1(-0.0), x);
+        return _mm256_xor_pd(x, set1(-1.0));
     }
 
     [[nodiscard]]
@@ -238,6 +242,74 @@ namespace cortex::_fw::avx2 {
     [[nodiscard]]
     inline vec4d rcp(const vec4d& x) {
         return div(set1(1.0), x);
+    }
+
+    [[nodiscard]]
+    inline vec8f nr(const vec8f& x) {
+        const vec8f r0 = rcp(x);
+        return mul(r0, fma::nadd(x, r0, set1(2.0f)));
+    }
+    [[nodiscard]]
+    inline vec4d nr(const vec4d& x) {
+        const vec4d r0 = rcp(x);
+        return mul(r0, fma::nadd(x, r0, set1(2.0)));
+    }
+
+
+    template<std::int32_t imm>
+    [[nodiscard]]
+    vec8f shuffle(const vec8f& x1, const vec8f& x2) {
+        return _mm256_shuffle_ps(x1, x2, imm);
+    }
+    template<std::int32_t imm>
+    [[nodiscard]]
+    vec4d shuffle(const vec4d& x1, const vec4d& x2) {
+        return _mm256_shuffle_pd(x1, x2, imm);
+    }
+
+    [[nodiscard]]
+    inline vec8f blendv(const vec8f& x1, const vec8f& x2, const vec8f& x3) {
+        return _mm256_blendv_ps(x1, x2, x3);
+    }
+    [[nodiscard]]
+    inline vec4d blendv(const vec4d& x1, const vec4d& x2, const vec4d& x3) {
+        return _mm256_blendv_pd(x1, x2, x3);
+    }
+
+    [[nodiscard]]
+    inline vec8f max(const vec8f& x1, const vec8f& x2) {
+        return _mm256_max_ps(x1, x2);
+    }
+    [[nodiscard]]
+    inline vec4d max(const vec4d& x1, const vec4d& x2) {
+        return _mm256_max_pd(x1, x2);
+    }
+
+    [[nodiscard]]
+    inline vec8f min(const vec8f& x1, const vec8f& x2) {
+        return _mm256_min_ps(x1, x2);
+    }
+    [[nodiscard]]
+    inline vec4d min(const vec4d& x1, const vec4d& x2) {
+        return _mm256_min_pd(x1, x2);
+    }
+
+    [[nodiscard]]
+    inline vec8f relu(const vec8f& x) {
+        return max(zerof(), x);
+    }
+    [[nodiscard]]
+    inline vec4d relu(const vec4d& x) {
+        return max(zerod(), x);
+    }
+
+    [[nodiscard]]
+    inline vec8f tanh(const vec8f& x) {
+        return _mm256_tanh_ps(x);
+    }
+    [[nodiscard]]
+    inline vec4d tanh(const vec4d& x) {
+        return _mm256_tanh_pd(x);
     }
 } //namespace cortex::_fw::avx2
 
