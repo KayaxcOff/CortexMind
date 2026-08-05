@@ -11,6 +11,10 @@ namespace cortex::_fw::avx2 {
     using vec8f = __m256;
     using vec8i = __m256i;
     using vec4d = __m256d;
+
+    using vec4f = __m128;
+    using vec4i = __m128i;
+    using vec2d = __m128d;
 } //namespace cortex::_fw::avx2
 
 #endif //CORTEXMIND_FRAMEWORK_ENGINE_AVX2_TYPES_HPP
