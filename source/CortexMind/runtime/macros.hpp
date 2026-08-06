@@ -27,4 +27,6 @@
 
 #define CXM_DEFAULT_POOL_SIZE ((128) * (1024) * (1024))
 
+#define CXM_MAX_DIMS 5
+
 #endif //CORTEXMIND_RUNTIME_MACROS_HPP
