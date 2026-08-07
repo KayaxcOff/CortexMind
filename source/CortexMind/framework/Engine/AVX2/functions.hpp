@@ -256,6 +256,15 @@ namespace cortex::_fw::avx2 {
         return mul(r0, fma::nadd(x, r0, set1(2.0)));
     }
 
+    [[nodiscard]]
+    inline vec8f lerp(const vec8f& a, const vec8f& b, const vec8f& t) {
+        return fma::add(t, sub(b, a), a);
+    }
+
+    [[nodiscard]]
+    inline vec4d lerp(const vec4d& a, const vec4d& b, const vec4d& t) {
+        return fma::add(t, sub(b, a), a);
+    }
 
     template<std::int32_t imm>
     [[nodiscard]]
@@ -293,6 +302,46 @@ namespace cortex::_fw::avx2 {
     [[nodiscard]]
     inline vec4d min(const vec4d& x1, const vec4d& x2) {
         return _mm256_min_pd(x1, x2);
+    }
+
+    [[nodiscard]]
+    inline vec8f clamp(const vec8f& x, const vec8f& lo, const vec8f& hi) {
+        return min(max(x, lo), hi);
+    }
+
+    [[nodiscard]]
+    inline vec4d clamp(const vec4d& x, const vec4d& lo, const vec4d& hi) {
+        return min(max(x, lo), hi);
+    }
+
+    [[nodiscard]]
+    inline vec8f sign(const vec8f& x) {
+        const vec8f one = set1(1.0f);
+        const vec8f minus_one = set1(-1.0f);
+
+        const vec8f positive = cmp::gt(x, zerof());
+        const vec8f negative = cmp::lt(x, zerof());
+
+        return blendv(
+            blendv(zerof(), minus_one, negative),
+            one,
+            positive
+        );
+    }
+
+    [[nodiscard]]
+    inline vec4d sign(const vec4d& x) {
+        const vec4d one = set1(1.0);
+        const vec4d minus_one = set1(-1.0);
+
+        const vec4d positive = cmp::gt(x, zerod());
+        const vec4d negative = cmp::lt(x, zerod());
+
+        return blendv(
+            blendv(zerod(), minus_one, negative),
+            one,
+            positive
+        );
     }
 
     [[nodiscard]]
@@ -390,6 +439,23 @@ namespace cortex::_fw::avx2 {
         const vec4d inner = mul(c0, fma::add(c1, x3, x));
         const vec4d t = tanh(inner);
         return mul(mul(set1(0.5), x), add(set1(1.0), t));
+    }
+
+    [[nodiscard]]
+    inline vec8f gelu_exact(const vec8f x) {
+        const vec8f inv_sqrt2 = set1(0.7071067811865475f);
+        const vec8f erf_input = mul(x, inv_sqrt2);
+        const vec8f erf_val = erf(erf_input);
+        const vec8f one_plus_erf = add(set1(1.0f), erf_val);
+        return mul(mul(set1(0.5f), x), one_plus_erf);
+    }
+    [[nodiscard]]
+    inline vec4d gelu_exact(const vec4d x) {
+        const vec4d inv_sqrt2 = set1(0.7071067811865475);
+        const vec4d erf_input = mul(x, inv_sqrt2);
+        const vec4d erf_val = erf(erf_input);
+        const vec4d one_plus_erf = add(set1(1.0), erf_val);
+        return mul(mul(set1(0.5), x), one_plus_erf);
     }
 
     [[nodiscard]]
