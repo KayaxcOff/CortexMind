@@ -52,6 +52,8 @@ namespace cortex::_fw {
 
         TensorDevice& operator=(const TensorDevice&);
         TensorDevice& operator=(TensorDevice&&) noexcept;
+
+        friend class TensorDebug;
     private:
         DeviceType m_type;
     };

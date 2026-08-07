@@ -52,6 +52,8 @@ namespace cortex::_fw {
 
         TensorType& operator=(const TensorType&);
         TensorType& operator=(TensorType&&) noexcept;
+
+        friend class TensorDebug;
     private:
         DType m_type;
     };

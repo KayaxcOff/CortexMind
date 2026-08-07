@@ -35,6 +35,8 @@ namespace cortex::_fw {
 
         TensorShape& operator=(const TensorShape&);
         TensorShape& operator=(TensorShape&&) noexcept;
+
+        friend class TensorDebug;
     private:
         tlx::vec<std::int64_t, CXM_MAX_DIMS> m_shape;
         tlx::vec<std::int64_t, CXM_MAX_DIMS> m_stride;

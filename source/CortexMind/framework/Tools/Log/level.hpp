@@ -17,7 +17,8 @@ namespace cortex::_fw {
     enum class LogLevel : std::uint8_t {
         ERROR,
         WARNING,
-        INFO
+        INFO,
+        RESET
     };
 } //namespace cortex::_fw
 

@@ -110,6 +110,8 @@ namespace cortex::_fw {
 
         TensorStorage& operator=(const TensorStorage&) = delete;
         TensorStorage& operator=(TensorStorage&& other) noexcept;
+
+        friend class TensorDebug;
     private:
         std::byte* m_data;
         std::size_t m_bytes;

@@ -7,14 +7,10 @@
 
 using namespace cortex::_fw;
 
-namespace {
-    constexpr char kReset[] = "\033[0m";
-} //unnamed namespace
-
 WLog::WLog(const LogLevel level, std::ostream &os) : m_os(os) {
     this->m_os << ansi(level);
 }
 
 WLog::~WLog() noexcept {
-    this->m_os << kReset;
+    this->m_os << ansi(LogLevel::RESET);
 }
