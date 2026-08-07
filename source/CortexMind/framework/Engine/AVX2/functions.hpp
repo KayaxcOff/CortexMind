@@ -246,6 +246,17 @@ namespace cortex::_fw::avx2 {
     }
 
     [[nodiscard]]
+    inline vec8f inverse(const vec8f& x) {
+        const auto ones = set1(1.0f);
+        return div(ones, x);
+    }
+    [[nodiscard]]
+    inline vec4d inverse(const vec4d& x) {
+        const auto ones = set1(1.0);
+        return div(ones, x);
+    }
+
+    [[nodiscard]]
     inline vec8f nr(const vec8f& x) {
         const vec8f r0 = rcp(x);
         return mul(r0, fma::nadd(x, r0, set1(2.0f)));
