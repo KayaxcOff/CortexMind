@@ -39,7 +39,7 @@ namespace cortex::_fw::avx2 {
          */
         [[nodiscard]]
         __forceinline vec8f load(const float* src) const {
-            return vec8f(_mm256_maskload_ps(src, mask8(this->m_size)));
+            return _mm256_maskload_ps(src, mask8(this->m_size));
         }
         /**
          * @brief Performs a masked load of double-precision floating-point values.
@@ -52,7 +52,7 @@ namespace cortex::_fw::avx2 {
          */
         [[nodiscard]]
         __forceinline vec4d load(const double* src) const {
-            return vec4d(_mm256_maskload_pd(src, mask4(this->m_size)));
+            return _mm256_maskload_pd(src, mask4(this->m_size));
         }
         /**
          * @brief Performs a masked load of 32-bit signed integers.
@@ -65,7 +65,7 @@ namespace cortex::_fw::avx2 {
          */
         [[nodiscard]]
         __forceinline vec8i load(const std::int32_t* src) const {
-            return vec8i(_mm256_maskload_epi32(src, mask8(this->m_size)));
+            return _mm256_maskload_epi32(src, mask8(this->m_size));
         }
 
         /**

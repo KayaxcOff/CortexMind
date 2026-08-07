@@ -4,10 +4,13 @@
 
 add_library(CortexMind STATIC
         source/CortexMind/framework/Engine/AVX2/mask-runtime.cpp
+        source/CortexMind/framework/Engine/AVX2/scalar.cpp
         source/CortexMind/framework/Memory/as_string.cpp
         source/CortexMind/framework/Memory/device.cpp
         source/CortexMind/framework/Memory/mem.cpp
         source/CortexMind/framework/Memory/operator.cpp
+        source/CortexMind/framework/Shape/operator.cpp
+        source/CortexMind/framework/Shape/shape.cpp
         source/CortexMind/framework/Storage/operator.cpp
         source/CortexMind/framework/Storage/storage.cpp
         source/CortexMind/framework/Tools/Log/as_string.cpp
@@ -16,13 +19,11 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Tools/cast.cpp
         source/CortexMind/framework/Tools/console.cpp
         source/CortexMind/framework/Tools/errors.cpp
+        source/CortexMind/framework/Tools/tensor_meta.cpp
         source/CortexMind/framework/Type/as_string.cpp
         source/CortexMind/framework/Type/operator.cpp
         source/CortexMind/framework/Type/size.cpp
         source/CortexMind/framework/Type/type.cpp
-        ../source/CortexMind/framework/Shape/shape.cpp
-        ../source/CortexMind/framework/Tools/tensor_meta.cpp
-        ../source/CortexMind/framework/Shape/operator.cpp
 )
 
 if(CXM_IS_CUDA_AVAILABLE)
@@ -34,11 +35,11 @@ if(CXM_IS_CUDA_AVAILABLE)
 endif()
 
 target_include_directories(CortexMind PUBLIC
-        ${CMAKE_SOURCE_DIR}/include   # header file
-        ${CMAKE_SOURCE_DIR}/source    # source files
+            ${CMAKE_SOURCE_DIR}/include   # header file
+            ${CMAKE_SOURCE_DIR}/source    # source files
 )
 
-target_link_libraries(CortexMind PUBLIC
+target_link_libraries(CortexMind PRIVATE
         nlohmann_json::nlohmann_json
         TLX::TLX
 )

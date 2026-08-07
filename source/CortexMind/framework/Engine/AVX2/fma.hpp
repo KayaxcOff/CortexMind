@@ -40,7 +40,7 @@ namespace cortex::_fw::avx2 {
         }
         [[nodiscard]]
         static __forceinline vec4d nsub(const vec4d& x1, const vec4d& x2, const vec4d& x3) {
-            return _mm256_fnmadd_pd(x1, x2, x3);
+            return _mm256_fnmsub_pd(x1, x2, x3);
         }
     };
 } //namespace cortex::_fw::avx2

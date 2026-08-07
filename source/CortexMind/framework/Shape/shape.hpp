@@ -32,8 +32,6 @@ namespace cortex::_fw {
 
         [[nodiscard]]
         std::int64_t offset() const noexcept;
-        [[nodiscard]]
-        std::size_t rank() const noexcept;
 
         TensorShape& operator=(const TensorShape&);
         TensorShape& operator=(TensorShape&&) noexcept;

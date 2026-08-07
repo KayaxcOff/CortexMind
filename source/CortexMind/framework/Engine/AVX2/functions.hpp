@@ -40,7 +40,7 @@ namespace cortex::_fw::avx2 {
     }
     [[nodiscard]]
     inline vec8i loadu(const std::int32_t* src) {
-        return _mm256_load_si256(reinterpret_cast<const vec8i*>(src));
+        return _mm256_loadu_si256(reinterpret_cast<const vec8i*>(src));
     }
     inline vec4d loadu(const double* src) {
         return _mm256_loadu_pd(src);
@@ -50,10 +50,10 @@ namespace cortex::_fw::avx2 {
         _mm256_storeu_ps(dst, src);
     }
     inline void storeu(std::int32_t* dst, const vec8i& src) {
-        _mm256_store_si256(reinterpret_cast<vec8i*>(dst), src);
+        _mm256_storeu_si256(reinterpret_cast<vec8i*>(dst), src);
     }
     inline void storeu(double* dst, const vec4d& src) {
-        _mm256_store_pd(dst, src);
+        _mm256_storeu_pd(dst, src);
     }
 
 
@@ -170,7 +170,7 @@ namespace cortex::_fw::avx2 {
     }
     [[nodiscard]]
     inline vec4d rsqrt(const vec4d& x) {
-        return mul(set1(1.0), sqrt(x));
+        return div(set1(1.0), sqrt(x));
     }
 
     [[nodiscard]]
@@ -229,11 +229,11 @@ namespace cortex::_fw::avx2 {
 
     [[nodiscard]]
     inline vec8f neg(const vec8f& x) {
-        return _mm256_xor_ps(x, set1(-1.0f));
+        return _mm256_xor_ps(x, set1(-0.0f));
     }
     [[nodiscard]]
     inline vec4d neg(const vec4d& x) {
-        return _mm256_xor_pd(x, set1(-1.0));
+        return _mm256_xor_pd(x, set1(-0.0));
     }
 
     [[nodiscard]]
@@ -356,6 +356,93 @@ namespace cortex::_fw::avx2 {
         const vec4d neg_x = neg(x);
         const auto r0 = set1(1.0);
         return nr(add(r0, neg_x));
+    }
+
+    [[nodiscard]]
+    inline vec8f gelu(const vec8f& x) {
+        const auto inv_sqrt2 = set1(0.70710678118654752440f);
+        const vec8f e = erf(mul(x, inv_sqrt2));
+        const vec8f one_plus_e = add(set1(1.0f), e);
+        return mul(mul(set1(0.5f), x), one_plus_e);
+    }
+    [[nodiscard]]
+    inline vec4d gelu(const vec4d& x) {
+        const auto inv_sqrt2 = set1(0.70710678118654752440);
+        const vec4d e = erf(mul(x, inv_sqrt2));
+        const vec4d one_plus_e = add(set1(1.0), e);
+        return mul(mul(set1(0.5), x), one_plus_e);
+    }
+
+    [[nodiscard]]
+    inline vec8f gelu_tanh(const vec8f& x) {
+        const auto c0 = set1(0.7978845608028654f);
+        const auto c1 = set1(0.044715f);
+        const vec8f x3 = mul(square(x), x);
+        const vec8f inner = mul(c0, fma::add(c1, x3, x));
+        const vec8f t = tanh(inner);
+        return mul(mul(set1(0.5f), x), add(set1(1.0f), t));
+    }
+    [[nodiscard]]
+    inline vec4d gelu_tanh(const vec4d& x) {
+        const auto c0 = set1(0.7978845608028654);
+        const auto c1 = set1(0.044715);
+        const vec4d x3 = mul(square(x), x);
+        const vec4d inner = mul(c0, fma::add(c1, x3, x));
+        const vec4d t = tanh(inner);
+        return mul(mul(set1(0.5), x), add(set1(1.0), t));
+    }
+
+    [[nodiscard]]
+    inline vec8f swish(const vec8f& x) {
+        return mul(x, sigmoid(x));
+    }
+    [[nodiscard]]
+    inline vec4d swish(const vec4d& x) {
+        return mul(x, sigmoid(x));
+    }
+
+    [[nodiscard]]
+    inline vec8f swish_fast(const vec8f& x) {
+        return mul(x, sigmoid_fast(x));
+    }
+    [[nodiscard]]
+    inline vec4d swish_fast(const vec4d& x) {
+        return mul(x, sigmoid_fast(x));
+    }
+
+    [[nodiscard]]
+    inline vec8f softplus(const vec8f& x) {
+        const vec8f neg_abs = neg(abs(x));
+        const vec8f log_term = log(add(set1(1.0f), exp(neg_abs)));
+        return add(max(zerof(), x), log_term);
+    }
+    [[nodiscard]]
+    inline vec4d softplus(const vec4d& x) {
+        const vec4d neg_abs = neg(abs(x));
+        const vec4d log_term = log(add(set1(1.0), exp(neg_abs)));
+        return add(max(zerod(), x), log_term);
+    }
+
+    [[nodiscard]]
+    inline vec8f elu(const vec8f& x, const float alpha = 1.0f) {
+        const vec8f mask = cmp::gt(x, zerof());
+        const vec8f neg_branch = mul(set1(alpha), sub(exp(x), set1(1.0f)));
+        return blendv(neg_branch, x, mask);
+    }
+    [[nodiscard]]
+    inline vec4d elu(const vec4d& x, const double alpha = 1.0) {
+        const vec4d mask = cmp::gt(x, zerod());
+        const vec4d neg_branch = mul(set1(alpha), sub(exp(x), set1(1.0)));
+        return blendv(neg_branch, x, mask);
+    }
+
+    [[nodiscard]]
+    inline vec8f softsign(const vec8f& x) {
+        return div(x, add(set1(1.0f), abs(x)));
+    }
+    [[nodiscard]]
+    inline vec4d softsign(const vec4d& x) {
+        return div(x, add(set1(1.0), abs(x)));
     }
 } //namespace cortex::_fw::avx2
 

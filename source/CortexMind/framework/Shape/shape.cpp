@@ -7,7 +7,9 @@
 
 using namespace cortex::_fw;
 
-TensorShape::TensorShape() = default;
+TensorShape::TensorShape() {
+    this->m_offset = 0;
+}
 
 TensorShape::TensorShape(const std::initializer_list<std::int64_t> shape) {
     this->m_shape = shape;
@@ -16,7 +18,7 @@ TensorShape::TensorShape(const std::initializer_list<std::int64_t> shape) {
 }
 
 TensorShape::TensorShape(const std::vector<std::int64_t> &shape) {
-    this->m_shape = tlx::vec<std::int64_t, CXM_MAX_DIMS>(shape);
+    this->m_shape = tlx::vec<std::int64_t, CXM_MAX_DIMS>(shape.data(), shape.size());
     this->m_stride = compute_stride(this->m_shape);
     this->m_offset = 0;
 }
@@ -50,8 +52,4 @@ const tlx::vec<std::int64_t, CXM_MAX_DIMS> &TensorShape::stride() const {
 
 std::int64_t TensorShape::offset() const noexcept {
     return this->m_offset;
-}
-
-std::size_t TensorShape::rank() const noexcept {
-    return this->m_shape.size();
 }
