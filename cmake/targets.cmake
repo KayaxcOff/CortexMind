@@ -5,6 +5,7 @@
 add_library(CortexMind STATIC
         source/CortexMind/framework/Engine/AVX2/mask-runtime.cpp
         source/CortexMind/framework/Engine/AVX2/matrix.cpp
+        source/CortexMind/framework/Engine/AVX2/reduce.cpp
         source/CortexMind/framework/Engine/AVX2/scalar.cpp
         source/CortexMind/framework/Engine/AVX2/wise.cpp
         source/CortexMind/framework/Graph/flow.cpp
