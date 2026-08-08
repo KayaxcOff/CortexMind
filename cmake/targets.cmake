@@ -5,6 +5,7 @@
 add_library(CortexMind STATIC
         source/CortexMind/framework/Engine/AVX2/mask-runtime.cpp
         source/CortexMind/framework/Engine/AVX2/matrix.cpp
+        source/CortexMind/framework/Engine/AVX2/partial.cpp
         source/CortexMind/framework/Engine/AVX2/reduce.cpp
         source/CortexMind/framework/Engine/AVX2/scalar.cpp
         source/CortexMind/framework/Engine/AVX2/wise.cpp
@@ -28,7 +29,6 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Type/operator.cpp
         source/CortexMind/framework/Type/size.cpp
         source/CortexMind/framework/Type/type.cpp
-        ../source/CortexMind/framework/Engine/AVX2/partial.cpp
 )
 
 if(CXM_IS_CUDA_AVAILABLE)
