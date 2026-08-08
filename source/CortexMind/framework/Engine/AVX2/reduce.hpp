@@ -13,7 +13,7 @@ namespace cortex::_fw::avx2 {
         static void sum(const float* __restrict Xx, float* __restrict Xz, std::size_t N);
         static void sum(const float* __restrict Xx, float* __restrict Xz, std::size_t outer_size, std::size_t dim_size, std::size_t inner_size);
         static void mean(const float* __restrict Xx, float* __restrict Xz, std::size_t N);
-        static void mean(const float* __restrict Xx, float* __restrict Xy, std::size_t outer_size, std::size_t dim_size, std::size_t inner_size);
+        static void mean(const float* __restrict Xx, float* __restrict Xz, std::size_t outer_size, std::size_t dim_size, std::size_t inner_size);
         static void var(const float* __restrict Xx, float* __restrict Xz, std::size_t N);
         static void var(const float* __restrict Xx, float* __restrict Xz, std::size_t outer_size, std::size_t dim_size, std::size_t inner_size);
         static void stdv(const float* __restrict Xx, float* __restrict Xz, std::size_t N);
