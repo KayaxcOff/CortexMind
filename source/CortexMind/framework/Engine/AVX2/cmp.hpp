@@ -23,151 +23,151 @@ namespace cortex::_fw::avx2 {
         /**
          * @brief Performs an element-wise greater-than comparison.
          *
-         * @param x1 Left-hand operand.
-         * @param x2 Right-hand operand.
+         * @param Xx Left-hand operand.
+         * @param Xy Right-hand operand.
          *
          * @return SIMD comparison mask.
          */
         [[nodiscard]]
-        static __forceinline vec8f gt(const vec8f& x1, const vec8f& x2) {
-            return _mm256_cmp_ps(x1, x2, _CMP_GT_OQ);
+        static __forceinline vec8f gt(const vec8f& Xx, const vec8f& Xy) {
+            return _mm256_cmp_ps(Xx, Xy, _CMP_GT_OQ);
         }
         /**
          * @brief Performs an element-wise greater-than comparison.
          *
-         * @param x1 Left-hand operand.
-         * @param x2 Right-hand operand.
+         * @param Xx Left-hand operand.
+         * @param Xy Right-hand operand.
          *
          * @return SIMD comparison mask.
          */
         [[nodiscard]]
-        static __forceinline vec4d gt(const vec4d& x1, const vec4d& x2) {
-            return _mm256_cmp_pd(x1, x2, _CMP_GT_OQ);
+        static __forceinline vec4d gt(const vec4d& Xx, const vec4d& Xy) {
+            return _mm256_cmp_pd(Xx, Xy, _CMP_GT_OQ);
         }
 
         /**
          * @brief Performs an element-wise less-than comparison.
          *
-         * @param x1 Left-hand operand.
-         * @param x2 Right-hand operand.
+         * @param Xx Left-hand operand.
+         * @param Xy Right-hand operand.
          *
          * @return SIMD comparison mask.
          */
         [[nodiscard]]
-        static __forceinline vec8f lt(const vec8f& x1, const vec8f& x2) {
-            return _mm256_cmp_ps(x1, x2, _CMP_LT_OQ);
+        static __forceinline vec8f lt(const vec8f& Xx, const vec8f& Xy) {
+            return _mm256_cmp_ps(Xx, Xy, _CMP_LT_OQ);
         }
         /**
          * @brief Performs an element-wise less-than comparison.
          *
-         * @param x1 Left-hand operand.
-         * @param x2 Right-hand operand.
+         * @param Xx Left-hand operand.
+         * @param Xy Right-hand operand.
          *
          * @return SIMD comparison mask.
          */
         [[nodiscard]]
-        static __forceinline vec4d lt(const vec4d& x1, const vec4d& x2) {
-            return _mm256_cmp_pd(x1, x2, _CMP_LT_OQ);
+        static __forceinline vec4d lt(const vec4d& Xx, const vec4d& Xy) {
+            return _mm256_cmp_pd(Xx, Xy, _CMP_LT_OQ);
         }
 
         /**
          * @brief Performs an element-wise equality comparison.
          *
-         * @param x1 Left-hand operand.
-         * @param x2 Right-hand operand.
+         * @param Xx Left-hand operand.
+         * @param Xy Right-hand operand.
          *
          * @return SIMD comparison mask.
          */
         [[nodiscard]]
-        static __forceinline vec8f eq(const vec8f& x1, const vec8f& x2) {
-            return _mm256_cmp_ps(x1, x2, _CMP_EQ_OQ);
+        static __forceinline vec8f eq(const vec8f& Xx, const vec8f& Xy) {
+            return _mm256_cmp_ps(Xx, Xy, _CMP_EQ_OQ);
         }
         /**
          * @brief Performs an element-wise inequality comparison.
          *
-         * @param x1 Left-hand operand.
-         * @param x2 Right-hand operand.
+         * @param Xx Left-hand operand.
+         * @param Xy Right-hand operand.
          *
          * @return SIMD comparison mask.
          */
         [[nodiscard]]
-        static __forceinline vec4d eq(const vec4d& x1, const vec4d& x2) {
-            return _mm256_cmp_pd(x1, x2, _CMP_EQ_OQ);
+        static __forceinline vec4d eq(const vec4d& Xx, const vec4d& Xy) {
+            return _mm256_cmp_pd(Xx, Xy, _CMP_EQ_OQ);
         }
 
         /**
          * @brief Performs an element-wise greater-than-or-equal comparison.
          *
-         * @param x1 Left-hand operand.
-         * @param x2 Right-hand operand.
+         * @param Xx Left-hand operand.
+         * @param Xy Right-hand operand.
          *
          * @return SIMD comparison mask.
          */
         [[nodiscard]]
-        static __forceinline vec8f ge(const vec8f& x1, const vec8f& x2) {
-            return _mm256_cmp_ps(x1, x2, _CMP_GE_OQ);
+        static __forceinline vec8f ge(const vec8f& Xx, const vec8f& Xy) {
+            return _mm256_cmp_ps(Xx, Xy, _CMP_GE_OQ);
         }
         /**
          * @brief Performs an element-wise greater-than-or-equal comparison.
          *
-         * @param x1 Left-hand operand.
-         * @param x2 Right-hand operand.
+         * @param Xx Left-hand operand.
+         * @param Xy Right-hand operand.
          *
          * @return SIMD comparison mask.
          */
         [[nodiscard]]
-        static __forceinline vec4d ge(const vec4d& x1, const vec4d& x2) {
-            return _mm256_cmp_pd(x1, x2, _CMP_GE_OQ);
+        static __forceinline vec4d ge(const vec4d& Xx, const vec4d& Xy) {
+            return _mm256_cmp_pd(Xx, Xy, _CMP_GE_OQ);
         }
 
         /**
          * @brief Performs an element-wise less-than-or-equal comparison.
          *
-         * @param x1 Left-hand operand.
-         * @param x2 Right-hand operand.
+         * @param Xx Left-hand operand.
+         * @param Xz Right-hand operand.
          *
          * @return SIMD comparison mask.
          */
         [[nodiscard]]
-        static __forceinline vec8f le(const vec8f& x1, const vec8f& x2) {
-            return _mm256_cmp_ps(x1, x2, _CMP_LE_OQ);
+        static __forceinline vec8f le(const vec8f& Xx, const vec8f& Xz) {
+            return _mm256_cmp_ps(Xx, Xz, _CMP_LE_OQ);
         }
         /**
          * @brief Performs an element-wise less-than-or-equal comparison.
          *
-         * @param x1 Left-hand operand.
-         * @param x2 Right-hand operand.
+         * @param Xx Left-hand operand.
+         * @param Xz Right-hand operand.
          *
          * @return SIMD comparison mask.
          */
         [[nodiscard]]
-        static __forceinline vec4d le(const vec4d& x1, const vec4d& x2) {
-            return _mm256_cmp_pd(x1, x2, _CMP_LE_OQ);
+        static __forceinline vec4d le(const vec4d& Xx, const vec4d& Xz) {
+            return _mm256_cmp_pd(Xx, Xz, _CMP_LE_OQ);
         }
 
         /**
          * @brief Performs an element-wise inequality comparison.
          *
-         * @param x1 Left-hand operand.
-         * @param x2 Right-hand operand.
+         * @param Xx Left-hand operand.
+         * @param Xy Right-hand operand.
          *
          * @return SIMD comparison mask.
          */
         [[nodiscard]]
-        static __forceinline vec8f neq(const vec8f& x1, const vec8f& x2) {
-            return _mm256_cmp_ps(x1, x2, _CMP_NEQ_OQ);
+        static __forceinline vec8f neq(const vec8f& Xx, const vec8f& Xy) {
+            return _mm256_cmp_ps(Xx, Xy, _CMP_NEQ_OQ);
         }
         /**
          * @brief Performs an element-wise inequality comparison.
          *
-         * @param x1 Left-hand operand.
-         * @param x2 Right-hand operand.
+         * @param Xx Left-hand operand.
+         * @param Xy Right-hand operand.
          *
          * @return SIMD comparison mask.
          */
         [[nodiscard]]
-        static __forceinline vec4d neq(const vec4d& x1, const vec4d& x2) {
-            return _mm256_cmp_pd(x1, x2, _CMP_NEQ_OQ);
+        static __forceinline vec4d neq(const vec4d& Xx, const vec4d& Xy) {
+            return _mm256_cmp_pd(Xx, Xy, _CMP_NEQ_OQ);
         }
 
         /**
@@ -176,13 +176,13 @@ namespace cortex::_fw::avx2 {
          * Returns the bit mask produced by the corresponding AVX2 movemask
          * instruction.
          *
-         * @param x SIMD comparison vector.
+         * @param Xx SIMD comparison vector.
          *
          * @return Lane mask.
          */
         [[nodiscard]]
-        static __forceinline std::int32_t mask(const vec8f& x) {
-            return _mm256_movemask_ps(x);
+        static __forceinline std::int32_t mask(const vec8f& Xx) {
+            return _mm256_movemask_ps(Xx);
         }
         /**
          * @brief Extracts the lane mask from a SIMD comparison result.
@@ -190,59 +190,59 @@ namespace cortex::_fw::avx2 {
          * Returns the bit mask produced by the corresponding AVX2 movemask
          * instruction.
          *
-         * @param x SIMD comparison vector.
+         * @param Xx SIMD comparison vector.
          *
          * @return Lane mask.
          */
         [[nodiscard]]
-        static __forceinline std::int32_t mask(const vec4d& x) {
-            return _mm256_movemask_pd(x);
+        static __forceinline std::int32_t mask(const vec4d& Xx) {
+            return _mm256_movemask_pd(Xx);
         }
 
         /**
          * @brief Checks whether any SIMD lane satisfies the comparison.
          *
-         * @param x SIMD comparison vector.
+         * @param Xx SIMD comparison vector.
          *
          * @return True if at least one lane is active.
          */
         [[nodiscard]]
-        static __forceinline bool any(const vec8f& x) {
-            return mask(x) != 0;
+        static __forceinline bool any(const vec8f& Xx) {
+            return mask(Xx) != 0;
         }
         /**
          * @brief Checks whether any SIMD lane satisfies the comparison.
          *
-         * @param x SIMD comparison vector.
+         * @param Xx SIMD comparison vector.
          *
          * @return True if at least one lane is active.
          */
         [[nodiscard]]
-        static __forceinline bool any(const vec4d& x) {
-            return mask(x) != 0;
+        static __forceinline bool any(const vec4d& Xx) {
+            return mask(Xx) != 0;
         }
 
         /**
          * @brief Checks whether all SIMD lanes satisfy the comparison.
          *
-         * @param x SIMD comparison vector.
+         * @param Xx SIMD comparison vector.
          *
          * @return True if every lane is active.
          */
         [[nodiscard]]
-        static __forceinline bool all(const vec8f& x) {
-            return mask(x) == 0xFF;
+        static __forceinline bool all(const vec8f& Xx) {
+            return mask(Xx) == 0xFF;
         }
         /**
          * @brief Checks whether all SIMD lanes satisfy the comparison.
          *
-         * @param x SIMD comparison vector.
+         * @param Xx SIMD comparison vector.
          *
          * @return True if every lane is active.
          */
         [[nodiscard]]
-        static __forceinline bool all(const vec4d& x) {
-            return mask(x) == 0xF;
+        static __forceinline bool all(const vec4d& Xx) {
+            return mask(Xx) == 0xF;
         }
     };
 } //namespace cortex::_fw::avx2

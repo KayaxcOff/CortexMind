@@ -24,72 +24,72 @@ namespace cortex::_fw::avx2 {
         /**
          * @brief Adds a scalar value to every element of the input array.
          *
-         * @param x1 Source array.
+         * @param Xx Source array.
          * @param value Scalar operand.
-         * @param x2 Destination array.
-         * @param n Number of elements.
+         * @param Xz Destination array.
+         * @param N Number of elements.
          */
-        static void add(const float* __restrict x1, float value, float* __restrict x2, std::size_t n);
+        static void add(const float* __restrict Xx, float value, float* __restrict Xz, std::size_t N);
         /**
          * @brief Subs a scalar value to every element of the input array.
          *
-         * @param x1 Source array.
+         * @param Xx Source array.
          * @param value Scalar operand.
-         * @param x2 Destination array.
-         * @param n Number of elements.
+         * @param Xz Destination array.
+         * @param N Number of elements.
          */
-        static void sub(const float* __restrict x1, float value, float* __restrict x2, std::size_t n);
+        static void sub(const float* __restrict Xx, float value, float* __restrict Xz, std::size_t N);
         /**
          * @brief Muls a scalar value to every element of the input array.
          *
-         * @param x1 Source array.
+         * @param Xx Source array.
          * @param value Scalar operand.
-         * @param x2 Destination array.
-         * @param n Number of elements.
+         * @param Xz Destination array.
+         * @param N Number of elements.
          */
-        static void mul(const float* __restrict x1, float value, float* __restrict x2, std::size_t n);
+        static void mul(const float* __restrict Xx, float value, float* __restrict Xz, std::size_t N);
         /**
          * @brief Divs a scalar value to every element of the input array.
          *
-         * @param x1 Source array.
+         * @param Xx Source array.
          * @param value Scalar operand.
-         * @param x2 Destination array.
-         * @param n Number of elements.
+         * @param Xz Destination array.
+         * @param N Number of elements.
          */
-        static void div(const float* __restrict x1, float value, float* __restrict x2, std::size_t n);
+        static void div(const float* __restrict Xx, float value, float* __restrict Xz, std::size_t N);
 
         /**
          * @brief Adds a scalar value to every element of the array in-place.
          *
-         * @param x0 Input and output array.
+         * @param Xx Input and output array.
          * @param value Scalar operand.
-         * @param n Number of elements.
+         * @param N Number of elements.
          */
-        static void add(float* x0, float value, std::size_t n);
+        static void add(float* Xx, float value, std::size_t N);
         /**
          * @brief Subs a scalar value to every element of the array in-place.
          *
-         * @param x0 Input and output array.
+         * @param Xx Input and output array.
          * @param value Scalar operand.
-         * @param n Number of elements.
+         * @param N Number of elements.
          */
-        static void sub(float* x0, float value, std::size_t n);
+        static void sub(float* Xx, float value, std::size_t N);
         /**
          * @brief Muls a scalar value to every element of the array in-place.
          *
-         * @param x0 Input and output array.
+         * @param Xx Input and output array.
          * @param value Scalar operand.
-         * @param n Number of elements.
+         * @param N Number of elements.
          */
-        static void mul(float* x0, float value, std::size_t n);
+        static void mul(float* Xx, float value, std::size_t N);
         /**
          * @brief Divs a scalar value to every element of the array in-place.
          *
-         * @param x0 Input and output array.
+         * @param Xx Input and output array.
          * @param value Scalar operand.
-         * @param n Number of elements.
+         * @param N Number of elements.
          */
-        static void div(float* x0, float value, std::size_t n);
+        static void div(float* Xx, float value, std::size_t N);
     };
 } //namespace cortex::_fw::avx2
 
