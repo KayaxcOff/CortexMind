@@ -31,7 +31,7 @@ void reduce::sum(const float *Xx, float *Xz, const std::size_t outer_size, const
     if (inner_size == 1) {
         for (std::size_t i = 0; i < outer_size; ++i) {
             const float* src = Xx + (i * dim_size);
-            sum(src, Xz, dim_size);
+            sum(src, Xz + i, dim_size);
         }
         return;
     }
@@ -41,7 +41,7 @@ void reduce::sum(const float *Xx, float *Xz, const std::size_t outer_size, const
         const float* src1 = Xx + (i * dim_size * inner_size);
 
         std::size_t j = 0;
-        for (; j + 8 <= dim_size; j += 8) {
+        for (; j + 8 <= inner_size; j += 8) {
             storeu(dst + j, loadu(src1 + j));
         }
         for (; j < inner_size; ++j) {
@@ -75,7 +75,7 @@ void reduce::mean(const float *Xx, float *Xz, const std::size_t outer_size, cons
     std::size_t i = 0;
 
     const vec8f v_scale = set1(1.0f / static_cast<float>(dim_size));
-    for (; i < total_size; ++i) {
+    for (; i + 8 <= total_size; i += 8) {
         storeu(Xz + i, mul(loadu(Xz + i), v_scale));
     }
     for (; i < total_size; ++i) {
@@ -95,7 +95,7 @@ void reduce::var(const float *Xx, float *Xz, const std::size_t N) {
         const vec8f diff = sub(loadu(Xx + i), vmu);
         acc = fma::add(diff, diff, acc);
     }
-    float result = horizontal::mean(acc);
+    float result = horizontal::sum(acc);
     for (; i < N; ++i) {
         const float diff = Xx[i] - mu;
         result += diff * diff;
@@ -184,7 +184,7 @@ void reduce::var(const float *Xx, float *Xz, const std::size_t outer_size, const
 
 void reduce::stdv(const float *Xx, float *Xz, const std::size_t N) {
     var(Xx, Xz, N);
-    Xz[0] = std::sqrt(Xx[0]);
+    Xz[0] = std::sqrt(Xz[0]);
 }
 
 void reduce::stdv(const float *Xx, float *Xz, const std::size_t outer_size, const std::size_t dim_size, const std::size_t inner_size) {
@@ -217,8 +217,8 @@ void reduce::max(const float *Xx, float *Xz, const std::size_t N) {
 void reduce::max(const float *Xx, float *Xz, const std::size_t outer_size, const std::size_t dim_size, const std::size_t inner_size) {
     if (inner_size == 1) {
         for (std::size_t o = 0; o < outer_size; ++o) {
-            const float* src = Xz + (o * dim_size);
-            max(src, Xz, dim_size);
+            const float* src = Xx + o * dim_size;
+            max(src, Xz + o, dim_size);
         }
         return;
     }
@@ -236,7 +236,7 @@ void reduce::max(const float *Xx, float *Xz, const std::size_t outer_size, const
         }
 
         for (std::size_t d = 1; d < dim_size; ++d) {
-            const float* src2 = Xz + (o * dim_size + d) * inner_size;
+            const float* src2 = Xx + (o * dim_size + d) * inner_size;
             i = 0;
             for (; i + 8 <= inner_size; i += 8) {
                 const vec8f in_val = loadu(src2 + i);
