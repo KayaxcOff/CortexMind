@@ -26,10 +26,10 @@ namespace cortex::_fw::avx2 {
         static void norm1(const float* __restrict, float* __restrict Xz, std::size_t outer_size, std::size_t dim_size, std::size_t inner_size);
         static void norm2(const float* __restrict Xx, float* __restrict Xz, std::size_t N);
         static void norm2(const float* __restrict Xx, float* __restrict Xz, std::size_t outer_size, std::size_t dim_size, std::size_t inner_size);
-        static void argmax(const float* __restrict Xx, std::int64_t* __restrict Xz, std::size_t N);
-        static void argmax(const float* __restrict Xx, std::int64_t* __restrict Xz, std::size_t outer_size, std::size_t dim_size, std::size_t inner_size);
-        static void argmin(const float* __restrict Xx, std::int64_t* __restrict Xz, std::size_t N);
-        static void argmin(const float* __restrict Xx, std::int64_t* __restrict Xz, std::size_t outer_size, std::size_t dim_size, std::size_t inner_size);
+        static void argmax(const float* __restrict Xx, std::int32_t* __restrict Xz, std::size_t N);
+        static void argmax(const float* __restrict Xx, std::int32_t* __restrict Xz, std::size_t outer_size, std::size_t dim_size, std::size_t inner_size);
+        static void argmin(const float* __restrict Xx, std::int32_t* __restrict Xz, std::size_t N);
+        static void argmin(const float* __restrict Xx, std::int32_t* __restrict Xz, std::size_t outer_size, std::size_t dim_size, std::size_t inner_size);
     };
 } //namespace cortex::_fw::avx2
 

@@ -152,7 +152,7 @@ namespace cortex::_fw::avx2 {
          * @return Zero-based index of the maximum element.
          */
         [[nodiscard]]
-        static __forceinline std::int64_t argmax(const vec8f& x) {
+        static __forceinline std::int32_t argmax(const vec8f& x) {
             const float m = max(x);
             const vec8f eqmask = cmp::eq(x, _mm256_set1_ps(m));
             const std::int32_t bits = cmp::mask(eqmask);
@@ -169,7 +169,7 @@ namespace cortex::_fw::avx2 {
          * @return Zero-based index of the minimum element.
          */
         [[nodiscard]]
-        static __forceinline std::int64_t argmin(const vec8f& x) {
+        static __forceinline std::int32_t argmin(const vec8f& x) {
             const float m = min(x);
             const vec8f eqmask = cmp::eq(x, _mm256_set1_ps(m));
             const std::int32_t bits = cmp::mask(eqmask);
@@ -187,7 +187,7 @@ namespace cortex::_fw::avx2 {
          * @return Zero-based index of the maximum element.
          */
         [[nodiscard]]
-        static __forceinline std::int64_t argmax(const vec4d& x) {
+        static __forceinline std::int32_t argmax(const vec4d& x) {
             const double m = max(x);
             const vec4d eqmask = cmp::eq(x, _mm256_set1_pd(m));
             const std::int32_t bits = cmp::mask(eqmask);
@@ -204,7 +204,7 @@ namespace cortex::_fw::avx2 {
          * @return Zero-based index of the minimum element.
          */
         [[nodiscard]]
-        static __forceinline std::int64_t argmin(const vec4d& x) {
+        static __forceinline std::int32_t argmin(const vec4d& x) {
             const double m = min(x);
             const vec4d eqmask = cmp::eq(x, _mm256_set1_pd(m));
             const std::int32_t bits = cmp::mask(eqmask);
