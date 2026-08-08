@@ -7,7 +7,9 @@
 #include <CortexMind/framework/Engine/AVX2/functions.hpp>
 #include <CortexMind/framework/Engine/AVX2/horizontal.hpp>
 #include <cmath>
+#include <limits>
 #include <vector>
+#include <utility>
 
 using namespace cortex::_fw::avx2;
 
@@ -190,6 +192,241 @@ void reduce::stdv(const float *Xx, float *Xz, const std::size_t outer_size, cons
     const size_t total_output_elements = outer_size * inner_size;
     std::size_t i = 0;
 
+    for (; i + 8 <= total_output_elements; i += 8) {
+        storeu(Xz + i, avx2::sqrt(loadu(Xz + i)));
+    }
+    for (; i < total_output_elements; ++i) {
+        Xz[i] = std::sqrt(Xz[i]);
+    }
+}
+
+void reduce::max(const float *Xx, float *Xz, const std::size_t N) {
+    std::size_t i = 0;
+    vec8f acc = set1(std::numeric_limits<float>::lowest());
+    for (; i + 8 <= N; i += 8) {
+        acc = avx2::max(acc, loadu(Xx + i));
+    }
+    float result = horizontal::max(acc);
+    for (; i < N; ++i) {
+        result = std::max(result, Xx[i]);
+    }
+    Xz[0] = result;
+}
+
+void reduce::max(const float *Xx, float *Xz, const std::size_t outer_size, const std::size_t dim_size, const std::size_t inner_size) {
+    if (inner_size == 1) {
+        for (std::size_t o = 0; o < outer_size; ++o) {
+            const float* src = Xz + (o * dim_size);
+            max(src, Xz, dim_size);
+        }
+        return;
+    }
+
+    for (std::size_t o = 0; o < outer_size; ++o) {
+        float* dst = Xz + (o * inner_size);
+        const float* src1 = Xx + (o * dim_size * inner_size);
+
+        std::size_t i = 0;
+        for (; i + 8 <= inner_size; i += 8) {
+            storeu(dst + i, loadu(src1 + i));
+        }
+        for (; i < inner_size; ++i) {
+            dst[i] = src1[i];
+        }
+
+        for (std::size_t d = 1; d < dim_size; ++d) {
+            const float* src2 = Xz + (o * dim_size + d) * inner_size;
+            i = 0;
+            for (; i + 8 <= inner_size; i += 8) {
+                const vec8f in_val = loadu(src2 + i);
+                const vec8f out_val = loadu(dst + i);
+                storeu(dst + i, avx2::max(out_val, in_val));
+            }
+            for (; i < inner_size; ++i) {
+                dst[i] = std::max(dst[i], src2[i]);
+            }
+        }
+    }
+}
+
+void reduce::min(const float* Xx, float* Xz, const std::size_t N) {
+    std::size_t i = 0;
+    vec8f acc = set1(std::numeric_limits<float>::max());
+    for (; i + 8 <= N; i += 8) {
+        acc = avx2::min(acc, loadu(Xx + i));
+    }
+    float output = horizontal::min(acc);
+    for (; i < N; ++i) {
+        output = std::min(output, Xx[i]);
+    }
+    Xz[0] = output;
+}
+
+void reduce::min(const float *Xx, float *Xz, const std::size_t outer_size, const std::size_t dim_size, const std::size_t inner_size) {
+    if (inner_size == 1) {
+        for (std::size_t o = 0; o < outer_size; ++o) {
+            const float* src = Xx + (o * dim_size);
+            std::size_t i = 0;
+            vec8f acc = set1(std::numeric_limits<float>::max());
+            for (; i + 8 <= dim_size; i += 8) {
+                acc = avx2::min(acc, loadu(src + i));
+            }
+            float output = horizontal::min(acc);
+            for (; i < dim_size; ++i) {
+                output = std::min(output, src[i]);
+            }
+            Xz[o] = output;
+        }
+        return;
+    }
+
+    for (std::size_t o = 0; o < outer_size; ++o) {
+        float* dst = Xz + (o * inner_size);
+        const float* src1 = Xx + (o * dim_size * inner_size);
+
+        std::size_t i = 0;
+        for (; i + 8 <= inner_size; i += 8) {
+            storeu(dst + i, loadu(src1 + i));
+        }
+        for (; i < inner_size; ++i) {
+            dst[i] = src1[i];
+        }
+
+        for (std::size_t d = 1; d < dim_size; ++d) {
+            const float* src = Xx + ((o * dim_size + d) * inner_size);
+            i = 0;
+            for (; i + 8 <= inner_size; i += 8) {
+                const vec8f out_val = loadu(dst + i);
+                const vec8f in_val  = loadu(src + i);
+                storeu(dst + i, avx2::min(out_val, in_val));
+            }
+            for (; i < inner_size; ++i) {
+                dst[i] = std::min(dst[i], src[i]);
+            }
+        }
+    }
+}
+
+void reduce::norm1(const float* Xx, float* Xz, const std::size_t N) {
+    std::size_t i = 0;
+    vec8f acc = zerof();
+    for (; i + 8 <= N; i += 8) {
+        acc = add(acc, avx2::abs(loadu(Xx + i)));
+    }
+    float output = horizontal::sum(acc);
+    for (; i < N; ++i) {
+        output += std::abs(Xx[i]);
+    }
+    Xz[0] = output;
+}
+
+void reduce::norm1(const float *Xx, float* Xz, const std::size_t outer_size, const std::size_t dim_size, const std::size_t inner_size) {
+    if (inner_size == 1) {
+        for (std::size_t o = 0; o < outer_size; ++o) {
+            const float* src = Xx + (o * dim_size);
+            std::size_t i = 0;
+            vec8f acc = zerof();
+            for (; i + 8 <= dim_size; i += 8) {
+                acc = add(acc, avx2::abs(loadu(src + i)));
+            }
+            float output = horizontal::sum(acc);
+            for (; i < dim_size; ++i) {
+                output += std::abs(src[i]);
+            }
+            Xz[o] = output;
+        }
+        return;
+    }
+
+    for (std::size_t o = 0; o < outer_size; ++o) {
+        float* dst = Xz + (o * inner_size);
+        const float* src1 = Xx + (o * dim_size * inner_size);
+
+        std::size_t i = 0;
+        for (; i + 8 <= inner_size; i += 8) {
+            storeu(dst + i, avx2::abs(loadu(src1 + i)));
+        }
+        for (; i < inner_size; ++i) {
+            dst[i] = std::abs(src1[i]);
+        }
+
+        for (std::size_t d = 1; d < dim_size; ++d) {
+            const float* src2 = Xx + ((o * dim_size + d) * inner_size);
+            i = 0;
+            for (; i + 8 <= inner_size; i += 8) {
+                const vec8f out_val = loadu(dst + i);
+                const vec8f in_val  = avx2::abs(loadu(src2 + i));
+                storeu(dst + i, add(out_val, in_val));
+            }
+            for (; i < inner_size; ++i) {
+                dst[i] += std::abs(src2[i]);
+            }
+        }
+    }
+}
+
+void reduce::norm2(const float *Xx, float *Xz, const std::size_t N) {
+    std::size_t i = 0;
+    vec8f acc = zerof();
+    for (; i + 8 <= N; i += 8) {
+        const vec8f v = loadu(Xx + i);
+        acc = fma::add(v, v, acc);
+    }
+    float output = horizontal::sum(acc);
+    for (; i < N; ++i) {
+        output += Xx[i] * Xx[i];
+    }
+    Xz[0] = std::sqrt(output);
+}
+
+void reduce::norm2(const float* Xx, float *Xz, const std::size_t outer_size, const std::size_t dim_size, const std::size_t inner_size) {
+    if (inner_size == 1) {
+        for (std::size_t o = 0; o < outer_size; ++o) {
+            const float* src = Xx + (o * dim_size);
+            std::size_t i = 0;
+            vec8f acc = zerof();
+            for (; i + 8 <= dim_size; i += 8) {
+                const vec8f v = loadu(src + i);
+                acc = fma::add(v, v, acc);
+            }
+            float output = horizontal::sum(acc);
+            for (; i < dim_size; ++i) {
+                output += src[i] * src[i];
+            }
+            Xz[o] = std::sqrt(output);
+        }
+        return;
+    }
+
+    for (std::size_t o = 0; o < outer_size; ++o) {
+        float* dst = Xz + (o * inner_size);
+        const float* src1 = Xx + (o * dim_size * inner_size);
+
+        std::size_t i = 0;
+        for (; i + 8 <= inner_size; i += 8) {
+            const vec8f v = loadu(src1 + i);
+            storeu(dst + i, mul(v, v));
+        }
+        for (; i < inner_size; ++i) {
+            dst[i] = src1[i] * src1[i];
+        }
+
+        for (std::size_t d = 1; d < dim_size; ++d) {
+            const float* src = Xx + ((o * dim_size + d) * inner_size);
+            i = 0;
+            for (; i + 8 <= inner_size; i += 8) {
+                const vec8f out_val = loadu(dst + i);
+                const vec8f v = loadu(src + i);
+                storeu(dst + i, fma::add(v, v, out_val));
+            }
+            for (; i < inner_size; ++i) {
+                dst[i] += src[i] * src[i];
+            }
+        }
+    }
+
+    const std::size_t total_output_elements = outer_size * inner_size;
+    std::size_t i = 0;
     for (; i + 8 <= total_output_elements; i += 8) {
         storeu(Xz + i, avx2::sqrt(loadu(Xz + i)));
     }
