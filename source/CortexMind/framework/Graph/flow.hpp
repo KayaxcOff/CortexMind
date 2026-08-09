@@ -10,7 +10,6 @@
 
 namespace cortex::_fw {
     class Tensor;
-    class TensorDebug;
 
     namespace meta {
         struct GradientFlow {
@@ -20,8 +19,6 @@ namespace cortex::_fw {
             virtual void backward(const Tensor& _grad) = 0;
             [[nodiscard]]
             std::string_view ToString() const noexcept;
-
-            friend class cortex::_fw::TensorDebug;
         private:
             tlx::vstring m_name;
         };

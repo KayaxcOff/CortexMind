@@ -39,6 +39,11 @@ namespace cortex::_fw::avx2 {
             static void sub(const float* __restrict Xx, const float* __restrict Xy, float* __restrict Xz, const BroadcastInfo& info);
             static void mul(const float* __restrict Xx, const float* __restrict Xy, float* __restrict Xz, const BroadcastInfo& info);
             static void div(const float* __restrict Xx, const float* __restrict Xy, float* __restrict Xz, const BroadcastInfo& info);
+
+            static void add(float* Xx, const float* __restrict Xy, const BroadcastInfo& info);
+            static void sub(float* Xx, const float* __restrict Xy, const BroadcastInfo& info);
+            static void mul(float* Xx, const float* __restrict Xy, const BroadcastInfo& info);
+            static void div(float* Xx, const float* __restrict Xy, const BroadcastInfo& info);
         };
     };
 } //namespace cortex::_fw::avx2
