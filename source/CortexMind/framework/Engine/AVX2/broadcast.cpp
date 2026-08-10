@@ -10,6 +10,31 @@ using namespace cortex::_fw::avx2;
 using namespace cortex::_fw;
 
 namespace {
+    /**
+     * @brief Executes a general broadcast operation using SIMD and scalar paths.
+     *
+     * Applies the supplied vector and scalar operations element-wise according
+     * to the broadcasting and stride information stored in @p info.
+     *
+     * When all tensors are contiguous along their innermost dimension, the
+     * innermost elements are processed in AVX2-width chunks with scalar
+     * processing used for the remaining tail elements. For non-contiguous
+     * layouts, element offsets are calculated from the tensor shapes and
+     * strides and the operation is performed element by element.
+     *
+     * This kernel writes the result to a separate output buffer and therefore
+     * supports out-of-place broadcast operations.
+     *
+     * @tparam OpVec Callable type used to process two AVX2 vectors.
+     * @tparam OpScalar Callable type used to process two scalar values.
+     *
+     * @param x Input tensor.
+     * @param y Broadcast-compatible input tensor.
+     * @param z Output tensor.
+     * @param info Broadcast shape and stride information.
+     * @param op_vec Vectorized operation applied to AVX2 vector pairs.
+     * @param op_scalar Scalar operation applied to individual elements.
+     */
     template<typename OpVec, typename OpScalar>
     void general_kernel(const float* __restrict x, const float* __restrict y, float* __restrict z, const BroadcastInfo& info, OpVec op_vec, OpScalar op_scalar) {
         const bool contiguous = (info.stride_x[info.ndim - 1] == 1 && info.stride_y[info.ndim - 1] == 1 && info.stride_z[info.ndim - 1] == 1);
@@ -70,6 +95,31 @@ namespace {
         }
     }
 
+    /**
+     * @brief Executes an in-place general broadcast operation using SIMD and scalar paths.
+     *
+     * Applies the supplied vector and scalar operations between @p x and the
+     * broadcast-compatible tensor @p y, storing the result directly back into
+     * @p x according to the broadcasting and stride information in @p info.
+     *
+     * When the innermost dimension is contiguous for both inputs, the kernel
+     * processes elements in AVX2-width chunks and handles the remaining tail
+     * elements with the scalar operation. For non-contiguous layouts, element
+     * offsets are calculated from the tensor shapes and strides before applying
+     * the operation.
+     *
+     * Unlike @ref general_kernel, this kernel does not require a separate output
+     * buffer and updates the first input tensor in place.
+     *
+     * @tparam OpVec Callable type used to process two AVX2 vectors.
+     * @tparam OpScalar Callable type used to process two scalar values.
+     *
+     * @param x Input tensor and destination buffer.
+     * @param y Broadcast-compatible input tensor.
+     * @param info Broadcast shape and stride information.
+     * @param op_vec Vectorized operation applied to AVX2 vector pairs.
+     * @param op_scalar Scalar operation applied to individual elements.
+     */
     template<typename OpVec, typename OpScalar>
     void general_kernel_inplace(float* x, const float* __restrict y, const BroadcastInfo& info, OpVec op_vec, OpScalar op_scalar) {
         const bool contiguous = (info.stride_x[info.ndim - 1] == 1 && info.stride_y[info.ndim - 1] == 1);
@@ -172,7 +222,7 @@ void Broadcast::row::div(const float *Xx, const float *Xy, float *Xz, const std:
             storeu(Xz + i * N + j, avx2::mul(loadu(Xx + i * N + j), loadu(Xy + j)));
         }
         for (; j < N; ++j) {
-            (Xz + i * N)[j] = (Xx + i * N)[j] * Xy[j];
+            (Xz + i * N)[j] = (Xx + i * N)[j] / Xy[j];
         }
     }
 }

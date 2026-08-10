@@ -10,6 +10,17 @@
 #include <cstdint>
 
 namespace cortex::_fw {
+    /**
+     * @brief Describes the shape and memory strides required for broadcasting.
+     *
+     * Stores the dimensionality, output shape, and per-dimension memory
+     * strides of the input and output tensors involved in a broadcast
+     * operation.
+     *
+     * A zero stride can be used for a broadcasted dimension, allowing the
+     * same element to be reused across that dimension without advancing
+     * the corresponding input pointer.
+     */
     struct BroadcastInfo {
         std::int32_t ndim;
         tlx::vec<std::int64_t, CXM_MAX_DIMS> shape;
