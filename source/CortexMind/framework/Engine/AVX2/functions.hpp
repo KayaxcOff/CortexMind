@@ -277,6 +277,19 @@ namespace cortex::_fw::avx2 {
         return fma::add(t, sub(b, a), a);
     }
 
+    [[nodiscard]]
+    inline vec8f gather(const float* base, const vec8i& indices) {
+        return _mm256_i32gather_ps(base, indices, sizeof(float));
+    }
+    [[nodiscard]]
+    inline vec8i gather(const std::int32_t* base, const vec8i& indices) {
+        return _mm256_i32gather_epi32(base, indices, sizeof(std::int32_t));
+    }
+    [[nodiscard]]
+    inline vec4d gather(const double* base, const vec4i& indices) {
+        return _mm256_i32gather_pd(base, indices, sizeof(double));
+    }
+
     template<std::int32_t imm>
     [[nodiscard]]
     vec8f shuffle(const vec8f& x1, const vec8f& x2) {

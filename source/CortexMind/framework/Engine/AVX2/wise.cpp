@@ -185,3 +185,31 @@ void wise::sign(const float *Xx, float *Xz, const std::size_t N) {
         Xz[i] = tlx::sign(Xx[i]);
     }
 }
+
+void wise::gather(const float *Xx, const std::int32_t *Xy, float* Xz, const std::size_t N) {
+    std::size_t i = 0;
+
+    for (; i + 8 <= N; i += 8) {
+        const auto indices = loadu(Xy + i);
+
+        storeu(Xz + i, avx2::gather(Xx, indices));
+    }
+
+    for (; i < N; ++i) {
+        Xz[i] = Xx[Xy[i]];
+    }
+}
+
+void wise::gather(const std::int32_t *Xx, const std::int32_t *Xy, std::int32_t* Xz, const std::size_t N) {
+    std::size_t i = 0;
+
+    for (; i + 8 <= N; i += 8) {
+        const auto indices = loadu(Xy + i);
+
+        storeu(Xz + i, avx2::gather(Xx, indices));
+    }
+
+    for (; i < N; ++i) {
+        Xz[i] = Xx[Xy[i]];
+    }
+}

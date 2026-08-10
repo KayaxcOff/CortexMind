@@ -5,6 +5,7 @@
 #ifndef CORTEXMIND_FRAMEWORK_ENGINE_AVX2_WISE_HPP
 #define CORTEXMIND_FRAMEWORK_ENGINE_AVX2_WISE_HPP
 
+#include <cstdint>
 #include <cwchar>
 
 namespace cortex::_fw::avx2 {
@@ -179,6 +180,9 @@ namespace cortex::_fw::avx2 {
          * @param N Number of elements.
          */
         static void sign(const float* __restrict Xx, float* __restrict Xz, std::size_t N);
+
+        static void gather(const float* __restrict Xx, const std::int32_t* __restrict Xy, float* __restrict Xz, std::size_t N);
+        static void gather(const std::int32_t* __restrict Xx, const std::int32_t* __restrict Xy, std::int32_t* __restrict Xz, std::size_t N);
     };
 } //namespace cortex::_fw::avx2
 
