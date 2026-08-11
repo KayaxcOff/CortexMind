@@ -4,6 +4,7 @@
 
 add_library(CortexMind STATIC
         source/CortexMind/framework/Engine/AVX2/broadcast.cpp
+        source/CortexMind/framework/Engine/AVX2/compare.cpp
         source/CortexMind/framework/Engine/AVX2/mask-runtime.cpp
         source/CortexMind/framework/Engine/AVX2/matrix.cpp
         source/CortexMind/framework/Engine/AVX2/partial.cpp
