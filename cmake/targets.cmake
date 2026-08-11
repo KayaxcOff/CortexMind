@@ -35,6 +35,8 @@ add_library(CortexMind STATIC
 
 if(CXM_IS_CUDA_AVAILABLE)
     target_sources(CortexMind PRIVATE
+            source/CortexMind/framework/Engine/Operations/base.cu
+            source/CortexMind/framework/Engine/Operations/kernel_ops.cu
             source/CortexMind/framework/Memory/forge.cu
             source/CortexMind/framework/Memory/transform.cu
             source/CortexMind/framework/Tools/errors.cu
