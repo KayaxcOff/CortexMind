@@ -17,6 +17,10 @@ namespace cortex::_fw::ops {
         CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx, tlx::bfloat16 Xy) const noexcept;
         [[nodiscard]]
         CXM_DEVICE tlx::half operator()(tlx::half Xx, tlx::half Xy) const noexcept;
+        [[nodiscard]]
+        CXM_DEVICE float4 operator()(float4 Xx, float4 Xy) const noexcept;
+        [[nodiscard]]
+        CXM_DEVICE float4 operator()(float4 Xx, float Xy) const noexcept;
     };
 
     struct Subtraction : KernelBase {

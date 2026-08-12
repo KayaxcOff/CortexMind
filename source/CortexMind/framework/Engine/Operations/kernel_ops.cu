@@ -22,6 +22,16 @@ tlx::half Addition::operator()(const tlx::half Xx, const tlx::half Xy) const noe
 }
 
 CXM_DEVICE
+float4 Addition::operator()(const float4 Xx, const float4 Xy) const noexcept {
+    return make_float4(Xx.x + Xy.x, Xx.y + Xy.y, Xx.z + Xy.z, Xx.w + Xy.w);
+}
+
+CXM_DEVICE
+float4 Addition::operator()(const float4 Xx, const float Xy) const noexcept {
+    return make_float4(Xx.x + Xy, Xx.y + Xy, Xx.z + Xy, Xx.w + Xy);
+}
+
+CXM_DEVICE
 float Subtraction::operator()(const float Xx, const float Xy) const noexcept {
     return Xx - Xy;
 }
