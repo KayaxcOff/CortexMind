@@ -182,6 +182,21 @@ tlx::bfloat16 Sin::operator()(const tlx::bfloat16 Xx) const noexcept {
 }
 
 CXM_DEVICE
+float Cos::operator()(const float Xx) const noexcept {
+    return cosf(Xx);
+}
+
+CXM_DEVICE
+tlx::bfloat16 Cos::operator()(const tlx::bfloat16 Xx) const noexcept {
+    return hcos(Xx);
+}
+
+CXM_DEVICE
+tlx::half Cos::operator()(const tlx::half Xx) const noexcept {
+    return hcos(Xx);
+}
+
+CXM_DEVICE
 tlx::half Sin::operator()(const tlx::half Xx) const noexcept {
     return hsin(Xx);
 }
@@ -218,7 +233,7 @@ tlx::half Neg::operator()(const tlx::half Xx) const noexcept {
 
 CXM_DEVICE
 float Rcp::operator()(const float Xx) const noexcept {
-    return 1.f / Xx;
+    return __frcp_rn(Xx);
 }
 
 CXM_DEVICE
@@ -238,10 +253,40 @@ float Lerp::operator()(const float Xx, const float Xy, const float Xz) const noe
 
 CXM_DEVICE
 tlx::bfloat16 Lerp::operator()(const tlx::bfloat16 Xx, const tlx::bfloat16 Xy, const tlx::bfloat16 Xz) const noexcept {
-    return __hfma(Xz, Xy - Xx, Xy);
+    return __hfma(Xz, Xy - Xx, Xx);
 }
 
 CXM_DEVICE
 tlx::half Lerp::operator()(const tlx::half Xx, const tlx::half Xy, const tlx::half Xz) const noexcept {
     return __hfma(Xz, Xy - Xx, Xx);
+}
+
+CXM_DEVICE
+float Max::operator()(const float Xx, const float Xy) const noexcept {
+    return fmaxf(Xx, Xy);
+}
+
+CXM_DEVICE
+tlx::bfloat16 Max::operator()(const tlx::bfloat16 Xx, const tlx::bfloat16 Xy) const noexcept {
+    return __hmax(Xx, Xy);
+}
+
+CXM_DEVICE
+tlx::half Max::operator()(const tlx::half Xx, const tlx::half Xy) const noexcept {
+    return __hmax(Xx, Xy);
+}
+
+CXM_DEVICE
+float Min::operator()(const float Xx, const float Xy) const noexcept {
+    return fminf(Xx, Xy);
+}
+
+CXM_DEVICE
+tlx::bfloat16 Min::operator()(const tlx::bfloat16 Xx, const tlx::bfloat16 Xy) const noexcept {
+    return __hmin(Xx, Xy);
+}
+
+CXM_DEVICE
+tlx::half Min::operator()(const tlx::half Xx, const tlx::half Xy) const noexcept {
+    return __hmin(Xx, Xy);
 }

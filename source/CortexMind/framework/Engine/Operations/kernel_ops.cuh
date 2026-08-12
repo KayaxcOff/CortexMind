@@ -162,6 +162,24 @@ namespace cortex::_fw::ops {
         [[nodiscard]]
         CXM_DEVICE tlx::half operator()(tlx::half Xx, tlx::half Xy, tlx::half Xz) const noexcept;
     };
+
+    struct Max : KernelBase {
+        [[nodiscard]]
+        CXM_DEVICE float operator()(float Xx, float Xy) const noexcept;
+        [[nodiscard]]
+        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx, tlx::bfloat16 Xy) const noexcept;
+        [[nodiscard]]
+        CXM_DEVICE tlx::half operator()(tlx::half Xx, tlx::half Xy) const noexcept;
+    };
+
+    struct Min : KernelBase {
+        [[nodiscard]]
+        CXM_DEVICE float operator()(float Xx, float Xy) const noexcept;
+        [[nodiscard]]
+        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx, tlx::bfloat16 Xy) const noexcept;
+        [[nodiscard]]
+        CXM_DEVICE tlx::half operator()(tlx::half Xx, tlx::half Xy) const noexcept;
+    };
 } //namespace cortex::_fw::ops
 
 #endif //CORTEXMIND_FRAMEWORK_ENGINE_OPERATIONS_KERNEL_OPS_CUH

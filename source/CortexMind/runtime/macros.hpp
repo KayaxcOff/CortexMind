@@ -6,7 +6,7 @@
 #define CORTEXMIND_RUNTIME_MACROS_HPP
 
 #if CXM_IS_CUDA_AVAILABLE
-#include <cuda_runtime.h>
+    #include <cuda_runtime.h>
     #define CXM_GLOBAL __global__
     #define CXM_SHARED __shared__
     #define CXM_DEVICE_ATTR __device__ __host__
