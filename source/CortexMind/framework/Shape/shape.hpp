@@ -13,6 +13,7 @@ namespace cortex::_fw {
     class TensorShape {
     public:
         TensorShape();
+        explicit TensorShape(const tlx::vec<std::int64_t, CXM_MAX_DIMS> &shape);
         TensorShape(std::initializer_list<std::int64_t> shape);
         explicit TensorShape(const std::vector<std::int64_t>& shape);
         TensorShape(const TensorShape&);

@@ -7,6 +7,10 @@
 
 using namespace cortex::_fw;
 
+TensorType::TensorType() {
+    this->m_type = DType::Unknown;
+}
+
 TensorType::TensorType(const DType type) {
     this->m_type = type;
 }

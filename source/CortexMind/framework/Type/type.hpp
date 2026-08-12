@@ -25,6 +25,7 @@ namespace cortex::_fw {
      */
     class TensorType {
     public:
+        TensorType();
         /**
          * @brief Constructs a tensor type from the specified data type.
          *

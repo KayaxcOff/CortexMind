@@ -11,6 +11,12 @@ TensorShape::TensorShape() {
     this->m_offset = 0;
 }
 
+TensorShape::TensorShape(const tlx::vec<std::int64_t, 5> &shape) {
+    this->m_shape = shape;
+    this->m_stride = compute_stride(this->m_shape);
+    this->m_offset = 0;
+}
+
 TensorShape::TensorShape(const std::initializer_list<std::int64_t> shape) {
     this->m_shape = shape;
     this->m_stride = compute_stride(this->m_shape);

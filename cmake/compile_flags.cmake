@@ -65,7 +65,6 @@ elseif (MSVC)
     target_compile_options(CortexMind PRIVATE
             $<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:Debug>>:
                 /Od                # Disables optimizations and facilitates debugging.
-                /Z7                # Embeds debugging symbols into .obj files (reduces PDB dependency).
                 /W4                # The highest recommended logical warning level for MSVC.
                 /fsanitize=address # MSVC AddressSanitizer: Detects errors such as memory leaks and overflows at runtime on Windows.
             >)

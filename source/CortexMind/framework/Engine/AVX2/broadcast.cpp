@@ -82,7 +82,7 @@ namespace {
             int d = info.ndim - 2;
             while (d >= 0) {
                 indices[d]++;
-                if (indices[d] < info.shape[d]) {
+                if (indices[d] < static_cast<std::size_t>(info.shape[d])) {
                     break;
                 }
                 indices[d] = 0;
@@ -165,7 +165,7 @@ namespace {
             int d = info.ndim - 2;
             while (d >= 0) {
                 indices[d]++;
-                if (indices[d] < info.shape[d]) {
+                if (indices[d] < static_cast<std::size_t>(info.shape[d])) {
                     break;
                 }
                 indices[d] = 0;
