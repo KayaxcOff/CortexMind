@@ -11,7 +11,7 @@
 using namespace cortex::_fw::nv;
 
 void ScalarKernel::add(const float *Xx, const float value, float *Xz, const std::size_t N) {
-    const int grid_size = grid<4>(N);
+    const std::int32_t grid_size = grid<4>(N);
 
     kernels::scalar<ops::Addition><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -22,7 +22,7 @@ void ScalarKernel::add(const float *Xx, const float value, float *Xz, const std:
 }
 
 void ScalarKernel::add(const tlx::bfloat16 *Xx, const tlx::bfloat16 value, tlx::bfloat16 *Xz, const std::size_t N) {
-    const int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar<ops::Addition><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -33,7 +33,7 @@ void ScalarKernel::add(const tlx::bfloat16 *Xx, const tlx::bfloat16 value, tlx::
 }
 
 void ScalarKernel::add(const tlx::half *Xx, const tlx::half value, tlx::half *Xz, const std::size_t N) {
-    const int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar<ops::Addition><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -44,7 +44,7 @@ void ScalarKernel::add(const tlx::half *Xx, const tlx::half value, tlx::half *Xz
 }
 
 void ScalarKernel::sub(const float *Xx, const float value, float *Xz, const std::size_t N) {
-    const int grid_size = grid<4>(N);
+    const std::int32_t grid_size = grid<4>(N);
 
     kernels::scalar<ops::Subtraction><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -55,7 +55,7 @@ void ScalarKernel::sub(const float *Xx, const float value, float *Xz, const std:
 }
 
 void ScalarKernel::sub(const tlx::bfloat16 *Xx, const tlx::bfloat16 value, tlx::bfloat16 *Xz, const std::size_t N) {
-    const int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar<ops::Subtraction><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -66,7 +66,7 @@ void ScalarKernel::sub(const tlx::bfloat16 *Xx, const tlx::bfloat16 value, tlx::
 }
 
 void ScalarKernel::sub(const tlx::half *Xx, const tlx::half value, tlx::half *Xz, const std::size_t N) {
-    const int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar<ops::Subtraction><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -77,7 +77,7 @@ void ScalarKernel::sub(const tlx::half *Xx, const tlx::half value, tlx::half *Xz
 }
 
 void ScalarKernel::mul(const float *Xx, const float value, float *Xz, const std::size_t N) {
-    const int grid_size = grid<4>(N);
+    const std::int32_t grid_size = grid<4>(N);
 
     kernels::scalar<ops::Multiplication><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -88,7 +88,7 @@ void ScalarKernel::mul(const float *Xx, const float value, float *Xz, const std:
 }
 
 void ScalarKernel::mul(const tlx::bfloat16 *Xx, const tlx::bfloat16 value, tlx::bfloat16 *Xz, const std::size_t N) {
-    const int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar<ops::Multiplication><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -99,7 +99,7 @@ void ScalarKernel::mul(const tlx::bfloat16 *Xx, const tlx::bfloat16 value, tlx::
 }
 
 void ScalarKernel::mul(const tlx::half *Xx, const tlx::half value, tlx::half *Xz, const std::size_t N) {
-    const int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar<ops::Multiplication><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -110,7 +110,7 @@ void ScalarKernel::mul(const tlx::half *Xx, const tlx::half value, tlx::half *Xz
 }
 
 void ScalarKernel::div(const float *Xx, const float value, float *Xz, const std::size_t N) {
-    const int grid_size = grid<4>(N);
+    const std::int32_t grid_size = grid<4>(N);
 
     kernels::scalar<ops::Division><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -121,7 +121,7 @@ void ScalarKernel::div(const float *Xx, const float value, float *Xz, const std:
 }
 
 void ScalarKernel::div(const tlx::bfloat16 *Xx, const tlx::bfloat16 value, tlx::bfloat16 *Xz, const std::size_t N) {
-    const int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar<ops::Division><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -132,7 +132,7 @@ void ScalarKernel::div(const tlx::bfloat16 *Xx, const tlx::bfloat16 value, tlx::
 }
 
 void ScalarKernel::div(const tlx::half *Xx, const tlx::half value, tlx::half *Xz, const std::size_t N) {
-    const int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar<ops::Division><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -143,7 +143,7 @@ void ScalarKernel::div(const tlx::half *Xx, const tlx::half value, tlx::half *Xz
 }
 
 void ScalarKernel::add(float *Xx, const float value, const std::size_t N) {
-    int grid_size = grid<4>(N);
+    const std::int32_t grid_size = grid<4>(N);
 
     kernels::scalar_inplace<ops::Addition><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -153,7 +153,7 @@ void ScalarKernel::add(float *Xx, const float value, const std::size_t N) {
 }
 
 void ScalarKernel::add(tlx::bfloat16 *Xx, const tlx::bfloat16 value, const std::size_t N) {
-    int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar_inplace<ops::Addition><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -163,7 +163,7 @@ void ScalarKernel::add(tlx::bfloat16 *Xx, const tlx::bfloat16 value, const std::
 }
 
 void ScalarKernel::add(tlx::half *Xx, const tlx::half value, const std::size_t N) {
-    int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar_inplace<ops::Addition><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -173,7 +173,7 @@ void ScalarKernel::add(tlx::half *Xx, const tlx::half value, const std::size_t N
 }
 
 void ScalarKernel::sub(float *Xx, const float value, const std::size_t N) {
-    int grid_size = grid<4>(N);
+    const std::int32_t grid_size = grid<4>(N);
 
     kernels::scalar_inplace<ops::Subtraction><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -183,7 +183,7 @@ void ScalarKernel::sub(float *Xx, const float value, const std::size_t N) {
 }
 
 void ScalarKernel::sub(tlx::bfloat16 *Xx, const tlx::bfloat16 value, const std::size_t N) {
-    int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar_inplace<ops::Subtraction><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -193,7 +193,7 @@ void ScalarKernel::sub(tlx::bfloat16 *Xx, const tlx::bfloat16 value, const std::
 }
 
 void ScalarKernel::sub(tlx::half *Xx, const tlx::half value, const std::size_t N) {
-    int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar_inplace<ops::Subtraction><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -203,7 +203,7 @@ void ScalarKernel::sub(tlx::half *Xx, const tlx::half value, const std::size_t N
 }
 
 void ScalarKernel::mul(float *Xx, const float value, const std::size_t N) {
-    int grid_size = grid<4>(N);
+    const std::int32_t grid_size = grid<4>(N);
 
     kernels::scalar_inplace<ops::Multiplication><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -213,7 +213,7 @@ void ScalarKernel::mul(float *Xx, const float value, const std::size_t N) {
 }
 
 void ScalarKernel::mul(tlx::bfloat16 *Xx, const tlx::bfloat16 value, const std::size_t N) {
-    int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar_inplace<ops::Multiplication><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -223,7 +223,7 @@ void ScalarKernel::mul(tlx::bfloat16 *Xx, const tlx::bfloat16 value, const std::
 }
 
 void ScalarKernel::mul(tlx::half *Xx, const tlx::half value, const std::size_t N) {
-    int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar_inplace<ops::Multiplication><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -233,7 +233,7 @@ void ScalarKernel::mul(tlx::half *Xx, const tlx::half value, const std::size_t N
 }
 
 void ScalarKernel::div(float *Xx, const float value, const std::size_t N) {
-    int grid_size = grid<4>(N);
+    const std::int32_t grid_size = grid<4>(N);
 
     kernels::scalar_inplace<ops::Division><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -243,7 +243,7 @@ void ScalarKernel::div(float *Xx, const float value, const std::size_t N) {
 }
 
 void ScalarKernel::div(tlx::bfloat16 *Xx, const tlx::bfloat16 value, const std::size_t N) {
-    int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar_inplace<ops::Division><<<grid_size, kBlockSize>>>(
         convert(Xx),
@@ -253,7 +253,7 @@ void ScalarKernel::div(tlx::bfloat16 *Xx, const tlx::bfloat16 value, const std::
 }
 
 void ScalarKernel::div(tlx::half *Xx, const tlx::half value, const std::size_t N) {
-    int grid_size = grid<2>(N);
+    const std::int32_t grid_size = grid<2>(N);
 
     kernels::scalar_inplace<ops::Division><<<grid_size, kBlockSize>>>(
         convert(Xx),
