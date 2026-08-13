@@ -9,6 +9,7 @@
 #include <CortexMind/framework/Shape/shape.hpp>
 #include <CortexMind/framework/Storage/storage.hpp>
 #include <CortexMind/framework/Type/type.hpp>
+#include <CortexMind/tools/tensor_info.hpp>
 #include <memory>
 #include <vector>
 
@@ -18,6 +19,8 @@ namespace cortex::_fw {
         Tensor();
         explicit Tensor(const tlx::vec<std::int64_t, CXM_MAX_DIMS>& shape, DType type = DType::Float32, DeviceType d_type = DeviceType::HOST, bool _requires_grad = false);
         explicit Tensor(const std::vector<std::int64_t>& shape, DType type = DType::Float32, DeviceType d_type = DeviceType::HOST, bool _requires_grad = false);
+        explicit Tensor(const TensorInfo& info);
+        ~Tensor();
 
         [[nodiscard]]
         bool requires_grad() const noexcept;

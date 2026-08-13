@@ -40,6 +40,7 @@ if(CXM_IS_CUDA_AVAILABLE)
             source/CortexMind/framework/Memory/forge.cu
             source/CortexMind/framework/Memory/transform.cu
             source/CortexMind/framework/Tools/errors.cu
+            source/CortexMind/framework/Tools/grid.cu
     )
 endif()
 

@@ -30,12 +30,26 @@ Tensor::Tensor(const std::vector<std::int64_t> &shape, DType type, DeviceType d_
     this->m_type = TensorType(type);
     this->m_flag = _requires_grad;
 
-    this->storage_ = std::make_shared<TensorStorage>(compute_size(this->m_shape.shape()), d_type);
+    this->storage_ = std::make_shared<TensorStorage>(compute_size(this->m_shape.shape()) * sizeOf(this->m_type.type()), d_type);
 
     if (this->m_flag) {
         this->gradient_ = std::make_shared<Tensor>(shape, type, d_type);
     }
 }
+
+Tensor::Tensor(const TensorInfo &info) {
+    this->m_shape = TensorShape(info._shape);
+    this->m_type = TensorType(info._dtype);
+    this->m_flag = info._requires_grad;
+
+    this->storage_ = std::make_shared<TensorStorage>(compute_size(this->m_shape.shape()) * sizeOf(this->m_type.type()), info._deviceType);
+
+    if (this->m_flag) {
+        this->gradient_ = std::make_shared<Tensor>(info._shape, info._dtype, info._deviceType);
+    }
+}
+
+Tensor::~Tensor() = default;
 
 bool Tensor::requires_grad() const noexcept {
     return this->m_flag;
