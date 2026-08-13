@@ -6,6 +6,7 @@ if(CXM_IS_CUDA_AVAILABLE)
             $<$<COMPILE_LANGUAGE:CUDA>:
                 --extended-lambda           # Enables the use of C++ lambda functions within CUDA kernels.
                 --expt-relaxed-constexpr    # Allows constexpr host functions to be called from CUDA device code.
+                -diag-suppress=177
             >)
     # for debug mode
     target_compile_options(CortexMind PRIVATE

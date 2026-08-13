@@ -12,177 +12,287 @@
 namespace cortex::_fw::ops {
     struct Addition : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx, float Xy) const noexcept;
+        CXM_DEVICE float operator()(const float Xx, const float Xy) const noexcept {
+            return Xx + Xy;
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx, tlx::bfloat16 Xy) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx, const tlx::bfloat16 Xy) const noexcept {
+            return Xx + Xy;
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx, tlx::half Xy) const noexcept;
-        [[nodiscard]]
-        CXM_DEVICE float4 operator()(float4 Xx, float4 Xy) const noexcept;
-        [[nodiscard]]
-        CXM_DEVICE float4 operator()(float4 Xx, float Xy) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx, const tlx::half Xy) const noexcept {
+            return Xx + Xy;
+        }
     };
 
     struct Subtraction : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx, float Xy) const noexcept;
+        CXM_DEVICE float operator()(const float Xx, const float Xy) const noexcept {
+            return Xx - Xy;
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx, tlx::bfloat16 Xy) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx, const tlx::bfloat16 Xy) const noexcept {
+            return Xx - Xy;
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx, tlx::half Xy) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx, const tlx::half Xy) const noexcept {
+            return Xx - Xy;
+        }
     };
 
     struct Multiplication : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx, float Xy) const noexcept;
+        CXM_DEVICE float operator()(const float Xx, const float Xy) const noexcept {
+            return Xx * Xy;
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx, tlx::bfloat16 Xy) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx, const tlx::bfloat16 Xy) const noexcept {
+            return Xx * Xy;
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx, tlx::half Xy) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx, const tlx::half Xy) const noexcept {
+            return Xx * Xy;
+        }
     };
 
     struct Division : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx, float Xy) const noexcept;
+        CXM_DEVICE float operator()(const float Xx, const float Xy) const noexcept {
+            return Xx / Xy;
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx, tlx::bfloat16 Xy) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx, const tlx::bfloat16 Xy) const noexcept {
+            return Xx / Xy;
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx, tlx::half Xy) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx, const tlx::half Xy) const noexcept {
+            return Xx / Xy;
+        }
     };
 
-    struct  Square : KernelBase {
+    struct Square : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx) const noexcept;
+        CXM_DEVICE float operator()(const float Xx) const noexcept {
+            return Xx * Xx;
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx) const noexcept {
+            return Xx * Xx;
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx) const noexcept {
+            return Xx * Xx;
+        }
     };
 
     struct Power : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx, float Xy) const noexcept;
+        CXM_DEVICE float operator()(const float Xx, const float Xy) const noexcept {
+            return powf(Xx, Xy);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx, tlx::bfloat16 Xy) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx, const tlx::bfloat16 Xy) const noexcept {
+            return powf(Xx, Xy);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx, tlx::half Xy) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx, const tlx::half Xy) const noexcept {
+            return powf(Xx, Xy);
+        }
     };
 
     struct Sqrt : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx) const noexcept;
+        CXM_DEVICE float operator()(const float Xx) const noexcept {
+            return sqrtf(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx) const noexcept {
+            return hsqrt(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx) const noexcept {
+            return hsqrt(Xx);
+        }
     };
 
     struct RSqrt : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx) const noexcept;
+        CXM_DEVICE float operator()(const float Xx) const noexcept {
+            return rsqrtf(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx) const noexcept {
+            return hrsqrt(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx) const noexcept {
+            return hrsqrt(Xx);
+        }
     };
 
     struct Log : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx) const noexcept;
+        CXM_DEVICE float operator()(const float Xx) const noexcept {
+            return logf(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx) const noexcept {
+            return hlog(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx) const noexcept {
+            return hlog(Xx);
+        }
     };
 
     struct Exp : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx) const noexcept;
+        CXM_DEVICE float operator()(const float Xx) const noexcept {
+            return expf(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx) const noexcept {
+            return hexp(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx) const noexcept {
+            return hexp(Xx);
+        }
     };
 
     struct Erf : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx) const noexcept;
+        CXM_DEVICE float operator()(const float Xx) const noexcept {
+            return erff(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx) const noexcept {
+            return erff(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx) const noexcept {
+            return erff(Xx);
+        }
     };
 
     struct Sin : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx) const noexcept;
+        CXM_DEVICE float operator()(const float Xx) const noexcept {
+            return sinf(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx) const noexcept {
+            return hsin(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx) const noexcept {
+            return hsin(Xx);
+        }
     };
 
     struct Cos : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx) const noexcept;
+        CXM_DEVICE float operator()(const float Xx) const noexcept {
+            return cosf(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx) const noexcept {
+            return hcos(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx) const noexcept {
+            return hcos(Xx);
+        }
     };
 
     struct Abs : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx) const noexcept;
+        CXM_DEVICE float operator()(const float Xx) const noexcept {
+            return fabsf(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx) const noexcept {
+            return __habs(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx) const noexcept {
+            return __habs(Xx);
+        }
     };
 
     struct Neg : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx) const noexcept;
+        CXM_DEVICE float operator()(const float Xx) const noexcept {
+            return -Xx;
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx) const noexcept {
+            return __hneg(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx) const noexcept {
+            return __hneg(Xx);
+        }
     };
 
     struct Rcp : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx) const noexcept;
+        CXM_DEVICE float operator()(const float Xx) const noexcept {
+            return __frcp_rn(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx) const noexcept {
+            return hrcp(Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx) const noexcept {
+            return hrcp(Xx);
+        }
     };
 
     struct Lerp : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx, float Xy, float Xz) const noexcept;
+        CXM_DEVICE float operator()(const float Xx, const float Xy, const float Xz) const noexcept {
+            return fmaf(Xz, Xy - Xx, Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx, tlx::bfloat16 Xy, tlx::bfloat16 Xz) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx, const tlx::bfloat16 Xy, const tlx::bfloat16 Xz) const noexcept {
+            return __hfma(Xz, Xy - Xx, Xx);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx, tlx::half Xy, tlx::half Xz) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx, const tlx::half Xy, const tlx::half Xz) const noexcept {
+            return __hfma(Xz, Xy - Xx, Xx);
+        }
     };
 
     struct Max : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx, float Xy) const noexcept;
+        CXM_DEVICE float operator()(const float Xx, const float Xy) const noexcept {
+            return fmaxf(Xx, Xy);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx, tlx::bfloat16 Xy) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx, const tlx::bfloat16 Xy) const noexcept {
+            return __hmax(Xx, Xy);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx, tlx::half Xy) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx, const tlx::half Xy) const noexcept {
+            return __hmax(Xx, Xy);
+        }
     };
 
     struct Min : KernelBase {
         [[nodiscard]]
-        CXM_DEVICE float operator()(float Xx, float Xy) const noexcept;
+        CXM_DEVICE float operator()(const float Xx, const float Xy) const noexcept {
+            return fminf(Xx, Xy);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::bfloat16 operator()(tlx::bfloat16 Xx, tlx::bfloat16 Xy) const noexcept;
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx, const tlx::bfloat16 Xy) const noexcept {
+            return __hmin(Xx, Xy);
+        }
         [[nodiscard]]
-        CXM_DEVICE tlx::half operator()(tlx::half Xx, tlx::half Xy) const noexcept;
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx, const tlx::half Xy) const noexcept {
+            return __hmin(Xx, Xy);
+        }
     };
 } //namespace cortex::_fw::ops
 

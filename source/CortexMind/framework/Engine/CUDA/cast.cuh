@@ -9,69 +9,75 @@
 #include <cuda_fp16.h>
 
 namespace cortex::_fw::nv {
-    template<typename T1, typename T2>
-    T1* convert(T2*) = delete;
-
-    template<>
     [[nodiscard]]
-    inline __nv_bfloat16* convert(tlx::bfloat16* x) {
-        return reinterpret_cast<__nv_bfloat16 *>(x);
+    inline float4* convert(float* x) {
+        return reinterpret_cast<float4 *>(x);
     }
-    template<>
     [[nodiscard]]
-    inline const __nv_bfloat16* convert(tlx::bfloat16* x) {
-        return reinterpret_cast<const __nv_bfloat16 *>(x);
-    }
-    template<>
-    [[nodiscard]]
-    inline const __nv_bfloat16* convert(const tlx::bfloat16* x) {
-        return reinterpret_cast<const __nv_bfloat16 *>(x);
+    inline const float4* convert(const float* x) {
+        return reinterpret_cast<const float4 *>(x);
     }
 
-    template<>
+    [[nodiscard]]
+    inline float* convert(float4* x) {
+        return reinterpret_cast<float *>(x);
+    }
+    [[nodiscard]]
+    inline const float* convert(const float4* x) {
+        return reinterpret_cast<const float *>(x);
+    }
+
+    [[nodiscard]]
+    inline __nv_bfloat162* convert(tlx::bfloat16* x) {
+        return reinterpret_cast<__nv_bfloat162 *>(x);
+    }
+    [[nodiscard]]
+    inline const __nv_bfloat162* convert(const tlx::bfloat16* x) {
+        return reinterpret_cast<const __nv_bfloat162 *>(x);
+    }
+
     [[nodiscard]]
     inline tlx::bfloat16* convert(__nv_bfloat16* x) {
         return reinterpret_cast<tlx::bfloat16 *>(x);
-    }
-    template<>
-    [[nodiscard]]
-    inline const tlx::bfloat16* convert(__nv_bfloat16* x) {
-        return reinterpret_cast<const tlx::bfloat16 *>(x);
     }
     [[nodiscard]]
     inline const tlx::bfloat16* convert(const __nv_bfloat16* x) {
         return reinterpret_cast<const tlx::bfloat16 *>(x);
     }
 
-    template<>
     [[nodiscard]]
-    inline __nv_half* convert(tlx::half* x) {
-        return reinterpret_cast<__nv_half *>(x);
+    inline tlx::bfloat16* convert(__nv_bfloat162* x) {
+        return reinterpret_cast<tlx::bfloat16 *>(x);
     }
-    template<>
     [[nodiscard]]
-    inline const __nv_half* convert(tlx::half* x) {
-        return reinterpret_cast<const __nv_half *>(x);
-    }
-    template<>
-    [[nodiscard]]
-    inline const __nv_half* convert(const tlx::half* x) {
-        return reinterpret_cast<const __nv_half *>(x);
+    inline const tlx::bfloat16* convert(const __nv_bfloat162* x) {
+        return reinterpret_cast<const tlx::bfloat16 *>(x);
     }
 
-    template<>
+    [[nodiscard]]
+    inline __nv_half2* convert(tlx::half* x) {
+        return reinterpret_cast<__nv_half2 *>(x);
+    }
+    [[nodiscard]]
+    inline const __nv_half2* convert(const tlx::half* x) {
+        return reinterpret_cast<const __nv_half2 *>(x);
+    }
+
     [[nodiscard]]
     inline tlx::half* convert(__nv_half* x) {
         return reinterpret_cast<tlx::half *>(x);
     }
-    template<>
-    [[nodiscard]]
-    inline const tlx::half* convert(__nv_half* x) {
-        return reinterpret_cast<const tlx::half *>(x);
-    }
-    template<>
     [[nodiscard]]
     inline const tlx::half* convert(const __nv_half* x) {
+        return reinterpret_cast<const tlx::half *>(x);
+    }
+
+    [[nodiscard]]
+    inline tlx::half* convert(__nv_half2* x) {
+        return reinterpret_cast<tlx::half *>(x);
+    }
+    [[nodiscard]]
+    inline const tlx::half* convert(const __nv_half2* x) {
         return reinterpret_cast<const tlx::half *>(x);
     }
 } //namespace cortex::_fw::nv

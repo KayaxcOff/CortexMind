@@ -20,6 +20,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Shape/shape.cpp
         source/CortexMind/framework/Storage/operator.cpp
         source/CortexMind/framework/Storage/storage.cpp
+        source/CortexMind/framework/Tensor/tensor.cpp
         source/CortexMind/framework/Tools/Log/as_string.cpp
         source/CortexMind/framework/Tools/Log/operator.cpp
         source/CortexMind/framework/Tools/Log/w.cpp
@@ -31,13 +32,11 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Type/operator.cpp
         source/CortexMind/framework/Type/size.cpp
         source/CortexMind/framework/Type/type.cpp
-        ../source/CortexMind/framework/Tensor/tensor.cpp
 )
 
 if(CXM_IS_CUDA_AVAILABLE)
     target_sources(CortexMind PRIVATE
-            source/CortexMind/framework/Engine/Operations/base.cu
-            source/CortexMind/framework/Engine/Operations/kernel_ops.cu
+            source/CortexMind/framework/Engine/CUDA/scalar.cu
             source/CortexMind/framework/Memory/forge.cu
             source/CortexMind/framework/Memory/transform.cu
             source/CortexMind/framework/Tools/errors.cu
