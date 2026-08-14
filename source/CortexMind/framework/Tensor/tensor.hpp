@@ -8,8 +8,11 @@
 #include <CortexMind/framework/Graph/flow.hpp>
 #include <CortexMind/framework/Shape/shape.hpp>
 #include <CortexMind/framework/Storage/storage.hpp>
+#include <CortexMind/framework/Type/trait.hpp>
 #include <CortexMind/framework/Type/type.hpp>
 #include <CortexMind/tools/tensor_info.hpp>
+#include <tlx/concepts.hpp>
+#include <tlx/span.hpp>
 #include <memory>
 #include <vector>
 
@@ -22,6 +25,20 @@ namespace cortex::_fw {
         explicit Tensor(const TensorInfo& info);
         ~Tensor();
 
+        template<tlx::float_like T>
+        T* get() noexcept {
+            if (this->m_type.type() != ttype_of<T>) {
+                return nullptr;
+            }
+            return this->storage_->as<T>();
+        }
+        template<tlx::float_like T>
+        const T* get() const noexcept {
+            if (this->m_type.type() != ttype_of<T>) {
+                return nullptr;
+            }
+            return this->storage_->as<T>();
+        }
         [[nodiscard]]
         bool requires_grad() const noexcept;
         [[nodiscard]]
@@ -38,6 +55,23 @@ namespace cortex::_fw {
         std::size_t ndim() const noexcept;
         [[nodiscard]]
         bool has_grad() const noexcept;
+
+        template<tlx::float_like T>
+        [[nodiscard]]
+        tlx::Span<T> span() noexcept {
+            if (this->m_type.type() != ttype_of<T>) {
+                return {};
+            }
+            return {this->storage_->raw(), len()};
+        }
+        template<tlx::float_like T>
+        [[nodiscard]]
+        tlx::Span<const T> span() const noexcept {
+            if (this->m_type.type() != ttype_of<T>) {
+                return {};
+            }
+            return {this->storage_->raw(), len()};
+        }
 
         friend std::ostream& operator<<(std::ostream& os, const Tensor& t);
         friend class TensorDebug;
