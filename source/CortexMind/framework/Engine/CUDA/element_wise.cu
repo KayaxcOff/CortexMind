@@ -11,7 +11,7 @@
 namespace cortex::_fw::nv {
     template<>
     void ElementWise::square<float>(const float* __restrict Xx, float* __restrict Xz, const std::size_t N) {
-        const std::int32_t grid_size = grid<4>(N);
+        const int grid_size = grid<4>(N);
 
         kernels::element_wise<ops::Square><<<grid_size, kBlockSize>>>(
             convert(Xx),
@@ -22,7 +22,7 @@ namespace cortex::_fw::nv {
 
     template<>
     void ElementWise::square<tlx::bfloat16>(const tlx::bfloat16* __restrict Xx, tlx::bfloat16* __restrict Xz, const std::size_t N) {
-        const std::int32_t grid_size = grid<2>(N);
+        const int grid_size = grid<2>(N);
 
         kernels::element_wise<ops::Square><<<grid_size, kBlockSize>>>(
             convert(Xx),
@@ -33,7 +33,7 @@ namespace cortex::_fw::nv {
 
     template<>
     void ElementWise::square<tlx::half>(const tlx::half* __restrict Xx, tlx::half* __restrict Xz, const std::size_t N) {
-        const std::int32_t grid_size = grid<2>(N);
+        const int grid_size = grid<2>(N);
 
         kernels::element_wise<ops::Square><<<grid_size, kBlockSize>>>(
             convert(Xx),
@@ -44,7 +44,7 @@ namespace cortex::_fw::nv {
 
     template<>
     void ElementWise::sqrt<float>(const float* __restrict Xx, float* __restrict Xz, const std::size_t N) {
-        const std::int32_t grid_size = grid<4>(N);
+        const int grid_size = grid<4>(N);
 
         kernels::element_wise<ops::Sqrt><<<grid_size, kBlockSize>>>(
             convert(Xx),
@@ -55,7 +55,7 @@ namespace cortex::_fw::nv {
 
     template<>
     void ElementWise::sqrt<tlx::bfloat16>(const tlx::bfloat16* __restrict Xx, tlx::bfloat16* __restrict Xz, const std::size_t N) {
-        const std::int32_t grid_size = grid<2>(N);
+        const int grid_size = grid<2>(N);
 
         kernels::element_wise<ops::Sqrt><<<grid_size, kBlockSize>>>(
             convert(Xx),
@@ -66,7 +66,7 @@ namespace cortex::_fw::nv {
 
     template<>
     void ElementWise::sqrt<tlx::half>(const tlx::half* __restrict Xx, tlx::half* __restrict Xz, const std::size_t N) {
-        const std::int32_t grid_size = grid<2>(N);
+        const int grid_size = grid<2>(N);
 
         kernels::element_wise<ops::Sqrt><<<grid_size, kBlockSize>>>(
             convert(Xx),
@@ -76,8 +76,8 @@ namespace cortex::_fw::nv {
     }
 
     template<>
-    void ElementWise::rsqrt<float>(const float* __restrict Xx, float* __restrict Xz, std::size_t N) {
-        const std::int32_t grid_size = grid<4>(N);
+    void ElementWise::rsqrt<float>(const float* __restrict Xx, float* __restrict Xz, const std::size_t N) {
+        const int grid_size = grid<4>(N);
 
         kernels::element_wise<ops::RSqrt><<<grid_size, kBlockSize>>>(
             convert(Xx),
@@ -88,7 +88,7 @@ namespace cortex::_fw::nv {
 
     template<>
     void ElementWise::rsqrt<tlx::bfloat16>(const tlx::bfloat16* __restrict Xx, tlx::bfloat16* __restrict Xz, const std::size_t N) {
-        const std::int32_t grid_size = grid<2>(N);
+        const int grid_size = grid<2>(N);
 
         kernels::element_wise<ops::RSqrt><<<grid_size, kBlockSize>>>(
             convert(Xx),
@@ -99,11 +99,53 @@ namespace cortex::_fw::nv {
 
     template<>
     void ElementWise::rsqrt<tlx::half>(const tlx::half* __restrict Xx, tlx::half* __restrict Xz, const std::size_t N) {
-        const std::int32_t grid_size = grid<2>(N);
+        const int grid_size = grid<2>(N);
 
         kernels::element_wise<ops::RSqrt><<<grid_size, kBlockSize>>>(
             convert(Xx),
             convert(Xz),
+            N
+        );
+    }
+
+    template<>
+    void ElementWise::log<float>(const float* __restrict Xx, float* __restrict Xz, const std::size_t N) {
+        const int grid_size = grid<4>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xz4 = convert(Xz);
+
+        kernels::element_wise<ops::Log><<<grid_size, kBlockSize>>>(
+            Xx4,
+            Xz4,
+            N
+        );
+    }
+
+    template<>
+    void ElementWise::log<tlx::bfloat16>(const tlx::bfloat16* __restrict Xx, tlx::bfloat16* __restrict Xz, const std::size_t N) {
+        const int grid_size = grid<2>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xz4 = convert(Xz);
+
+        kernels::element_wise<ops::Log><<<grid_size, kBlockSize>>>(
+            Xx4,
+            Xz4,
+            N
+        );
+    }
+
+    template<>
+    void ElementWise::log<tlx::half>(const tlx::half* __restrict Xx, tlx::half* __restrict Xz, const std::size_t N) {
+        const int grid_size = grid<2>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xz4 = convert(Xz);
+
+        kernels::element_wise<ops::Log><<<grid_size, kBlockSize>>>(
+            Xx4,
+            Xz4,
             N
         );
     }
