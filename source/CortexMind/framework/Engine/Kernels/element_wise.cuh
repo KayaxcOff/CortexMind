@@ -49,7 +49,7 @@ namespace cortex::_fw::kernels {
 
         CXM_KERNEL_LOOP_1D(i, vector_count) {
             Xz[i] = {
-                op(Xx[i].x), op(Xx[i].y),
+                op(static_cast<tlx::bfloat16>(Xx[i].x)), op(static_cast<tlx::bfloat16>(Xx[i].y)),
             };
         }
 
@@ -74,7 +74,7 @@ namespace cortex::_fw::kernels {
 
         CXM_KERNEL_LOOP_1D(i, vector_count) {
             Xz[i] = {
-                op(Xx[i].x), op(Xx[i].y),
+                op(static_cast<tlx::half>(Xx[i].x)), op(static_cast<tlx::half>(Xx[i].y)),
             };
         }
 

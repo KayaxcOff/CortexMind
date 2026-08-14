@@ -13,6 +13,20 @@
 #include <cuda_bf16.h>
 
 namespace cortex::_fw::kernels {
+    /**
+     * @brief Applies a scalar operation element-wise on CUDA.
+     *
+     * The operation is provided as a template parameter derived from
+     * @ref ops::KernelBase. The kernel processes multiple scalar elements
+     * through CUDA vector types where possible and handles any remaining
+     * elements using a scalar tail loop.
+     *
+     * @tparam OpType Operation type derived from @ref ops::KernelBase.
+     * @param Xx Input array of packed single-precision values.
+     * @param value Scalar value supplied to the operation.
+     * @param Xz Output array.
+     * @param N Number of scalar elements to process.
+     */
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
     void scalar(const float4* __restrict__ Xx, const float value, float4* __restrict__ Xz, const std::size_t N) {
@@ -39,6 +53,19 @@ namespace cortex::_fw::kernels {
         }
     }
 
+    /**
+     * @brief Applies a scalar operation element-wise to bfloat16 data on CUDA.
+     *
+     * Processes two bfloat16 values per CUDA thread through
+     * @c __nv_bfloat162 and handles an optional remaining element through
+     * the scalar tail path.
+     *
+     * @tparam OpType Operation type derived from @ref ops::KernelBase.
+     * @param Xx Input array of packed bfloat16 values.
+     * @param value Scalar bfloat16 value supplied to the operation.
+     * @param Xz Output array.
+     * @param N Number of scalar elements to process.
+     */
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
     void scalar(const __nv_bfloat162* __restrict__ Xx, const tlx::bfloat16 value, __nv_bfloat162* __restrict__ Xz, const std::size_t N) {
@@ -64,6 +91,19 @@ namespace cortex::_fw::kernels {
         }
     }
 
+    /**
+     * @brief Applies a scalar operation element-wise to half-precision data on CUDA.
+     *
+     * Processes two half-precision values per CUDA thread through
+     * @c __nv_half2 and handles any remaining element through the scalar
+     * tail path.
+     *
+     * @tparam OpType Operation type derived from @ref ops::KernelBase.
+     * @param Xx Input array of packed half-precision values.
+     * @param value Scalar half-precision value supplied to the operation.
+     * @param Xz Output array.
+     * @param N Number of scalar elements to process.
+     */
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
     void scalar(const __nv_half2* __restrict__ Xx, const tlx::half value, __nv_half2* __restrict__ Xz, const std::size_t N) {
@@ -89,6 +129,18 @@ namespace cortex::_fw::kernels {
         }
     }
 
+    /**
+     * @brief Applies a scalar operation element-wise in place to float data on CUDA.
+     *
+     * The input array is also used as the output array. The operation is
+     * applied to four float elements at a time through @c float4, followed
+     * by a scalar tail path when the element count is not divisible by four.
+     *
+     * @tparam OpType Operation type derived from @ref ops::KernelBase.
+     * @param Xx Input and output array.
+     * @param value Scalar value supplied to the operation.
+     * @param N Number of scalar elements to process.
+     */
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
     void scalar_inplace(float4* Xx, const float value, const std::size_t N) {
@@ -113,6 +165,17 @@ namespace cortex::_fw::kernels {
         }
     }
 
+    /**
+     * @brief Applies a scalar operation element-wise in place to bfloat16 data on CUDA.
+     *
+     * Processes two bfloat16 values per thread through @c __nv_bfloat162
+     * and handles an optional remaining element through the scalar tail path.
+     *
+     * @tparam OpType Operation type derived from @ref ops::KernelBase.
+     * @param Xx Input and output array.
+     * @param value Scalar bfloat16 value supplied to the operation.
+     * @param N Number of scalar elements to process.
+     */
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
     void scalar_inplace(__nv_bfloat162* Xx, const tlx::bfloat16 value, const std::size_t N) {
@@ -136,6 +199,17 @@ namespace cortex::_fw::kernels {
         }
     }
 
+    /**
+     * @brief Applies a scalar operation element-wise in place to half-precision data on CUDA.
+     *
+     * Processes two half-precision values per thread through @c __nv_half2
+     * and handles an optional remaining element through the scalar tail path.
+     *
+     * @tparam OpType Operation type derived from @ref ops::KernelBase.
+     * @param Xx Input and output array.
+     * @param value Scalar half-precision value supplied to the operation.
+     * @param N Number of scalar elements to process.
+     */
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
     void scalar_inplace(__nv_half2* Xx, const tlx::half value, const std::size_t N) {
