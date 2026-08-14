@@ -149,4 +149,88 @@ namespace cortex::_fw::nv {
             N
         );
     }
+
+    template<>
+    void ElementWise::exp<float>(const float* __restrict Xx, float* __restrict Xz, const std::size_t N) {
+        const int grid_size = grid<4>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xz4 = convert(Xz);
+
+        kernels::element_wise<ops::Exp><<<grid_size, kBlockSize>>>(
+            Xx4,
+            Xz4,
+            N
+        );
+    }
+
+    template<>
+    void ElementWise::exp<tlx::bfloat16>(const tlx::bfloat16* __restrict Xx, tlx::bfloat16* __restrict Xz, const std::size_t N) {
+        const int grid_size = grid<2>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xz4 = convert(Xz);
+
+        kernels::element_wise<ops::Exp><<<grid_size, kBlockSize>>>(
+            Xx4,
+            Xz4,
+            N
+        );
+    }
+
+    template<>
+    void ElementWise::exp<tlx::half>(const tlx::half* __restrict Xx, tlx::half* __restrict Xz, const std::size_t N) {
+        const int grid_size = grid<2>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xz4 = convert(Xz);
+
+        kernels::element_wise<ops::Exp><<<grid_size, kBlockSize>>>(
+            Xx4,
+            Xz4,
+            N
+        );
+    }
+
+    template<>
+    void ElementWise::erf<float>(const float* __restrict Xx, float* __restrict Xz, const std::size_t N) {
+        const int grid_size = grid<4>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xz4 = convert(Xz);
+
+        kernels::element_wise<ops::Erf><<<grid_size, kBlockSize>>>(
+            Xx4,
+            Xz4,
+            N
+        );
+    }
+
+    template<>
+    void ElementWise::erf<tlx::bfloat16>(const tlx::bfloat16* __restrict Xx, tlx::bfloat16* __restrict Xz, const std::size_t N) {
+        const int grid_size = grid<2>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xz4 = convert(Xz);
+
+        kernels::element_wise<ops::Erf><<<grid_size, kBlockSize>>>(
+            Xx4,
+            Xz4,
+            N
+        );
+    }
+
+    template<>
+    void ElementWise::erf<tlx::half>(const tlx::half* __restrict Xx, tlx::half* __restrict Xz, const std::size_t N) {
+        const int grid_size = grid<2>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xz4 = convert(Xz);
+
+        kernels::element_wise<ops::Erf><<<grid_size, kBlockSize>>>(
+            Xx4,
+            Xz4,
+            N
+        );
+    }
 } //namespace cortex::_fw::nv

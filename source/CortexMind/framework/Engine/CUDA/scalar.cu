@@ -204,7 +204,7 @@ namespace cortex::_fw::nv {
 
     template<>
     void ScalarKernel::add<tlx::bfloat16>(tlx::bfloat16* Xx, const tlx::bfloat16 value, const std::size_t N) {
-        const int grid_size = grid<4>(N);
+        const int grid_size = grid<2>(N);
 
         const auto Xx4 = convert(Xx);
 
@@ -217,7 +217,7 @@ namespace cortex::_fw::nv {
 
     template<>
     void ScalarKernel::add<tlx::half>(tlx::half* Xx, const tlx::half value, const std::size_t N) {
-        const int grid_size = grid<4>(N);
+        const int grid_size = grid<2>(N);
 
         const auto Xx4 = convert(Xx);
 
@@ -230,7 +230,7 @@ namespace cortex::_fw::nv {
 
     template<>
     void ScalarKernel::sub<float>(float* Xx, const float value, const std::size_t N) {
-        const int grid_size = grid<2>(N);
+        const int grid_size = grid<4>(N);
 
         const auto Xx4 = convert(Xx);
 

@@ -21,6 +21,10 @@ namespace cortex::_fw::nv {
         static void rsqrt(const T* __restrict Xx, T* __restrict Xz, std::size_t N);
         template<tlx::float_like T>
         static void log(const T* __restrict Xx, T* __restrict Xz, std::size_t N);
+        template<tlx::float_like T>
+        static void exp(const T* __restrict Xx, T* __restrict Xz, std::size_t N);
+        template<tlx::float_like T>
+        static void erf(const T* __restrict Xx, T* __restrict Xz, std::size_t N);
     };
 } //namespace cortex::_fw::nv
 
