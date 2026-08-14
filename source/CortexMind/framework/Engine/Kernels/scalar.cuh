@@ -143,7 +143,7 @@ namespace cortex::_fw::kernels {
      */
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
-    void scalar_inplace(float4* Xx, const float value, const std::size_t N) {
+    void scalar(float4* Xx, const float value, const std::size_t N) {
         OpType op;
 
         const std::size_t vector_count = N / 4;
@@ -178,7 +178,7 @@ namespace cortex::_fw::kernels {
      */
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
-    void scalar_inplace(__nv_bfloat162* Xx, const tlx::bfloat16 value, const std::size_t N) {
+    void scalar(__nv_bfloat162* Xx, const tlx::bfloat16 value, const std::size_t N) {
         OpType op;
 
         const std::size_t vector_count = N / 2;
@@ -212,7 +212,7 @@ namespace cortex::_fw::kernels {
      */
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
-    void scalar_inplace(__nv_half2* Xx, const tlx::half value, const std::size_t N) {
+    void scalar(__nv_half2* Xx, const tlx::half value, const std::size_t N) {
         OpType op;
 
         const std::size_t vector_count = N / 2;
