@@ -29,6 +29,10 @@ namespace cortex::_fw::nv {
         static void sin(const T* __restrict Xx, T* __restrict Xz, std::size_t N);
         template<tlx::float_like T>
         static void cos(const T* __restrict Xx, T* __restrict Xz, std::size_t N);
+        template<tlx::float_like T>
+        static void abs(const T* __restrict Xx, T* __restrict Xz, std::size_t N);
+        template<tlx::float_like T>
+        static void neg(const T* __restrict Xx, T* __restrict Xz, std::size_t N);
     };
 } //namespace cortex::_fw::nv
 
