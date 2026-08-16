@@ -35,3 +35,12 @@ std::size_t cortex::_fw::compute_size(const std::vector<std::int64_t> &shape) {
     }
     return output;
 }
+
+std::int64_t cortex::_fw::compute_idx(const tlx::vec<std::int64_t, 5> &indices, const TensorShape &shape) {
+    std::int64_t output = shape.offset();
+
+    for (std::size_t i = 0; i < indices.size(); ++i) {
+        output += indices[i] * shape.stride()[i];
+    }
+    return output;
+}

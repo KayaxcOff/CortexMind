@@ -9,6 +9,7 @@
 #include <CortexMind/framework/Shape/shape.hpp>
 #include <CortexMind/framework/Storage/storage.hpp>
 #include <CortexMind/framework/Tools/Log/w.hpp>
+#include <CortexMind/framework/Tools/tensor_meta.hpp>
 #include <CortexMind/framework/Type/as_string.hpp>
 #include <CortexMind/framework/Type/trait.hpp>
 #include <CortexMind/framework/Type/type.hpp>
@@ -22,19 +23,48 @@ namespace cortex::_fw {
     class Tensor {
     public:
         Tensor();
+        explicit Tensor(std::initializer_list<std::int64_t> shape, DType type = DType::Float32, DeviceType d_type = DeviceType::HOST, bool _requires_grad = false);
         explicit Tensor(const tlx::vec<std::int64_t, CXM_MAX_DIMS>& shape, DType type = DType::Float32, DeviceType d_type = DeviceType::HOST, bool _requires_grad = false);
         explicit Tensor(const std::vector<std::int64_t>& shape, DType type = DType::Float32, DeviceType d_type = DeviceType::HOST, bool _requires_grad = false);
         explicit Tensor(const TensorInfo& info);
         ~Tensor();
 
-        template<tlx::float_like T>
+        template<typename T, typename ... Args> requires tlx::float_like<T>
+        [[nodiscard]]
+        T& at(Args&&... args) {
+            if (this->m_type.type() != ttype_of<T>) {
+                WLog(LogLevel::ERROR) << "Tensor type is " << this->m_type.ToString() << ", it isn't " << as_string(ttype_of<T>);
+            }
+
+            const tlx::vec<std::int64_t, CXM_MAX_DIMS> indices{static_cast<std::int64_t>(args)...};
+
+            std::int64_t idx = compute_idx(indices, this->m_shape);
+
+            return this->storage_->as<T>()[idx];
+        }
+
+        template<typename T, typename ... Args> requires tlx::float_like<T>
+        [[nodiscard]]
+        const T& at(Args&&... args) {
+            if (this->m_type.type() != ttype_of<T>) {
+                WLog(LogLevel::ERROR) << "Tensor type is " << this->m_type.ToString() << ", it isn't " << as_string(ttype_of<T>);
+            }
+
+            const tlx::vec<std::int64_t, CXM_MAX_DIMS> indices{static_cast<std::int64_t>(args)...};
+
+            std::int64_t idx = compute_idx(indices, this->m_shape);
+
+            return this->storage_->as<T>()[idx];
+        }
+
+        template<typename T> requires tlx::float_like<T>
         T* get() noexcept {
             if (this->m_type.type() != ttype_of<T>) {
                 WLog(LogLevel::ERROR) << "Tensor type is " << this->m_type.ToString() << ", it isn't " << as_string(ttype_of<T>);
             }
             return this->storage_->as<T>();
         }
-        template<tlx::float_like T>
+        template<typename T> requires tlx::float_like<T>
         const T* get() const noexcept {
             if (this->m_type.type() != ttype_of<T>) {
                 WLog(LogLevel::ERROR) << "Tensor type is " << this->m_type.ToString() << ", it isn't " << as_string(ttype_of<T>);
@@ -58,7 +88,7 @@ namespace cortex::_fw {
         [[nodiscard]]
         bool has_grad() const noexcept;
 
-        template<tlx::float_like T>
+        template<typename T> requires tlx::float_like<T>
         [[nodiscard]]
         tlx::Span<T> span() noexcept {
             if (this->m_type.type() != ttype_of<T>) {
@@ -66,7 +96,7 @@ namespace cortex::_fw {
             }
             return {this->storage_->raw(), len()};
         }
-        template<tlx::float_like T>
+        template<typename T> requires tlx::float_like<T>
         [[nodiscard]]
         tlx::Span<const T> span() const noexcept {
             if (this->m_type.type() != ttype_of<T>) {
@@ -75,14 +105,19 @@ namespace cortex::_fw {
             return {this->storage_->raw(), len()};
         }
 
+        [[nodiscard]]
+        Tensor& grad() noexcept;
+        [[nodiscard]]
+        const Tensor& grad() const noexcept;
+
         friend std::ostream& operator<<(std::ostream& os, const Tensor& t);
-        template<tlx::float_like T>
+        template<typename T> requires tlx::float_like<T>
         friend Tensor operator+(T value, const Tensor& t) noexcept;
-        template<tlx::float_like T>
+        template<typename T> requires tlx::float_like<T>
         friend Tensor operator-(T value, const Tensor& t) noexcept;
-        template<tlx::float_like T>
+        template<typename T> requires tlx::float_like<T>
         friend Tensor operator*(T value, const Tensor& t) noexcept;
-        template<tlx::float_like T>
+        template<typename T> requires tlx::float_like<T>
         friend Tensor operator/(T value, const Tensor& t) noexcept;
         friend class TensorDebug;
     private:

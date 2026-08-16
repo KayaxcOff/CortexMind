@@ -3,7 +3,7 @@
 //
 
 #include "CortexMind/framework/Tensor/tensor.hpp"
-#include <CortexMind/framework/Tools/tensor_meta.hpp>
+#include <CortexMind/framework/Tools/Error/errors.hpp>
 #include <CortexMind/framework/Type/size.hpp>
 
 using namespace cortex::_fw;
@@ -11,6 +11,18 @@ using namespace cortex::_fw;
 Tensor::Tensor() {
     this->m_type = TensorType();
     this->m_flag = false;
+}
+
+Tensor::Tensor(const std::initializer_list<std::int64_t> shape, DType type, DeviceType d_type, const bool _requires_grad) {
+    this->m_shape = TensorShape(shape);
+    this->m_type = TensorType(type);
+    this->m_flag = _requires_grad;
+
+    this->storage_ = std::make_shared<TensorStorage>(compute_size(this->m_shape.shape()) * sizeOf(this->m_type.type()), d_type);
+
+    if (this->m_flag) {
+        this->gradient_ = std::make_shared<Tensor>(shape, type, d_type);
+    }
 }
 
 Tensor::Tensor(const tlx::vec<std::int64_t, 5>& shape, const DType type, const DeviceType d_type, const bool _requires_grad) {
@@ -81,4 +93,14 @@ std::size_t Tensor::ndim() const noexcept {
 
 bool Tensor::has_grad() const noexcept {
     return this->gradient_ != nullptr;
+}
+
+Tensor &Tensor::grad() noexcept {
+    CXM_ASSERT(this->gradient_ == nullptr, "Gradient is null");
+    return *this->gradient_;
+}
+
+const Tensor &Tensor::grad() const noexcept {
+    CXM_ASSERT(this->gradient_ == nullptr, "Gradient is null");
+    return *this->gradient_;
 }
