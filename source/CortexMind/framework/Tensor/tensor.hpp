@@ -8,6 +8,8 @@
 #include <CortexMind/framework/Graph/flow.hpp>
 #include <CortexMind/framework/Shape/shape.hpp>
 #include <CortexMind/framework/Storage/storage.hpp>
+#include <CortexMind/framework/Tools/Log/w.hpp>
+#include <CortexMind/framework/Type/as_string.hpp>
 #include <CortexMind/framework/Type/trait.hpp>
 #include <CortexMind/framework/Type/type.hpp>
 #include <CortexMind/tools/tensor_info.hpp>
@@ -28,14 +30,14 @@ namespace cortex::_fw {
         template<tlx::float_like T>
         T* get() noexcept {
             if (this->m_type.type() != ttype_of<T>) {
-                return nullptr;
+                WLog(LogLevel::ERROR) << "Tensor type is " << this->m_type.ToString() << ", it isn't " << as_string(ttype_of<T>);
             }
             return this->storage_->as<T>();
         }
         template<tlx::float_like T>
         const T* get() const noexcept {
             if (this->m_type.type() != ttype_of<T>) {
-                return nullptr;
+                WLog(LogLevel::ERROR) << "Tensor type is " << this->m_type.ToString() << ", it isn't " << as_string(ttype_of<T>);
             }
             return this->storage_->as<T>();
         }
@@ -60,7 +62,7 @@ namespace cortex::_fw {
         [[nodiscard]]
         tlx::Span<T> span() noexcept {
             if (this->m_type.type() != ttype_of<T>) {
-                return {};
+                WLog(LogLevel::ERROR) << "Tensor type is " << this->m_type.ToString() << ", it isn't " << as_string(ttype_of<T>);
             }
             return {this->storage_->raw(), len()};
         }
@@ -68,12 +70,20 @@ namespace cortex::_fw {
         [[nodiscard]]
         tlx::Span<const T> span() const noexcept {
             if (this->m_type.type() != ttype_of<T>) {
-                return {};
+                WLog(LogLevel::ERROR) << "Tensor type is " << this->m_type.ToString() << ", it isn't " << as_string(ttype_of<T>);
             }
             return {this->storage_->raw(), len()};
         }
 
         friend std::ostream& operator<<(std::ostream& os, const Tensor& t);
+        template<tlx::float_like T>
+        friend Tensor operator+(T value, const Tensor& t) noexcept;
+        template<tlx::float_like T>
+        friend Tensor operator-(T value, const Tensor& t) noexcept;
+        template<tlx::float_like T>
+        friend Tensor operator*(T value, const Tensor& t) noexcept;
+        template<tlx::float_like T>
+        friend Tensor operator/(T value, const Tensor& t) noexcept;
         friend class TensorDebug;
     private:
         std::shared_ptr<meta::GradientFlow> flow_;
