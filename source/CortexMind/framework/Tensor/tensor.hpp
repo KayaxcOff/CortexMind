@@ -27,6 +27,8 @@ namespace cortex::_fw {
         explicit Tensor(const tlx::vec<std::int64_t, CXM_MAX_DIMS>& shape, DType type = DType::Float32, DeviceType d_type = DeviceType::HOST, bool _requires_grad = false);
         explicit Tensor(const std::vector<std::int64_t>& shape, DType type = DType::Float32, DeviceType d_type = DeviceType::HOST, bool _requires_grad = false);
         explicit Tensor(const TensorInfo& info);
+        Tensor(const Tensor& other);
+        Tensor(Tensor&& other) noexcept;
         ~Tensor();
 
         template<typename T, typename ... Args> requires tlx::float_like<T>
@@ -104,6 +106,9 @@ namespace cortex::_fw {
             }
             return {this->storage_->raw(), len()};
         }
+
+        [[nodiscard]]
+        Tensor& to(DeviceType type);
 
         [[nodiscard]]
         Tensor& grad() noexcept;

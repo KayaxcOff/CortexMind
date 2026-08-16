@@ -3,8 +3,10 @@
 //
 
 #include "CortexMind/framework/Tensor/tensor.hpp"
+#include <CortexMind/framework/Memory/transform.cuh>
 #include <CortexMind/framework/Tools/Error/errors.hpp>
 #include <CortexMind/framework/Type/size.hpp>
+#include <tlx/utility.hpp>
 
 using namespace cortex::_fw;
 
@@ -61,6 +63,34 @@ Tensor::Tensor(const TensorInfo &info) {
     }
 }
 
+Tensor::Tensor(const Tensor &other) {
+    this->m_flag = other.m_flag;
+
+    this->m_shape = other.m_shape;
+    this->m_type = other.m_type;
+
+    this->storage_ = other.storage_;
+    this->flow_ = other.flow_;
+
+    if (this->m_flag) {
+        this->gradient_ = other.gradient_;
+    }
+}
+
+Tensor::Tensor(Tensor &&other) noexcept {
+    this->m_flag = other.m_flag;
+
+    this->m_shape = tlx::move(other.m_shape);
+    this->m_type = other.m_type;
+
+    this->storage_ = tlx::move(other.storage_);
+    this->flow_ = tlx::move(other.flow_);
+
+    if (this->m_flag) {
+        this->gradient_ = tlx::move(other.gradient_);
+    }
+}
+
 Tensor::~Tensor() = default;
 
 bool Tensor::requires_grad() const noexcept {
@@ -93,6 +123,28 @@ std::size_t Tensor::ndim() const noexcept {
 
 bool Tensor::has_grad() const noexcept {
     return this->gradient_ != nullptr;
+}
+
+Tensor &Tensor::to(const DeviceType type) {
+    if (this->storage_->device() == type) {
+        CXM_WARN(true, "Device is already you want");
+        return *this;
+    }
+    CXM_ASSERT(type == DeviceType::Unknown, "Device cannot to be unknown");
+
+    if (device() == DeviceType::HOST) {
+        const auto output = std::make_shared<TensorStorage>(this->storage_->bytes(), DeviceType::CUDA);
+        transform::upload(output->raw(), this->storage_->raw(), this->storage_->bytes());
+        this->storage_ = tlx::move(output);
+    } else if (device() == DeviceType::CUDA) {
+        const auto output = std::make_shared<TensorStorage>(this->storage_->bytes(), DeviceType::HOST);
+        transform::download(output->raw(), this->storage_->raw(), this->storage_->bytes());
+        this->storage_ = tlx::move(output);
+    } else {
+        CXM_DEVICE_ERROR();
+    }
+
+    return *this;
 }
 
 Tensor &Tensor::grad() noexcept {
