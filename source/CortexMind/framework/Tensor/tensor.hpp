@@ -6,6 +6,7 @@
 #define CORTEXMIND_FRAMEWORK_TENSOR_TENSOR_HPP
 
 #include <CortexMind/framework/Graph/flow.hpp>
+#include <CortexMind/framework/Graph/link.hpp>
 #include <CortexMind/framework/Shape/shape.hpp>
 #include <CortexMind/framework/Storage/storage.hpp>
 #include <CortexMind/framework/Tools/Log/w.hpp>
@@ -125,6 +126,7 @@ namespace cortex::_fw {
         template<typename T> requires tlx::float_like<T>
         friend Tensor operator/(T value, const Tensor& t) noexcept;
         friend class TensorDebug;
+        friend class meta::GradientLink;
     private:
         std::shared_ptr<meta::GradientFlow> flow_;
         std::shared_ptr<TensorStorage> storage_;

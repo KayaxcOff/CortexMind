@@ -12,6 +12,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Engine/AVX2/scalar.cpp
         source/CortexMind/framework/Engine/AVX2/wise.cpp
         source/CortexMind/framework/Graph/flow.cpp
+        source/CortexMind/framework/Graph/link.cpp
         source/CortexMind/framework/Memory/as_string.cpp
         source/CortexMind/framework/Memory/device.cpp
         source/CortexMind/framework/Memory/mem.cpp
