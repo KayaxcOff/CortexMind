@@ -3,7 +3,7 @@
 //
 
 #include "CortexMind/framework/Engine/AVX2/mask-runtime.hpp"
-#include <CortexMind/framework/Tools/errors.hpp>
+#include <CortexMind/framework/Tools/Error/errors.hpp>
 
 using namespace cortex::_fw::avx2;
 

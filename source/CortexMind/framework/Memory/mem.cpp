@@ -3,7 +3,7 @@
 //
 
 #include "CortexMind/framework/Memory/mem.hpp"
-#include <CortexMind/framework/Tools/errors.hpp>
+#include <CortexMind/framework/Tools/Error/errors.hpp>
 #include <tlx/memory.hpp>
 #include <xutility>
 

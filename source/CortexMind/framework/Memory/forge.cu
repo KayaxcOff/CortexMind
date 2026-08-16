@@ -3,7 +3,7 @@
 //
 
 #include "CortexMind/framework/Memory/forge.cuh"
-#include <CortexMind/framework/Tools/errors.hpp>
+#include <CortexMind/framework/Tools/Error/errors.hpp>
 #include <tlx/memory.hpp>
 #include <cuda_runtime.h>
 #include <xutility>

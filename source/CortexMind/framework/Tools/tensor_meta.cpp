@@ -3,7 +3,7 @@
 //
 
 #include "CortexMind/framework/Tools/tensor_meta.hpp"
-#include <CortexMind/framework/Tools/errors.hpp>
+#include <CortexMind/framework/Tools/Error/errors.hpp>
 
 tlx::vec<std::int64_t, CXM_MAX_DIMS> cortex::_fw::compute_stride(const tlx::vec<std::int64_t, CXM_MAX_DIMS> &shape) {
     CXM_ASSERT(shape.empty(), "shape is empty");

@@ -2,7 +2,7 @@
 // Created by muham on 3.08.2026.
 //
 
-#include "CortexMind/framework/Tools/errors.hpp"
+#include "errors.hpp"
 #include <CortexMind/framework/Tools/Log/as_string.hpp>
 #include <CortexMind/framework/Tools/Log/w.hpp>
 #include <CortexMind/framework/Tools/console.hpp>

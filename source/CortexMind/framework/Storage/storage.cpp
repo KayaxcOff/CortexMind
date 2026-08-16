@@ -7,7 +7,7 @@
 #if CXM_IS_CUDA_AVAILABLE
     #include <CortexMind/framework/Memory/transform.cuh>
 #endif //#if CXM_IS_CUDA_AVAILABLE
-#include <CortexMind/framework/Tools/errors.hpp>
+#include <CortexMind/framework/Tools/Error/errors.hpp>
 
 using namespace cortex::_fw;
 
