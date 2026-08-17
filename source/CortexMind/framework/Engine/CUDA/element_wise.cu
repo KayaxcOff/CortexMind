@@ -87,7 +87,7 @@ namespace cortex::_fw::nv {
 
     template<>
     void ElementWise::pow<tlx::bfloat16>(const tlx::bfloat16* __restrict Xx, const tlx::bfloat16* __restrict Xy, tlx::bfloat16* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<4>(N);
+        const int grid_size = grid<2>(N);
 
         const auto Xx4 = convert(Xx);
         const auto Xy4 = convert(Xy);
