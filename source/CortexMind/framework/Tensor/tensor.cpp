@@ -104,7 +104,7 @@ Tensor::Tensor(Tensor &&other) noexcept {
 
 Tensor::~Tensor() = default;
 
-bool Tensor::requires_grad() const noexcept {
+bool Tensor::isRequired() const noexcept {
     return this->m_flag;
 }
 
@@ -134,6 +134,18 @@ std::size_t Tensor::ndim() const noexcept {
 
 bool Tensor::has_grad() const noexcept {
     return this->gradient_ != nullptr;
+}
+
+void Tensor::require() noexcept {
+    CXM_WARN(this->m_flag, "Tensor's grad is already required");
+    this->m_flag = true;
+    this->gradient_ = std::make_shared<Tensor>(shape(), dtype(), device(), isRequired());
+}
+
+void Tensor::unrequire() noexcept {
+    CXM_WARN(!this->m_flag, "Tensor's grad is already required");
+    this->m_flag = false;
+    this->gradient_ = nullptr;
 }
 
 Tensor &Tensor::to(const DeviceType type) {

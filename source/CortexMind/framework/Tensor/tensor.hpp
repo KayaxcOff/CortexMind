@@ -77,7 +77,7 @@ namespace cortex::_fw {
             return this->storage_->as<T>();
         }
         [[nodiscard]]
-        bool requires_grad() const noexcept;
+        bool isRequired() const noexcept;
         [[nodiscard]]
         bool empty() const noexcept;
         [[nodiscard]]
@@ -92,6 +92,9 @@ namespace cortex::_fw {
         std::size_t ndim() const noexcept;
         [[nodiscard]]
         bool has_grad() const noexcept;
+
+        void require() noexcept;
+        void unrequire() noexcept;
 
         template<typename T> requires tlx::float_like<T>
         [[nodiscard]]
