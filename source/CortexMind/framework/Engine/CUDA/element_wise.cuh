@@ -35,6 +35,14 @@ namespace cortex::_fw::nv {
         static void neg(const T* __restrict Xx, T* __restrict Xz, std::size_t N);
         template<tlx::float_like T>
         static void rcp(const T* __restrict Xx, T* __restrict Xz, std::size_t N);
+        template<tlx::float_like T>
+        static void inverse(const T* __restrict Xx, T* __restrict Xz, std::size_t N);
+        template<tlx::float_like T>
+        static void lerp(const T* __restrict Xx, T value1, T value2, T* __restrict Xz, std::size_t N);
+        template<tlx::float_like T>
+        static void sign(const T* __restrict Xx, T* __restrict Xz, std::size_t N);
+        template<tlx::float_like T>
+        static void gather(const T* __restrict Xx, const std::int32_t* __restrict Xy, T* __restrict Xz, std::size_t N);
     };
 } //namespace cortex::_fw::nv
 

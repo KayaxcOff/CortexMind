@@ -48,7 +48,7 @@ namespace cortex::_fw::kernels {
 
         CXM_KERNEL_LOOP_1D(i, vector_count) {
             Xz[i] = {
-                op(Xx[i].x, Xy[i].x), op(Xx[i].y, Xy[i].y),
+                op(static_cast<tlx::bfloat16>(Xx[i].x), static_cast<tlx::bfloat16>(Xy[i].x)), op(static_cast<tlx::bfloat16>(Xx[i].y), static_cast<tlx::bfloat16>(Xy[i].y)),
             };
         }
 
@@ -73,7 +73,7 @@ namespace cortex::_fw::kernels {
 
         CXM_KERNEL_LOOP_1D(i, vector_count) {
             Xz[i] = {
-                op(Xx[i].x, Xy[i].x), op(Xx[i].y, Xy[i].y),
+                op(static_cast<tlx::half>(Xx[i].x), static_cast<tlx::half>(Xy[i].x)), op(static_cast<tlx::half>(Xx[i].y), static_cast<tlx::half>(Xy[i].y)),
             };
         }
 
@@ -123,7 +123,7 @@ namespace cortex::_fw::kernels {
 
         CXM_KERNEL_LOOP_1D(i, vector_count) {
             Xx[i] = {
-                op(Xx[i].x, Xy[i].x), op(Xx[i].y, Xy[i].y)
+                op(static_cast<tlx::bfloat16>(Xx[i].x), static_cast<tlx::bfloat16>(Xy[i].x)), op(static_cast<tlx::bfloat16>(Xx[i].y), static_cast<tlx::bfloat16>(Xy[i].y))
             };
         }
 
@@ -147,7 +147,7 @@ namespace cortex::_fw::kernels {
 
         CXM_KERNEL_LOOP_1D(i, vector_count) {
             Xx[i] = {
-                op(Xx[i].x, Xy[i].x), op(Xx[i].y, Xy[i].y)
+                op(static_cast<tlx::half>(Xx[i].x), static_cast<tlx::half>(Xy[i].x)), op(static_cast<tlx::half>(Xx[i].y), static_cast<tlx::half>(Xy[i].y))
             };
         }
 
