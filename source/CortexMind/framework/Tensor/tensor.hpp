@@ -7,6 +7,7 @@
 
 #include <CortexMind/framework/Graph/flow.hpp>
 #include <CortexMind/framework/Graph/link.hpp>
+#include <CortexMind/framework/Graph/pack.hpp>
 #include <CortexMind/framework/Shape/shape.hpp>
 #include <CortexMind/framework/Storage/storage.hpp>
 #include <CortexMind/framework/Tools/Log/w.hpp>
@@ -28,6 +29,7 @@ namespace cortex::_fw {
         explicit Tensor(const tlx::vec<std::int64_t, CXM_MAX_DIMS>& shape, DType type = DType::Float32, DeviceType d_type = DeviceType::HOST, bool _requires_grad = false);
         explicit Tensor(const std::vector<std::int64_t>& shape, DType type = DType::Float32, DeviceType d_type = DeviceType::HOST, bool _requires_grad = false);
         explicit Tensor(const TensorInfo& info);
+        explicit Tensor(const meta::GradientPacked& packed);
         Tensor(const Tensor& other);
         Tensor(Tensor&& other) noexcept;
         ~Tensor();
@@ -110,11 +112,13 @@ namespace cortex::_fw {
 
         [[nodiscard]]
         Tensor& to(DeviceType type);
-
         [[nodiscard]]
         Tensor& grad() noexcept;
         [[nodiscard]]
         const Tensor& grad() const noexcept;
+
+        [[nodiscard]]
+        meta::GradientPacked pack() const noexcept;
 
         friend std::ostream& operator<<(std::ostream& os, const Tensor& t);
         template<typename T> requires tlx::float_like<T>

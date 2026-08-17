@@ -11,7 +11,6 @@
 using namespace cortex::_fw;
 
 Tensor::Tensor() {
-    this->m_type = TensorType();
     this->m_flag = false;
 }
 
@@ -60,6 +59,18 @@ Tensor::Tensor(const TensorInfo &info) {
 
     if (this->m_flag) {
         this->gradient_ = std::make_shared<Tensor>(info._shape, info._dtype, info._deviceType);
+    }
+}
+
+Tensor::Tensor(const meta::GradientPacked &packed) {
+    this->m_shape = TensorShape(packed.shape);
+    this->m_type = TensorType(packed.type);
+    this->m_flag = packed.require_grad;
+
+    this->storage_ = packed.storage;
+
+    if (this->m_flag) {
+        this->gradient_ = packed.grad;
     }
 }
 
@@ -155,4 +166,8 @@ Tensor &Tensor::grad() noexcept {
 const Tensor &Tensor::grad() const noexcept {
     CXM_ASSERT(this->gradient_ == nullptr, "Gradient is null");
     return *this->gradient_;
+}
+
+meta::GradientPacked Tensor::pack() const noexcept {
+    return {this->m_flag, this->m_shape.shape(), this->m_type.type(), this->storage_, this->flow_, this->gradient_};
 }
