@@ -42,6 +42,7 @@ if(CXM_IS_CUDA_AVAILABLE)
             source/CortexMind/framework/Engine/CUDA/handle.cu
             source/CortexMind/framework/Engine/CUDA/matrix.cu
             source/CortexMind/framework/Engine/CUDA/scalar.cu
+            source/CortexMind/framework/Engine/CUDA/stream.cu
             source/CortexMind/framework/Memory/forge.cu
             source/CortexMind/framework/Memory/transform.cu
             source/CortexMind/framework/Tools/Error/errors.cu
