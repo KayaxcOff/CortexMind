@@ -12,6 +12,7 @@
 #include <CortexMind/framework/Storage/storage.hpp>
 #include <CortexMind/framework/Tools/Log/w.hpp>
 #include <CortexMind/framework/Tools/tensor_meta.hpp>
+#include <CortexMind/framework/Tools/view.hpp>
 #include <CortexMind/framework/Type/as_string.hpp>
 #include <CortexMind/framework/Type/trait.hpp>
 #include <CortexMind/framework/Type/type.hpp>
@@ -120,6 +121,8 @@ namespace cortex::_fw {
         [[nodiscard]]
         const Tensor& grad() const noexcept;
 
+        [[nodiscard]]
+        TensorView view() const noexcept;
         [[nodiscard]]
         meta::GradientPacked pack() const noexcept;
 

@@ -180,6 +180,10 @@ const Tensor &Tensor::grad() const noexcept {
     return *this->gradient_;
 }
 
+TensorView Tensor::view() const noexcept {
+    return {this->storage_->raw(), dtype(), device(), len()};
+}
+
 meta::GradientPacked Tensor::pack() const noexcept {
     return {this->m_flag, this->m_shape.shape(), this->m_type.type(), this->storage_, this->flow_, this->gradient_};
 }

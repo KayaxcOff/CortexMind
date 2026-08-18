@@ -34,6 +34,7 @@ add_library(CortexMind STATIC
         source/CortexMind/framework/Type/operator.cpp
         source/CortexMind/framework/Type/size.cpp
         source/CortexMind/framework/Type/type.cpp
+        ../source/CortexMind/framework/Tools/view.cpp
 )
 
 if(CXM_IS_CUDA_AVAILABLE)

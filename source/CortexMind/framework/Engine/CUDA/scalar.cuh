@@ -5,146 +5,97 @@
 #ifndef CORTEXMIND_FRAMEWORK_ENGINE_CUDA_SCALAR_CUH
 #define CORTEXMIND_FRAMEWORK_ENGINE_CUDA_SCALAR_CUH
 
-#include <tlx/concepts.hpp>
+#include <CortexMind/framework/Tools/view.hpp>
 
 namespace cortex::_fw::nv {
     /**
      * @brief Host-side dispatch interface for scalar CUDA operations.
      *
-     * Provides scalar arithmetic operations for float, bfloat16, and half
-     * precision data. Each operation dispatches the corresponding templated
-     * CUDA kernel with the appropriate packed representation and grid size.
+     * Provides element-wise scalar arithmetic operations for tensors represented
+     * by @ref TensorView. The supported data type is determined at runtime from
+     * the tensor's @ref DType and dispatched to the corresponding CUDA kernel.
      *
-     * The class provides both out-of-place operations, which write the result
-     * to a separate output buffer, and in-place operations, which modify the
-     * input buffer directly.
+     * Scalar values are provided as float on the host side and converted to the
+     * tensor's native element type before the kernel is launched.
+     *
+     * The class provides both out-of-place operations, which read from an input
+     * tensor and write the result to a separate output tensor, and in-place
+     * operations, which modify the input tensor directly.
      */
     struct ScalarKernel {
         /**
-         * @brief Adds a scalar value to every element of an input array.
+         * @brief Adds a scalar value to every element of a tensor.
          *
-         * Computes:
-         * @code
-         * Xz[i] = Xx[i] + value
-         * @endcode
+         * The operation is performed element-wise and the result is written to
+         * the output tensor.
          *
-         * @tparam T Floating-point-like element type.
-         * @param Xx Input array.
+         * @param Xx Input tensor.
          * @param value Scalar value to add.
-         * @param Xz Output array.
-         * @param N Number of elements.
+         * @param Xz Output tensor receiving the result.
          */
-        template<tlx::float_like T>
-        static void add(const T* __restrict Xx, T value, T* __restrict Xz, std::size_t N);
+        static void add(const TensorView& Xx, float value, TensorView& Xz);
         /**
-         * @brief Subtracts a scalar value from every element of an input array.
+         * @brief Subtracts a scalar value from every element of a tensor.
          *
-         * Computes:
-         * @code
-         * Xz[i] = Xx[i] - value
-         * @endcode
+         * The operation is performed element-wise and the result is written to
+         * the output tensor.
          *
-         * @tparam T Floating-point-like element type.
-         * @param Xx Input array.
+         * @param Xx Input tensor.
          * @param value Scalar value to subtract.
-         * @param Xz Output array.
-         * @param N Number of elements.
+         * @param Xz Output tensor receiving the result.
          */
-        template<tlx::float_like T>
-        static void sub(const T* __restrict Xx, T value, T* __restrict Xz, std::size_t N);
+        static void sub(const TensorView& Xx, float value, TensorView& Xz);
         /**
-         * @brief Multiplies every element of an input array by a scalar value.
+         * @brief Multiplies every element of a tensor by a scalar value.
          *
-         * Computes:
-         * @code
-         * Xz[i] = Xx[i] * value
-         * @endcode
+         * The operation is performed element-wise and the result is written to
+         * the output tensor.
          *
-         * @tparam T Floating-point-like element type.
-         * @param Xx Input array.
-         * @param value Scalar multiplication factor.
-         * @param Xz Output array.
-         * @param N Number of elements.
+         * @param Xx Input tensor.
+         * @param value Scalar multiplier.
+         * @param Xz Output tensor receiving the result.
          */
-        template<tlx::float_like T>
-        static void mul(const T* __restrict Xx, T value, T* __restrict Xz, std::size_t N);
+        static void mul(const TensorView& Xx, float value, TensorView& Xz);
         /**
-         * @brief Divides every element of an input array by a scalar value.
+         * @brief Divides every element of a tensor by a scalar value.
          *
-         * Computes:
-         * @code
-         * Xz[i] = Xx[i] / value
-         * @endcode
+         * The operation is performed element-wise and the result is written to
+         * the output tensor.
          *
-         * @tparam T Floating-point-like element type.
-         * @param Xx Input array.
+         * @param Xx Input tensor.
          * @param value Scalar divisor.
-         * @param Xz Output array.
-         * @param N Number of elements.
+         * @param Xz Output tensor receiving the result.
          */
-        template<tlx::float_like T>
-        static void div(const T* __restrict Xx, T value, T* __restrict Xz, std::size_t N);
+        static void div(const TensorView& Xx, float value, TensorView& Xz);
 
         /**
-         * @brief Adds a scalar value to every element in place.
+         * @brief Adds a scalar value to every element of a tensor in-place.
          *
-         * Computes:
-         * @code
-         * Xx[i] += value
-         * @endcode
-         *
-         * @tparam T Floating-point-like element type.
-         * @param Xx Input and output array.
+         * @param Xx Tensor to modify.
          * @param value Scalar value to add.
-         * @param N Number of elements.
          */
-        template<tlx::float_like T>
-        static void add(T* Xx, T value, std::size_t N);
+        static void add(TensorView& Xx, float value);
         /**
-         * @brief Subtracts a scalar value from every element in place.
+         * @brief Subtracts a scalar value from every element of a tensor in-place.
          *
-         * Computes:
-         * @code
-         * Xx[i] -= value
-         * @endcode
-         *
-         * @tparam T Floating-point-like element type.
-         * @param Xx Input and output array.
+         * @param Xx Tensor to modify.
          * @param value Scalar value to subtract.
-         * @param N Number of elements.
          */
-        template<tlx::float_like T>
-        static void sub(T* Xx, T value, std::size_t N);
+        static void sub(TensorView& Xx, float value);
         /**
-         * @brief Multiplies every element by a scalar value in place.
+         * @brief Multiplies every element of a tensor by a scalar value in-place.
          *
-         * Computes:
-         * @code
-         * Xx[i] *= value
-         * @endcode
-         *
-         * @tparam T Floating-point-like element type.
-         * @param Xx Input and output array.
-         * @param value Scalar multiplication factor.
-         * @param N Number of elements.
+         * @param Xx Tensor to modify.
+         * @param value Scalar multiplier.
          */
-        template<tlx::float_like T>
-        static void mul(T* Xx, T value, std::size_t N);
+        static void mul(TensorView& Xx, float value);
         /**
-         * @brief Divides every element by a scalar value in place.
+         * @brief Divides every element of a tensor by a scalar value in-place.
          *
-         * Computes:
-         * @code
-         * Xx[i] /= value
-         * @endcode
-         *
-         * @tparam T Floating-point-like element type.
-         * @param Xx Input and output array.
+         * @param Xx Tensor to modify.
          * @param value Scalar divisor.
-         * @param N Number of elements.
          */
-        template<tlx::float_like T>
-        static void div(T* Xx, T value, std::size_t N);
+        static void div(TensorView& Xx, float value);
     };
 } //namespace cortex::_fw::nv
 
