@@ -340,4 +340,124 @@ namespace cortex::_fw::nv {
 
         CXM_ASSERT(status != CUBLAS_STATUS_SUCCESS, "matmul on CUDA has failed");
     }
+
+    template<>
+    void Matrix::add<float>(float* Xx, const float* __restrict Xy, const std::size_t N) {
+        const int grid_size = grid<4>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xy4 = convert(Xy);
+
+        kernels::BinaryKernel<ops::Addition><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
+    }
+
+    template<>
+    void Matrix::add<tlx::bfloat16>(tlx::bfloat16* Xx, const tlx::bfloat16* __restrict Xy, const std::size_t N) {
+        const int grid_size = grid<2>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xy4 = convert(Xy);
+
+        kernels::BinaryKernel<ops::Addition><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
+    }
+
+    template<>
+    void Matrix::add<tlx::half>(tlx::half* Xx, const tlx::half* __restrict Xy, const std::size_t N) {
+        const int grid_size = grid<2>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xy4 = convert(Xy);
+
+        kernels::BinaryKernel<ops::Addition><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
+    }
+
+    template<>
+    void Matrix::sub<float>(float* Xx, const float* __restrict Xy, const std::size_t N) {
+        const int grid_size = grid<4>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xy4 = convert(Xy);
+
+        kernels::BinaryKernel<ops::Subtraction><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
+    }
+
+    template<>
+    void Matrix::sub<tlx::bfloat16>(tlx::bfloat16* Xx, const tlx::bfloat16* __restrict Xy, const std::size_t N) {
+        const int grid_size = grid<2>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xy4 = convert(Xy);
+
+        kernels::BinaryKernel<ops::Subtraction><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
+    }
+
+    template<>
+    void Matrix::sub<tlx::half>(tlx::half* Xx, const tlx::half* __restrict Xy, const std::size_t N) {
+        const int grid_size = grid<2>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xy4 = convert(Xy);
+
+        kernels::BinaryKernel<ops::Subtraction><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
+    }
+
+    template<>
+    void Matrix::mul<float>(float* Xx, const float* __restrict Xy, const std::size_t N) {
+        const int grid_size = grid<4>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xy4 = convert(Xy);
+
+        kernels::BinaryKernel<ops::Multiplication><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
+    }
+
+    template<>
+    void Matrix::mul<tlx::bfloat16>(tlx::bfloat16* Xx, const tlx::bfloat16* __restrict Xy, const std::size_t N) {
+        const int grid_size = grid<2>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xy4 = convert(Xy);
+
+        kernels::BinaryKernel<ops::Multiplication><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
+    }
+
+    template<>
+    void Matrix::mul<tlx::half>(tlx::half* Xx, const tlx::half* __restrict Xy, const std::size_t N) {
+        const int grid_size = grid<2>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xy4 = convert(Xy);
+
+        kernels::BinaryKernel<ops::Multiplication><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
+    }
+
+    template<>
+    void Matrix::div<float>(float* Xx, const float* __restrict Xy, const std::size_t N) {
+        const int grid_size = grid<4>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xy4 = convert(Xy);
+
+        kernels::BinaryKernel<ops::Division><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
+    }
+
+    template<>
+    void Matrix::div<tlx::bfloat16>(tlx::bfloat16* Xx, const tlx::bfloat16* __restrict Xy, const std::size_t N) {
+        const int grid_size = grid<2>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xy4 = convert(Xy);
+
+        kernels::BinaryKernel<ops::Division><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
+    }
+
+    template<>
+    void Matrix::div<tlx::half>(tlx::half* Xx, const tlx::half* __restrict Xy, const std::size_t N) {
+        const int grid_size = grid<2>(N);
+
+        const auto Xx4 = convert(Xx);
+        const auto Xy4 = convert(Xy);
+
+        kernels::BinaryKernel<ops::Division><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
+    }
 } //namespace cortex::_fw::nv
