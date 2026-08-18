@@ -5,7 +5,7 @@
 #include "CortexMind/framework/Engine/CUDA/element_wise.cuh"
 #include <CortexMind/framework/Engine/CUDA/cast.cuh>
 #include <CortexMind/framework/Engine/Kernels/element_wise.cuh>
-#include <CortexMind/framework/Engine/Kernels/matrix.cuh>
+#include <CortexMind/framework/Engine/Kernels/binary.cuh>
 #include <CortexMind/framework/Engine/Kernels/scalar.cuh>
 #include <CortexMind/framework/Engine/Operations/kernel_ops.cuh>
 #include <CortexMind/framework/Tools/grid.cuh>
@@ -82,7 +82,7 @@ namespace cortex::_fw::nv {
         const auto Xy4 = convert(Xy);
         const auto Xz4 = convert(Xz);
 
-        kernels::BinaryKernel<ops::Power><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
+        kernels::Binary<ops::Power><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
     }
 
     template<>
@@ -93,7 +93,7 @@ namespace cortex::_fw::nv {
         const auto Xy4 = convert(Xy);
         const auto Xz4 = convert(Xz);
 
-        kernels::BinaryKernel<ops::Power><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
+        kernels::Binary<ops::Power><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
     }
 
     template<>
@@ -104,7 +104,7 @@ namespace cortex::_fw::nv {
         const auto Xy4 = convert(Xy);
         const auto Xz4 = convert(Xz);
 
-        kernels::BinaryKernel<ops::Power><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
+        kernels::Binary<ops::Power><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
     }
 
     template<>

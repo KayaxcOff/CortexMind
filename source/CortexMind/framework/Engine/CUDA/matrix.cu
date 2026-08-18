@@ -5,264 +5,124 @@
 #include "CortexMind/framework/Engine/CUDA/matrix.cuh"
 #include <CortexMind/framework/Engine/CUDA/cast.cuh>
 #include <CortexMind/framework/Engine/CUDA/handle.cuh>
-#include <CortexMind/framework/Engine/Kernels/matrix.cuh>
+#include <CortexMind/framework/Engine/Kernels/binary.cuh>
 #include <CortexMind/framework/Engine/Operations/kernel_ops.cuh>
 #include <CortexMind/framework/Tools/Error/errors.hpp>
 #include <CortexMind/framework/Tools/grid.cuh>
+#include <CortexMind/framework/Type/size.hpp>
+#include <tlx/concepts.hpp>
 
-namespace cortex::_fw::nv {
-    template<>
-    void Matrix::add<float>(const float* __restrict Xx, const float* __restrict Xy, float* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<4>(N);
+using namespace cortex::_fw::nv;
 
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
-
-        kernels::BinaryKernel<ops::Addition><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
+namespace {
+    template<typename T>
+    struct BlasTraits;
 
     template<>
-    void Matrix::add<tlx::bfloat16>(const tlx::bfloat16* __restrict Xx, const tlx::bfloat16* __restrict Xy, tlx::bfloat16* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
-
-        kernels::BinaryKernel<ops::Addition><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
+    struct BlasTraits<float> {
+        static constexpr cudaDataType_t data_type = CUDA_R_32F;
+        static constexpr cublasComputeType_t compute_type = CUBLAS_COMPUTE_32F_FAST_TF32;
+    };
 
     template<>
-    void Matrix::add<tlx::half>(const tlx::half* __restrict Xx, const tlx::half* __restrict Xy, tlx::half* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
-
-        kernels::BinaryKernel<ops::Addition><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
+    struct BlasTraits<tlx::bfloat16> {
+        static constexpr cudaDataType_t data_type = CUDA_R_16BF;
+        static constexpr cublasComputeType_t compute_type = CUBLAS_COMPUTE_32F;
+    };
 
     template<>
-    void Matrix::sub<float>(const float* __restrict Xx, const float* __restrict Xy, float* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<4>(N);
+    struct BlasTraits<tlx::half> {
+        static constexpr cudaDataType_t data_type = CUDA_R_16F;
+        static constexpr cublasComputeType_t compute_type = CUBLAS_COMPUTE_16F;
+    };
+} //unnamed namespace
 
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
+void Matrix::add(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
+    dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
+        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
 
-        kernels::BinaryKernel<ops::Subtraction><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
+        const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
+        const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
+        const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
 
-    template<>
-    void Matrix::sub<tlx::bfloat16>(const tlx::bfloat16* __restrict Xx, const tlx::bfloat16* __restrict Xy, tlx::bfloat16* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<2>(N);
+        kernels::Binary<ops::Addition><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, Xx.size());
+    });
+}
 
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
+void Matrix::sub(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
+    dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
+        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
 
-        kernels::BinaryKernel<ops::Subtraction><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
+        const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
+        const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
+        const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
 
-    template<>
-    void Matrix::sub<tlx::half>(const tlx::half* __restrict Xx, const tlx::half* __restrict Xy, tlx::half* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<2>(N);
+        kernels::Binary<ops::Subtraction><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, Xx.size());
+    });
+}
 
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
+void Matrix::mul(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
+    dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
+        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
 
-        kernels::BinaryKernel<ops::Subtraction><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
+        const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
+        const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
+        const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
 
-    template<>
-    void Matrix::mul<float>(const float* __restrict Xx, const float* __restrict Xy, float* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<4>(N);
+        kernels::Binary<ops::Multiplication><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, Xx.size());
+    });
+}
 
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
+void Matrix::div(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
+    dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
+        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
 
-        kernels::BinaryKernel<ops::Multiplication><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
+        const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
+        const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
+        const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
 
-    template<>
-    void Matrix::mul<tlx::bfloat16>(const tlx::bfloat16* __restrict Xx, const tlx::bfloat16* __restrict Xy, tlx::bfloat16* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<2>(N);
+        kernels::Binary<ops::Division><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, Xx.size());
+    });
+}
 
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
+void Matrix::max(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
+    dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
+        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
 
-        kernels::BinaryKernel<ops::Multiplication><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
+        const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
+        const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
+        const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
 
-    template<>
-    void Matrix::mul<tlx::half>(const tlx::half* __restrict Xx, const tlx::half* __restrict Xy, tlx::half* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<2>(N);
+        kernels::Binary<ops::Max><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, Xx.size());
+    });
+}
 
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
+void Matrix::min(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
+    dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
+        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
 
-        kernels::BinaryKernel<ops::Multiplication><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
+        const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
+        const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
+        const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
 
-    template<>
-    void Matrix::div<float>(const float* __restrict Xx, const float* __restrict Xy, float* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<4>(N);
+        kernels::Binary<ops::Min><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, Xx.size());
+    });
+}
 
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
-
-        kernels::BinaryKernel<ops::Division><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
-
-    template<>
-    void Matrix::div<tlx::bfloat16>(const tlx::bfloat16* __restrict Xx, const tlx::bfloat16* __restrict Xy, tlx::bfloat16* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
-
-        kernels::BinaryKernel<ops::Division><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
-
-    template<>
-    void Matrix::div<tlx::half>(const tlx::half* __restrict Xx, const tlx::half* __restrict Xy, tlx::half* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
-
-        kernels::BinaryKernel<ops::Division><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
-
-    template<>
-    void Matrix::max<float>(const float* __restrict Xx, const float* __restrict Xy, float* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<4>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
-
-        kernels::BinaryKernel<ops::Max><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
-
-    template<>
-    void Matrix::max<tlx::bfloat16>(const tlx::bfloat16* __restrict Xx, const tlx::bfloat16* __restrict Xy, tlx::bfloat16* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
-
-        kernels::BinaryKernel<ops::Max><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
-
-    template<>
-    void Matrix::max<tlx::half>(const tlx::half* __restrict Xx, const tlx::half* __restrict Xy, tlx::half* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
-
-        kernels::BinaryKernel<ops::Max><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
-
-    template<>
-    void Matrix::min<float>(const float* __restrict Xx, const float* __restrict Xy, float* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<4>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
-
-        kernels::BinaryKernel<ops::Min><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
-
-    template<>
-    void Matrix::min<tlx::bfloat16>(const tlx::bfloat16* __restrict Xx, const tlx::bfloat16* __restrict Xy, tlx::bfloat16* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
-
-        kernels::BinaryKernel<ops::Min><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
-
-    template<>
-    void Matrix::min<tlx::half>(const tlx::half* __restrict Xx, const tlx::half* __restrict Xy, tlx::half* __restrict Xz, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-        const auto Xz4 = convert(Xz);
-
-        kernels::BinaryKernel<ops::Min><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xz4, N);
-    }
-
-    template<>
-    void Matrix::matmul<float>(const float* __restrict Xx, const float* __restrict Xy, float* __restrict Xz, const std::size_t xN, const std::size_t yN, const std::size_t zN) {
-        const int M = static_cast<int>(xN);
-        const int K = static_cast<int>(yN);
-        const int N = static_cast<int>(zN);
+void Matrix::matmul(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
+    dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
+        const int M = static_cast<int>(Xx.size());
+        const int K = static_cast<int>(Xy.size());
+        const int N = static_cast<int>(Xz.size());
 
         const handle h;
 
         constexpr float alpha = 1.0f;
         constexpr float beta  = 0.0f;
 
-        const cublasStatus_t status = cublasGemmEx(
-            h,
-
-            CUBLAS_OP_N,
-            CUBLAS_OP_N,
-
-            N,
-            M,
-            K,
-
-            &alpha,
-
-            Xy,
-            CUDA_R_32F,
-            N,
-
-            Xx,
-            CUDA_R_32F,
-            K,
-
-            &beta,
-
-            Xz,
-            CUDA_R_32F,
-            N,
-
-            CUBLAS_COMPUTE_32F_FAST_TF32,
-            CUBLAS_GEMM_DEFAULT_TENSOR_OP
-        );
-
-        CXM_ASSERT(status != CUBLAS_STATUS_SUCCESS, "matmul on CUDA has failed");
-    }
-
-    template<>
-    void Matrix::matmul<tlx::bfloat16>(const tlx::bfloat16* __restrict Xx, const tlx::bfloat16* __restrict Xy, tlx::bfloat16* __restrict Xz, const std::size_t xN, const std::size_t yN, const std::size_t zN) {
-        const int M = static_cast<int>(xN);
-        const int K = static_cast<int>(yN);
-        const int N = static_cast<int>(zN);
-
-        const handle h;
-
-        constexpr float alpha = 1.0f;
-        constexpr float beta  = 0.0f;
+        auto xx = reinterpret_cast<const T*>(Xx.data());
+        auto xy = reinterpret_cast<const T*>(Xy.data());
+        auto xz = reinterpret_cast<T*>(Xz.data());
 
         const cublasStatus_t status = cublasGemmEx(
             h,
@@ -276,188 +136,68 @@ namespace cortex::_fw::nv {
 
             &alpha,
 
-            Xy,
-            CUDA_R_16BF,
+            xy,
+            BlasTraits<T>::data_type,
             N,
 
-            Xx,
-            CUDA_R_16BF,
+            xx,
+            BlasTraits<T>::data_type,
             K,
 
             &beta,
 
-            Xz,
-            CUDA_R_16BF,
+            xz,
+            BlasTraits<T>::data_type,
             N,
 
-            CUBLAS_COMPUTE_32F,
+            BlasTraits<T>::compute_type,
             CUBLAS_GEMM_DEFAULT_TENSOR_OP
         );
 
         CXM_ASSERT(status != CUBLAS_STATUS_SUCCESS, "matmul on CUDA has failed");
-    }
+    });
+}
 
-    template<>
-    void Matrix::matmul<tlx::half>(const tlx::half* __restrict Xx, const tlx::half* __restrict Xy, tlx::half* __restrict Xz, const std::size_t xN, const std::size_t yN, const std::size_t zN) {
-        const int M = static_cast<int>(xN);
-        const int K = static_cast<int>(yN);
-        const int N = static_cast<int>(zN);
+void Matrix::add(TensorView &Xx, const TensorView &Xy) {
+    dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
+        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
 
-        const handle h;
+        const auto Xx4 = nv::convert(reinterpret_cast<T*>(Xx.data()));
+        const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
 
-        const tlx::half alpha = 1.0f;
-        const tlx::half beta  = 0.0f;
+        kernels::Binary<ops::Addition><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xx.size());
+    });
+}
 
-        const cublasStatus_t status = cublasGemmEx(
-            h,
+void Matrix::sub(TensorView &Xx, const TensorView &Xy) {
+    dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
+        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
 
-            CUBLAS_OP_N,
-            CUBLAS_OP_N,
+        const auto Xx4 = nv::convert(reinterpret_cast<T*>(Xx.data()));
+        const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
 
-            N,
-            M,
-            K,
+        kernels::Binary<ops::Subtraction><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xx.size());
+    });
+}
 
-            &alpha,
+void Matrix::mul(TensorView &Xx, const TensorView &Xy) {
+    dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
+        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
 
-            Xy,
-            CUDA_R_16F,
-            N,
+        const auto Xx4 = nv::convert(reinterpret_cast<T*>(Xx.data()));
+        const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
 
-            Xx,
-            CUDA_R_16F,
-            K,
+        kernels::Binary<ops::Multiplication><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xx.size());
+    });
+}
 
-            &beta,
+void Matrix::div(TensorView &Xx, const TensorView &Xy) {
+    dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
+        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
 
-            Xz,
-            CUDA_R_16F,
-            N,
+        const auto Xx4 = nv::convert(reinterpret_cast<T*>(Xx.data()));
+        const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
 
-            CUBLAS_COMPUTE_16F,
-            CUBLAS_GEMM_DEFAULT_TENSOR_OP
-        );
-
-        CXM_ASSERT(status != CUBLAS_STATUS_SUCCESS, "matmul on CUDA has failed");
-    }
-
-    template<>
-    void Matrix::add<float>(float* Xx, const float* __restrict Xy, const std::size_t N) {
-        const int grid_size = grid<4>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-
-        kernels::BinaryKernel<ops::Addition><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
-    }
-
-    template<>
-    void Matrix::add<tlx::bfloat16>(tlx::bfloat16* Xx, const tlx::bfloat16* __restrict Xy, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-
-        kernels::BinaryKernel<ops::Addition><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
-    }
-
-    template<>
-    void Matrix::add<tlx::half>(tlx::half* Xx, const tlx::half* __restrict Xy, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-
-        kernels::BinaryKernel<ops::Addition><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
-    }
-
-    template<>
-    void Matrix::sub<float>(float* Xx, const float* __restrict Xy, const std::size_t N) {
-        const int grid_size = grid<4>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-
-        kernels::BinaryKernel<ops::Subtraction><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
-    }
-
-    template<>
-    void Matrix::sub<tlx::bfloat16>(tlx::bfloat16* Xx, const tlx::bfloat16* __restrict Xy, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-
-        kernels::BinaryKernel<ops::Subtraction><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
-    }
-
-    template<>
-    void Matrix::sub<tlx::half>(tlx::half* Xx, const tlx::half* __restrict Xy, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-
-        kernels::BinaryKernel<ops::Subtraction><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
-    }
-
-    template<>
-    void Matrix::mul<float>(float* Xx, const float* __restrict Xy, const std::size_t N) {
-        const int grid_size = grid<4>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-
-        kernels::BinaryKernel<ops::Multiplication><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
-    }
-
-    template<>
-    void Matrix::mul<tlx::bfloat16>(tlx::bfloat16* Xx, const tlx::bfloat16* __restrict Xy, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-
-        kernels::BinaryKernel<ops::Multiplication><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
-    }
-
-    template<>
-    void Matrix::mul<tlx::half>(tlx::half* Xx, const tlx::half* __restrict Xy, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-
-        kernels::BinaryKernel<ops::Multiplication><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
-    }
-
-    template<>
-    void Matrix::div<float>(float* Xx, const float* __restrict Xy, const std::size_t N) {
-        const int grid_size = grid<4>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-
-        kernels::BinaryKernel<ops::Division><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
-    }
-
-    template<>
-    void Matrix::div<tlx::bfloat16>(tlx::bfloat16* Xx, const tlx::bfloat16* __restrict Xy, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-
-        kernels::BinaryKernel<ops::Division><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
-    }
-
-    template<>
-    void Matrix::div<tlx::half>(tlx::half* Xx, const tlx::half* __restrict Xy, const std::size_t N) {
-        const int grid_size = grid<2>(N);
-
-        const auto Xx4 = convert(Xx);
-        const auto Xy4 = convert(Xy);
-
-        kernels::BinaryKernel<ops::Division><<<grid_size, kBlockSize>>>(Xx4, Xy4, N);
-    }
-} //namespace cortex::_fw::nv
+        kernels::Binary<ops::Division><<<grid_size, kBlockSize>>>(Xx4, Xy4, Xx.size());
+    });
+}

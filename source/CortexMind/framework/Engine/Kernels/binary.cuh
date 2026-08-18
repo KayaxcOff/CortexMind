@@ -2,8 +2,8 @@
 // Created by muham on 16.08.2026.
 //
 
-#ifndef CORTEXMIND_FRAMEWORK_ENGINE_KERNELS_MATRIX_CUH
-#define CORTEXMIND_FRAMEWORK_ENGINE_KERNELS_MATRIX_CUH
+#ifndef CORTEXMIND_FRAMEWORK_ENGINE_KERNELS_BINARY_CUH
+#define CORTEXMIND_FRAMEWORK_ENGINE_KERNELS_BINARY_CUH
 
 #include <CortexMind/framework/Engine/Operations/base.cuh>
 #include <CortexMind/framework/Tools/loops.cuh>
@@ -14,7 +14,7 @@
 namespace cortex::_fw::kernels {
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
-    void BinaryKernel(const float4* __restrict Xx, const float4* __restrict Xy, float4* __restrict Xz, const std::size_t N) {
+    void Binary(const float4* __restrict Xx, const float4* __restrict Xy, float4* __restrict Xz, const std::size_t N) {
         OpType op;
 
         const std::size_t vector_count = N / 4;
@@ -40,7 +40,7 @@ namespace cortex::_fw::kernels {
 
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
-    void BinaryKernel(const __nv_bfloat162* __restrict Xx, const __nv_bfloat162* __restrict Xy, __nv_bfloat162* __restrict Xz, const std::size_t N) {
+    void Binary(const __nv_bfloat162* __restrict Xx, const __nv_bfloat162* __restrict Xy, __nv_bfloat162* __restrict Xz, const std::size_t N) {
         OpType op;
 
         const std::size_t vector_count = N / 2;
@@ -65,7 +65,7 @@ namespace cortex::_fw::kernels {
 
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
-    void BinaryKernel(const __nv_half2* __restrict Xx, const __nv_half2* __restrict Xy, __nv_half2* __restrict Xz, const std::size_t N) {
+    void Binary(const __nv_half2* __restrict Xx, const __nv_half2* __restrict Xy, __nv_half2* __restrict Xz, const std::size_t N) {
         OpType op;
 
         const std::size_t vector_count = N / 2;
@@ -90,7 +90,7 @@ namespace cortex::_fw::kernels {
 
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
-    void BinaryKernel(float4* Xx, const float4* __restrict Xy, const std::size_t N) {
+    void Binary(float4* Xx, const float4* __restrict Xy, const std::size_t N) {
         OpType op;
 
         const std::size_t vector_count = N / 4;
@@ -115,7 +115,7 @@ namespace cortex::_fw::kernels {
 
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
-    void BinaryKernel(__nv_bfloat162* Xx, const __nv_bfloat162* __restrict Xy, const std::size_t N) {
+    void Binary(__nv_bfloat162* Xx, const __nv_bfloat162* __restrict Xy, const std::size_t N) {
         OpType op;
 
         const std::size_t vector_count = N / 2;
@@ -139,7 +139,7 @@ namespace cortex::_fw::kernels {
 
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
-    void BinaryKernel(__nv_half2* Xx, const __nv_half2* __restrict Xy, const std::size_t N) {
+    void Binary(__nv_half2* Xx, const __nv_half2* __restrict Xy, const std::size_t N) {
         OpType op;
 
         const std::size_t vector_count = N / 2;
@@ -162,4 +162,4 @@ namespace cortex::_fw::kernels {
     }
 } //namespace cortex::_fw::kernels
 
-#endif //CORTEXMIND_FRAMEWORK_ENGINE_KERNELS_MATRIX_CUH
+#endif //CORTEXMIND_FRAMEWORK_ENGINE_KERNELS_BINARY_CUH

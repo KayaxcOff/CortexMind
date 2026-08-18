@@ -5,34 +5,24 @@
 #ifndef CORTEXMIND_FRAMEWORK_ENGINE_CUDA_MATRIX_CUH
 #define CORTEXMIND_FRAMEWORK_ENGINE_CUDA_MATRIX_CUH
 
-#include <tlx/concepts.hpp>
+#include <CortexMind/framework/Tools/view.hpp>
 
 namespace cortex::_fw::nv {
     struct Matrix {
-        template<tlx::float_like T>
-        static void add(const T* __restrict Xx, const T* __restrict Xy, T* __restrict Xz, std::size_t N);
-        template<tlx::float_like T>
-        static void sub(const T* __restrict Xx, const T* __restrict Xy, T* __restrict Xz, std::size_t N);
-        template<tlx::float_like T>
-        static void mul(const T* __restrict Xx, const T* __restrict Xy, T* __restrict Xz, std::size_t N);
-        template<tlx::float_like T>
-        static void div(const T* __restrict Xx, const T* __restrict Xy, T* __restrict Xz, std::size_t N);
-        template<tlx::float_like T>
-        static void max(const T* __restrict Xx, const T* __restrict Xy, T* __restrict Xz, std::size_t N);
-        template<tlx::float_like T>
-        static void min(const T* __restrict Xx, const T* __restrict Xy, T* __restrict Xz, std::size_t N);
+        static void add(const TensorView& Xx, const TensorView& Xy, TensorView& Xz);
+        static void sub(const TensorView& Xx, const TensorView& Xy, TensorView& Xz);
+        static void mul(const TensorView& Xx, const TensorView& Xy, TensorView& Xz);
+        static void div(const TensorView& Xx, const TensorView& Xy, TensorView& Xz);
 
-        template<tlx::float_like T>
-        static void matmul(const T* __restrict Xx, const T* __restrict Xy, T* __restrict Xz, std::size_t xN, std::size_t yN, std::size_t zN);
+        static void max(const TensorView& Xx, const TensorView& Xy, TensorView& Xz);
+        static void min(const TensorView& Xx, const TensorView& Xy, TensorView& Xz);
 
-        template<tlx::float_like T>
-        static void add(T* Xx, const T* __restrict Xy, std::size_t N);
-        template<tlx::float_like T>
-        static void sub(T* Xx, const T* __restrict Xy, std::size_t N);
-        template<tlx::float_like T>
-        static void mul(T* Xx, const T* __restrict Xy, std::size_t N);
-        template<tlx::float_like T>
-        static void div(T* Xx, const T* __restrict Xy, std::size_t N);
+        static void matmul(const TensorView& Xx, const TensorView& Xy, TensorView& Xz);
+
+        static void add(TensorView& Xx, const TensorView& Xy);
+        static void sub(TensorView& Xx, const TensorView& Xy);
+        static void mul(TensorView& Xx, const TensorView& Xy);
+        static void div(TensorView& Xx, const TensorView& Xy);
     };
 } //namespace cortex::_fw::nv
 
