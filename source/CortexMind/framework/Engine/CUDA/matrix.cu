@@ -39,7 +39,7 @@ namespace {
 
 void Matrix::add(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
@@ -51,7 +51,7 @@ void Matrix::add(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
 
 void Matrix::sub(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
@@ -63,7 +63,7 @@ void Matrix::sub(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
 
 void Matrix::mul(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
@@ -75,7 +75,7 @@ void Matrix::mul(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
 
 void Matrix::div(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
@@ -87,7 +87,7 @@ void Matrix::div(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
 
 void Matrix::max(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
@@ -99,7 +99,7 @@ void Matrix::max(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
 
 void Matrix::min(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
@@ -160,7 +160,7 @@ void Matrix::matmul(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) 
 
 void Matrix::add(TensorView &Xx, const TensorView &Xy) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<T*>(Xx.data()));
         const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
@@ -171,7 +171,7 @@ void Matrix::add(TensorView &Xx, const TensorView &Xy) {
 
 void Matrix::sub(TensorView &Xx, const TensorView &Xy) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<T*>(Xx.data()));
         const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
@@ -182,7 +182,7 @@ void Matrix::sub(TensorView &Xx, const TensorView &Xy) {
 
 void Matrix::mul(TensorView &Xx, const TensorView &Xy) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<T*>(Xx.data()));
         const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
@@ -193,7 +193,7 @@ void Matrix::mul(TensorView &Xx, const TensorView &Xy) {
 
 void Matrix::div(TensorView &Xx, const TensorView &Xy) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<T*>(Xx.data()));
         const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));

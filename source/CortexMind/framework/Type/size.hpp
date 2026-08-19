@@ -28,7 +28,7 @@ namespace cortex::_fw {
      * not the size of an entire tensor.
      */
     [[nodiscard]]
-    std::size_t sizeOf(DType type) noexcept;
+    std::size_t size_of(DType type) noexcept;
 } //namespace cortex::_fw
 
 #endif //CORTEXMIND_FRAMEWORK_TYPE_SIZE_HPP

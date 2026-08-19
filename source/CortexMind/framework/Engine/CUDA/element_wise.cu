@@ -16,7 +16,7 @@ using namespace cortex::_fw::nv;
 
 void ElementWise::square(const TensorView &Xx, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
@@ -27,7 +27,7 @@ void ElementWise::square(const TensorView &Xx, TensorView &Xz) {
 
 void ElementWise::pow(const TensorView &Xx, float value, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
@@ -38,7 +38,7 @@ void ElementWise::pow(const TensorView &Xx, float value, TensorView &Xz) {
 
 void ElementWise::pow(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xy4 = nv::convert(reinterpret_cast<const T*>(Xy.data()));
@@ -50,7 +50,7 @@ void ElementWise::pow(const TensorView &Xx, const TensorView &Xy, TensorView &Xz
 
 void ElementWise::sqrt(const TensorView &Xx, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
@@ -61,7 +61,7 @@ void ElementWise::sqrt(const TensorView &Xx, TensorView &Xz) {
 
 void ElementWise::rsqrt(const TensorView &Xx, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
@@ -72,7 +72,7 @@ void ElementWise::rsqrt(const TensorView &Xx, TensorView &Xz) {
 
 void ElementWise::log(const TensorView &Xx, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
@@ -83,7 +83,7 @@ void ElementWise::log(const TensorView &Xx, TensorView &Xz) {
 
 void ElementWise::exp(const TensorView &Xx, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
@@ -94,7 +94,7 @@ void ElementWise::exp(const TensorView &Xx, TensorView &Xz) {
 
 void ElementWise::erf(const TensorView &Xx, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
@@ -105,7 +105,7 @@ void ElementWise::erf(const TensorView &Xx, TensorView &Xz) {
 
 void ElementWise::sin(const TensorView &Xx, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
@@ -116,7 +116,7 @@ void ElementWise::sin(const TensorView &Xx, TensorView &Xz) {
 
 void ElementWise::cos(const TensorView &Xx, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
@@ -127,7 +127,7 @@ void ElementWise::cos(const TensorView &Xx, TensorView &Xz) {
 
 void ElementWise::abs(const TensorView &Xx, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
@@ -138,7 +138,7 @@ void ElementWise::abs(const TensorView &Xx, TensorView &Xz) {
 
 void ElementWise::neg(const TensorView &Xx, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
@@ -149,7 +149,7 @@ void ElementWise::neg(const TensorView &Xx, TensorView &Xz) {
 
 void ElementWise::rcp(const TensorView &Xx, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
@@ -160,7 +160,7 @@ void ElementWise::rcp(const TensorView &Xx, TensorView &Xz) {
 
 void ElementWise::inverse(const TensorView &Xx, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));
@@ -171,7 +171,7 @@ void ElementWise::inverse(const TensorView &Xx, TensorView &Xz) {
 
 void ElementWise::sign(const TensorView &Xx, TensorView &Xz) {
     dispatch(Xx.dtype(), [&]<tlx::arithmetic_like T>(){
-        const int grid_size = grid(Xx.size(), sizeOf(Xx.dtype()));
+        const int grid_size = grid(Xx.size(), size_of(Xx.dtype()));
 
         const auto Xx4 = nv::convert(reinterpret_cast<const T*>(Xx.data()));
         const auto Xz4 = nv::convert(reinterpret_cast<T*>(Xz.data()));

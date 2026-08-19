@@ -5,7 +5,7 @@
 #include "CortexMind/framework/Type/size.hpp"
 #include <tlx/types.hpp>
 
-std::size_t cortex::_fw::sizeOf(const DType type) noexcept {
+std::size_t cortex::_fw::size_of(const DType type) noexcept {
     switch (type) {
         case DType::Int32:
             return sizeof(std::int32_t);
