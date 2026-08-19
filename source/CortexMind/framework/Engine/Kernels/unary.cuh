@@ -2,8 +2,8 @@
 // Created by muham on 13.08.2026.
 //
 
-#ifndef CORTEXMIND_FRAMEWORK_ENGINE_KERNELS_ELEMENT_WISE_CUH
-#define CORTEXMIND_FRAMEWORK_ENGINE_KERNELS_ELEMENT_WISE_CUH
+#ifndef CORTEXMIND_FRAMEWORK_ENGINE_KERNELS_UNARY_CUH
+#define CORTEXMIND_FRAMEWORK_ENGINE_KERNELS_UNARY_CUH
 
 #include <CortexMind/framework/Engine/Operations/base.cuh>
 #include <CortexMind/framework/Tools/loops.cuh>
@@ -15,7 +15,7 @@
 namespace cortex::_fw::kernels {
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
-    void element_wise(const float4* __restrict__ Xx, float4* __restrict__ Xz, const std::size_t N) {
+    void Unary(const float4* __restrict__ Xx, float4* __restrict__ Xz, const std::size_t N) {
         OpType op;
 
         const std::size_t vector_count = N / 4;
@@ -41,7 +41,7 @@ namespace cortex::_fw::kernels {
 
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
-    void element_wise(const __nv_bfloat162* __restrict__ Xx, __nv_bfloat162* __restrict__ Xz, const std::size_t N) {
+    void Unary(const __nv_bfloat162* __restrict__ Xx, __nv_bfloat162* __restrict__ Xz, const std::size_t N) {
         OpType op;
 
         const std::size_t vector_count = N / 2;
@@ -66,7 +66,7 @@ namespace cortex::_fw::kernels {
 
     template<tlx::extend<ops::KernelBase> OpType>
     CXM_GLOBAL
-    void element_wise(const __nv_half2* __restrict__ Xx, __nv_half2* __restrict__ Xz, const std::size_t N) {
+    void Unary(const __nv_half2* __restrict__ Xx, __nv_half2* __restrict__ Xz, const std::size_t N) {
         OpType op;
 
         const std::size_t vector_count = N / 2;
@@ -90,4 +90,4 @@ namespace cortex::_fw::kernels {
     }
 } //namespace cortex::_fw::kernels
 
-#endif //CORTEXMIND_FRAMEWORK_ENGINE_KERNELS_ELEMENT_WISE_CUH
+#endif //CORTEXMIND_FRAMEWORK_ENGINE_KERNELS_UNARY_CUH

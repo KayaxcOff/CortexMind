@@ -250,6 +250,38 @@ namespace cortex::_fw::ops {
         }
     };
 
+    struct Inverse : KernelBase {
+        [[nodiscard]]
+        CXM_DEVICE float operator()(const float Xx) const noexcept {
+            return 1.f / Xx;
+        }
+        [[nodiscard]]
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx) const noexcept {
+            return tlx::bfloat16(1.f) / Xx;
+        }
+        [[nodiscard]]
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx) const noexcept {
+            return tlx::half(1.f) / Xx;
+        }
+    };
+
+    struct Sign : KernelBase {
+        [[nodiscard]]
+        CXM_DEVICE float operator()(const float Xx) const noexcept {
+            return static_cast<float>((Xx > 0.f) - (Xx < 0.f));
+        }
+
+        [[nodiscard]]
+        CXM_DEVICE tlx::bfloat16 operator()(const tlx::bfloat16 Xx) const noexcept {
+            return tlx::bfloat16((Xx > tlx::bfloat16(0.f)) - (Xx < tlx::bfloat16(0.f)));
+        }
+
+        [[nodiscard]]
+        CXM_DEVICE tlx::half operator()(const tlx::half Xx) const noexcept {
+            return tlx::half((Xx > tlx::half(0.f)) - (Xx < tlx::half(0.f)));
+        }
+    };
+
     struct Lerp : KernelBase {
         [[nodiscard]]
         CXM_DEVICE float operator()(const float Xx, const float Xy, const float Xz) const noexcept {
