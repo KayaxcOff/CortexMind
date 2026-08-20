@@ -7,6 +7,7 @@
 
 #include <CortexMind/framework/Engine/Operations/base.hpp>
 #include <CortexMind/framework/Engine/AVX2/functions.hpp>
+#include <tlx/math.hpp>
 #include <cmath>
 
 namespace cortex::_fw::ops {
@@ -95,6 +96,116 @@ namespace cortex::_fw::ops {
         [[nodiscard]]
         float operator()(const float Xx) const noexcept {
             return 1.f / std::sqrt(Xx);
+        }
+    };
+
+    struct Log : KernelBase {
+        [[nodiscard]]
+        avx2::vec8f operator()(const avx2::vec8f& Xx) const noexcept {
+            return avx2::log(Xx);
+        }
+        [[nodiscard]]
+        float operator()(const float Xx) const noexcept {
+            return std::log(Xx);
+        }
+    };
+
+    struct Exp : KernelBase {
+        [[nodiscard]]
+        avx2::vec8f operator()(const avx2::vec8f& Xx) const noexcept {
+            return avx2::exp(Xx);
+        }
+        [[nodiscard]]
+        float operator()(const float Xx) const noexcept {
+            return std::exp(Xx);
+        }
+    };
+
+    struct Erf : KernelBase {
+        [[nodiscard]]
+        avx2::vec8f operator()(const avx2::vec8f& Xx) const noexcept {
+            return avx2::erf(Xx);
+        }
+        [[nodiscard]]
+        float operator()(const float Xx) const noexcept {
+            return std::erf(Xx);
+        }
+    };
+
+    struct Sin : KernelBase {
+        [[nodiscard]]
+        avx2::vec8f operator()(const avx2::vec8f& Xx) const noexcept {
+            return avx2::sin(Xx);
+        }
+        [[nodiscard]]
+        float operator()(const float Xx) const noexcept {
+            return std::sin(Xx);
+        }
+    };
+
+    struct Cos : KernelBase {
+        [[nodiscard]]
+        avx2::vec8f operator()(const avx2::vec8f& Xx) const noexcept {
+            return avx2::cos(Xx);
+        }
+        [[nodiscard]]
+        float operator()(const float Xx) const noexcept {
+            return std::cos(Xx);
+        }
+    };
+
+    struct Abs : KernelBase {
+        [[nodiscard]]
+        avx2::vec8f operator()(const avx2::vec8f& Xx) const noexcept {
+            return avx2::abs(Xx);
+        }
+        [[nodiscard]]
+        float operator()(const float Xx) const noexcept {
+            return std::abs(Xx);
+        }
+    };
+
+    struct Neg : KernelBase {
+        [[nodiscard]]
+        avx2::vec8f operator()(const avx2::vec8f& Xx) const noexcept {
+            return avx2::neg(Xx);
+        }
+        [[nodiscard]]
+        float operator()(const float Xx) const noexcept {
+            return -Xx;
+        }
+    };
+
+    struct Rcp : KernelBase {
+        [[nodiscard]]
+        avx2::vec8f operator()(const avx2::vec8f& Xx) const noexcept {
+            return avx2::rcp(Xx);
+        }
+        [[nodiscard]]
+        float operator()(const float Xx) const noexcept {
+            return 1.f / Xx;
+        }
+    };
+
+    struct Sign : KernelBase {
+        [[nodiscard]]
+        avx2::vec8f operator()(const avx2::vec8f& Xx) const noexcept {
+            return avx2::sign(Xx);
+        }
+        [[nodiscard]]
+        float operator()(const float Xx) const noexcept {
+            return tlx::sign(Xx);
+        }
+    };
+
+    struct Inverse : KernelBase {
+        [[nodiscard]]
+        avx2::vec8f operator()(const avx2::vec8f& Xx) const noexcept {
+            return avx2::inverse(Xx);
+        }
+        [[nodiscard]]
+        float operator()(const float Xx) const noexcept {
+            return 1.f / Xx;
         }
     };
 } //namespace cortex::_fw::ops

@@ -3,153 +3,143 @@
 //
 
 #include "CortexMind/framework/Engine/AVX2/wise.hpp"
-
-#include <CortexMind/framework/Engine/AVX2/functions.hpp>
-#include <tlx/math.hpp>
+#include <CortexMind/framework/Engine/Kernels/unary.hpp>
+#include <CortexMind/framework/Engine/Kernels/scalar.hpp>
+#include <CortexMind/framework/Engine/Operations/kernel_ops.hpp>
+#include <CortexMind/framework/Tools/cast.hpp>
+#include <CortexMind/framework/Tools/scratch.hpp>
 #include <algorithm>
-#include <cmath>
 
 using namespace cortex::_fw::avx2;
+using namespace cortex::_fw;
 
-void wise::square(const float *Xx, float *Xz, const std::size_t N) {
-    std::size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, avx2::square(loadu(Xx + i)));
+namespace {
+    template<tlx::extend<ops::KernelBase> OpType>
+    void kernel_t(const TensorView& Xx, TensorView& Xz) {
+        switch (Xx.dtype()) {
+            case DType::Float32: {
+                const auto xx = reinterpret_cast<const float*>(Xx.data());
+                const auto xz = reinterpret_cast<float*>(Xz.data());
+
+                kernels::Unary<OpType>(xx, xz, Xx.size());
+                break;
+            }
+            case DType::BFloat16: {
+                Scratch x1(Xx.size());
+                Scratch x2(Xx.size());
+
+                convert(x1.data(), reinterpret_cast<const tlx::bfloat16 *>(Xx.data()), Xx.size());
+
+                kernels::Unary<OpType>(x1.data(),x2.data(), Xx.size());
+
+                convert(reinterpret_cast<tlx::bfloat16 *>(Xz.data()), x2.data(), Xx.size());
+                break;
+            }
+            case DType::Float16: {
+                Scratch x1(Xx.size());
+                Scratch x2(Xx.size());
+
+                convert(x1.data(), reinterpret_cast<const tlx::half *>(Xx.data()), Xx.size());
+
+                kernels::Unary<OpType>(x1.data(), x2.data(), Xx.size());
+
+                convert(reinterpret_cast<tlx::half *>(Xz.data()), x2.data(), Xx.size());
+                break;
+            }
+            default:
+                WLog(LogLevel::ERROR) << "ScalarOp: unsupported dtype " << as_string(Xx.dtype());
+                std::abort();
+        }
     }
-    for (; i < N; ++i) {
-        Xz[i] = Xx[i] * Xx[i];
+} //unnamed namespace
+
+void wise::square(const TensorView &Xx, TensorView &Xz) {
+    kernel_t<ops::Square>(Xx, Xz);
+}
+
+void wise::pow(const TensorView &Xx, const float value, TensorView &Xz) {
+    switch (Xx.dtype()) {
+        case DType::Float32: {
+            const auto xx = reinterpret_cast<const float*>(Xx.data());
+            const auto xz = reinterpret_cast<float*>(Xz.data());
+
+            kernels::Scalar<ops::Power>(xx, value, xz, Xx.size());
+        }
+        case DType::BFloat16: {
+            Scratch x1(Xx.size());
+            Scratch x2(Xx.size());
+
+            convert(x1.data(), reinterpret_cast<const tlx::bfloat16 *>(Xx.data()), Xx.size());
+
+            kernels::Scalar<ops::Power>(x1.data(), value, x2.data(), Xx.size());
+
+            convert(reinterpret_cast<tlx::bfloat16 *>(Xz.data()), x2.data(), Xx.size());
+        }
+        case DType::Float16: {
+            Scratch x1(Xx.size());
+            Scratch x2(Xx.size());
+
+            convert(x1.data(), reinterpret_cast<const tlx::half *>(Xx.data()), Xx.size());
+
+            kernels::Scalar<ops::Power>(x1.data(), value, x2.data(), Xx.size());
+
+            convert(reinterpret_cast<tlx::half *>(Xz.data()), x2.data(), Xx.size());
+        }
+        default:
+            std::abort();
     }
 }
 
-void wise::pow(const float *Xx, const float value, float *Xz, const std::size_t N) {
-    std::size_t i = 0;
-    const auto val = set1(value);
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, avx2::pow(loadu(Xx + i), val));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = std::pow(Xx[i], value);
-    }
+void wise::pow(const TensorView &Xx, const TensorView &Xy, TensorView &Xz) {
+
 }
 
-void wise::pow(const float *Xx, const float *Xy, float *Xz, const std::size_t N) {
-    std::size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, avx2::pow(loadu(Xx + i), loadu(Xy + i)));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = std::pow(Xx[i], Xy[i]);
-    }
+void wise::sqrt(const TensorView &Xx, TensorView &Xz) {
+    kernel_t<ops::Sqrt>(Xx, Xz);
 }
 
-void wise::sqrt(const float *Xx, float *Xz, const std::size_t N) {
-    std::size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, avx2::sqrt(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = std::sqrt(Xx[i]);
-    }
+void wise::rsqrt(const TensorView &Xx, TensorView &Xz) {
+    kernel_t<ops::RSqrt>(Xx, Xz);
 }
 
-void wise::rsqrt(const float *Xx, float *Xz, const std::size_t N) {
-    std::size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, avx2::rsqrt(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = 1 / std::sqrt(Xx[i]);
-    }
+void wise::log(const TensorView &Xx, TensorView &Xz) {
+    kernel_t<ops::Log>(Xx, Xz);
 }
 
-void wise::log(const float *Xx, float *Xz, const std::size_t N) {
-    std::size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, avx2::log(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = std::log(Xx[i]);
-    }
+void wise::exp(const TensorView &Xx, TensorView &Xz) {
+    kernel_t<ops::Exp>(Xx, Xz);
 }
 
-void wise::exp(const float *Xx, float *Xz, const std::size_t N) {
-    std::size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, avx2::exp(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = std::exp(Xx[i]);
-    }
+void wise::erf(const TensorView &Xx, TensorView &Xz) {
+    kernel_t<ops::Erf>(Xx, Xz);
 }
 
-void wise::erf(const float *Xx, float *Xz, const std::size_t N) {
-    std::size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, avx2::erf(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = std::erf(Xx[i]);
-    }
+void wise::sin(const TensorView &Xx, TensorView &Xz) {
+    kernel_t<ops::Sin>(Xx, Xz);
 }
 
-void wise::sin(const float *Xx, float *Xz, const std::size_t N) {
-    std::size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, avx2::sin(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = std::sin(Xx[i]);
-    }
+void wise::cos(const TensorView &Xx, TensorView &Xz) {
+    kernel_t<ops::Cos>(Xx, Xz);
 }
 
-void wise::cos(const float *Xx, float *Xz, const std::size_t N) {
-    std::size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, avx2::cos(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = std::cos(Xx[i]);
-    }
+void wise::abs(const TensorView &Xx, TensorView &Xz) {
+    kernel_t<ops::Abs>(Xx, Xz);
 }
 
-void wise::abs(const float *Xx, float *Xz, const std::size_t N) {
-    std::size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, avx2::abs(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = std::abs(Xx[i]);
-    }
+void wise::neg(const TensorView &Xx, TensorView &Xz) {
+    kernel_t<ops::Neg>(Xx, Xz);
 }
 
-void wise::neg(const float *Xx, float *Xz, const std::size_t N) {
-    std::size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, avx2::neg(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = -Xx[i];
-    }
+void wise::rcp(const TensorView &Xx, TensorView &Xz) {
+    kernel_t<ops::Rcp>(Xx, Xz);
 }
 
-void wise::rcp(const float *Xx, float *Xz, const std::size_t N) {
-    std::size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, avx2::rcp(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = 1 / Xx[i];
-    }
+void wise::inverse(const TensorView &Xx, TensorView &Xz) {
+    kernel_t<ops::Inverse>(Xx, Xz);
 }
 
-void wise::inverse(const float *Xx, float *Xz, const std::size_t N) {
-    std::size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, avx2::inverse(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = 1 / Xx[i];
-    }
+void wise::sign(const TensorView &Xx, TensorView &Xz) {
+    kernel_t<ops::Sign>(Xx, Xz);
 }
 
 void wise::lerp(const float *Xx, const float value1, const float value2, float *Xz, const std::size_t N) {
@@ -173,16 +163,6 @@ void wise::clamp(const float *Xx, const float min, const float max, float *Xz, c
     }
     for (; i < N; ++i) {
         Xz[i] = std::clamp(Xx[i], min, max);
-    }
-}
-
-void wise::sign(const float *Xx, float *Xz, const std::size_t N) {
-    std::size_t i = 0;
-    for (; i + 8 <= N; i += 8) {
-        storeu(Xz + i, avx2::sign(loadu(Xx + i)));
-    }
-    for (; i < N; ++i) {
-        Xz[i] = tlx::sign(Xx[i]);
     }
 }
 
